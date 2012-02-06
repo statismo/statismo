@@ -1,0 +1,17 @@
+Statismo is a C++ library for generating and manipulating Statistical
+Shape and Image Models. It supports all commonly known types of
+statistical models, including Shape models, Deformation Models and
+Appearance Models. The implementation and interpretation is based on
+Probabilistic PCA, which generalizes the standard PCA models and gives
+a fully probabilistic interpretation.
+
+Main Authors:
+- Marcel Luethi
+- Remi Blanc
+
+Contributors: - Tobias Gass 
+	      - Thomas Albrecht 
+	      - Habib Bou-Sleiman
+
+See the WIKI (github.com/statismo/statismo/wiki) for more information.
+

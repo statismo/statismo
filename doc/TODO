@@ -1,0 +1,25 @@
+High Priority
+-------------
+- Implement functionality that lets the user specify the number of components 
+  that are used when loading a model. 
+- Common base class for vtk representer
+- update documentation for representers
+- Test the implementation with own use cases.
+- Write a document that specifies the file format.
+- Test installation for standalone vnl version. 
+- Statistical model transform does not yet work for PointSets as the TransformPoint is only  valid for deformations. 
+ - Implement represnter for itk pointset
+
+Medium Priority
+----------------
+- Add Logging functionality to library
+- The user should be able to choose between double and float precision in building models
+- The HDF5 Utilities are written for a fixed type (float or double). We should make it dependent on the InternalMatrixType
+- Wrappings may contain memory leaks
+
+Low Priority
+------------
+
+
+Points for discussion
+-------------------

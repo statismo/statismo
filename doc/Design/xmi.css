@@ -1,0 +1,170 @@
+h1 {
+	font-family : Verdana, Arial, Helvetica;
+	font-size : 15pt;
+	font-weight : bold;
+	color : #333366;
+}
+
+.class-title {
+	background-color:#9999cc;
+	color : #ffffff;
+	font-family : Verdana, Helvetica;
+ 	font-size : 12pt;
+	font-weight : bold;
+}
+
+.class-name {
+	background-color:#ffffe0;
+	color : #6633cc;
+	font-family : Verdana, Helvetica;
+ 	font-size : 12pt;
+	font-weight : bold;
+}
+
+
+.interface-title {
+	background-color:#9999cc;
+	color : #ffffff;
+	font-family : Verdana, Helvetica;
+ 	font-size : 12pt;
+	font-weight : bold;
+}
+
+.interface-name {
+	background-color:#ffffe0;
+	color : #6633cc;
+	font-family : Verdana, Helvetica;
+ 	font-size : 12pt;
+	font-weight : bold;
+	font-style : italic;
+}
+
+.info-title { 
+	background-color:#f0f0f0;
+	color : #888888;
+	font-family : Verdana, Helvetica;
+ 	font-size : 11pt;
+	font-weight : bold;
+	text-align : left;
+}
+
+.info { 
+	background-color:#f0f0f0;
+	color : #000000;
+	font-family : Verdana, Helvetica;
+ 	font-size : 10pt;
+	text-align : left;
+}
+
+
+.class-feature { 
+	background-color:#f0f0f0;
+	color : #848484;
+	font-family : Verdana, Helvetica;
+ 	font-size : 12pt;
+	font-weight : bold;
+	text-align : left;
+}
+
+.feature-heading {
+	color : #000099;
+	background-color:#ffffe0;
+	font-family : Verdana, Helvetica;
+	font-weight : bold;
+	font-size : 10pt;
+}
+
+.feature-detail { 
+	color : #000000;
+	background-color:#ffffff;
+	font-family : Verdana, Helvetica;
+ 	font-size : 10pt;
+	text-align : left;
+}
+
+.comment {
+       color : #555555;
+       background-color:#ffffff;
+       font-family : Verdana, Helvetica;
+       font-size : 10pt;
+       text-align : left;
+       font-style : italic;
+}
+
+
+.datatype {
+	color : blue;
+}
+
+a.classifier:link {
+	color : blue;
+}
+
+a.classifier:visited {
+	color : blue;
+}
+
+a.interface:link {
+	color : blue;
+	font-style : italic;
+}
+
+a.interface:visited {
+	color : blue;
+	font-style : italic;
+}
+
+a.index-class:link {
+	font-family : Helvetica;
+	color : blue;
+	text-decoration : none;
+}
+
+a.index-class:visited {
+	font-family : Helvetica;
+	color : blue;
+	text-decoration : none;
+}
+
+a.index-interface:link {
+	color : blue;
+	font-style : italic;
+	text-decoration : none;
+}
+
+a.index-interface:visited {
+	color : blue;
+	font-style : italic;
+	text-decoration : none;
+}
+
+.index-title {
+	color : #000080;
+	font-family : Verdana, Helvetica;
+ 	font-size : 12pt;
+	font-weight : bold;
+}
+
+.parameter-heading {
+	color : #000099;
+	background-color: #f0f0f0;
+	font-family : Verdana, Helvetica;
+	font-weight : bold;
+	font-size : 10pt;
+}
+
+.property-name {
+        font-family : Verdana, Arial, Helvetica;
+        font-size : 8pt;
+        font-weight : bold;
+        color : Black;
+}
+
+.toc {
+color : #000099;
+background-color: #f0f0f0;
+font-family : Verdana, Helvetica;
+font-weight : normal;
+font-size : 10pt;
+}
+

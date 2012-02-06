@@ -1,0 +1,39 @@
+Installation on Windows
+-----------------------
+
+Prerequisites:
+- Download the latest source code from the svn. 
+- Install vnl (Its tested with the vnl version coming with ITK 3.20, but any other version should do)
+- Install vtk (tested with vtk 5.6, but any other reasonably recent version should do)
+- Install hdf5 (tested with 1.8.7 but any other reasonably recent version should do)
+IMPORTANT NOTE: There is a static and a shared version of HDF5. Make sure you install the shared one, as otherwise
+you will get compiler errors. 
+
+Compiling:
+In the following CoMeSSM refers to the diretory of your CoMeSSM tree
+1) Run CMake
+2) Choose as a source directory CoMeSSM/src/Applications  (Don't choose the top directory, as it will also try to build the Python Wrappers)
+3) Choose a build directory
+4) Run configure
+5) You will now be prompted to enter a few additional source Paths:
+   - STATISTICAL_MODEL_DIR: choose CoMeSSM/src/StatisticalModel
+   - VTK_DIR: The lib/vtk-5.x directory of your vtk installation
+   - VNL_INCLUDE_DIR: The include dir of your vnl installation. If you use the vnl version that comes with ITK choose (ITK_INCLUDE_DIR/Utilities/vxl)
+   - VNL_LIBRARY_DIR: The library dir of your vnl installation. If you use the vnl version that comes with ITK choose (ITK_LIB_DIR)
+    - HDF_INCLUDE_DIR: The directory where your hdf5 headers reside
+    - HDF_LIBRARY_DIR: The directory where your hdf5 libs are
+6) Run configure
+7) run generate
+8) Open and build the generated project with Visual Studio
+IMPORTANT NOTE: You need to build the RELEASE version of CoMeSSM, as the DEBUG version does not work with the HDF5 libraries.
+
+Compiling with Python Support
+The library can be used from Python, using automatically generated Swig Wrappers. To enable that, you will need to 
+install SWIG on Windows and compile the project as above, but this time from the directory CoMeSSM/Wrapping.
+More detailed instructions will follow. 
+
+Running:
+Once you've successfully built the project, you can try to run the example program.
+Run: BasicUsage DataDir ResultDir
+DataDir is the directory in the source tree that contains the example Data, e.g. CoMeSSM/data
+ResultDir is an arbitrary output directory.

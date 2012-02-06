@@ -1,0 +1,195 @@
+/*
+ * This file is part of the statismo library.
+ *
+ * Author: Marcel Luethi (marcel.luethi@unibas.ch)
+ *
+ * Copyright (c) 2011 University of Basel
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * Neither the name of the project's author nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
+
+#ifndef HDF5UTILS_H_
+#define HDF5UTILS_H_
+
+#include "CommonTypes.h"
+
+
+namespace H5 {
+class CommonFG;
+class Group;
+}
+
+namespace statismo {
+
+/**
+ * \brief Utility methods to read and store common types to a HDF5 File.
+ */
+class HDF5Utils {
+public:
+
+	/**
+	 * Read a Matrix from a HDF5 File
+	 * @param fg The group
+	 * @param name the name of the entry
+	 * @param the output matrix
+	 */
+	static void readMatrix(const H5::CommonFG& fg, const char* name, MatrixType& matrix);
+
+	/**
+	 * Read a submatrix from the file, with the given number of Columns
+	 * @param fg The group
+	 * @param name the name of the entry
+	 * @param nCols the number of columns to be read
+	 * @param the output matrix
+	 */
+	static void readMatrix(const H5::CommonFG& fg, const char* name, unsigned nCols, MatrixType& matrix);
+
+
+	/**
+	 * Write a Matrix to the HDF5 File
+	 * @param fg The group
+	 * @param name the name of the entry
+	 * @param the matrix to be written
+	 */
+	static void writeMatrix(const H5::CommonFG& fg, const char* name, const MatrixType& matrix);
+
+	/**
+	 * Read a Vector from a HDF5 File with the given number of elements
+	 * @param fg The group
+	 * @param name the name of the entry
+	 * @param numElements The number of elements to be read from the file
+	 * @param the output vector
+	 */
+	static void readVector(const H5::CommonFG& fg, const char* name, unsigned nElements, VectorType& vector);
+
+	/**
+	 * Read a Vector from a HDF5 File
+	 * @param fg The group
+	 * @param name the name of the entry
+	 * @param numElements The number of elements to be read from the file
+	 * @param the output vector
+	 */
+	static void readVector(const H5::CommonFG& fg, const char* name, VectorType& vector);
+
+
+	/**
+	 * Write a vector to the HDF5 File
+	 * @param fg The hdf5 group
+	 * @param name the name of the entry
+	 * @param the vector to be written
+	 */
+	static void writeVector(const H5::CommonFG& fg, const char* name, const VectorType& vector);
+
+	/**
+	 * Reads a file (in binary mode) and saves it as a byte array in the hdf5 file.
+	 * @param filename The filename of the file to be stored
+	 * @param fg The hdf5 group
+	 * @param name The name of the entry
+	 */
+	static void dumpFileToHDF5( const char* filename, const H5::CommonFG& fg, const char* name);
+
+	/**
+	 * Reads an entry from an HDF5 byte array and writes it to a file
+	 * @param fg The hdf5 group
+	 * @param name the name of the entry
+	 * @param filename The filename where the data from the HDF5 file is stored.
+	 */
+	static void getFileFromHDF5(const H5::CommonFG& fg, const char* name, const char* filename);
+
+	/** Writes a string to the hdf5 file
+	 * @param fg The hdf5 group
+	 * @param name The name of the entry in the group
+	 * @param s The string to be written
+	 */
+	static void writeString(const H5::CommonFG& fg, const char* name, const std::string& s);
+
+	/** Reads a string from the given group
+	 * @param group the hdf5 group
+	 * @param name the name of the entry in the group
+	 * @return the string
+	 */
+	static std::string readString(const H5::CommonFG& fg, const char* name);
+
+	/** Writes a string attribute for the given group
+	 * @param fg The hdf5 group
+	 * @param name The name of the entry in the group
+	 * @param s The string to be written
+	 */
+	static void writeStringAttribute(const H5::Group& group, const char* name, const std::string& s);
+
+	/** Reads a string attribute from the given group
+	 * @param group the hdf5 group
+	 * @param name the name of the entry in the group
+	 * @return the value
+	 */
+	static std::string readStringAttribute(const H5::Group& group, const char* name);
+
+	/** Reads an integer from the hdf5 file
+	 * @param fg The hdf5 group
+	 * @param name The name
+	 * @returns the integeter
+	 */
+	static int readInt(const H5::CommonFG& fg, const char* name);
+
+	/** Writes an integer to the hdf5 file
+	 * @param fg The hdf5 group
+	 * @param name The name
+	 * @param value The value to be written
+	 */
+	static void writeInt(const H5::CommonFG& fg, const char* name, int value);
+
+	/** Reads an dobule from the hdf5 file
+	 * @param fg The hdf5 group
+	 * @param name The name
+	 * @returns the read number
+	 */
+	static float readFloat(const H5::CommonFG& fg, const char* name);
+
+	/** Writes an double to the hdf5 file
+	 * @param fg The hdf5 group
+	 * @param name The name
+	 * @param value The value to be written
+	 */
+	static void writeFloat(const H5::CommonFG& fg, const char* name, float value);
+
+
+
+};
+
+} // namespace statismo
+
+#include "HDF5Utils.cxx"
+
+
+
+#endif /* HDF5UTILS_H_ */
+
+
