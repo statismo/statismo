@@ -110,31 +110,30 @@ void itkExample(const char* reference, const char* dir, const char* modelname) {
 int main(int argc, char* argv[]) {
 
 	if (argc < 4) {
-		std::cout << "usage " << argv[0] << " referende dir modelname" << std::endl;
+		std::cout << "usage " << argv[0] << " referenceDeformationField deformationFieldDir modelname" << std::endl;
 		exit(-1);
 	}
 
-	char* reference = argv[1];
-	char* dir = argv[2];
-	char* modelname = argv[3];
+	const char* reference = argv[1];
+	const char* dir = argv[2];
+	const char* modelname = argv[3];
 
-    itk::ImageIOBase::Pointer imageIO =
-        itk::ImageIOFactory::CreateImageIO(
-                                           reference, itk::ImageIOFactory::ReadMode);
+	itk::ImageIOBase::Pointer imageIO =
+	  itk::ImageIOFactory::CreateImageIO(reference, itk::ImageIOFactory::ReadMode);
  
-    imageIO->SetFileName(reference);
-    imageIO->ReadImageInformation();
-    const size_t numDimensions =  imageIO->GetNumberOfDimensions();
+	imageIO->SetFileName(reference);
+	imageIO->ReadImageInformation();
+	const size_t numDimensions =  imageIO->GetNumberOfDimensions();
     
-    if (numDimensions==2){
-    	itkExample<RepresenterType2D, VectorImageType2D>(reference, dir, modelname);
-    }
-    else if (numDimensions==3){
-        itkExample<RepresenterType3D, VectorImageType3D>(reference, dir, modelname);
-     }
-    else{
-        assert(0);
-    }
+	if (numDimensions==2){
+	  itkExample<RepresenterType2D, VectorImageType2D>(reference, dir, modelname);
+	}
+	else if (numDimensions==3){
+	  itkExample<RepresenterType3D, VectorImageType3D>(reference, dir, modelname);
+	}
+	else{
+	  assert(0);
+	}
 
 	std::cout << "Model building is completed successfully." << std::endl;
 }

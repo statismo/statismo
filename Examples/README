@@ -1,0 +1,23 @@
+C++ example programs that illustrate the basic functionality of statismo. 
+The examples illustrate the use of Statismo together with VTK and ITK: 
+
+Compiling the examples:
+-----------------------
+The examples can be built using CMake:
+cd YOUR_BUILD_DIR
+ccmake STATISMO_DIR/Examples/VTK
+or 
+ccmake STATISMO_DIR/Examples/ITK
+
+In the configuration you will have to specify the path to 
+Statismo, and the path to your installation of the HDF5 library
+(http://www.hdfgroup.org/HDF5/). 
+
+Depending on which examples you build, you will also have to have VTK (www.vtk.org) or ITK (www.itk.org) installed. 
+
+Running the examples
+--------------------
+Once you have compiled the examples, you can run them on the example data
+provided in the STATISMO_DIR/data folder. 
+
+

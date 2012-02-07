@@ -1,0 +1,4 @@
+This data contains shapes (polydata), images and deformation fields of
+2D hand shapes. All the data is in correspondence, and can be used direclty to build simple shape, image and deformation models. 
+
+See the Example folder for different example programs using this data. 

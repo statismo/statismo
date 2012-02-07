@@ -1,0 +1,4 @@
+This folder contains simple Wrapper classes, that allow the seamless integration of statismo into ITK. 
+
+All the statismo classes have been wrapped with corresponding ITK classes, such that all the ITK mechanisms and functionality (e.g. SmartPointers, wrapITK, etc.) become available.
+

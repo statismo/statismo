@@ -1,0 +1,6 @@
+Code to generate the Python Wrappers for Statismo. 
+Wrappers have been written the use of Statismo with VTK and ITK. 
+The Wrapping for VTK is generated using SWIG, while the ITK Wrapping
+uses the wrapITK. 
+
+To build the wrappings, run CMake in the respective subdirectory.

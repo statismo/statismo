@@ -75,20 +75,20 @@ int main(int argc, char** argv) {
 
 	try {
 
-		auto_ptr<RepresenterType> representer(RepresenterType::Create(datadir +"/hand-0.vtk"));
+		auto_ptr<RepresenterType> representer(RepresenterType::Create(datadir +"hand_images/hand-0.vtk"));
 
 		// We use the SurrogateDataManager, as we need to specify surrogate data in addition to the images.
 		// We provide in addition to the representer also a file that contains a description of the surrogate
 		// variables (e.g. whether they are categorical or continuous). See the API doc for more details.
 		auto_ptr<DataManagerWithSurrogatesType> dataManager(DataManagerWithSurrogatesType::Create(representer.get(),
-															datadir +"/hand_surrogates_types.txt"));
+													  datadir +"hand_images/surrogates/hand_surrogates_types.txt"));
 
 		// add the data information. The first argument is the dataset, the second the surrogate information
 		// and the 3rd the surrogate type
-		dataManager->AddDatasetWithSurrogates(datadir +"/hand-0.vtk",datadir +"/hand-0_surrogates.txt");
-		dataManager->AddDatasetWithSurrogates(datadir +"/hand-1.vtk",datadir +"/hand-1_surrogates.txt");
-		dataManager->AddDatasetWithSurrogates(datadir +"/hand-2.vtk",datadir +"/hand-2_surrogates.txt");
-		dataManager->AddDatasetWithSurrogates(datadir +"/hand-3.vtk",datadir +"/hand-3_surrogates.txt");
+		dataManager->AddDatasetWithSurrogates(datadir +"/hand_images/hand-0.vtk",datadir +"hand_images/surrogates/hand-0_surrogates.txt");
+		dataManager->AddDatasetWithSurrogates(datadir +"/hand_images/hand-1.vtk",datadir +"hand_images/surrogates/hand-1_surrogates.txt");
+		dataManager->AddDatasetWithSurrogates(datadir +"/hand_images/hand-2.vtk",datadir +"hand_images/surrogates/hand-2_surrogates.txt");
+		dataManager->AddDatasetWithSurrogates(datadir +"/hand_images/hand-3.vtk",datadir +"hand_images/surrogates/hand-3_surrogates.txt");
 
 		// Build up a list holding the conditioning information.
 		typedef ConditionalModelBuilder<RepresenterType> ConditionalModelBuilderType;
@@ -102,9 +102,9 @@ int main(int argc, char** argv) {
 		std::auto_ptr<ConditionalModelBuilderType> modelBuilder(ConditionalModelBuilderType::Create());
 
 		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleData(),
-																		 dataManager->GetSurrogateTypes(),
-																 		 conditioningInfo,
-																 		 0.1));
+										 dataManager->GetSurrogateTypes(),
+										 conditioningInfo,
+										 0.1));
 		std::cout << "successfully built conditional model" << std::endl;
 
 		// The resulting model is a normal statistical model, from which we could for example sample examples.

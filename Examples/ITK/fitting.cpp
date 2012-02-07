@@ -119,7 +119,7 @@ private:
 int main(int argc, char* argv[]) {
 
 	if (argc < 5) {
-		std::cout << "usage " << argv[0] << " modelname reference target outdf" << std::endl;
+		std::cout << "usage " << argv[0] << " modelname reference target output-df" << std::endl;
 		exit(-1);
 	}
 
