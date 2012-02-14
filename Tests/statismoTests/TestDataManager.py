@@ -76,8 +76,8 @@ class Test(unittest.TestCase):
             self.assertTrue((sample.GetSampleVector() == newSample.GetSampleVector()).all() == True)
 
     def testLoadSaveSurrogateData(self):
-        datamanager =  statismo.DataManagerWithSurrogates_vtkPD.Create(self.representer, os.path.join(DATADIR, "..", "hand_surrogates_types.txt"))
-        datamanager.AddDatasetWithSurrogates(os.path.join(DATADIR, "hand-1.vtk"), os.path.join(DATADIR, "..", "hand-1_surrogates.txt"))
+        datamanager =  statismo.DataManagerWithSurrogates_vtkPD.Create(self.representer, os.path.join(DATADIR, "..", "hand_images", "surrogates", "hand_surrogates_types.txt"))
+        datamanager.AddDatasetWithSurrogates(os.path.join(DATADIR, "hand-1.vtk"), os.path.join(DATADIR, "..", "hand_images", "surrogates", "hand-1_surrogates.txt"))
         tmpfile = tempfile.mktemp(suffix="h5")
         datamanager.Save(tmpfile)
         datamanager_new = statismo.DataManagerWithSurrogates_vtkPD.Load(tmpfile)
