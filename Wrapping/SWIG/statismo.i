@@ -60,6 +60,7 @@
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/Exceptions.h"
 #include <list>
+#include <string>
 %}
 
 
@@ -236,12 +237,14 @@ private:
 //////////////////////////////////////////////////////
 // ModelInfo
 //////////////////////////////////////////////////////
+
 namespace statismo { 
 class ModelInfo {
 public:
-
-	typedef std::list<KeyValuePair> DataInfoList;
-	typedef std::list<KeyValuePair> BuilderInfoList;
+	typedef std::pair<std::string, std::string> KeyValuePair;
+	typedef std::list<KeyValuePair> KeyValuePairList;
+	typedef KeyValuePairList DataInfoList;
+	typedef KeyValuePairList BuilderInfoList;
 
 	ModelInfo();
 	const statismo::MatrixType& GetScoresMatrix() const;
@@ -250,6 +253,8 @@ public:
 	const DataInfoList& GetDataInfo() const;
 };
 }
+%template (KeyValuePair) std::pair<std::string, std::string>; 
+%template(KeyValuePairList) std::list<std::pair<std::string, std::string> >;
 
 //////////////////////////////////////////////////////
 // StatisticalModel

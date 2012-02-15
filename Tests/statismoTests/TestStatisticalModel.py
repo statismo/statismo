@@ -110,6 +110,15 @@ class Test(unittest.TestCase):
         # check model info
         scores = self.model.GetModelInfo().GetScoresMatrix()
         newScores = newModel.GetModelInfo().GetScoresMatrix()
+
+        di = self.model.GetModelInfo().GetDataInfo()
+        newDi = newModel.GetModelInfo().GetDataInfo()
+        self.assertEqual(len(di), len(newDi))
+        
+        for (sortedDi, sortedNewDi) in zip(sorted(di), sorted(newDi)):
+            self.assertEqual(sortedDi[0], sortedNewDi[0])
+            self.assertEqual(sortedDi[1], sortedNewDi[1])
+
         
         self.assertTrue(((scores - newScores) < 1e-3).all())
  
@@ -118,6 +127,7 @@ class Test(unittest.TestCase):
         self.assertEqual(newModelSub.GetNumberOfPrincipalComponents(), 2)
         self.assertTrue((newModelSub.GetPCAVarianceVector()[0:1] == self.model.GetPCAVarianceVector()[0:1]).all)
         self.assertTrue((newModelSub.GetPCABasisMatrix()[:,0:1] == self.model.GetPCABasisMatrix()[:,0:1]).all())
+
 
     def testDatasetToSample(self):
         """ Checks wheter DatasetToSample applied to a Sample returns the same sample """

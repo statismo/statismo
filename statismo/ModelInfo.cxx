@@ -110,13 +110,29 @@ ModelInfo::Load(const H5::CommonFG& publicFg) {
 	}
 
 	 Group dataInfoPublic = publicModelGroup.openGroup("./dataInfo");
-	 unsigned numEntries = dataInfoPublic.getNumObjs();
-	 for (unsigned i = 0; i < numEntries; i++) {
-			HDF5Utils::readString(dataInfoPublic, dataInfoPublic.getObjnameByIdx(i).c_str());
-	 }
+	 FillKeyValueListFromInfoGroup(dataInfoPublic, m_dataInfo);
 	 dataInfoPublic.close();
+
+	 Group builderInfoPublic = publicModelGroup.openGroup("./builderInfo");
+	 FillKeyValueListFromInfoGroup(builderInfoPublic, m_builderInfo);
+	 builderInfoPublic.close();
+
+
 	 publicModelGroup.close();
 }
+
+inline
+void
+ModelInfo::FillKeyValueListFromInfoGroup(const H5::CommonFG& group, KeyValueList& keyValueList) {
+	keyValueList.clear();
+	unsigned numEntries = group.getNumObjs();
+	for (unsigned i = 0; i < numEntries; i++) {
+		H5std_string key = group.getObjnameByIdx(i);
+		std::string value = HDF5Utils::readString(group, key.c_str());
+		keyValueList.push_back(std::make_pair(key, value));
+	}
+}
+
 
 } // end namespace
 

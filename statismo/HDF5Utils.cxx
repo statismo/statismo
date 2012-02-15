@@ -163,7 +163,7 @@ void HDF5Utils::writeVector(const H5::CommonFG& fg, const char* name, const Vect
 
 inline
 void HDF5Utils::writeString(const H5::CommonFG& fg, const char* name, const std::string& s) {
-	StrType fls_type(0, s.length()); // 0 is a dummy argument
+	StrType fls_type(PredType::C_S1, s.length() + 1); // + 1 for trailing zero
 	DataSet ds = fg.createDataSet(name, fls_type, DataSpace(H5S_SCALAR));
 	ds.write(s, fls_type);
 }
@@ -180,7 +180,7 @@ HDF5Utils::readString(const H5::CommonFG& fg, const char* name) {
 
 inline
 void HDF5Utils::writeStringAttribute(const H5::Group& fg, const char* name, const std::string& s) {
-	StrType strdatatype(0, s.length());
+	StrType strdatatype(PredType::C_S1, s.length() + 1 ); // + 1 for trailing 0
 	Attribute att = fg.createAttribute(name, strdatatype, DataSpace(H5S_SCALAR));
 	att.write(strdatatype, s);
 	att.close();

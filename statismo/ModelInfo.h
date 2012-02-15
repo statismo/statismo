@@ -56,8 +56,11 @@ namespace statismo {
 class ModelInfo {
 public:
 	typedef std::pair<std::string, std::string> KeyValuePair;
-	typedef std::list<KeyValuePair> DataInfoList;
-	typedef std::list<KeyValuePair> BuilderInfoList;
+	typedef std::list<KeyValuePair> KeyValueList;
+
+	// Currently all the info entries are just simple list of string pairs.
+	typedef KeyValueList DataInfoList;
+	typedef KeyValueList BuilderInfoList;
 
 	/// create an new, empty model info object
 	ModelInfo()
@@ -111,6 +114,9 @@ public:
 	const DataInfoList& GetDataInfo() const { return m_dataInfo; }
 
 private:
+
+	void FillKeyValueListFromInfoGroup(const H5::CommonFG& group, KeyValueList& keyValueList);
+
 	MatrixType m_scores;
 	DataInfoList m_dataInfo;
 	BuilderInfoList m_builderInfo;
