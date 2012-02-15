@@ -165,35 +165,35 @@ inline
 void HDF5Utils::writeString(const H5::CommonFG& fg, const char* name, const std::string& s) {
 	StrType fls_type(0, s.length()); // 0 is a dummy argument
 	DataSet ds = fg.createDataSet(name, fls_type, DataSpace(H5S_SCALAR));
-	ds.write(s.data(), fls_type);
+	ds.write(s, fls_type);
 }
+
 
 inline
 std::string
 HDF5Utils::readString(const H5::CommonFG& fg, const char* name) {
-	StrType strdatatype(PredType::C_S1, 256);
-	char strreadbuf[256];
-	DataSet ds = fg.openDataSet(name);
-	ds.read(strreadbuf, strdatatype);
-	return std::string(strreadbuf);
+    H5std_string outputString;
+    DataSet ds = fg.openDataSet(name);
+    ds.read(outputString, ds.getStrType());
+    return outputString;
 }
 
 inline
 void HDF5Utils::writeStringAttribute(const H5::Group& fg, const char* name, const std::string& s) {
-	StrType strdatatype(PredType::C_S1, 256);
+	StrType strdatatype(0, s.length());
 	Attribute att = fg.createAttribute(name, strdatatype, DataSpace(H5S_SCALAR));
-	att.write(strdatatype, s.data());
+	att.write(strdatatype, s);
 	att.close();
 }
 
 inline
 std::string
 HDF5Utils::readStringAttribute(const H5::Group& fg, const char* name) {
-	StrType strdatatype(PredType::C_S1, 256);
-	char strreadbuf[256];
+	H5std_string outputString;
+
 	Attribute myatt_out = fg.openAttribute(name);
-	myatt_out.read(strdatatype, strreadbuf);
-	return std::string(strreadbuf);
+	myatt_out.read(myatt_out.getStrType(), outputString);
+	return outputString;
 }
 
 inline
