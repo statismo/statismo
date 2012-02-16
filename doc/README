@@ -1,0 +1,4 @@
+#Documentation
+
+To build the API Documentation, go to the folder ./classdoc
+and run doxygen
