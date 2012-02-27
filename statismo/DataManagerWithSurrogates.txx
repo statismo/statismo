@@ -71,8 +71,8 @@ template <typename Representer>
 void
 DataManagerWithSurrogates<Representer>::AddDatasetWithSurrogates(const std::string& datasetFilename, const std::string& surrogateFilename) {
 
-	assert(m_representer != 0);
-	assert(m_surrogateTypes.size() > 0);
+	assert(this->m_representer != 0);
+	assert(this->m_surrogateTypes.size() > 0);
 
 	DatasetPointerType ds = Representer::ReadDataset(datasetFilename.c_str());
 	const VectorType& surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
