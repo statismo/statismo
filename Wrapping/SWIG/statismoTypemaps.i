@@ -39,6 +39,11 @@
 
 	%{
 	#include "vtkPythonUtil.h"
+#if (VTK_MAJOR_VERSION > 5 ||((VTK_MAJOR_VERSION == 5)&&(VTK_MINOR_VERSION > 6)))
+#define vtkPythonGetObjectFromPointer vtkPythonUtil::GetObjectFromPointer
+#define vtkPythonGetPointerFromObject vtkPythonUtil::GetPointerFromObject
+#endif
+
 	#define SWIG_FILE_WITH_INIT
 	%}
 	%include "numpy.i"
@@ -104,7 +109,7 @@
 	// the typecheck is needed to disambiguate overloaded function
 	%typecheck(SWIG_TYPECHECK_POINTER) vtkPolyData * {
 	  vtkPolyData *ptr;
-	  if (dynamic_cast<vtkPolyData*>(vtkPythonUtil::GetPointerFromObject($input, "vtkPolyData")) == 0) {
+	  if (dynamic_cast<vtkPolyData*>(vtkPythonGetPointerFromObject($input, "vtkPolyData")) == 0) {
 	    $1 = 0;
 	    PyErr_Clear();
 	  } else {
@@ -126,18 +131,18 @@
 	// convert vtkPolyData To Corresponding type
 	%typemap (in) vtkPolyData*
 	{
-	    $1 =  static_cast<vtkPolyData*>(vtkPythonUtil::GetPointerFromObject($input, "vtkPolyData"));
+	    $1 =  static_cast<vtkPolyData*>(vtkPythonGetPointerFromObject($input, "vtkPolyData"));
 	}
 	%typemap (out) const vtkPolyData*
 	{
 	PyImport_ImportModule("vtk");
-	    $result =  vtkPythonUtil::GetObjectFromPointer((vtkPolyData*) $1);
+	    $result =  vtkPythonGetObjectFromPointer((vtkPolyData*) $1);
 	}
 
 	%typemap (out) vtkPolyData*
 	{
 	PyImport_ImportModule("vtk");
-	    $result =  vtkPythonUtil::GetObjectFromPointer((vtkPolyData*) $1);
+	    $result =  vtkPythonGetObjectFromPointer((vtkPolyData*) $1);
 	}
 	
 
@@ -145,7 +150,7 @@
 	// the typecheck is needed to disambiguate char* from vtkPolyData* in overloaded method
 	%typecheck(SWIG_TYPECHECK_POINTER) vtkPolyData * {
 	  vtkPolyData *ptr;
-	  if (dynamic_cast<vtkPolyData*>(vtkPythonUtil::GetPointerFromObject($input, "vtkPolyData")) == 0) {
+	  if (dynamic_cast<vtkPolyData*>(vtkPythonGetPointerFromObject($input, "vtkPolyData")) == 0) {
 	    $1 = 0;
 	    PyErr_Clear();
 	  } else {
@@ -157,18 +162,18 @@
 	// convert vtkStructuredPoints To Corresponding type
 	%typemap (in) vtkStructuredPoints*
 	{
-	    $1 =  static_cast<vtkStructuredPoints*>(vtkPythonUtil::GetPointerFromObject($input, "vtkStructuredPoints"));
+	    $1 =  static_cast<vtkStructuredPoints*>(vtkPythonGetPointerFromObject($input, "vtkStructuredPoints"));
 	}
 	%typemap (out) const vtkStructuredPoints*
 	{
 	PyImport_ImportModule("vtk");
-	    $result =  vtkPythonUtil::GetObjectFromPointer((vtkStructuredPoints*) $1);
+	    $result =  vtkPythonGetObjectFromPointer((vtkStructuredPoints*) $1);
 	}
 	
 	// the typecheck is needed to disambiguate char* from vtkStructuredPoints* in overloaded method
 	%typecheck(SWIG_TYPECHECK_POINTER) vtkStructuredPoints * {
 	  vtkStructuredPoints *ptr;
-	  if (dynamic_cast<vtkStructuredPoints*>(vtkPythonUtil::GetPointerFromObject($input, "vtkStructuredPoints")) == 0) {
+	  if (dynamic_cast<vtkStructuredPoints*>(vtkPythonGetPointerFromObject($input, "vtkStructuredPoints")) == 0) {
 	    $1 = 0;
 	    PyErr_Clear();
 	  } else {
