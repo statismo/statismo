@@ -321,6 +321,7 @@ public:
 	 unsigned GetNumberOfPrincipalComponents();	 	
 	 statismo::VectorType DrawInstanceVector(const statismo::VectorType& coefficients) const;
 	 const statismo::MatrixType& GetPCABasisMatrix() const ;
+	 const statismo::MatrixType GetOrthonormalPCABasisMatrix() const ;
 	 const statismo::VectorType& GetPCAVarianceVector() const;
 	 const statismo::VectorType& GetMeanVector() const;	 	 
 
