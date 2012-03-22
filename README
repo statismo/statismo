@@ -15,3 +15,6 @@ Contributors: - Tobias Gass
 
 See the WIKI (github.com/statismo/statismo/wiki) for more information.
 
+License:
+Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. 
+Most notably, these are Eigen, Boost and HDF5. You will find a copy of the respective license agreements in the folder ./3rdParty. 
