@@ -40,6 +40,8 @@
 #define ITKMODELBUILDER_H_
 
 #include "itkObject.h"
+#include "itkObjectFactory.h"
+
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
 #include "statismo/PCAModelBuilder.h"

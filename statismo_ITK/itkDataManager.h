@@ -42,6 +42,7 @@
 #include <boost/tr1/functional.hpp>
 
 #include "itkObject.h"
+#include "itkObjectFactory.h"
 #include "statismo/DataManager.h"
 
 namespace itk

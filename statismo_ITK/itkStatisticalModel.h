@@ -38,9 +38,13 @@
 #ifndef ITKSTATISTICALMODEL_H_
 #define ITKSTATISTICALMODEL_H_
 
-
-#include "statismo/StatisticalModel.h"
 #include "itkObject.h"
+#include "itkObjectFactory.h"
+
+#include <vnl/vnl_matrix.h>
+#include <vnl/vnl_vector.h>
+#include "statismo/StatisticalModel.h"
+
 #include <boost/tr1/functional.hpp>
 
 namespace itk
