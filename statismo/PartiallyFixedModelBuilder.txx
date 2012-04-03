@@ -99,7 +99,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 
 	unsigned i = 0;
 	for (typename PointValueListType::const_iterator it = pointValues.begin(); it != pointValues.end(); ++it) {
-		VectorType val = representer->ValueToPointSample(it->second);
+		VectorType val = representer->PointSampleToPointSampleVector(it->second);
 		unsigned pt_id = representer->GetPointIdForPoint(it->first);
 		for (unsigned d = 0; d < dim; d++) {
 			PCABasisPart.row(i * dim + d) = pcaBasisMatrix.row(Representer::MapPointIdToInternalIdx(pt_id, d));
@@ -131,7 +131,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 	VectorType coeffs = Minv.cast<ScalarType>() * WT * (samplePart - muPart);
 
 	// the MAP solution in the sample space
-	VectorType newMean = inputModel->GetRepresenter()->DatasetToSampleVector(inputModel->DrawInstance(coeffs));
+	VectorType newMean = inputModel->GetRepresenter()->SampleToSampleVector(inputModel->DrawInstance(coeffs));
 
 	// We note that the posterior distribution can again be seen as  PPCA model
 	// (i.e. any sample S  can be written in the form S =  mu + W alpha + epsilon)
@@ -178,7 +178,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 
 	unsigned pt_no = 0;
 	for (typename PointValueListType::const_iterator it = pointValues.begin(); it != pointValues.end(); ++it) {
-		VectorType val = representer->ValueToPointSample(it->second);
+		VectorType val = representer->PointSampleToPointSampleVector(it->second);
 
 		// TODO we looked up the PointId for the same point before. Having it here again is inefficient.
 		unsigned pt_id = representer->GetPointIdForPoint(it->first);

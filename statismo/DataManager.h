@@ -112,6 +112,7 @@ class DataManager {
 
 public:
 	typedef Representer RepresenterType;
+
 	typedef SampleData<Representer> SampleDataType;
 	typedef SampleDataWithSurrogates<Representer> SampleDataWithSurrogatesType;
 	typedef std::list<const SampleDataType*> SampleDataListType;

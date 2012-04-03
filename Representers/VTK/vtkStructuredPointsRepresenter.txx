@@ -112,8 +112,18 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::Load(const H5::CommonFG&
 
 
 template <class TPrecision, unsigned Dimensions>
+typename vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetPointerType
+vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetToSample(DatasetConstPointerType dataset, DatasetInfo* notUsed) const
+{
+	// for this representer, a dataset is always the same as a sample
+	vtkStructuredPoints* clone = vtkStructuredPoints::New();
+	clone->DeepCopy(const_cast<vtkStructuredPoints*>(dataset));
+	return clone;
+}
+
+template <class TPrecision, unsigned Dimensions>
 VectorType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetToSampleVector(DatasetConstPointerType _sp) const
+vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleToSampleVector(DatasetConstPointerType _sp) const
 {
 
 	vtkStructuredPoints* reference = const_cast<vtkStructuredPoints*>(this->m_reference);
@@ -157,10 +167,21 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleVectorToSample(con
 	return sp;
 }
 
+template <class TPrecision, unsigned Dimensions>
+statismo::VectorType
+vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleToPointSampleVector(const ValueType& v) const
+{
+	VectorType vec(Dimensions);
+	for (unsigned i = 0; i < Dimensions; i++) {
+		vec[i] = const_cast<ValueType&>(v)[i];
+		vec[i] = v[i];
+	}
+	return vec;
+}
 
 template <class TPrecision, unsigned Dimensions>
 typename vtkStructuredPointsRepresenter<TPrecision, Dimensions>::ValueType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleToValue(const VectorType& pointSample) const
+vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
 	ValueType value;
 
@@ -171,17 +192,6 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleToValue(const
 }
 
 
-template <class TPrecision, unsigned Dimensions>
-statismo::VectorType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::ValueToPointSample(const ValueType& v) const
-{
-	VectorType vec(Dimensions);
-	for (unsigned i = 0; i < Dimensions; i++) {
-		vec[i] = const_cast<ValueType&>(v)[i];
-		vec[i] = v[i];
-	}
-	return vec;
-}
 
 
 template <class TPrecision, unsigned Dimensions>

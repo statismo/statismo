@@ -74,6 +74,11 @@ public:
 	/// (for a image, this could for example be a scalar value or an RGB value)
 	typedef TValueType ValueType;
 
+	/// This struct can be used to pass additional information for a given dataste
+	/// A typical example are landmark points, that are used to align a datset.
+	/// This field is here for future use, Statismo does curently not support it.
+	struct DatasetInfo {};
+
 	/// Returns a name that identifies the representer
 	static std::string GetName();
 
@@ -130,11 +135,17 @@ public:
 	 */
 	unsigned GetNumberOfPoints() const;
 
+
 	/**
-	 * Takes the given dataset (say of n points) and returns a representation of the dataset as
-	 * a vector of nd elements (where d is the dimensionality returned by GetDimensions).
+	 * Takes the given dataset and converts it to a sample, as it is internally used by statismo.
+	 * Typical steps that are performed to convert a dataset into a sample are alignment and registration.
 	 */
-	statismo::VectorType DatasetToSampleVector(DatasetConstPointerType ds) const;
+	DatasetPointerType DatasetToSample(DatasetConstPointerType ds, DatasetInfo* notUsed) const;
+
+	/**
+	 * Returns a vectorial representation of the given sample.
+	 */
+	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
 
 	/**
 	 * Takes a vector of nd elements and converts it to a sample. The sample is a type
@@ -142,18 +153,21 @@ public:
 	 */
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
-	/**
-	 * Take a vector representing the values at a given point and converts it to a
-	 * value of the dataset (e.g. for a mesh, the ValueType could be a 3D point,
-	 * for a scalar image this would simply be a scalar)
-	 */
-	ValueType PointSampleToValue(const statismo::VectorType& pointSample) const;
 
 	/**
-	 * Given a value, convert it to a vector (of dimensionality given by GetDimensions())
+	 * Take a point sample (i.e. the value of a sample at a given point) and converts it
+	 * to its vector representation.
+	 * The type of the point sample is a ValueType, that depends on the type of the dataset.
+	 * For a mesh this would for example be a 3D point,
+	 * while for a scalar image this would be a scalar value representing the intensity.
 	 */
-	statismo::VectorType ValueToPointSample(const ValueType& v) const;
+	statismo::VectorType PointSampleVectorToPointSample(const ValueType& v) const;
 
+	/**
+	 * Convert the given vector represenation of a pointSample back to its ValueType
+	 * \sa PointSampleVectorToPointSample
+	 */
+	ValueType PointSampleToPointSampleVector(const statismo::VectorType& pointSample) const;
 
 	/**
 	 * Defines the mapping between the point ids and the position in the vector.

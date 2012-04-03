@@ -92,6 +92,8 @@ public:
 
 	typedef std::vector<PointType> AlignmentListType;
 
+	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
+
 	VectorImageLMAlignRepresenter();
 	virtual ~VectorImageLMAlignRepresenter();
 
@@ -102,11 +104,13 @@ public:
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
 	 * Alignment.
 	 */
-	statismo::VectorType DatasetToSampleVector(DatasetType* ds) const;
+	DatasetPointerType DatasetToSample(DatasetType* ds, DatasetInfo* notUsed) const;
+	statismo::VectorType SampleToSampleVector(DatasetType* ds) const;
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
-	ValueType PointSampleToValue(const statismo::VectorType& pointSample) const;
-	statismo::VectorType ValueToPointSample(const ValueType& v) const;
+	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
+	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
+
 
 	virtual void Save(const H5::CommonFG& fg) const;
 

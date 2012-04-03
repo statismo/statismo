@@ -82,6 +82,8 @@ public:
 	typedef typename Superclass::PointType PointType;
 	typedef typename Superclass::ValueType ValueType;
 
+	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
+
 	static VectorImageRepresenter* Load(const H5::CommonFG& fg);
 	virtual VectorImageRepresenter* Clone() const;
 
@@ -97,11 +99,12 @@ public:
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
 	 * Alignment.
 	 */
-	statismo::VectorType DatasetToSampleVector(DatasetType* ds) const;
+	DatasetPointerType DatasetToSample(DatasetType* ds, DatasetInfo* notUsed = 0) const;
+	statismo::VectorType SampleToSampleVector(DatasetType* sample) const;
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
-	ValueType PointSampleToValue(const statismo::VectorType& pointSample) const;
-	statismo::VectorType ValueToPointSample(const ValueType& v) const;
+	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
+	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
 
 
 };

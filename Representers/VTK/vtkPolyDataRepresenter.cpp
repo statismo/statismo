@@ -121,20 +121,21 @@ vtkPolyDataRepresenter::Load(const H5::CommonFG& fg) {
 
 
 inline
-VectorType
-vtkPolyDataRepresenter::DatasetToSampleVector(DatasetConstPointerType _pd ) const
+vtkPolyDataRepresenter::DatasetPointerType
+vtkPolyDataRepresenter::DatasetToSample(DatasetConstPointerType _pd, DatasetInfo* notUsed) const
 {
 	assert(m_reference != 0);
-	VectorType sample = VectorType::Zero(m_reference->GetNumberOfPoints() * 3);
 
 	vtkPolyData* reference = const_cast<vtkPolyData*>(this->m_reference);
 	vtkPolyData* pd = const_cast<vtkPolyData*>(_pd);
 
-	vtkLandmarkTransform* transform = vtkLandmarkTransform::New();
-	vtkPolyData* alignedPd  = 0;
 
-	if (m_alignment != NONE) { 
-	  // we align all the dataset to the common reference
+	vtkPolyData* alignedPd  = vtkPolyData::New();
+
+	if (m_alignment != NONE) {
+
+		vtkLandmarkTransform* transform = vtkLandmarkTransform::New();
+		// we align all the dataset to the common reference
 
 	  transform->SetSourceLandmarks(pd->GetPoints());
 	  transform->SetTargetLandmarks(m_reference->GetPoints());
@@ -144,24 +145,38 @@ vtkPolyDataRepresenter::DatasetToSampleVector(DatasetConstPointerType _pd ) cons
 	  m_pdTransform->SetTransform(transform);
 	  m_pdTransform->Update();
 
-	  alignedPd = m_pdTransform->GetOutput();
+	  // we need to shallow copy the objet to make sure it does not die with the transform
+	  alignedPd->ShallowCopy(m_pdTransform->GetOutput());
+
+	  transform->Delete();
 
 	}
-	else { 
+	else {
 	  // no alignment needed
-	  alignedPd = pd; 
+		alignedPd->DeepCopy(pd);
 	}
 
+	return alignedPd;
+}
+
+inline
+statismo::VectorType
+vtkPolyDataRepresenter::SampleToSampleVector(DatasetConstPointerType _sample) const {
+	assert(m_reference != 0);
+
+	vtkPolyData* sample = const_cast<vtkPolyData*>(_sample);
+
+	VectorType sampleVec = VectorType::Zero(m_reference->GetNumberOfPoints() * 3);
 	// TODO make this more efficient using SetVoidArray of vtk
 	for (unsigned i = 0 ; i < m_reference->GetNumberOfPoints(); i++) {
 		for (unsigned j = 0; j < 3; j++) {
 			unsigned idx = MapPointIdToInternalIdx(i, j);
-			sample(idx) = alignedPd->GetPoint(i)[j];
+			sampleVec(idx) = sample->GetPoint(i)[j];
 		}
 	}
-	transform->Delete();
-	return sample;
+	return sampleVec;
 }
+
 
 inline
 vtkPolyDataRepresenter::DatasetPointerType
@@ -188,19 +203,8 @@ vtkPolyDataRepresenter::SampleVectorToSample(const VectorType& sample) const
 }
 
 inline
-vtkPolyDataRepresenter::ValueType
-vtkPolyDataRepresenter::PointSampleToValue(const VectorType& pointSample) const
-{
-	ValueType value;
-	const VectorType& v = pointSample;
-	for (unsigned i = 0; i < GetDimensions(); i++) {
-		value[i] = v(i);
-	}
-	return value;
-}
-
-inline
-statismo::VectorType vtkPolyDataRepresenter::ValueToPointSample(const ValueType& v) const
+statismo::VectorType
+vtkPolyDataRepresenter::PointSampleToPointSampleVector(const ValueType& v) const
 {
 	VectorType vec(GetDimensions());
 	for (unsigned i = 0; i < GetDimensions(); i++) {
@@ -208,6 +212,20 @@ statismo::VectorType vtkPolyDataRepresenter::ValueToPointSample(const ValueType&
 	}
 	return vec;
 }
+
+
+inline
+vtkPolyDataRepresenter::ValueType
+vtkPolyDataRepresenter::PointSampleVectorToPointSample(const VectorType& v) const
+{
+	ValueType value;
+	for (unsigned i = 0; i < GetDimensions(); i++) {
+		value[i] = v(i);
+	}
+	return value;
+}
+
+
 
 inline
 void

@@ -108,7 +108,6 @@ public:
 
 
 
-
 };
 
 } // namespace statismo

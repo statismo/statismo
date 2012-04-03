@@ -102,7 +102,7 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SetReferenc
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 VectorType
-VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::DatasetToSampleVector(ImageType* image) const
+VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SampleToSampleVector(ImageType* image) const
 {
 	VectorType sample(GetNumberOfPoints() * Dimensions);
 	itk::ImageRegionConstIterator<DatasetType> it(image, image->GetLargestPossibleRegion());
@@ -150,7 +150,7 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SampleVecto
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 typename VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::ValueType
-VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointSampleToValue(const VectorType& pointSample) const
+VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
 	ValueType value;
 	for (unsigned i = 0; i < Dimensions; i++) {
@@ -161,7 +161,7 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointSample
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 statismo::VectorType
-VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::ValueToPointSample(const ValueType& v) const
+VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointSampleToPointSampleVector(const ValueType& v) const
 {
 	VectorType vec(VectorDimension);
 	for (unsigned i = 0; i < vec.size(); i++) {

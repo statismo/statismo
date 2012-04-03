@@ -87,6 +87,8 @@ public:
 	typedef typename ImageType::PixelType ValueType;
 
 
+	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
+
 	ImageRepresenter();
 	virtual ~ImageRepresenter();
 
@@ -106,11 +108,13 @@ public:
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
 	 * Alignment.
 	 */
-	statismo::VectorType DatasetToSampleVector(ImageType* ds) const;
+	DatasetPointerType DatasetToSample(ImageType* ds, DatasetInfo* notUsed) const;
+	statismo::VectorType SampleToSampleVector(ImageType* sample) const;
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
-	ValueType PointSampleToValue(const statismo::VectorType& pointSample) const;
-	statismo::VectorType ValueToPointSample(const ValueType& v) const;
+
+	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
+	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
 
 	void Save(const H5::CommonFG& fg) const;
 	virtual unsigned GetNumberOfPoints() const;

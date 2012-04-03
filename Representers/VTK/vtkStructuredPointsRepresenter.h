@@ -75,6 +75,7 @@ public:
 	static vtkStructuredPointsRepresenter* Load(const H5::CommonFG& fg);
 	vtkStructuredPointsRepresenter* Clone() const;
 
+	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
 
 	virtual ~vtkStructuredPointsRepresenter();
 	void Delete() const { delete this; }
@@ -87,10 +88,14 @@ public:
 	const vtkStructuredPoints* GetReference() const { return m_reference; }
 
 
-	statismo::VectorType DatasetToSampleVector(DatasetConstPointerType ds) const;
+	DatasetPointerType DatasetToSample(DatasetConstPointerType ds, DatasetInfo* notUsed) const;
+	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
-	ValueType PointSampleToValue(const statismo::VectorType& pointSample) const;
-	statismo::VectorType ValueToPointSample(const ValueType& v) const;
+
+
+	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
+	ValueType PointSampleVectorToPointSample(const statismo::VectorType& samplePoint) const;
+
 	unsigned GetPointIdForPoint(const PointType& pt) const;
 
 	unsigned GetNumberOfPoints() const;

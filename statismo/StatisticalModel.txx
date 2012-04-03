@@ -76,8 +76,7 @@ StatisticalModel<Representer>::~StatisticalModel()
 template <typename Representer>
 typename StatisticalModel<Representer>::DatasetPointerType
 StatisticalModel<Representer>::DatasetToSample(DatasetConstPointerType ds) const {
-	VectorType s = m_representer->DatasetToSampleVector(ds);
-	return m_representer->SampleVectorToSample(s);
+	return m_representer->DatasetToSample(ds, 0);
 }
 
 
@@ -180,7 +179,7 @@ StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients,
 		v[d] = m_mean[idx] + m_pcaBasisMatrix.row(idx).dot(coefficients) + epsilon[d];
 	}
 
-	return this->m_representer->PointSampleToValue(v);
+	return this->m_representer->PointSampleVectorToPointSample(v);
 }
 
 template <typename Representer>
@@ -201,7 +200,7 @@ StatisticalModel<Representer>::DrawInstanceAtPoint(const VectorType& coefficient
 		v(d) = m_mean(idx) + m_pcaBasisMatrix.row(idx).dot(coefficients);
 	}
 
-	return this->m_representer->PointSampleToValue(v);
+	return this->m_representer->PointSampleVectorToPointSample(v);
 }
 
 template <typename Representer>
@@ -257,9 +256,17 @@ StatisticalModel<Representer>::GetCovarianceMatrix() const
 
 template <typename Representer>
 VectorType
-StatisticalModel<Representer>::ComputeCoefficientsForDataset(DatasetConstPointerType ds) const {
+StatisticalModel<Representer>::ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const {
+	DatasetPointerType sample = m_representer->DatasetToSample(dataset, 0);
+	VectorType v = ComputeCoefficientsForSample(sample);
+	Representer::DeleteDataset(sample);
+	return v;
+}
 
-	return ComputeCoefficientsForSampleVector(m_representer->DatasetToSampleVector(ds));
+template <typename Representer>
+VectorType
+StatisticalModel<Representer>::ComputeCoefficientsForSample(DatasetConstPointerType sample) const {
+	return ComputeCoefficientsForSampleVector(m_representer->SampleToSampleVector(sample));
 }
 
 template <typename Representer>
@@ -305,7 +312,7 @@ StatisticalModel<Representer>::ComputeCoefficientsForPointValues(const PointIdVa
 
 	unsigned i = 0;
 	for (typename PointIdValueListType::const_iterator it = pointIdValueList.begin(); it != pointIdValueList.end(); ++it) {
-		VectorType val = this->m_representer->ValueToPointSample(it->second);
+		VectorType val = this->m_representer->PointSampleToPointSampleVector(it->second);
 		unsigned pt_id = it->first;
 		for (unsigned d = 0; d < dim; d++) {
 			PCABasisPart.row(i * dim + d) = this->GetPCABasisMatrix().row(Representer::MapPointIdToInternalIdx(pt_id, d));

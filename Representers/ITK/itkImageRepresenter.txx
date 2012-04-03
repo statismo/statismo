@@ -132,8 +132,21 @@ ImageRepresenter<TPixel, ImageDimension>::SetReference(DatasetPointerType refere
 }
 
 template <class TPixel, unsigned ImageDimension>
+typename ImageRepresenter<TPixel, ImageDimension>::DatasetPointerType
+ImageRepresenter<TPixel, ImageDimension>::DatasetToSample(ImageType* image, DatasetInfo* notUsed) const
+{
+	// we don't do any alignment for images, but simply return a copy of the image
+
+	typename itk::ImageDuplicator<ImageType>::Pointer duplicator = itk::ImageDuplicator<ImageType>::New();
+	duplicator->SetInputImage(image);
+	duplicator->Update();
+	return duplicator->GetOutput();
+
+}
+
+template <class TPixel, unsigned ImageDimension>
 VectorType
-ImageRepresenter<TPixel, ImageDimension>::DatasetToSampleVector(ImageType* image) const
+ImageRepresenter<TPixel, ImageDimension>::SampleToSampleVector(ImageType* image) const
 {
 	VectorType sample(GetNumberOfPoints() * GetDimensions());
 	itk::ImageRegionConstIterator<DatasetType> it(image, image->GetLargestPossibleRegion());
@@ -177,7 +190,7 @@ ImageRepresenter<TPixel, ImageDimension>::SampleVectorToSample(const VectorType&
 
 template <class TPixel, unsigned ImageDimension>
 typename ImageRepresenter<TPixel, ImageDimension>::ValueType
-ImageRepresenter<TPixel, ImageDimension>::PointSampleToValue(const VectorType& pointSample) const
+ImageRepresenter<TPixel, ImageDimension>::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
 	ValueType value;
 	value = pointSample[0];
@@ -185,7 +198,7 @@ ImageRepresenter<TPixel, ImageDimension>::PointSampleToValue(const VectorType& p
 }
 template <class TPixel, unsigned ImageDimension>
 statismo::VectorType
-ImageRepresenter<TPixel, ImageDimension>::ValueToPointSample(const ValueType& v) const
+ImageRepresenter<TPixel, ImageDimension>::PointSampleToPointSampleVector(const ValueType& v) const
 {
 	VectorType vec(1);
 	vec[0] = v;

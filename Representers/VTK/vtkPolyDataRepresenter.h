@@ -48,6 +48,8 @@
 #include "vtkSmartPointer.h"
 #include <H5Cpp.h>
 
+
+
 /**
  * \brief A representer for vtkPolyData using Procrustes alignment to align the datasets
  *
@@ -62,11 +64,8 @@
  *
  * See Representer for more details about representer classes
  */
-
 class vtkPolyDataRepresenter  {
 public:
-
-
 
 	/// The type of the data set to be used
 	typedef vtkPolyData* DatasetPointerType;
@@ -74,6 +73,9 @@ public:
 
 	typedef vtkPoint PointType;
 	typedef vtkPoint ValueType;
+
+	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
+
 
 
 	enum AlignmentType {
@@ -105,14 +107,12 @@ public:
 
 	DatasetConstPointerType GetReference() const { return m_reference; }
 
-	/**
-	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
-	 * Alignment.
-	 */
-	statismo::VectorType DatasetToSampleVector(DatasetConstPointerType ds) const;
+	DatasetPointerType DatasetToSample(DatasetConstPointerType ds, DatasetInfo* notUsed) const;
+	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
-	ValueType PointSampleToValue(const statismo::VectorType& pointSample) const;
-	statismo::VectorType ValueToPointSample(const ValueType& v) const;
+
+	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
+	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
 
 
 	void Save(const H5::CommonFG& fg) const;

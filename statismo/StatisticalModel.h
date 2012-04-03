@@ -102,6 +102,7 @@ public:
 	typedef typename Representer::DatasetPointerType DatasetPointerType;
 	typedef typename Representer::DatasetConstPointerType DatasetConstPointerType;
 
+
     typedef typename Representer::ValueType RepresenterValueType;
 	typedef typename Representer::PointType PointType;
 
@@ -112,6 +113,8 @@ public:
 	typedef std::pair<unsigned, RepresenterValueType> PointIdValuePairType;
 	typedef std::list<PointValuePairType> PointValueListType;
 	typedef std::list<PointIdValuePairType> PointIdValueListType;
+
+
 
 	/**
 	 * Destructor
@@ -365,17 +368,31 @@ public:
 	 *
 	 * \param dataset The dataset
 	 * \return The log probability
+	 *
 	 */
 	double ComputeLogProbabilityOfDataset(DatasetConstPointerType dataset) const ;
 
 	/**
-	 * Returns the coefficients of the latent variables for the given dataset, i.e.
+	 *
+	 * Converts the given dataset to a sample of the model and compute the latent variable
+	 * coefficients of this sample under the model.
+	 *
+	 * @param dataset The dataset
+	 *
+	 * @returns The coefficient vectro \f$\alpha\f$
+	 * \sa ComputeCoefficientsForDataset
+	 */
+	VectorType ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const;
+
+
+	/**
+	 * Returns the coefficients of the latent variables for the given sample, i.e.
 	 * the vectors of numbers \f$\alpha \f$, such that for the dataset \f$S\f$ it holds that
 	 * \f$ S = \mu + U \alpha\f$
 	 *
 	 * @returns The coefficient vectro \f$\alpha\f$
 	 */
-	VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const;
+	VectorType ComputeCoefficientsForSample(DatasetConstPointerType sample) const;
 
 
 	/**

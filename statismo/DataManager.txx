@@ -180,8 +180,11 @@ DataManager<Representer>::AddDataset(const std::string& filename) {
 	assert(m_representer != 0);
 
 	DatasetPointerType ds = Representer::ReadDataset(filename.c_str());
-	m_sampleDataList.push_back(SampleDataType::Create(m_representer, filename, m_representer->DatasetToSampleVector(ds)));
+	DatasetPointerType sample = this->m_representer->DatasetToSample(ds, 0);
+	m_sampleDataList.push_back(SampleDataType::Create(m_representer, filename, m_representer->SampleToSampleVector(sample)));
+	Representer::DeleteDataset(sample);
 	Representer::DeleteDataset(ds);
+
 }
 
 

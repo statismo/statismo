@@ -94,8 +94,20 @@ VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::Load(const H5::
 }
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
+typename VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetPointerType
+VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetToSample(DatasetType* image, DatasetInfo* notUsed) const
+{
+	// we don't do any alignment for images, but simply return a copy of the image
+	typename itk::ImageDuplicator<DatasetType>::Pointer duplicator = itk::ImageDuplicator<DatasetType>::New();
+	duplicator->SetInputImage(image);
+	duplicator->Update();
+	return duplicator->GetOutput();
+
+}
+
+template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 VectorType
-VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetToSampleVector(DatasetType* image) const
+VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::SampleToSampleVector(DatasetType* image) const
 {
 	VectorType sample(this->GetNumberOfPoints() * GetDimensions());
 	itk::ImageRegionConstIterator<DatasetType> it(image, image->GetLargestPossibleRegion());
@@ -143,7 +155,7 @@ VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::SampleVectorToS
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 typename VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::ValueType
-VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::PointSampleToValue(const VectorType& pointSample) const
+VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
 	ValueType value;
 	for (unsigned i = 0; i < GetDimensions(); i++) {
@@ -154,7 +166,7 @@ VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::PointSampleToVa
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 statismo::VectorType
-VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::ValueToPointSample(const ValueType& v) const
+VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::PointSampleToPointSampleVector(const ValueType& v) const
 {
 	VectorType vec(VectorDimension);
 	for (unsigned i = 0; i < vec.size(); i++) {

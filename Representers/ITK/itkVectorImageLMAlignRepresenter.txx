@@ -130,8 +130,8 @@ VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::SetAlign
 }
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
-VectorType
-VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetToSampleVector(DatasetType* vecImage) const
+typename VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetPointerType
+VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetToSample(DatasetType* vecImage, DatasetInfo* notUsed) const
 {
 
 	typedef typename TransformSelector<ImageDimension>::TransformType TransformType;
@@ -172,11 +172,22 @@ VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetT
 	resampler->SetOutputOrigin(this->m_reference->GetOrigin());
 
 	resampler->Update();
+
 	DatasetPointerType resampledDf = resampler->GetOutput();
+
+	return resampledDf;
+}
+
+
+template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
+VectorType
+VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::SampleToSampleVector(DatasetType* sampleDf) const
+{
+
 
 	// now convert the resampled df
 	VectorType sample = VectorType::Zero(this->GetNumberOfPoints() * GetDimensions());
-	itk::ImageRegionConstIterator<DatasetType> it(resampledDf, resampledDf->GetLargestPossibleRegion());
+	itk::ImageRegionConstIterator<DatasetType> it(sampleDf, sampleDf->GetLargestPossibleRegion());
 
 	it.GoToBegin();
 	for (unsigned i = 0;
@@ -221,7 +232,7 @@ VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::SampleVe
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 typename VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::ValueType
-VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::PointSampleToValue(const VectorType& pointSample) const
+VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
 	ValueType value;
 	for (unsigned i = 0; i < GetDimensions(); i++) {
@@ -232,7 +243,7 @@ VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::PointSam
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 statismo::VectorType
-VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::ValueToPointSample(const ValueType& v) const
+VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::PointSampleToPointSampleVector(const ValueType& v) const
 {
 	VectorType vec(VectorDimension);
 	for (unsigned i = 0; i < vec.size(); i++) {

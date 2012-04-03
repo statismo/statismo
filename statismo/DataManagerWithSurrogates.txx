@@ -69,7 +69,9 @@ DataManagerWithSurrogates<Representer>::LoadSurrogateTypes(const std::string& fi
 
 template <typename Representer>
 void
-DataManagerWithSurrogates<Representer>::AddDatasetWithSurrogates(const std::string& datasetFilename, const std::string& surrogateFilename) {
+DataManagerWithSurrogates<Representer>::AddDatasetWithSurrogates(const std::string& datasetFilename,
+																 const std::string& surrogateFilename)
+{
 
 	assert(this->m_representer != 0);
 	assert(this->m_surrogateTypes.size() > 0);
@@ -79,12 +81,14 @@ DataManagerWithSurrogates<Representer>::AddDatasetWithSurrogates(const std::stri
 
 	if (surrogateVector.size() != m_surrogateTypes.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
 
+	DatasetPointerType sample = this->m_representer->DatasetToSample(ds, 0);
+
 	this->m_sampleDataList.push_back(SampleDataWithSurrogatesType::Create(this->m_representer,
 																		datasetFilename,
-																	   this->m_representer->DatasetToSampleVector(ds),
+																		this->m_representer->SampleToSampleVector(sample),
 																	   surrogateFilename,
 																	   surrogateVector));
-
+	Representer::DeleteDataset(sample);
 	Representer::DeleteDataset(ds);
 }
 
