@@ -5,16 +5,31 @@ Appearance Models. The implementation and interpretation is based on
 Probabilistic PCA, which generalizes the standard PCA models and gives
 a fully probabilistic interpretation.
 
+How to build Statismo: 
+----------------------
+Statismo is a header only library. You simply
+include the necessary header files into your C++ program and statismo
+will be compiled together with your program.  Have a look at the
+examples to see how to compile a typical application. 
+
+To use Statsmo from Python, call CMake with the path to 
+Wrappings/SWIG (for the VTK Wrappings) and Wrappings/ITK (for the ITK Wrappings).
+See the WIKI (github.com/statismo/statismo/wiki) for more information.
+
+
+
 Main Authors:
+-------------
 - Marcel Luethi
 - Remi Blanc
 
-Contributors: - Tobias Gass 
-	      - Thomas Albrecht 
-	      - Habib Bou-Sleiman
-
-See the WIKI (github.com/statismo/statismo/wiki) for more information.
+Contributors:
+------------
+ - Tobias Gass 
+- Thomas Albrecht 
+- Habib Bou-Sleiman
 
 License:
+--------
 Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. 
 Most notably, these are Eigen, Boost and HDF5. You will find a copy of the respective license agreements in the folder ./3rdParty. 
