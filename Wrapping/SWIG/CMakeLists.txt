@@ -1,3 +1,5 @@
+cmake_minimum_required (VERSION 2.6)
+
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 FIND_PATH(STATISMO_DIR STATISMO REQUIRED)
 include(${STATISMO_DIR}/statismo-config.cmake)
