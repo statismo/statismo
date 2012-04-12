@@ -7,6 +7,13 @@ project (statismo)
 include(ExternalProject)
 OPTION (HDF5_USE_EXTERNAL "Use External Library Building for HDF5" 0)
 
+# the name of the library seems to depend on the platform
+IF(WIN32)
+	SET(HDF5_LIBRARIES hdf5dll;hdf5_cppdll)
+ELSE(WIN32)
+	SET(HDF5_LIBRARIES hdf5;hdf5_cpp)
+ENDIF(WIN32)
+
 IF (NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
 	  SOURCE_DIR HDF5
@@ -22,15 +29,12 @@ IF (NOT HDF5_USE_EXTERNAL)
 	  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5
 	  INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5
 	) 
-	INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5 DESTINATION 3rdParty)
 	SET (HDF5_INCLUDE_DIR ${CMAKE_INSTALL_PREFIX}/3rdParty/HDF5/include)
 	SET (HDF5_INCLUDE_DIR_CPP ${HDF5_INCLUDE_DIR}/cpp)	
 	SET (HDF5_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/3rdParty/HDF5/lib)
-	SET (HDF5_LIBRARIES hdf5;hdf5_cpp)
+	INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5 DESTINATION 3rdParty)
 ELSE (NOT HDF5_USE_EXTERNAL)
  	FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED NO_MODULE)
- 	# the library dir is often not set correclty by HDF5. If it is not set, we let the user specify it
- 	FIND_LIBRARY(HDF5_LIBRARY_DIR hdf5 ${HDF5_LIBRARY_DIR})
 ENDIF (NOT HDF5_USE_EXTERNAL)
 
 
@@ -46,5 +50,5 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo DESTINATION .)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo_ITK DESTINATION .)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION .)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION .)
