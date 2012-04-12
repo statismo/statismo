@@ -7,15 +7,38 @@ a fully probabilistic interpretation.
 
 How to build Statismo: 
 ----------------------
-Statismo is a header only library. You simply
-include the necessary header files into your C++ program and statismo
-will be compiled together with your program.  Have a look at the
-examples to see how to compile a typical application. 
+Statismo is a header only library. There is no need to compile statismo. You simply include the necessary 
+header files into your application and statismo is compiled together with  your application. 
+However, statismo depends on some third-party libraries (such as HDF5) and to use it from your applications, 
+you need to correctly specify all the path to the different include directories and libraries. 
 
-To use Statsmo from Python, call CMake with the path to 
-Wrappings/SWIG (for the VTK Wrappings) and Wrappings/ITK (for the ITK Wrappings).
-See the WIKI (github.com/statismo/statismo/wiki) for more information.
+To simplify this process, we have provided a CMake file that takes care of this process. 
 
+To install statismo use the usual CMake workflow (here demonstrated for linux):
+1) Create a directory that  holds your binary data and change into that directory
+> mkdir build_dir
+> cd build_dir
+2) Configure the project. 
+> ccmake path_to_statismo
+Make sure that you set the CMAKE_INSTALL_PREFIX to the path where you want to install statismo 
+3) Compile and install statismo
+> make 
+> make install
+
+This builds the dependencies and copies the necessary files to the installation directory. 
+In particular, it generates the file statismo-config.cmake, that holds the correct configuration. 
+To use statismo from your application, you can now simply include the command
+FindPackage(statismo) into your CMakeLists.txt file. This will set up the CMake variables 
+- STATISMO_DIR 
+- STATISMO_LIBRARIES 
+- STATISMO_INCLUDE_DIR 
+- STATISMO_LIBRARY_DIR
+
+See the examples (in the Example folder) to see how statismo is used. 
+To build the examples, simply run CMake with the respective example folder.
+
+Statismo also comes with Python Wrappings that lets you use statismo from Python, together with the Python wrappings for VTK and ITK. 
+To build the wrappings, run CMake in the folder ./Wrapping/Swig and ./Wrapping/ITK  and set your PYTHONPATH to the respective directory. 
 
 
 Main Authors:
@@ -25,7 +48,7 @@ Main Authors:
 
 Contributors:
 ------------
- - Tobias Gass 
+- Tobias Gass 
 - Thomas Albrecht 
 - Habib Bou-Sleiman
 
