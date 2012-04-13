@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __itkMorphableModelTransform_h
-#define __itkMorphableModelTransform_h
+#ifndef __itkStatisticalModelTransform_h
+#define __itkStatisticalModelTransform_h
 
 #include <iostream>
 #include "itkTransform.h"
@@ -50,66 +50,45 @@ namespace itk
 
 /**
  *
- * \brief An itk transform that allows for deformations defined by a given Statistical Model.
+ * \brief Base class that implements an itk transform interface for statistical models.
  *
  * Statistical models (shape or deformation models) are often used to model the typical variations within
- * an object class. The StatisticalModelTransform provides allows to use an itk::StatisticalModel via the itk::Transform
- * interface. Thus, the itk::StatisticalModel can be used as a tranform in the standard itk registration framework.
+ * an object class. The StatisticalModelTransformBase implements the standard Transform interface, and thus allows
+ * for the use of statistical models within the ITK registration framework.
+ * Subclasses will need to implement the TransformPoint method, as its semantics depends on the type of statistical model.
  *
  * \ingroup Transforms
  */
 template <class TRepresenter, class TScalarType,  unsigned int TDimension >
-class ITK_EXPORT StatisticalModelTransform :
+class ITK_EXPORT StatisticalModelTransformBase :
 public itk::Transform< TScalarType , TDimension, TDimension>
 {
 public:
 	/* Standard class typedefs. */
-	typedef StatisticalModelTransform            Self;
+	typedef StatisticalModelTransformBase            Self;
 	typedef itk::Transform< TScalarType , TDimension, TDimension>	Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
 	typedef vnl_vector<statismo::ScalarType> VectorType;
     typedef vnl_matrix<statismo::ScalarType> MatrixType;
+
     
-	// we don't use the new macro here, as we implement createAnother
-	/**
-	 * factory method to create a new itk::StatisticalModelTransform object
-	 */
-	  static Pointer New(void) {
-
-	    Pointer smartPtr = ::itk::ObjectFactory< Self >::Create();
-	    if(smartPtr.IsNull())
-	      {
-	      smartPtr = static_cast<Pointer>(new Self);
-	      }
-	    smartPtr->UnRegister();
-	    return smartPtr;
-	  }
-
 	  /**
-	   * Clone the current transform
+	   * Copy the members of the current transform. To be used by subclasses in the CreateAnother method.
 	   */
-	  virtual ::itk::LightObject::Pointer CreateAnother(void) const
+	  virtual void CopyBaseMembers(StatisticalModelTransformBase* another) const
 	  {
-		  ::itk::LightObject::Pointer smartPtr;
-		  Pointer another = Self::New().GetPointer();
-		  another->m_Jacobian = this->m_Jacobian;
 	 	  another->m_StatisticalModel = m_StatisticalModel;
 	 	  another->m_coeff_vector = m_coeff_vector;
 	 	  another->m_usedNumberCoefficients = m_usedNumberCoefficients;
 	 	  another->m_FixedParameters = m_FixedParameters;
 	 	  another->m_Parameters = this->m_Parameters;
-
-
-		  smartPtr = static_cast<Pointer>(another);
-
-		  return smartPtr;
-	     }
+	   }
 
 
 	/** Run-time type information (and related methods). */
-	itkTypeMacro( StatisticalModelTransform, Transform );
+	itkTypeMacro( StatisticalModelTransformBase, Transform );
 
 	/* Dimension of parameters. */
 	itkStaticConstMacro(SpaceDimension, unsigned int, TDimension);
@@ -136,12 +115,7 @@ public:
 	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
 
 
-
-	/** This method computes the Jacobian matrix of the transformation.
-	 * given point or vector, returning the transformed point or
-	 * vector. The rank of the Jacobian will also indicate if the
-	 * transform is invertible at this point. */
-	virtual const JacobianType& GetJacobian(const InputPointType &pt) const;
+	virtual void ComputeJacobianWithRespectToParameters(const InputPointType  &pt, JacobianType & jacobian) const;
 
 	/**
 	 * Transform a given point according to the deformation induced by the StatisticalModel,
@@ -150,7 +124,7 @@ public:
 	 * \param pt The point to tranform
 	 * \return The transformed point
 	 */
-	virtual OutputPointType  TransformPoint(const InputPointType &pt) const;
+	virtual OutputPointType  TransformPoint(const InputPointType &pt) const = 0;
 
 	/**
 	 *  Set the parameters to the IdentityTransform
@@ -186,7 +160,7 @@ public:
 	   * Convenience method to obtain the current coefficients of the StatisticalModel as a statismo::VectorType.
 	   * The resulting vector is the same as it would be obtained from GetParameters.
 	   */
-	  VectorType GetCoefficients() const {
+	  virtual VectorType GetCoefficients() const {
 		  return m_coeff_vector;
 	  }
 
@@ -194,7 +168,7 @@ public:
 	   * Convenicne method to set the coefficients of the underlying StatisticalModel from a statismo::VectorType.
 	   * This has the same effect as calling SetParameters.
 	   */
-	  void SetCoefficients( VectorType& coefficients) { m_coeff_vector = coefficients; }
+	  virtual void SetCoefficients( VectorType& coefficients) { m_coeff_vector = coefficients; }
 
 	  /**
 	   * Set the statistical model that defines the valid transformations.
@@ -220,21 +194,19 @@ public:
 
 protected:
 
-	StatisticalModelTransform();
-	StatisticalModelTransform(unsigned int outputSpaceDim,
+	StatisticalModelTransformBase();
+	StatisticalModelTransformBase(unsigned int outputSpaceDim,
 			unsigned int paramDim);
-	~StatisticalModelTransform(){};
+	~StatisticalModelTransformBase(){};
 
 	void PrintSelf(std::ostream &os, Indent indent) const;
-
-private:
 
 	typename StatisticalModelType::ConstPointer m_StatisticalModel;
 	VectorType m_coeff_vector;
 	unsigned m_usedNumberCoefficients;
 	ParametersType m_FixedParameters;
 
-	StatisticalModelTransform(const Self&); //purposely not implemented
+	StatisticalModelTransformBase(const Self&); //purposely not implemented
 	void operator=(const Self&); //purposely not implemented
 
 
@@ -246,7 +218,7 @@ private:
 
 
 #if ITK_TEMPLATE_TXX
-# include "itkStatisticalModelTransform.txx"
+# include "itkStatisticalModelTransformBase.txx"
 #endif
 
-#endif /* __itkMorphableModelTransform_h */
+#endif /* __itkStatisticalModelTransform_h */
