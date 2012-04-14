@@ -67,7 +67,7 @@ public:
 
 
 	/** New macro for creation of through a Smart Pointer. */
-	itkNewMacro( Self );
+	itkSimpleNewMacro( Self );
 
 	/** Run-time type information (and related methods). */
 
