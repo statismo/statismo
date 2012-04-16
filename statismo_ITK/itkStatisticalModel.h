@@ -128,6 +128,10 @@ public:
 	}
 
 
+	const Representer* GetRepresenter() const {
+		return callstatismoImpl(std::tr1::bind(&ImplType::GetRepresenter, this->m_impl));
+	}
+
 	DatasetPointerType DrawMean() const { return callstatismoImpl(std::tr1::bind(&ImplType::DrawMean, this->m_impl)); }
 
 	ValueType DrawMeanAtPoint(const PointType& pt) const {
