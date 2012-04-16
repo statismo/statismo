@@ -25,4 +25,4 @@ add_executable (ITKFitting fitting.cpp
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
-target_link_libraries (ITKFitting ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+target_link_libraries (ITKFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})
