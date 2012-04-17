@@ -108,7 +108,11 @@ public:
 			std::cout << "exception occured at point " << pt << std::endl;
 			std::cout << "message " << e.what() << std::endl;
 		}
-		return pt + d;
+		OutputPointType transformedPoint;
+		for (unsigned i = 0; i < pt.GetPointDimension(); i++) { 
+			transformedPoint[i] = pt[i] + d[i];
+		}
+		return transformedPoint;
 	}
 };
 
