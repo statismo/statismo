@@ -47,6 +47,12 @@
 #include <iterator>
 #include <iostream>
 #include "time.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#include <tchar.h>
+#endif
+
 namespace statismo {
 
 /**
@@ -107,6 +113,24 @@ public:
 	}
 
 
+	static std::string CreateTmpName(const std::string& extension) {
+		#ifdef _WIN32
+		std::string tmpDirectoryName;
+		TCHAR szTempFileName[MAX_PATH];
+		DWORD dwRetVal = 0;
+		//  Gets the temp path env string (no guarantee it's a valid path).
+		dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
+                           szTempFileName); // buffer for path
+		tmpDirectoryName.assign(szTempFileName);
+		std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0) +extension;
+		return tmpfilename
+		#else
+			std::string tmpfilename = tmpnam(0);
+			tmpfilename += extension;
+			return tmpfilename;
+		#endif
+
+	}
 
 };
 
