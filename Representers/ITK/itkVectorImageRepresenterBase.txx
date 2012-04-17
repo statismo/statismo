@@ -48,12 +48,7 @@
 #include "itkVector.h"
 #include "statismo/HDF5Utils.h"
 #include <iostream>
-
-#ifdef _WIN32
-#include <windows.h>
-#include <tchar.h>
-#endif
-
+#include "statismo/utils.h"
 
 namespace itk {
 
@@ -174,20 +169,8 @@ template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 void
 VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::LoadBaseMembers(VectorImageRepresenterBase* b, const H5::CommonFG& fg) {
 
-#ifdef _WIN32
-	std::string tmpDirectoryName;
-	TCHAR szTempFileName[MAX_PATH];
-	DWORD dwRetVal = 0;
-	//  Gets the temp path env string (no guarantee it's a valid path).
-    dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-	tmpDirectoryName.assign(szTempFileName);
-	std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0);
-#else
-	std::string tmpfilename = tmpnam(0);
-#endif
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".nrrd");
 
-	tmpfilename += ".nrrd";
 	statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
 	b->m_reference = ReadDataset(tmpfilename.c_str());
 
@@ -199,19 +182,8 @@ void
 VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::Save(const H5::CommonFG& fg) const {
 	using namespace H5;
 
-#ifdef _WIN32
-	std::string tmpDirectoryName;
-	TCHAR szTempFileName[MAX_PATH];
-	DWORD dwRetVal = 0;
-	//  Gets the temp path env string (no guarantee it's a valid path).
-    dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-	tmpDirectoryName.assign(szTempFileName);
-	std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0);
-#else
-	std::string tmpfilename = tmpnam(0);
-#endif
-	tmpfilename += ".nrrd";
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".nrrd");
+
 	WriteDataset(tmpfilename.c_str(), (DatasetConstPointerType)this->m_reference);
 
 	statismo::HDF5Utils::dumpFileToHDF5(tmpfilename.c_str(), fg, "./reference" );

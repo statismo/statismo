@@ -47,12 +47,8 @@
 #include "itkPoint.h"
 #include "itkVector.h"
 #include "statismo/HDF5Utils.h"
+#include "statismo/utils.h"
 #include <iostream>
-
-#ifdef _WIN32
-#include <windows.h>
-#include <tchar.h>
-#endif
 
 
 namespace itk {

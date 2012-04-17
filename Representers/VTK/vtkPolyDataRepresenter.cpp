@@ -43,11 +43,7 @@
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
 #include "statismo/HDF5Utils.h"
-
-#ifdef _WIN32
-#include <windows.h>
-#include <tchar.h>
-#endif
+#include "statismo/utils.h"
 
 using statismo::VectorType;
 using statismo::HDF5Utils;
@@ -97,18 +93,7 @@ vtkPolyDataRepresenter*
 vtkPolyDataRepresenter::Load(const H5::CommonFG& fg) {
 
 
-#ifdef _WIN32
-	std::string tmpDirectoryName;
-	TCHAR szTempFileName[MAX_PATH];
-	DWORD dwRetVal = 0;
-	//  Gets the temp path env string (no guarantee it's a valid path).
-    dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-	tmpDirectoryName.assign(szTempFileName);
-	std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0);
-#else
-	std::string tmpfilename = tmpnam(0);
-#endif
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
 	HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
 	DatasetConstPointerType ref = ReadDataset(tmpfilename.c_str());
@@ -232,18 +217,7 @@ void
 vtkPolyDataRepresenter::Save(const H5::CommonFG& fg) const {
 	using namespace H5;
 
-#ifdef _WIN32
-	std::string tmpDirectoryName;
-	TCHAR szTempFileName[MAX_PATH];
-	DWORD dwRetVal = 0;
-	//  Gets the temp path env string (no guarantee it's a valid path).
-    dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-	tmpDirectoryName.assign(szTempFileName);
-	std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0);
-#else
-	std::string tmpfilename = tmpnam(0);
-#endif
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
 
 	WriteDataset(tmpfilename.c_str(), this->m_reference);

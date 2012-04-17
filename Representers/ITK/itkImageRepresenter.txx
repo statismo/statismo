@@ -47,12 +47,10 @@
 #include "itkPoint.h"
 #include "itkVector.h"
 #include "statismo/HDF5Utils.h"
+#include "statismo/utils.h"
 #include <iostream>
 
-#ifdef _WIN32
-#include <windows.h>
-#include <tchar.h>
-#endif
+
 
 namespace itk {
 
@@ -95,20 +93,8 @@ ImageRepresenter<TPixel, ImageDimension>::Load(const H5::CommonFG& fg) {
 	ImageRepresenter* newInstance = new ImageRepresenter();
 	newInstance->Register();
 
-#ifdef _WIN32
-	std::string tmpDirectoryName;
-	TCHAR szTempFileName[MAX_PATH];
-	DWORD dwRetVal = 0;
-	//  Gets the temp path env string (no guarantee it's a valid path).
-    dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-	tmpDirectoryName.assign(szTempFileName);
-	std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0);
-#else
-	std::string tmpfilename = tmpnam(0);
-#endif
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
-	tmpfilename += ".vtk";
 	HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
 
 	newInstance->m_reference = ReadDataset(tmpfilename.c_str());
@@ -211,19 +197,8 @@ void
 ImageRepresenter<TPixel, ImageDimension>::Save(const H5::CommonFG& fg) const {
 	using namespace H5;
 
-#ifdef _WIN32
-	std::string tmpDirectoryName;
-	TCHAR szTempFileName[MAX_PATH];
-	DWORD dwRetVal = 0;
-	//  Gets the temp path env string (no guarantee it's a valid path).
-    dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-	tmpDirectoryName.assign(szTempFileName);
-	std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0);
-#else
-	std::string tmpfilename = tmpnam(0);
-#endif
-	tmpfilename += ".vtk";
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+
 	WriteDataset(tmpfilename.c_str(), (DatasetConstPointerType)this->m_reference);
 
 	HDF5Utils::dumpFileToHDF5(tmpfilename.c_str(), fg, "./reference" );

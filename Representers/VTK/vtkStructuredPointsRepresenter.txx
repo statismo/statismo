@@ -36,16 +36,12 @@
  */
 
 
-#ifdef _WIN32
-#include <windows.h>
-#include <tchar.h>
-#endif
-
 #include "vtkStructuredPointsRepresenter.h"
 #include "vtkPointData.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
 #include "statismo/HDF5Utils.h"
+#include "statismo/utils.h"
 
 using statismo::VectorType;
 using statismo::HDF5Utils;
@@ -87,19 +83,7 @@ template <class TPrecision, unsigned Dimensions>
 vtkStructuredPointsRepresenter<TPrecision, Dimensions>*
 vtkStructuredPointsRepresenter<TPrecision, Dimensions>::Load(const H5::CommonFG& fg) {
 
-#ifdef _WIN32
-	std::string tmpDirectoryName;
-	TCHAR szTempFileName[MAX_PATH];
-	DWORD dwRetVal = 0;
-	//  Gets the temp path env string (no guarantee it's a valid path).
-    dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-	tmpDirectoryName.assign(szTempFileName);
-	std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0);
-#else
-	std::string tmpfilename = tmpnam(0);
-#endif
-
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
 	statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
 	DatasetConstPointerType reference = ReadDataset(tmpfilename.c_str());
@@ -199,19 +183,7 @@ void
 vtkStructuredPointsRepresenter<TPrecision, Dimensions>::Save(const H5::CommonFG& fg) const {
 	using namespace H5;
 
-#ifdef _WIN32
-	std::string tmpDirectoryName;
-	TCHAR szTempFileName[MAX_PATH];
-	DWORD dwRetVal = 0;
-	//  Gets the temp path env string (no guarantee it's a valid path).
-    dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-	tmpDirectoryName.assign(szTempFileName);
-	std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0);
-#else
-	std::string tmpfilename = tmpnam(0);
-#endif
-
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
 	WriteDataset(tmpfilename.c_str(), this->m_reference);
 
