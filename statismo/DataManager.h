@@ -149,6 +149,18 @@ public:
 	 * \param filename The filename of the dataset.
 	 */
 	virtual void AddDataset(const std::string& filename);
+
+	/**
+	 * Add a dataset to the data manager.
+	 * \param dataset the dataset to be added
+	 * \param URI A string containing the URI of the given dataset, which is added to the metadata.
+	 *
+	 * While it is not strictly necessary, and sometimes not even possible, to specify a URI for the given dataset,
+	 * it is strongly encouraged to add a description. The string will be added to the metadata and stored with the model.
+	 * Having this information stored with the model may prove valuable at a later point in time.
+	 */
+	virtual void AddDataset(const DatasetConstPointerType dataset, const std::string& URI = "Unspecified URI");
+
 	
 	/**
 	 * Saves the data matrix and all URIs into an HDF5 file.

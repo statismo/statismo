@@ -96,8 +96,8 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleData
 		++it, i++)
 	{
 		std::ostringstream os;
-		os << "filename_" << i;
-		dataInfo.push_back(ModelInfo::KeyValuePair(os.str().c_str(),(*it)->GetDatasetFilename()));
+		os << "URI_" << i;
+		dataInfo.push_back(ModelInfo::KeyValuePair(os.str().c_str(),(*it)->GetDatasetURI()));
 	}
 
 	ModelInfo info(scores, dataInfo, bi);

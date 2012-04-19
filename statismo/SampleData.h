@@ -52,9 +52,9 @@ public:
 	/**
 	 * Ctor. Usually not called from outside of the library
 	 */
-	static SampleData* Create(const Representer* representer, const std::string& filename, const VectorType& sampleVector)
+	static SampleData* Create(const Representer* representer, const std::string& URI, const VectorType& sampleVector)
 	{
-		return new SampleData(representer, filename, sampleVector);
+		return new SampleData(representer, URI, sampleVector);
 	}
 
 	/**
@@ -72,9 +72,9 @@ public:
 	virtual void Save(const H5::Group& dsGroup) const;
 
 	/**
-	 * Get the filename of the original dataset
+	 * Get the URI of the original dataset
 	 */
-	std::string GetDatasetFilename() const { return m_filename; }
+	std::string GetDatasetURI() const { return m_URI; }
 
 	/**
 	 * Get the representer used to create this sample
@@ -94,8 +94,8 @@ public:
 
 protected:
 
-	SampleData(const Representer* representer, const std::string& filename, const VectorType& sampleVector)
-		: m_representer(representer), m_filename(filename), m_sampleVector(sampleVector)
+	SampleData(const Representer* representer, const std::string& URI, const VectorType& sampleVector)
+		: m_representer(representer), m_URI(URI), m_sampleVector(sampleVector)
 	{
 	}
 
@@ -106,17 +106,17 @@ protected:
 	virtual void LoadInternal(const H5::Group& dsGroup) {
 		VectorType v;
 		HDF5Utils::readVector(dsGroup, "./samplevector", m_sampleVector);
-		m_filename = HDF5Utils::readString(dsGroup, "./filename");
+		m_URI = HDF5Utils::readString(dsGroup, "./URI");
 	}
 
 	virtual void SaveInternal(const H5::Group& dsGroup) const {
 		HDF5Utils::writeVector(dsGroup, "./samplevector", m_sampleVector);
-		HDF5Utils::writeString(dsGroup, "./filename", m_filename);
+		HDF5Utils::writeString(dsGroup, "./URI", m_URI);
 	}
 
 
 	const Representer* m_representer;
-	std::string m_filename;
+	std::string m_URI;
 	VectorType m_sampleVector;
 };
 
@@ -137,12 +137,12 @@ public:
 
 
 	static SampleDataWithSurrogates* Create(const Representer* representer,
-									 const std::string& datasetFilename,
+									 const std::string& datasetURI,
 									 const VectorType& sampleVector,
 									 const std::string& surrogateFilename,
 									 const VectorType& surrogateVector)
 	{
-		return new SampleDataWithSurrogates(representer, datasetFilename, sampleVector, surrogateFilename, surrogateVector);
+		return new SampleDataWithSurrogates(representer, datasetURI, sampleVector, surrogateFilename, surrogateVector);
 	}
 
 
@@ -156,11 +156,11 @@ public:
 private:
 
 	SampleDataWithSurrogates(const Representer* representer,
-							const std::string& datasetFilename,
+							const std::string& datasetURI,
 							const VectorType& sampleVector,
 							const std::string& surrogateFilename,
 							const VectorType& surrogateVector)
-	: SampleData<Representer>(representer, datasetFilename, sampleVector),
+	: SampleData<Representer>(representer, datasetURI, sampleVector),
 	  m_surrogateFilename(surrogateFilename),
 	  m_surrogateVector(surrogateVector)
 	{

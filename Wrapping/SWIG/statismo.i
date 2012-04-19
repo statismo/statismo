@@ -110,7 +110,7 @@ template <typename Representer>
 struct SampleData {
 	typedef typename Representer::DatasetPointerType DatasetPointerType;
 	
-	std::string GetDatasetFilename() const;
+	std::string GetDatasetURI() const;
 	%newobject GetAsNewSample;
 	const DatasetPointerType GetAsNewSample() const;
 
@@ -187,6 +187,7 @@ public:
 	static DataManager* Load(const char* filename);
 		
 	void AddDataset(const char* filename);
+	void AddDataset(Representer::DatasetConstPointerType dataset, const std::string& URI="Unspecified URI");
 	unsigned GetNumberOfSamples() const;
 
 	void Save(const char* filename);

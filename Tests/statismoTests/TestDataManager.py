@@ -37,12 +37,21 @@
 import unittest
 import tempfile
 import os.path
+import vtk
 
 import statismo
 from statismoTestUtils import DATADIR, getDataFiles
 
 class Test(unittest.TestCase):
 
+    def read_vtkpd(self, filename):
+        reader = vtk.vtkPolyDataReader()
+        reader.SetFileName(filename)
+        reader.Update()
+        
+        pd = vtk.vtkPolyData()
+        pd.ShallowCopy(reader.GetOutput())
+        return pd
 
     def setUp(self):
         self.datafiles = getDataFiles(DATADIR)
@@ -59,6 +68,22 @@ class Test(unittest.TestCase):
         datamanager = statismo.DataManager_vtkPD.Create(self.representer)        
         map(datamanager.AddDataset, self.datafiles)        
         self.assertEqual(len(self.datafiles), datamanager.GetNumberOfSamples())
+
+
+    def testAddDataset(self):
+        
+        datamanager1 = statismo.DataManager_vtkPD.Create(self.representer)
+        datamanager1.AddDataset(self.datafiles[0])        
+
+        datamanager2 = statismo.DataManager_vtkPD.Create(self.representer)
+        ds = self.read_vtkpd(self.datafiles[0])        
+        datamanager2.AddDataset(ds, self.datafiles[0])
+
+        self.assertEqual(datamanager1.GetNumberOfSamples(),datamanager2.GetNumberOfSamples())
+        
+        for (sampleData1, sampleData2) in zip(datamanager1.GetSampleData(), datamanager2.GetSampleData()): 
+            self.assertEqual(sampleData1.GetDatasetURI(), sampleData2.GetDatasetURI())
+
             
     def testLoadSave(self):
         datamanager =  statismo.DataManager_vtkPD.Create(self.representer)
