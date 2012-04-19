@@ -326,6 +326,7 @@ public:
 	 const statismo::VectorType& GetMeanVector() const;	 	 
 
 	  const ModelInfo& GetModelInfo() const;
+	  void SetModelInfo(const ModelInfo& modelInfo);
 	double GetNoiseVariance() const;
 	
 	private:
