@@ -242,19 +242,18 @@ namespace statismo {
 class ModelInfo {
 public:
 	typedef std::pair<std::string, std::string> KeyValuePair;
-	typedef std::list<KeyValuePair> KeyValuePairList;
-	typedef KeyValuePairList DataInfoList;
-	typedef KeyValuePairList BuilderInfoList;
-
-	ModelInfo();
+	typedef std::list<KeyValuePair> KeyValueList;
+			
+	ModelInfo(const statismo::MatrixType& scores, const KeyValueList& di, const KeyValueList& bi);	
 	const statismo::MatrixType& GetScoresMatrix() const;
 	virtual void Save(const H5::CommonFG& publicFg) const;
 	virtual void Load(const H5::CommonFG& publicFg);	
-	const DataInfoList& GetDataInfo() const;
+	const KeyValueList& GetDataInfo() const;
+	const KeyValueList& GetBuilderInfo() const;	
 };
 }
 %template (KeyValuePair) std::pair<std::string, std::string>; 
-%template(KeyValuePairList) std::list<std::pair<std::string, std::string> >;
+%template(KeyValueList) std::list<std::pair<std::string, std::string> >;
 
 //////////////////////////////////////////////////////
 // StatisticalModel

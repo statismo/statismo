@@ -73,6 +73,10 @@ public:
 	ModelInfo(const MatrixType& scores, const DataInfoList& di, const BuilderInfoList& bi)
 	: m_scores(scores), m_dataInfo(di), m_builderInfo(bi)
 	{}
+	ModelInfo(const MatrixType& scores)
+	: m_scores(scores)
+	{}
+
 
 	/// destructor
 	virtual ~ModelInfo() {}
@@ -112,6 +116,11 @@ public:
 	 * Returns the data info
 	 */
 	const DataInfoList& GetDataInfo() const { return m_dataInfo; }
+
+	/**
+	 * Returns the builder info
+	 */
+	const BuilderInfoList& GetBuilderInfo() const { return m_builderInfo; }
 
 private:
 

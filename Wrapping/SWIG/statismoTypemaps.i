@@ -96,7 +96,7 @@
 	%typemap (in) (statismo::VectorType&)
 	{
 		int is_new_object1 = 0;
-		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 0, 100);
+		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 1, 1);
 		unsigned dim = array->dimensions[0];
 		
 		VectorType* v = new VectorType(dim);
@@ -104,6 +104,22 @@
 			(*v)(i) = (float) ((double*) array->data)[i];
 		}		 
 		$1= v ;
+	}
+
+	%typemap (in) (const statismo::MatrixType&)
+	{
+		int is_new_object1 = 0;
+		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 2, 2);
+		unsigned dim1 = array->dimensions[0];
+		unsigned dim2 = array->dimensions[1];
+		
+		statismo::MatrixType* m = new statismo::MatrixType(dim1, dim2);
+		for (unsigned i = 0; i < dim1; i++) { 
+			for (unsigned j = 0; j < dim2; j++) {
+				(*m)(i,j) = (float) ((double*) array->data)[i* dim2 + j];
+			}
+		}		 
+		$1= m ;
 	}
 
 	// the typecheck is needed to disambiguate overloaded function
