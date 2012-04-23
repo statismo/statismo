@@ -81,7 +81,7 @@ class Test(unittest.TestCase):
         sample = samples[0].GetAsNewSample()
         
         coeffs_sample = model.ComputeCoefficientsForDataset(sample)
-        restored_sample = model.DrawInstance(coeffs_sample)
+        restored_sample = model.DrawSample(coeffs_sample)
 
         self.assertEqual(sample.GetNumberOfPoints(), restored_sample.GetNumberOfPoints())
 
@@ -90,7 +90,7 @@ class Test(unittest.TestCase):
         # check if the scores can be used to restore the data in the datamanager
         scores = model.GetModelInfo().GetScoresMatrix()
         for i in xrange(0, scores.shape[1]):
-            sample_from_scores = model.DrawInstance(scores[:,i])
+            sample_from_scores = model.DrawSample(scores[:,i])
             sample_from_dm = samples[i].GetAsNewSample()
 
             self.checkPointsAlmostEqual(sample_from_scores.GetPoints(), sample_from_dm.GetPoints(), 100)
@@ -196,7 +196,7 @@ class Test(unittest.TestCase):
         coeffs2[0] = -3        
         
         for coeffs in [coeffs1, coeffs2]:
-            partiallyFixedSample = pf_model.DrawInstance(coeffs)
+            partiallyFixedSample = pf_model.DrawSample(coeffs)
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[0], fixedpt[0], 1)
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[1], fixedpt[1], 1)
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[2], fixedpt[2], 1)

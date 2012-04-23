@@ -103,7 +103,7 @@ public:
 	{
 		typename RepresenterType::ValueType d;
 		try {
-			d = this->m_StatisticalModel->DrawInstanceAtPoint(this->m_coeff_vector, pt);
+			d = this->m_StatisticalModel->DrawSampleAtPoint(this->m_coeff_vector, pt);
 		} catch (ExceptionObject &e) {
 			std::cout << "exception occured at point " << pt << std::endl;
 			std::cout << "message " << e.what() << std::endl;

@@ -97,15 +97,11 @@ int main(int argc, char** argv) {
 		vtkPolyData* samplePC1 = model->DrawSample(coefficients);
 		saveSample(samplePC1, resultdir, "samplePC1.vtk");
 
-		// draw the corresponding instance of the model (i.e. the same sample, but without noise)
-		vtkPolyData* instancePC1 = model->DrawInstance(coefficients);
-		saveSample(instancePC1, resultdir, "instancePC1.vtk");
 
 		// The vtkPolyDataRepresenter returns naked pointers to vtk objcts. Therefore we have to delete all the samples
 		mean->Delete();
 		randomSample->Delete();
 		samplePC1->Delete();
-		instancePC1->Delete();
 
 		std::cout << "saved samples to " << resultdir << std::endl;
 

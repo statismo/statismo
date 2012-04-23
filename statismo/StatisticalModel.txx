@@ -85,7 +85,7 @@ template <typename Representer>
 typename StatisticalModel<Representer>::DatasetPointerType
 StatisticalModel<Representer>::DrawMean() const {
 	VectorType coeffs = VectorType::Zero(this->GetNumberOfPrincipalComponents());
-	return DrawInstance(coeffs);
+	return DrawSample(coeffs, false);
 }
 
 
@@ -93,7 +93,7 @@ template <typename Representer>
 typename StatisticalModel<Representer>::RepresenterValueType
 StatisticalModel<Representer>::DrawMeanAtPoint(const PointType& point) const {
 	VectorType coeffs = VectorType::Zero(this->GetNumberOfPrincipalComponents());
-	return DrawInstanceAtPoint(coeffs, point);
+	return DrawSampleAtPoint(coeffs, point);
 
 }
 
@@ -101,7 +101,7 @@ template <typename Representer>
 typename StatisticalModel<Representer>::RepresenterValueType
 StatisticalModel<Representer>::DrawMeanAtPoint(unsigned pointId) const {
 	VectorType coeffs = VectorType::Zero(this->GetNumberOfPrincipalComponents());
-	return DrawInstanceAtPoint(coeffs, pointId);
+	return DrawSampleAtPoint(coeffs, pointId, false);
 
 }
 
@@ -110,59 +110,56 @@ StatisticalModel<Representer>::DrawMeanAtPoint(unsigned pointId) const {
 
 template <typename Representer>
 typename StatisticalModel<Representer>::DatasetPointerType
-StatisticalModel<Representer>::DrawSample(const VectorType& coefficients) const {
+StatisticalModel<Representer>::DrawSample(bool addNoise) const {
 
-	VectorType epsilon = Utils::generateNormalVector(m_pcaBasisMatrix.rows()) * sqrt(m_noiseVariance);
+	// we create random coefficients and draw a random sample from the model
+	VectorType coeffs = Utils::generateNormalVector(GetNumberOfPrincipalComponents());
 
-	return m_representer->SampleVectorToSample(DrawInstanceVector(coefficients) + epsilon);
+	return DrawSample(coeffs, addNoise);
 }
+
 
 template <typename Representer>
 typename StatisticalModel<Representer>::DatasetPointerType
-StatisticalModel<Representer>::DrawInstance(const VectorType& coefficients) const {
-
-	return m_representer->SampleVectorToSample(DrawInstanceVector(coefficients));
-
+StatisticalModel<Representer>::DrawSample(const VectorType& coefficients, bool addNoise) const {
+	return m_representer->SampleVectorToSample(DrawSampleVector(coefficients, addNoise));
 }
+
 
 template <typename Representer>
 VectorType
-StatisticalModel<Representer>::DrawInstanceVector(const VectorType& coefficients) const {
+StatisticalModel<Representer>::DrawSampleVector(const VectorType& coefficients, bool addNoise) const {
 
 	if (coefficients.size() != this->GetNumberOfPrincipalComponents()) {
 		throw StatisticalModelException("Incorrect number of coefficients provided !");
 	}
 
-	if (this->m_mean.size() == 0 ) {
-		throw StatisticalModelException("Parameters of the DeformableModel are not set. Cannot draw from it! ");
+	unsigned vectorSize = this->m_mean.size();
+	assert (vectorSize != 0);
+
+	VectorType epsilon = VectorType::Zero(vectorSize);
+	if (addNoise) {
+		epsilon = Utils::generateNormalVector(vectorSize) * sqrt(m_noiseVariance);
 	}
 
-	return m_mean+ m_pcaBasisMatrix * coefficients;
-}
 
-template <typename Representer>
-typename StatisticalModel<Representer>::DatasetPointerType
-StatisticalModel<Representer>::DrawSample() const {
-	// we create random coefficients and draw a random sample from the model
-	VectorType coeffs = Utils::generateNormalVector(GetNumberOfPrincipalComponents());
-
-	return DrawSample(coeffs);
+	return m_mean+ m_pcaBasisMatrix * coefficients + epsilon;
 }
 
 
 template <typename Representer>
 typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients, const PointType& point) const {
+StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients, const PointType& point, bool addNoise) const {
 
 	unsigned ptId = this->m_representer->GetPointIdForPoint(point);
 
-	return DrawSampleAtPoint(coefficients, ptId);
+	return DrawSampleAtPoint(coefficients, ptId, addNoise);
 
 }
 
 template <typename Representer>
 typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients, const unsigned ptId) const {
+StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients, const unsigned ptId, bool addNoise) const {
 
 	unsigned dim = Representer::GetDimensions();
 
@@ -173,44 +170,16 @@ StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients,
 	}
 
 	VectorType v(dim);
-	VectorType epsilon = Utils::generateNormalVector(dim) * sqrt(m_noiseVariance);
+	VectorType epsilon = VectorType::Zero(dim);
+	if (addNoise) {
+		epsilon = Utils::generateNormalVector(dim) * sqrt(m_noiseVariance);
+	}
 	for (unsigned d = 0; d < dim; d++) {
 		unsigned idx =Representer::MapPointIdToInternalIdx(ptId, d);
 		v[d] = m_mean[idx] + m_pcaBasisMatrix.row(idx).dot(coefficients) + epsilon[d];
 	}
 
 	return this->m_representer->PointSampleVectorToPointSample(v);
-}
-
-template <typename Representer>
-typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::DrawInstanceAtPoint(const VectorType& coefficients, const unsigned ptId) const {
-
-	unsigned dim = Representer::GetDimensions();
-
-	if (ptId >= this->m_representer->GetNumberOfPoints()) {
-		std::ostringstream os;
-		os << "Invalid point number provided for DrawSampleAtPoint " << ptId << " > " << this->m_representer->GetNumberOfPoints();
-		throw StatisticalModelException(os.str().c_str());
-	}
-
-	VectorType v(dim);
-	for (unsigned d = 0; d < dim; d++) {
-		unsigned idx =Representer::MapPointIdToInternalIdx(ptId, d);
-		v(d) = m_mean(idx) + m_pcaBasisMatrix.row(idx).dot(coefficients);
-	}
-
-	return this->m_representer->PointSampleVectorToPointSample(v);
-}
-
-template <typename Representer>
-typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::DrawInstanceAtPoint(const VectorType& coefficients, const PointType& point) const {
-
-	unsigned ptId = this->m_representer->GetPointIdForPoint(point);
-
-	return DrawInstanceAtPoint(coefficients, ptId);
-
 }
 
 

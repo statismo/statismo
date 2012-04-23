@@ -131,7 +131,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 	VectorType coeffs = Minv.cast<ScalarType>() * WT * (samplePart - muPart);
 
 	// the MAP solution in the sample space
-	VectorType newMean = inputModel->GetRepresenter()->SampleToSampleVector(inputModel->DrawInstance(coeffs));
+	VectorType newMean = inputModel->GetRepresenter()->SampleToSampleVector(inputModel->DrawSample(coeffs));
 
 	// We note that the posterior distribution can again be seen as  PPCA model
 	// (i.e. any sample S  can be written in the form S =  mu + W alpha + epsilon)
@@ -205,7 +205,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 		// get the scores from the input model
 		for (unsigned i = 0; i < inputScores.cols(); i++) {
 			// reconstruct the sample from the input model and project it back into the model
-			typename Representer::DatasetPointerType ds = inputModel->DrawInstance(inputScores.col(i));
+			typename Representer::DatasetPointerType ds = inputModel->DrawSample(inputScores.col(i));
 			scores.col(i) = partiallyFixedModel->ComputeCoefficientsForDataset(ds);
 			Representer::DeleteDataset(ds);
 		}

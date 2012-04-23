@@ -294,21 +294,16 @@ public:
 	 Representer::ValueType DrawMeanAtPoint(unsigned ptId) const;
 
 	 %rename("DrawRandomSample") DrawSample() const;	 
-	 DatasetPointerType DrawSample() const;	 
+	 DatasetPointerType DrawSample() const;	  
 	 DatasetPointerType DrawSample(const statismo::VectorType& coeffs) const;
 	 Representer::ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, const vtkPoint& pt) const;	 
 	 %rename("DrawSampleAtPointId") DrawSampleAtPoint(const statismo::VectorType&, unsigned) const;
 	 Representer::ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, unsigned ptId) const;
 
-	 DatasetPointerType DrawInstance(const statismo::VectorType& coeffs) const;
-	 Representer::ValueType DrawInstanceAtPoint(const statismo::VectorType& coeffs, const vtkPoint& pt) const;	 
-	 %rename("DrawInstanceAtPointId") DrawInstanceAtPoint(const statismo::VectorType&, unsigned) const;
-	 Representer::ValueType DrawInstanceAtPoint(const statismo::VectorType& coeffs, unsigned ptId) const;
 
 	 
 	 statismo::VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const;
 	 statismo::VectorType ComputeCoefficientsForPointValues(const PointValueListType&  pointValues) const;
-
 
 	 //%rename("ComputeCoefficientsForPointIdValues") ComputeCoefficientsForPointValues(const PointIdValueListType&  pointValues) const;
 	 statismo::VectorType ComputeCoefficientsForPointValues(const PointIdValueListType&  pointValues) const;
@@ -319,7 +314,7 @@ public:
 	 statismo::MatrixType GetCovarianceAtPoint(unsigned ptId1, unsigned ptId2) const;
 
 	 unsigned GetNumberOfPrincipalComponents();	 	
-	 statismo::VectorType DrawInstanceVector(const statismo::VectorType& coefficients) const;
+	 statismo::VectorType DrawSampleVector(const statismo::VectorType& coefficients) const;
 	 const statismo::MatrixType& GetPCABasisMatrix() const ;
 	 const statismo::MatrixType GetOrthonormalPCABasisMatrix() const ;
 	 const statismo::VectorType& GetPCAVarianceVector() const;

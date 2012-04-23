@@ -183,7 +183,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 
 
 		// get the sample mean corresponding the the conditional given mean of the parameter vectors
-		VectorType condMeanSample = pcaModel->GetRepresenter()->SampleToSampleVector(pcaModel->DrawInstance(condMean));
+		VectorType condMeanSample = pcaModel->GetRepresenter()->SampleToSampleVector(pcaModel->DrawSample(condMean));
 
 
 		// so far all the computation have been done in parameter (latent) space. Go back to sample space.

@@ -64,12 +64,12 @@ class Test(unittest.TestCase):
         
         # check whether the mechanism for vectors is ok in the first place
         coeffs = zeros(self.model.GetNumberOfPrincipalComponents())
-        self.assertTrue((self.model.DrawInstanceVector(coeffs) == self.model.GetMeanVector()).all() == True) 
+        self.assertTrue((self.model.DrawSampleVector(coeffs) == self.model.GetMeanVector()).all() == True) 
 
         # now we check that after drawing a sample the equality still holds
-        sample = self.model.DrawInstance(coeffs)
+        sample = self.model.DrawSample(coeffs)
         samplePts = sample.GetPoints()
-        sampleVec = self.model.DrawInstanceVector(coeffs)
+        sampleVec = self.model.DrawSampleVector(coeffs)
         for pt_id in xrange(0, sample.GetNumberOfPoints()):            
             self.assertTrue(samplePts.GetPoint(pt_id)[0] == sampleVec[pt_id * 3] and 
                              samplePts.GetPoint(pt_id)[1] == sampleVec[pt_id * 3 + 1] and

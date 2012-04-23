@@ -144,37 +144,24 @@ public:
 		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawMeanAtPoint), this->m_impl, ptid));
 	}
 
-	DatasetPointerType DrawSample(const VectorType& coeffs) const {
-		typedef DatasetPointerType (ImplType::*functype)(const statismo::VectorType&) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, fromVnlVector(coeffs)));
+	DatasetPointerType DrawSample(const VectorType& coeffs, bool addNoise = false) const {
+		typedef DatasetPointerType (ImplType::*functype)(const statismo::VectorType&, bool) const;
+		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, fromVnlVector(coeffs), addNoise));
 	}
 
-	DatasetPointerType DrawSample() const {
+	DatasetPointerType DrawSample(bool addNoise = false) const {
 		typedef DatasetPointerType (ImplType::*functype)() const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl));
+		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, addNoise));
 	}
 
-	ValueType DrawSampleAtPoint(const VectorType& coeffs, const PointType& pt) const {
-		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, const PointType&) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), pt));
+	ValueType DrawSampleAtPoint(const VectorType& coeffs, const PointType& pt, bool addNoise = false) const {
+		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, const PointType&, bool) const;
+		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), pt, addNoise));
 	}
 
-	ValueType DrawSampleAtPoint(const VectorType& coeffs, unsigned ptid) const  {
-		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, unsigned) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), ptid));
-	}
-
-	DatasetPointerType DrawInstance(const VectorType& coeffs) const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::DrawInstance, this->m_impl, fromVnlVector(coeffs)));
-	}
-
-	ValueType DrawInstanceAtPoint(const VectorType& coeffs, const PointType& pt) const {
-		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, const PointType&) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawInstanceAtPoint), this->m_impl, fromVnlVector(coeffs), pt));
-	}
-	ValueType DrawInstanceAtPoint(const VectorType& coeffs, unsigned ptid) const  {
-		typedef ValueType (ImplType::*functype)(const statismo::VectorType&,  unsigned) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawInstanceAtPoint), this->m_impl, fromVnlVector(coeffs), ptid));
+	ValueType DrawSampleAtPoint(const VectorType& coeffs, unsigned ptid, bool addNoise  = false) const  {
+		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, unsigned, bool) const;
+		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), ptid, addNoise));
 	}
 
 

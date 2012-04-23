@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
 
 	// We obtain the fitting result by drawing the model instance that belongs to the
 	// optimal tranform parameters (coefficients)
-	MeshType::Pointer mesh = model->DrawInstance(transform->GetCoefficients());
+	MeshType::Pointer mesh = model->DrawSample(transform->GetCoefficients());
 
 	// Write out the fitting result
 	itk::MeshFileWriter<MeshType>::Pointer writer = itk::MeshFileWriter<MeshType>::New();

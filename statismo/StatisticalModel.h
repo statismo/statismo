@@ -89,12 +89,6 @@ public:
  * This class provides the method to sample from this probability distribution, and to compute the probability
  * of given samples directly.
  *
- * This class distinguishes the concept of a \a Sample and an \a Instance of the model.
- * A sample is to be understood in the statistical sense, i.e. it is a sample from the
- * probability distribution of the class. This implies that a sample is subject to
- * the additional noise term \f$ \epsilon \f$. For many applications, in particular for
- * viusalization, this noise is disturbing. The concept of an instance of the model
- * refers to the same sample, but without the noise term.
  */
 template <typename Representer>
 class StatisticalModel {
@@ -220,35 +214,25 @@ public:
 
 	/**
 	 * Draws the sample with the given coefficients
-	 * In contrast to DrawInstance, the resulting Dataset is subject to the Gaussian noise, specified
-	 * in the model. Thus calling DrawSample with the same coefficients several times, may yield slightly different
-	 * results.
+	 *
 	 * \param coefficients A coefficient vector. The size of the coefficient vector should be smaller
 	 * than number of factors in the model. Otherwise an exception is thrown.
+	 * \param addNoise If true, the Gaussian noise assumed in the model is added to the sample
 	 *
 	 * \return A new sample
 	 * */
-	DatasetPointerType DrawSample(const VectorType& coefficients) const ;
+	DatasetPointerType DrawSample(const VectorType& coefficients, bool addNoise = false) const ;
 
 	/**
 	 * As StatisticalModel::DrawSample, but where the coefficients are chosen at random according to a standard normal distribution
 	 *
+	 * \param addNoise If true, the Gaussian noise assumed in the model is added to the sample
+	 *
 	 * \return A new sample
 	 * \sa DrawSample
 	 */
-	DatasetPointerType DrawSample() const ;
+	DatasetPointerType DrawSample(bool addNoise = false) const ;
 
-	/**
-	 * Draws the instance with the given coefficients. This method is similar as DrawSample(const VectorType& coefficients),
-	 * but does not add Gaussian noise. Thus, calling this method several times will always yield the same dataset.
-	 *
-	 * \param coefficients A coefficient vector. The size of the coefficient vector should be smaller
-	 * than number of factors in the model. Otherwise an exception is thrown.
-	 *
-	 * \return A new sample
-	 * */
-	DatasetPointerType DrawInstance(const VectorType& coefficients) const ;
-	///@}
 
 	/**
 	 * @name Point sampling and point information
@@ -278,8 +262,9 @@ public:
 	 *
 	 * \param coefficients the coefficients of the sample
 	 * \param the point of the sample where it is evaluated
+	 * \param addNoise If true, the Gaussian noise assumed in the model is added to the sample
 	 */
-	RepresenterValueType DrawSampleAtPoint(const VectorType& coefficients, const PointType& point) const;
+	RepresenterValueType DrawSampleAtPoint(const VectorType& coefficients, const PointType& point, bool addNoise = false) const;
 
 	/**
 	 * Returns the value of the sample defined by coefficients at the specified pointID.
@@ -288,29 +273,9 @@ public:
 	 *
 	 * \param coefficients the coefficients of the sample
 	 * \param the point of the sample where it is evaluated
+	 * \param addNoise If true, the Gaussian noise assumed in the model is added to the sample
 	 */
-	RepresenterValueType DrawSampleAtPoint(const VectorType& coefficients, unsigned pointId) const;
-
-	/**
-	 * Returns the instance defined by coefficients at the specified pointID.
-	 * This method computes the value of the instance only for the given point, and is thus much more
-	 * efficient that calling DrawSample, if only a few points are of interest.
-	 *
-	 * \param coefficients the coefficients of the sample
-	 * \param the point of the sample where it is evaluated
-	 */
-	RepresenterValueType DrawInstanceAtPoint(const VectorType& coefficients, const PointType& point) const;
-
-
-	/**
-	 * Returns the instance defined by the coefficients at the specified pointID.
-	 * This method computes the value of the instance only for the given point, and is thus much more
-	 * efficient that calling DrawSample, if only a few points are of interest.
-	 *
-	 * \param coefficients the coefficients of the sample
-	 * \param the point of the sample where it is evaluated
-	 */
-	RepresenterValueType DrawInstanceAtPoint(const VectorType& coefficients, unsigned pointId) const;
+	RepresenterValueType DrawSampleAtPoint(const VectorType& coefficients, unsigned pointId, bool addNoise = false) const;
 
 
 	/**
@@ -482,8 +447,9 @@ public:
 
 	/**
 	 * Returns an instance for the given coefficients as a vector.
+	 * \param addNoise If true, the Gaussian noise assumed in the model is added to the sample
 	 */
-	VectorType DrawInstanceVector(const VectorType& coefficients) const ;
+	VectorType DrawSampleVector(const VectorType& coefficients, bool addNoise = false) const ;
 	///@}
 
 
