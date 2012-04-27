@@ -111,17 +111,9 @@ public:
 	 * \name Adapter methods
 	 */
 	///@{
-	/// Create a new dataset
-	static DatasetPointerType NewDataset() ;
-
-	/// Delete a dataset
+	/// Delete a dataset of the type DatasetPointerType. This method may do nothing, if there
+	/// is no need to delete the dataset explicitely (e.g. if DatasetPointerType is a smart pointer).
 	static void DeleteDataset(DatasetPointerType d) ;
-
-	/// Read a dataset with the given filename
-	static DatasetPointerType ReadDataset(const std::string& filename);
-
-	/// Write a dataset to the given filename
-	static void WriteDataset(const std::string& filename, DatasetConstPointerType pd) ;
     ///@}
 
 

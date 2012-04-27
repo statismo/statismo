@@ -40,10 +40,10 @@
 #define __VTKPOLYDATAREPRESENTER_CPP
 
 #include "vtkPoints.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
 #include "statismo/HDF5Utils.h"
 #include "statismo/utils.h"
+#include "vtkPolyDataReader.h"
+#include "vtkPolyDataWriter.h"
 
 using statismo::VectorType;
 using statismo::HDF5Utils;
@@ -104,6 +104,23 @@ vtkPolyDataRepresenter::Load(const H5::CommonFG& fg) {
 
 }
 
+
+inline
+void
+vtkPolyDataRepresenter::Save(const H5::CommonFG& fg) const {
+	using namespace H5;
+
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+
+
+	WriteDataset(tmpfilename.c_str(), this->m_reference);
+
+	HDF5Utils::dumpFileToHDF5(tmpfilename.c_str(), fg, "./reference" );
+
+	std::remove(tmpfilename.c_str());
+	HDF5Utils::writeInt(fg, "./alignment", m_alignment);
+
+}
 
 inline
 vtkPolyDataRepresenter::DatasetPointerType
@@ -213,24 +230,6 @@ vtkPolyDataRepresenter::PointSampleVectorToPointSample(const VectorType& v) cons
 
 
 inline
-void
-vtkPolyDataRepresenter::Save(const H5::CommonFG& fg) const {
-	using namespace H5;
-
-	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
-
-
-	WriteDataset(tmpfilename.c_str(), this->m_reference);
-
-	HDF5Utils::dumpFileToHDF5(tmpfilename.c_str(), fg, "./reference" );
-
-	std::remove(tmpfilename.c_str());
-	HDF5Utils::writeInt(fg, "./alignment", m_alignment);
-
-}
-
-
-inline
 unsigned
 vtkPolyDataRepresenter::GetPointIdForPoint(const PointType& pt) const {
 	assert (m_reference != 0);
@@ -274,10 +273,6 @@ void vtkPolyDataRepresenter::WriteDataset(const std::string& filename,DatasetCon
     writer->Delete();
 }
 
-inline
-vtkPolyDataRepresenter::DatasetPointerType vtkPolyDataRepresenter::NewDataset() {
-    return vtkPolyData::New();
-}
 
 inline
 void vtkPolyDataRepresenter::DeleteDataset(DatasetPointerType d) {

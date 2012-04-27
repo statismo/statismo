@@ -106,8 +106,8 @@ public:
 		SetstatismoImplObj(ImplType::Create(representer));
 	}
 
-	void AddDataset(const char* filename) {
-		callstatismoImpl(std::tr1::bind(&ImplType::AddDataset, this->m_impl, filename));
+	void AddDataset(const typename Representer::DatasetConstPointerType ds, const char* filename) {
+		callstatismoImpl(std::tr1::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
 	}
 
 	void Load(const char* filename) {

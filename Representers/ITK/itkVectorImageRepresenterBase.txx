@@ -254,11 +254,6 @@ void VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::WriteD
 
 }
 
-template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
-typename  VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::DatasetPointerType VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::NewDataset() {
-    return DatasetType::New();
-}
-
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 unsigned VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::GetNumberOfPoints(DatasetConstPointerType ds) {

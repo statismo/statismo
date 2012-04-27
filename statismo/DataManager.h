@@ -28,7 +28,7 @@
  * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
  * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
  * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * PROFITS; OR BUSINESS addINTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
@@ -146,20 +146,14 @@ public:
 
 	/**
 	 * Add a dataset to the data manager.
-	 * \param filename The filename of the dataset.
-	 */
-	virtual void AddDataset(const std::string& filename);
-
-	/**
-	 * Add a dataset to the data manager.
 	 * \param dataset the dataset to be added
-	 * \param URI A string containing the URI of the given dataset, which is added to the metadata.
+	 * \param URI A string containing the URI of the given dataset. This is only added as an info to the metadata.
 	 *
 	 * While it is not strictly necessary, and sometimes not even possible, to specify a URI for the given dataset,
 	 * it is strongly encouraged to add a description. The string will be added to the metadata and stored with the model.
 	 * Having this information stored with the model may prove valuable at a later point in time.
 	 */
-	virtual void AddDataset(const DatasetConstPointerType dataset, const std::string& URI = "Unspecified URI");
+	virtual void AddDataset(const DatasetConstPointerType dataset, const std::string& URI);
 
 	
 	/**

@@ -48,6 +48,16 @@
 using namespace statismo;
 using std::auto_ptr;
 
+vtkPolyData* loadVTKPolyData(const std::string& filename)
+{
+	vtkPolyDataReader* reader = vtkPolyDataReader::New();
+	reader->SetFileName(filename.c_str());
+	reader->Update();
+	vtkPolyData* pd = vtkPolyData::New();
+	pd->ShallowCopy(reader->GetOutput());
+	return pd;
+}
+
 
 //
 // Build a new shape model from vtkPolyData, given in datadir.
@@ -77,32 +87,32 @@ int main(int argc, char** argv) {
 		auto_ptr<RepresenterType> representer(RepresenterType::Create(datadir +"/hand_polydata/hand-0.vtk", RepresenterType::RIGID));
 
 		// We create a datamanager and provide it with a pointer  to the representer
-		auto_ptr<DataManagerType> dm(DataManagerType::Create(representer.get()));
+		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+
 
 		// Now we add our data to the data manager
-		dm->AddDataset(datadir +"/hand_polydata/hand-1.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-2.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-3.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-5.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-6.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-7.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-8.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-9.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-10.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-11.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-12.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-13.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-14.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-15.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-16.vtk");
-		dm->AddDataset(datadir +"/hand_polydata/hand-17.vtk");
+		// load the data and add it to the data manager. We take the first 17 hand shapes that we find in the data folder
+		for (unsigned i = 0; i < 17; i++) {
+
+			std::ostringstream ss;
+			ss << datadir +"/hand_polydata/hand-" << i << ".vtk";
+			const std::string datasetFilename = ss.str();
+			vtkPolyData* dataset = loadVTKPolyData(datasetFilename);
+
+			// We provde the filename as a second argument.
+			// It will be written as metadata, and allows us to more easily figure out what we did later.
+			dataManager->AddDataset(dataset, datasetFilename);
+
+			// it is save to delete the dataset after it was added, as the datamanager direclty copies it.
+			dataset->Delete();
+		}
 
 		// To actually build a model, we need to create a model builder object.
 		// Calling the build model with a list of samples from the data manager, returns a new model.
 		// The second parameter to BuildNewModel is the variance of the noise on our data
 		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
 
-		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dm->GetSampleData(), 0.01));
+		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleData(), 0.01));
 
 		// Once we have built the model, we can save it to disk.
 		model->Save(modelname);

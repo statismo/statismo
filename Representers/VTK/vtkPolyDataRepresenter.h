@@ -120,9 +120,6 @@ public:
 	unsigned GetPointIdForPoint(const PointType& point) const;
 
     
-	static DatasetPointerType ReadDataset(const std::string& filename);
-	static void WriteDataset(const std::string& filename, DatasetConstPointerType pd) ;
-	static DatasetPointerType NewDataset() ;
     static void DeleteDataset(DatasetPointerType d) ;
 
 	 /* Maps a (Pointid,component) tuple to a component of the internal matrix.
@@ -138,10 +135,15 @@ public:
 
 
 private:
+
 	vtkPolyDataRepresenter(const std::string& reference, AlignmentType alignment);
 	vtkPolyDataRepresenter(const DatasetConstPointerType reference, AlignmentType alignment);
 	vtkPolyDataRepresenter(const vtkPolyDataRepresenter& orig);
 	vtkPolyDataRepresenter& operator=(const vtkPolyDataRepresenter& rhs);
+
+	static DatasetPointerType ReadDataset(const std::string& filename);
+	static void WriteDataset(const std::string& filename, DatasetConstPointerType pd) ;
+
 
 	DatasetPointerType m_reference;
 

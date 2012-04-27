@@ -44,6 +44,7 @@
 #include "itkDirectory.h"
 #include "itkMesh.h"
 #include "itkMeshFileWriter.h"
+#include "itkMeshFileReader.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>
@@ -83,6 +84,7 @@ void buildShapeModel(const char* reference, const char* dir, const char* modelna
 	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
     typedef itk::DataManager<RepresenterType> DataManagerType;
+    typedef itk::MeshFileReader<MeshType> MeshReaderType;
 
     RepresenterType::Pointer representer = RepresenterType::New();
     representer->SetReference(reference);
@@ -95,7 +97,12 @@ void buildShapeModel(const char* reference, const char* dir, const char* modelna
 
     for (StringVectorType::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
         std::string fullpath = (std::string(dir) + "/") + *it;
-        dataManager->AddDataset(fullpath.c_str());
+
+        MeshReaderType::Pointer reader = MeshReaderType::New();
+        reader->SetFileName(fullpath.c_str());
+        reader->Update();
+        MeshType::Pointer mesh = reader->GetOutput();
+        dataManager->AddDataset(mesh, fullpath.c_str());
     }
 
     ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
@@ -109,7 +116,7 @@ void buildShapeModel(const char* reference, const char* dir, const char* modelna
 int main(int argc, char* argv[]) {
 
 	if (argc < 4) {
-		std::cout << "usage " << argv[0] << " referenceDeformationField deformationFieldDir modelname" << std::endl;
+		std::cout << "usage " << argv[0] << " referenceShape shapeDir modelname" << std::endl;
 		exit(-1);
 	}
 

@@ -41,6 +41,7 @@
 #include "itkStatisticalModel.h"
 #include "itkPCAModelBuilder.h"
 #include "itkDataManager.h"
+#include "itkImageFileReader.h"
 #include "itkDirectory.h"
 #include <sys/types.h>
 #include <errno.h>
@@ -86,6 +87,7 @@ void itkExample(const char* reference, const char* dir, const char* modelname) {
 	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
     typedef itk::DataManager<RepresenterType> DataManagerType;
+	typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
 
     typename RepresenterType::Pointer representer = RepresenterType::New();
     representer->SetReference(reference);
@@ -97,8 +99,14 @@ void itkExample(const char* reference, const char* dir, const char* modelname) {
     dataManager->SetRepresenter(representer);
 
     for (StringVectorType::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
+
         std::string fullpath = (std::string(dir) + "/") + *it;
-        dataManager->AddDataset(fullpath.c_str());
+    	typename ImageFileReaderType::Pointer reader = ImageFileReaderType::New();
+    	reader->SetFileName(fullpath);
+    	reader->Update();
+    	typename ImageType::Pointer df = reader->GetOutput();
+
+        dataManager->AddDataset(df, fullpath.c_str());
     }
 
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();

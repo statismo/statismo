@@ -130,17 +130,13 @@ public:
 		return ptId * GetDimensions() + componentInd;
 	}
 
-    /**
-     * Read/write/create DataSets
-     */
-    static DatasetPointerType ReadDataset(const char* filename);
-    static void WriteDataset(const char* filename, const ImageType* image);
-    static typename ImageType::Pointer NewDataset();
     static unsigned GetNumberOfPoints(DatasetConstPointerType ds);
             
     static void DeleteDataset(DatasetPointerType ds) {}// do nothing, as we are working with smart pointers
 
 private:
+    static DatasetPointerType ReadDataset(const char* filename);
+    static void WriteDataset(const char* filename, const ImageType* image);
 
 	DatasetConstPointerType m_reference;
 };

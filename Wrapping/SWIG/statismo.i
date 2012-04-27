@@ -186,8 +186,7 @@ public:
 	static DataManager* Create(const Representer*);
 	static DataManager* Load(const char* filename);
 		
-	void AddDataset(const char* filename);
-	void AddDataset(Representer::DatasetConstPointerType dataset, const std::string& URI="Unspecified URI");
+	void AddDataset(Representer::DatasetConstPointerType dataset, const std::string& URI);
 	unsigned GetNumberOfSamples() const;
 
 	void Save(const char* filename);
@@ -213,7 +212,7 @@ public:
 
 
 	static DataManagerWithSurrogates<Representer>* Create(const Representer* representer, const std::string& surrogTypeFilename);
-	void AddDatasetWithSurrogates(const std::string& datasetFilename, const std::string& surrogateFilename);
+	void AddDatasetWithSurrogates(Representer::DatasetConstPointerType datasetFilename, const std::string& surrogateFilename,  const std::string& surrogateFilename);
 		
 private:
 	DataManagerWithSurrogates();

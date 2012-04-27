@@ -164,15 +164,6 @@ public:
 		return ptId * GetDimensions() + componentInd;
 	}
 
-	/// Read an itk mesh
-    static DatasetPointerType ReadDataset(const char* filename);
-
-    /// write an itk mesh
-    static void WriteDataset(const char* filename, const MeshType* Mesh);
-
-    /// create a new dataset
-    static typename MeshType::Pointer NewDataset();
-
     /// delete the dataset (does nothing, as ITK uses smart pointers)
     static void DeleteDataset(DatasetPointerType ds) {}
 
@@ -181,6 +172,11 @@ public:
 
 private:
     typename MeshType::Pointer cloneMesh(const MeshType* mesh) const;
+
+    static DatasetPointerType ReadDataset(const char* filename);
+
+    static void WriteDataset(const char* filename, const MeshType* Mesh);
+
 
     // returns the closest point for the given mesh
     unsigned FindClosestPoint(const MeshType* mesh, const PointType pt) const ;

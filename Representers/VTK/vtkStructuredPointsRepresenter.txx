@@ -37,9 +37,9 @@
 
 
 #include "vtkStructuredPointsRepresenter.h"
-#include "vtkPointData.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
+#include "vtkPointData.h"
 #include "statismo/HDF5Utils.h"
 #include "statismo/utils.h"
 
@@ -51,7 +51,7 @@ using statismo::StatisticalModelException;
 
 template <class TPrecision, unsigned Dimensions>
 vtkStructuredPointsRepresenter<TPrecision, Dimensions>::vtkStructuredPointsRepresenter(DatasetConstPointerType reference)
-  : m_reference(NewDataset())
+  : m_reference(vtkStructuredPoints::New())
 {
 	m_reference->DeepCopy(const_cast<vtkStructuredPoints*>(reference));
 }
@@ -240,10 +240,6 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::GetPointIdForPoint(const
     return this->m_reference->FindPoint(const_cast<double*>(pt.data()));
 }
 
-template <class TPrecision, unsigned Dimensions>
-vtkStructuredPoints* vtkStructuredPointsRepresenter<TPrecision, Dimensions>::NewDataset() {
-    return vtkStructuredPoints::New();
-}
 
 template <class TPrecision, unsigned Dimensions>
 void vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DeleteDataset(vtkStructuredPoints* d) {

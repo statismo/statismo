@@ -172,26 +172,11 @@ DataManager<Representer>::Save(const std::string& filename) const {
 }
 
 
-
-template <typename Representer>
-void
-DataManager<Representer>::AddDataset(const std::string& filename) {
-
-	assert(m_representer != 0);
-
-	DatasetPointerType ds = Representer::ReadDataset(filename.c_str());
-	AddDataset(ds, filename);
-	Representer::DeleteDataset(ds);
-
-}
-
-
 template <typename Representer>
 void
 DataManager<Representer>::AddDataset(DatasetConstPointerType dataset, const std::string& URI) {
-
 	DatasetPointerType sample = this->m_representer->DatasetToSample(dataset, 0);
-	m_sampleDataList.push_back(SampleDataType::Create(m_representer, "unspecified-filename", m_representer->SampleToSampleVector(sample)));
+	m_sampleDataList.push_back(SampleDataType::Create(m_representer, URI , m_representer->SampleToSampleVector(sample)));
 	Representer::DeleteDataset(sample);
 }
 

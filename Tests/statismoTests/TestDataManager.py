@@ -40,18 +40,9 @@ import os.path
 import vtk
 
 import statismo
-from statismoTestUtils import DATADIR, getDataFiles
+from statismoTestUtils import DATADIR, getDataFiles, read_vtkpd
 
 class Test(unittest.TestCase):
-
-    def read_vtkpd(self, filename):
-        reader = vtk.vtkPolyDataReader()
-        reader.SetFileName(filename)
-        reader.Update()
-        
-        pd = vtk.vtkPolyData()
-        pd.ShallowCopy(reader.GetOutput())
-        return pd
 
     def setUp(self):
         self.datafiles = getDataFiles(DATADIR)
@@ -64,30 +55,28 @@ class Test(unittest.TestCase):
         pass
     
 
-    def testNumberOfDatasetsCorrect(self):
-        datamanager = statismo.DataManager_vtkPD.Create(self.representer)        
-        map(datamanager.AddDataset, self.datafiles)        
-        self.assertEqual(len(self.datafiles), datamanager.GetNumberOfSamples())
-
-
     def testAddDataset(self):
         
-        datamanager1 = statismo.DataManager_vtkPD.Create(self.representer)
-        datamanager1.AddDataset(self.datafiles[0])        
-
-        datamanager2 = statismo.DataManager_vtkPD.Create(self.representer)
-        ds = self.read_vtkpd(self.datafiles[0])        
-        datamanager2.AddDataset(ds, self.datafiles[0])
-
-        self.assertEqual(datamanager1.GetNumberOfSamples(),datamanager2.GetNumberOfSamples())
+        datamanager = statismo.DataManager_vtkPD.Create(self.representer)
+        datasets = map(read_vtkpd, self.datafiles)        
         
-        for (sampleData1, sampleData2) in zip(datamanager1.GetSampleData(), datamanager2.GetSampleData()): 
-            self.assertEqual(sampleData1.GetDatasetURI(), sampleData2.GetDatasetURI())
+        for (dataset, filename) in zip(datasets, self.datafiles):        
+            datamanager.AddDataset(dataset, filename)                
+
+        self.assertEqual(datamanager.GetNumberOfSamples(),len(self.datafiles))
+        
+        for (i, sampleData) in enumerate(datamanager.GetSampleData()): 
+            self.assertEqual(sampleData.GetDatasetURI(),self.datafiles[i])
 
             
     def testLoadSave(self):
         datamanager =  statismo.DataManager_vtkPD.Create(self.representer)
-        map(datamanager.AddDataset, self.datafiles)
+
+        datasets = map(read_vtkpd, self.datafiles)        
+        for (dataset, filename) in zip(datasets, self.datafiles):        
+            datamanager.AddDataset(dataset, filename)                
+
+
         tmpfile = tempfile.mktemp(suffix="h5")
         datamanager.Save(tmpfile)
         datamanager_new =  statismo.DataManager_vtkPD.Load(tmpfile)
@@ -102,7 +91,12 @@ class Test(unittest.TestCase):
 
     def testLoadSaveSurrogateData(self):
         datamanager =  statismo.DataManagerWithSurrogates_vtkPD.Create(self.representer, os.path.join(DATADIR, "..", "hand_images", "surrogates", "hand_surrogates_types.txt"))
-        datamanager.AddDatasetWithSurrogates(os.path.join(DATADIR, "hand-1.vtk"), os.path.join(DATADIR, "..", "hand_images", "surrogates", "hand-1_surrogates.txt"))
+
+        ds_filename = os.path.join(DATADIR, "hand-1.vtk")
+        ds = read_vtkpd(ds_filename)
+        surrogate_filename =  os.path.join(DATADIR, "..", "hand_images", "surrogates", "hand-1_surrogates.txt")  
+        datamanager.AddDatasetWithSurrogates(ds, ds_filename, surrogate_filename)
+
         tmpfile = tempfile.mktemp(suffix="h5")
         datamanager.Save(tmpfile)
         datamanager_new = statismo.DataManagerWithSurrogates_vtkPD.Load(tmpfile)
@@ -117,7 +111,10 @@ class Test(unittest.TestCase):
 
     def testCrossValidation(self):
         datamanager =  statismo.DataManager_vtkPD.Create(self.representer)
-        map(datamanager.AddDataset, self.datafiles)
+        datasets = map(read_vtkpd, self.datafiles)        
+        for (dataset, filename) in zip(datasets, self.datafiles):        
+            datamanager.AddDataset(dataset, filename)                
+
         cvFolds = datamanager.GetCrossValidationFolds(3, True)
         
         self.assertEqual(len(cvFolds), 3)

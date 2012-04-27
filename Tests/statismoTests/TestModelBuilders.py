@@ -41,7 +41,7 @@ from scipy import zeros, randn, log
 
 import statismo
 
-from statismoTestUtils import getDataFiles, DATADIR, getPDPointWithId
+from statismoTestUtils import getDataFiles, DATADIR, getPDPointWithId, read_vtkpd
 import tempfile
 
 
@@ -52,7 +52,10 @@ class Test(unittest.TestCase):
         self.datafiles = getDataFiles(DATADIR)
         self.representer = statismo.vtkPolyDataRepresenter.Create(self.datafiles[0], statismo.vtkPolyDataRepresenter.RIGID)        
         self.dataManager = statismo.DataManager_vtkPD.Create(self.representer)
-        map(self.dataManager.AddDataset, self.datafiles)
+        
+        datasets = map(read_vtkpd, self.datafiles)
+        for (dataset, filename) in zip(datasets, self.datafiles):        
+            self.dataManager.AddDataset(dataset, filename)
 
         
     def tearDown(self):

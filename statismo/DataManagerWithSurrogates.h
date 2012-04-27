@@ -86,9 +86,12 @@ public:
 	/**
 	 * Add a dataset, together with surrogate information
 	 * \param datasetFilename
+	 * \param datasetURI (An URI for the dataset. This info is only added to the metadata).
 	 * \param surrogateFilename
 	 */
-	void AddDatasetWithSurrogates(const std::string& datasetFilename, const std::string& surrogateFilename);
+	void AddDatasetWithSurrogates(typename RepresenterType::DatasetConstPointerType ds,
+			  	  	  	  	  	  const std::string& datasetURI,
+								  const std::string& surrogateFilename);
 
 	/**
 	 * Get a vector indicating the types of surrogates variables (Categorical vs Continuous)

@@ -41,14 +41,27 @@
 #include "statismo/DataManager.h"
 
 #include "Representers/VTK/vtkPolyDataRepresenter.h"
+#include "vtkPolyDataReader.h"
+#include "vtkPolyData.h"
 
 #include <iostream>
+#include <ostream>
 #include <memory>
 
 
 using namespace statismo;
 using std::auto_ptr;
 
+
+vtkPolyData* loadVTKPolyData(const std::string& filename)
+{
+	vtkPolyDataReader* reader = vtkPolyDataReader::New();
+	reader->SetFileName(filename.c_str());
+	reader->Update();
+	vtkPolyData* pd = vtkPolyData::New();
+	pd->ShallowCopy(reader->GetOutput());
+	return pd;
+}
 
 // illustrates the crossvalidation functionality of the data manager
 int main(int argc, char** argv) {
@@ -75,14 +88,21 @@ int main(int argc, char** argv) {
 
 		// create a data manager and add a number of datasets for model building
 		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
-		dataManager->AddDataset(datadir +"/hand_polydata/hand-1.vtk");
-		dataManager->AddDataset(datadir +"/hand_polydata/hand-2.vtk");
-		dataManager->AddDataset(datadir +"/hand_polydata/hand-3.vtk");
-		dataManager->AddDataset(datadir +"/hand_polydata/hand-5.vtk");
-		dataManager->AddDataset(datadir +"/hand_polydata/hand-6.vtk");
-		dataManager->AddDataset(datadir +"/hand_polydata/hand-7.vtk");
-		dataManager->AddDataset(datadir +"/hand_polydata/hand-8.vtk");
-		dataManager->AddDataset(datadir +"/hand_polydata/hand-9.vtk");
+
+		for (unsigned i = 0; i < 17; i++) {
+
+				std::ostringstream ss;
+				ss << datadir +"/hand_polydata/hand-" << i << ".vtk";
+				const std::string datasetFilename = ss.str();
+				vtkPolyData* dataset = loadVTKPolyData(datasetFilename);
+
+				// We provde the filename as a second argument.
+				// It will be written as metadata, and allows us to more easily figure out what we did later.
+				dataManager->AddDataset(dataset, datasetFilename);
+
+				// it is save to delete the dataset after it was added, as the datamanager direclty copies it.
+				dataset->Delete();
+			}
 
 		std::cout << "succesfully loaded "<< dataManager->GetNumberOfSamples() << " samples "<< std::endl;
 

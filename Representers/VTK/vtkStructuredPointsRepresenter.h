@@ -101,10 +101,6 @@ public:
 	unsigned GetNumberOfPoints() const;
 	void Save(const H5::CommonFG& fg) const;
 
-
-    static DatasetPointerType ReadDataset(const std::string& filename);
-	static void WriteDataset(const std::string& filename, DatasetConstPointerType sp);
-	static DatasetPointerType  NewDataset();
 	static void DeleteDataset(DatasetPointerType  d);
     static unsigned GetNumberOfPoints(DatasetPointerType  reference);
 
@@ -122,6 +118,10 @@ private:
 
 	vtkStructuredPointsRepresenter(DatasetConstPointerType reference);
 	vtkStructuredPointsRepresenter(const std::string& referenceFilename);
+
+    static DatasetPointerType ReadDataset(const std::string& filename);
+	static void WriteDataset(const std::string& filename, DatasetConstPointerType sp);
+
 
 	DatasetType* m_reference;
 };

@@ -266,11 +266,6 @@ void ImageRepresenter<TPixel, ImageDimension>::WriteDataset(const char* filename
 
 }
 
-template <class TPixel, unsigned ImageDimension>
-typename  ImageRepresenter<TPixel, ImageDimension>::DatasetPointerType ImageRepresenter<TPixel, ImageDimension>::NewDataset() {
-    return DatasetType::New();
-}
-
 
 template <class TPixel, unsigned ImageDimension>
 unsigned ImageRepresenter<TPixel, ImageDimension>::GetNumberOfPoints(DatasetConstPointerType ds) {

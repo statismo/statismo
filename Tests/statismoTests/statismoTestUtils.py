@@ -38,8 +38,19 @@
 import statismo
 from os import listdir
 from os.path import join
+import vtk
 
 DATADIR = join("..", "..", "data", "hand_polydata")
+
+def read_vtkpd(filename):
+    reader = vtk.vtkPolyDataReader()
+    reader.SetFileName(filename)
+    reader.Update()
+    
+    pd = vtk.vtkPolyData()
+    pd.ShallowCopy(reader.GetOutput())
+    return pd
+
 
 def getDataFiles(datadir):
     return [join(datadir, f) for f in listdir(datadir) if f.endswith('.vtk')]
@@ -50,7 +61,12 @@ def buildPolyDataModel(datadir, noise):
     representer = statismo.vtkPolyDataRepresenter.Create(files[0], statismo.vtkPolyDataRepresenter.RIGID)    
     
     dm = statismo.DataManager_vtkPD.Create(representer)
-    map(dm.AddDataset, files)
+
+    datasets = map(read_vtkpd, files)
+    for (dataset, filename) in zip(datasets, files):        
+        dm.AddDataset(dataset, filename)
+
+    
     builder = statismo.PCAModelBuilder_vtkPD.Create()
     model =  builder.BuildNewModel(dm.GetSampleData(), noise)
     return model

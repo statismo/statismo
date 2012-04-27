@@ -266,11 +266,6 @@ void MeshRepresenter<TPixel, MeshDimension>::WriteDataset(const char* filename, 
 
 }
 
-template <class TPixel, unsigned MeshDimension>
-typename  MeshRepresenter<TPixel, MeshDimension>::DatasetPointerType MeshRepresenter<TPixel, MeshDimension>::NewDataset() {
-    return DatasetType::New();
-}
-
 
 template <class TPixel, unsigned MeshDimension>
 typename  MeshRepresenter<TPixel, MeshDimension>::DatasetPointerType

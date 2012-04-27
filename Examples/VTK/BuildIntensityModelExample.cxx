@@ -39,15 +39,26 @@
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/StatisticalModel.h"
 #include "statismo/DataManager.h"
-
+#include "vtkStructuredPoints.h"
+#include "vtkStructuredPointsReader.h"
 #include "Representers/VTK/vtkStructuredPointsRepresenter.h"
 
 #include <iostream>
+#include <ostream>
 #include <memory>
 
 using namespace statismo;
 using std::auto_ptr;
 
+vtkStructuredPoints* loadVTKStructuredPointsData(const std::string& filename)
+{
+	vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
+	reader->SetFileName(filename.c_str());
+	reader->Update();
+	vtkStructuredPoints* sp = vtkStructuredPoints::New();
+	sp->ShallowCopy(reader->GetOutput());
+	return sp;
+}
 
 //
 // Build a new shape model from vtkPolyData, given in datadir.
@@ -77,15 +88,25 @@ int main(int argc, char** argv) {
 		auto_ptr<RepresenterType> representer(RepresenterType::Create(datadir +"/hand_images/hand-0.vtk"));
 		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
-		dataManager->AddDataset(datadir +"/hand_images/hand-0.vtk");
-		dataManager->AddDataset(datadir +"/hand_images/hand-1.vtk");
-		dataManager->AddDataset(datadir +"/hand_images/hand-2.vtk");
-		dataManager->AddDataset(datadir +"/hand_images/hand-3.vtk");
+		// load the data and add it to the data manager. We take the first 4 hand shapes that we find in the data folder
+		for (unsigned i = 0; i < 4; i++) {
 
+			std::ostringstream ss;
+			ss << datadir +"/hand_images/hand-" << i << ".vtk";
+			const std::string datasetFilename = ss.str();
+			vtkStructuredPoints* dataset = loadVTKStructuredPointsData(datasetFilename);
+
+			// We provde the filename as a second argument.
+			// It will be written as metadata, and allows us to more easily figure out what we did later.
+			dataManager->AddDataset(dataset, datasetFilename);
+
+			// it is save to delete the dataset after it was added, as the datamanager direclty copies it.
+			dataset->Delete();
+		}
 		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
 		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleData(), 0.01));
 		model->Save(modelname);
-		std::cout << "Succesfully saved model as " << modelname << std::endl;
+		std::cout << "Successfully saved model as " << modelname << std::endl;
 	}
 	catch (StatisticalModelException& e) {
 		std::cout << "Exception occured while building the intenisity model" << std::endl;

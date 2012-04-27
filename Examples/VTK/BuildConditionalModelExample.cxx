@@ -49,6 +49,16 @@ using namespace statismo;
 using std::auto_ptr;
 
 
+vtkStructuredPoints* loadVTKStructuredPointsData(const std::string& filename)
+{
+	vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
+	reader->SetFileName(filename.c_str());
+	reader->Update();
+	vtkStructuredPoints* sp = vtkStructuredPoints::New();
+	sp->ShallowCopy(reader->GetOutput());
+	return sp;
+}
+
 //
 // This example shows the use of the classes for
 // building an intensity model (appearance model) from
@@ -85,10 +95,28 @@ int main(int argc, char** argv) {
 
 		// add the data information. The first argument is the dataset, the second the surrogate information
 		// and the 3rd the surrogate type
-		dataManager->AddDatasetWithSurrogates(datadir +"/hand_images/hand-0.vtk",datadir +"hand_images/surrogates/hand-0_surrogates.txt");
-		dataManager->AddDatasetWithSurrogates(datadir +"/hand_images/hand-1.vtk",datadir +"hand_images/surrogates/hand-1_surrogates.txt");
-		dataManager->AddDatasetWithSurrogates(datadir +"/hand_images/hand-2.vtk",datadir +"hand_images/surrogates/hand-2_surrogates.txt");
-		dataManager->AddDatasetWithSurrogates(datadir +"/hand_images/hand-3.vtk",datadir +"hand_images/surrogates/hand-3_surrogates.txt");
+
+		// load the data and add it to the data manager. We take the first 4 hand images that we find in the data folder
+		for (unsigned i = 0; i < 4; i++) {
+
+			std::ostringstream ssFilename;
+			ssFilename << datadir << "/hand_images/hand-" << i << ".vtk";
+			const std::string datasetFilename = ssFilename.str();
+
+			std::ostringstream ssSurrogateFilename;
+			ssSurrogateFilename << datadir << "hand_images/surrogates/hand-" << i << "_surrogates.txt";
+			const std::string surrogateFilename = ssSurrogateFilename.str();
+
+			vtkStructuredPoints* dataset = loadVTKStructuredPointsData(datasetFilename);
+
+
+			// We provde the filename as a second argument.
+			// It will be written as metadata, and allows us to more easily figure out what we did later.
+			dataManager->AddDatasetWithSurrogates(dataset, datasetFilename, surrogateFilename);
+
+			// it is save to delete the dataset after it was added, as the datamanager direclty copies it.
+			dataset->Delete();
+		}
 
 		// Build up a list holding the conditioning information.
 		typedef ConditionalModelBuilder<RepresenterType> ConditionalModelBuilderType;
