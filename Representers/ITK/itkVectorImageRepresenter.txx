@@ -128,7 +128,9 @@ template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 typename VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetPointerType
 VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::SampleVectorToSample(const VectorType& sample) const
 {
-
+	if (this->m_reference.GetPointer() == 0) {
+		itkExceptionMacro(<< "Reference must be set before the representer can be used");
+	}
 	typedef itk::ImageDuplicator< DatasetType > DuplicatorType;
 	typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
 	duplicator->SetInputImage(this->m_reference);

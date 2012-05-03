@@ -139,6 +139,10 @@ VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetT
 
 	typedef VectorResampleImageFilter<DatasetType, DatasetType, double> VectorResampleImageFilterType;
 
+	if (this->m_reference.GetPointer() == 0) {
+		itkExceptionMacro(<< "Reference must be set before the representer can be used");
+	}
+
 	AlignmentListType targetLandmarks;
 	for (typename AlignmentListType::const_iterator it = m_alignmentList.begin();
 		it != m_alignmentList.end();
