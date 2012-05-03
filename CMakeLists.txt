@@ -93,5 +93,5 @@ if (BUILD_ITK_WRAPPING)
 endif()
 
 if (BUILD_TESTS)
-  #something? run tests?
+  add_custom_target(test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)
 endif()

@@ -24,7 +24,7 @@ set (VTK_LIBRARIES_PYTHON
         )
 
 include_directories(${STATISMO_DIR} ${STATISMO_INCLUDE_DIR} ${VTK_INCLUDE_DIR}  ${STATISMO_DIR}/Representers/VTK)
-link_directories (../StatisticalModel ${STATISMO_LIBRARY_DIR})   
+link_directories (${STATISMO_LIBRARY_DIR})   
 
 
 FIND_PACKAGE(SWIG REQUIRED)
