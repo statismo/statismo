@@ -21,7 +21,7 @@ FILE(GLOB INCLUDE_FILES *.h)
 FILE(GLOB SOURCE_FILES  *.txx *.cpp)
 
 # TODO how can we get rid of the ../StatisticalModel include?
-include_directories(${STATISMO_DIR} ${STATISMO_INCLUDE_DIR} ${VTK_INCLUDE_DIR}  ${STATISMO_DIR}/Representers/VTK)
+include_directories(${STATISMO_ROOT_DIR}  ${STATISMO_ROOT_DIR}/3rdParty  ${STATISMO_INCLUDE_DIR} ${VTK_INCLUDE_DIR}  ${STATISMO_ROOT_DIR}/Representers/VTK)
 link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR})
  
 add_executable (BuildShapeModelExample BuildShapeModelExample.cxx) 

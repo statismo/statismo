@@ -23,7 +23,7 @@ set (VTK_LIBRARIES_PYTHON
         vtkCommonPythonD
         )
 
-include_directories(${STATISMO_DIR} ${STATISMO_INCLUDE_DIR} ${VTK_INCLUDE_DIR}  ${STATISMO_DIR}/Representers/VTK)
+include_directories(${STATISMO_ROOT_DIR} ${STATISMO_INCLUDE_DIR} ${STATISMO_ROOT_DIR}/3rdParty  ${VTK_INCLUDE_DIR}  ${STATISMO_ROOT_DIR}/Representers/VTK)
 link_directories (${STATISMO_LIBRARY_DIR})   
 
 

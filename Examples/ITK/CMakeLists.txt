@@ -13,7 +13,7 @@ SET (ITK_STATISTICAL_MODEL_INCLUDE_DIR ${STATISMO_ROOT_DIR}/ITKstatismo)
 FILE(GLOB INCLUDE_FILES *.h)
 FILE(GLOB SOURCE_FILES  *.txx )
 
-include_directories(${STATISMO_ROOT_DIR} ${STATISMO_ROOT_DIR}/statismo_ITK  ${STATISMO_INCLUDE_DIR}  ${ITK_INCLUDE_DIRS}  ${STATISMO_ROOT_DIR}/Representers/ITK)
+include_directories(${STATISMO_ROOT_DIR} ${STATISMO_ROOT_DIR}/statismo_ITK  ${STATISMO_ROOT_DIR}/3rdParty  ${STATISMO_INCLUDE_DIR}  ${ITK_INCLUDE_DIRS}  ${STATISMO_ROOT_DIR}/Representers/ITK)
 link_directories(${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR})
 
 add_executable (buildDeformationModel buildDeformationModel.cpp 
