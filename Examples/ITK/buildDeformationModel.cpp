@@ -93,7 +93,7 @@ void itkExample(const char* reference, const char* dir, const char* modelname) {
     representer->SetReference(reference);
 
     StringVectorType filenames;
-    getdir(dir, filenames, ".vtk");
+    getdir(dir, filenames, ".mha");
 
     typename DataManagerType::Pointer dataManager = DataManagerType::New();
     dataManager->SetRepresenter(representer);

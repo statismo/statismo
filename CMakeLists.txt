@@ -7,6 +7,22 @@ project (statismo)
 include(ExternalProject)
 OPTION (HDF5_USE_EXTERNAL "Use External Library Building for HDF5" 0)
 
+set(BUILD_ITK_EXAMPLES_DEFAULT OFF)
+OPTION(BUILD_ITK_EXAMPLES "Build the itk examples directory" ${BUILD_ITK_EXAMPLES_DEFAULT})
+
+set(BUILD_VTK_EXAMPLES_DEFAULT OFF)
+OPTION(BUILD_VTK_EXAMPLES "Build the vtk examples directory" ${BUILD_VTK_EXAMPLES_DEFAULT})
+
+set(BUILD_ITK_WRAPPING_DEFAULT OFF)
+OPTION(BUILD_ITK_WRAPPING "Build itk wrapping" ${BUILD_ITK_WRAPPING_DEFAULT})
+
+set(BUILD_VTK_WRAPPING_DEFAULT OFF)
+OPTION(BUILD_VTK_WRAPPING "Build vtk wrapping" ${BUILD_VTK_WRAPPING_DEFAULT})
+
+set(BUILD_TESTS_DEFAULT OFF)
+OPTION(BUILD_TESTS "Build tests" ${BUILD_TESTS_DEFAULT})
+
+
 # the name of the library seems to depend on the platform
 IF(WIN32)
 	SET(HDF5_LIBRARIES hdf5dll;hdf5_cppdll)
@@ -52,3 +68,30 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION .)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION .)
+
+set(STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+
+if (BUILD_ITK_EXAMPLES)
+  add_subdirectory(Examples/ITK)
+endif()
+
+if (BUILD_VTK_EXAMPLES)
+  add_subdirectory(Examples/VTK)
+endif()
+
+if (BUILD_TESTS)
+  set(BUILD_VTK_WRAPPING ON)
+endif()
+
+
+if (BUILD_VTK_WRAPPING)
+  add_subdirectory(Wrapping/SWIG)
+endif()
+
+if (BUILD_ITK_WRAPPING)
+  add_subdirectory(Wrapping/ITK)
+endif()
+
+if (BUILD_TESTS)
+  #something? run tests?
+endif()
