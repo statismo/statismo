@@ -39,6 +39,15 @@
 #include "vtkPolyDataRepresenter.h"
 %}
 
+
+class vtkPoint {
+public:
+	vtkPoint(double x, double y, double z);
+};	
+
+
+
+
 class vtkPolyDataRepresenter {
 public:
 typedef vtkPoint PointType;
