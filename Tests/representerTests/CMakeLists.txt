@@ -32,20 +32,25 @@ link_directories(${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} 
 
 
 ADD_EXECUTABLE(itkVectorImageRepresenterTest itkVectorImageRepresenterTest.cpp) 
+ADD_DEPENDENCIES(itkVectorImageRepresenterTest HDF5)
 TARGET_LINK_LIBRARIES(itkVectorImageRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 ADD_EXECUTABLE(itkImageRepresenterTest itkImageRepresenterTest.cpp) 
+ADD_DEPENDENCIES(itkImageRepresenterTest HDF5)
 TARGET_LINK_LIBRARIES(itkImageRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 
 ADD_EXECUTABLE(itkMeshRepresenterTest itkMeshRepresenterTest.cpp) 
+ADD_DEPENDENCIES(itkMeshRepresenterTest HDF5)
 TARGET_LINK_LIBRARIES(itkMeshRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 
 ADD_EXECUTABLE(vtkPolyDataRepresenterTest vtkPolyDataRepresenterTest.cpp) 
+ADD_DEPENDENCIES(vtkPolyDataRepresenterTest HDF5)
 TARGET_LINK_LIBRARIES(vtkPolyDataRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES} ${HDF5_LIBRARIES})
 
 ADD_EXECUTABLE(vtkStructuredPointsRepresenterTest vtkStructuredPointsRepresenterTest.cpp) 
+ADD_DEPENDENCIES(vtkStructuredPointsRepresenterTest HDF5)
 TARGET_LINK_LIBRARIES(vtkStructuredPointsRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES}  ${HDF5_LIBRARIES})
 
 

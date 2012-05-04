@@ -22,18 +22,21 @@ add_executable (buildDeformationModel buildDeformationModel.cpp
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
+ADD_DEPENDENCIES(buildDeformationModel HDF5)
 target_link_libraries (buildDeformationModel ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 add_executable (deformationModelFitting deformationModelFitting.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
+ADD_DEPENDENCIES(deformationModelFitting HDF5)
 target_link_libraries (deformationModelFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})
 
 add_executable (buildShapeModel buildShapeModel.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
+ADD_DEPENDENCIES(buildShapeModel HDF5)
 target_link_libraries (buildShapeModel ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 
@@ -41,4 +44,5 @@ add_executable (shapeModelFitting shapeModelFitting.cpp
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
+ADD_DEPENDENCIES(shapeModelFitting HDF5)
 target_link_libraries (shapeModelFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})

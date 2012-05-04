@@ -1,5 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 PROJECT(ssm_vtk)
+
+
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 FIND_PACKAGE(VTK REQUIRED)
@@ -26,19 +28,27 @@ include_directories(${STATISMO_ROOT_DIR}  ${STATISMO_ROOT_DIR}/3rdParty  ${STATI
 link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} ${HDF5_LIBRARY_DIR})
  
 add_executable (BuildShapeModelExample BuildShapeModelExample.cxx) 
+ADD_DEPENDENCIES(BuildShapeModelExample HDF5)
 target_link_libraries (BuildShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
+
 add_executable (BasicSamplingExample BasicSamplingExample.cxx) 
+ADD_DEPENDENCIES(BasicSamplingExample HDF5)
 target_link_libraries (BasicSamplingExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 add_executable (CrossValidationExample CrossValidationExample.cxx) 
+ADD_DEPENDENCIES(CrossValidationExample HDF5)
 target_link_libraries (CrossValidationExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 add_executable (BuildIntensityModelExample BuildIntensityModelExample.cxx) 
+add_DEPENDENCIES(BuildIntensityModelExample HDF5)
 target_link_libraries (BuildIntensityModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 add_executable (BuildPartiallyFixedModelExample BuildPartiallyFixedModelExample.cxx) 
+add_DEPENDENCIES(BuildPartiallyFixedModelExample HDF5)
 target_link_libraries (BuildPartiallyFixedModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
+
 add_executable (BuildConditionalModelExample BuildConditionalModelExample.cxx) 
+add_DEPENDENCIES(BuildConditionalModelExample HDF5)
 target_link_libraries (BuildConditionalModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
