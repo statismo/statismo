@@ -72,6 +72,10 @@ ModelInfo::Save(const H5::CommonFG& publicFg) const {
 		 if (m_scores.rows() != 0 && m_scores.cols() != 0) {
 			 HDF5Utils::writeMatrix(publicInfo, "./scores", m_scores);
 		 }
+		 else {
+			 // HDF5 does not allow us to write empty matrices. Therefore, we write a dummy matrix with 1 element
+			 HDF5Utils::writeMatrix(publicInfo, "./scores", MatrixType::Zero(1,1));
+		 }
 
 		 Group dataInfoPublic = publicInfo.createGroup("./dataInfo");
 		for (DataInfoList::const_iterator it = m_dataInfo.begin();it != m_dataInfo.end(); ++it)
@@ -106,6 +110,12 @@ ModelInfo::Load(const H5::CommonFG& publicFg) {
 		HDF5Utils::readMatrix(publicModelGroup, "./scores", m_scores);
 	} catch (Exception& e) {
 		// the likely cause is that there are no scores. so we set them as empty
+		m_scores.resize(0,0);
+	}
+
+	if (m_scores.cols() == 1 &&  m_scores.rows() == 1 && m_scores(0,0) == 0.0) {
+		// we observed a dummy matrix, that was created when saving the model info.
+		// This means that no scores have been saved.
 		m_scores.resize(0,0);
 	}
 
