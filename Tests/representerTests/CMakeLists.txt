@@ -45,7 +45,7 @@ ADD_EXECUTABLE(vtkPolyDataRepresenterTest vtkPolyDataRepresenterTest.cpp)
 TARGET_LINK_LIBRARIES(vtkPolyDataRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES} ${HDF5_LIBRARIES})
 
 ADD_EXECUTABLE(vtkStructuredPointsRepresenterTest vtkStructuredPointsRepresenterTest.cpp) 
-TARGET_LINK_LIBRARIES(vtkStructuredPointsRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES})
+TARGET_LINK_LIBRARIES(vtkStructuredPointsRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES}  ${HDF5_LIBRARIES})
 
 
 ADD_TEST(itkVectorImageRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/itkVectorImageRepresenterTest ${STATISMO_ROOT_DIR}/data)

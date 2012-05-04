@@ -3,4 +3,4 @@ Wrappers have been written the use of Statismo with VTK and ITK.
 The Wrapping for VTK is generated using SWIG, while the ITK Wrapping
 uses the wrapITK. 
 
-To build the wrappings, run CMake in the respective subdirectory.
+To build the wrappings, enable it in the main cmake build options.
