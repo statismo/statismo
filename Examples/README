@@ -3,15 +3,8 @@ The examples illustrate the use of Statismo together with VTK and ITK:
 
 Compiling the examples:
 -----------------------
-The examples can be built using CMake:
-cd YOUR_BUILD_DIR
-ccmake STATISMO_DIR/Examples/VTK
-or 
-ccmake STATISMO_DIR/Examples/ITK
-
-In the configuration you will have to specify the path to 
-Statismo, and the path to your installation of the HDF5 library
-(http://www.hdfgroup.org/HDF5/). 
+The examples can be built using CMake by setting the BUILD_{ITK,VTK} options in your build tree.
+The executables are then placed into the "bin" subdirectory in your build tree.
 
 Depending on which examples you build, you will also have to have VTK (www.vtk.org) or ITK (www.itk.org) installed. 
 

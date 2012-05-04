@@ -20,11 +20,10 @@ set(VTK_LIBRARIES
         vtkWidgets 
 )
 
-FIND_PACKAGE(STATISMO REQUIRED)
 
 include_directories(${STATISMO_ROOT_DIR} ${STATISMO_ROOT_DIR}/statismo_ITK  
 					${STATISMO_ROOT_DIR}/3rdParty  ${STATISMO_INCLUDE_DIR}  
-					${ITK_INCLUDE_DIRS}  ${STATISMO_ROOT_DIR}/Representers/ITK 
+                  	${ITK_INCLUDE_DIRS}  ${STATISMO_ROOT_DIR}/Representers/ITK 
 					${STATISMO_ROOT_DIR}/Representers/VTK ${VTK_INCLUDE_DIR} )
 
 link_directories(${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR})
@@ -36,7 +35,7 @@ TARGET_LINK_LIBRARIES(itkVectorImageRepresenterTest ${ITK_LIBRARIES} ${STATISMO_
 
 
 ADD_EXECUTABLE(vtkPolyDataRepresenterTest vtkPolyDataRepresenterTest.cpp) 
-TARGET_LINK_LIBRARIES(vtkPolyDataRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES})
+TARGET_LINK_LIBRARIES(vtkPolyDataRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES} ${HDF5_LIBRARIES})
 
 
 ADD_TEST(itkVectorImageRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/itkVectorImageRepresenterTest ${STATISMO_ROOT_DIR}/data)
