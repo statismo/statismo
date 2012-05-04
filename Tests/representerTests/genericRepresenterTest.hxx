@@ -241,6 +241,7 @@ public:
 		ok = testSampleVectorDimensions() and ok;
 		ok = testGetName() and ok;
 		ok = testDimensions() and ok;
+        return ok;
 	}
 
 
