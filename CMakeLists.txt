@@ -19,8 +19,11 @@ OPTION(BUILD_ITK_WRAPPING "Build itk wrapping" ${BUILD_ITK_WRAPPING_DEFAULT})
 set(BUILD_VTK_WRAPPING_DEFAULT OFF)
 OPTION(BUILD_VTK_WRAPPING "Build vtk wrapping" ${BUILD_VTK_WRAPPING_DEFAULT})
 
-set(BUILD_TESTS_DEFAULT OFF)
-OPTION(BUILD_TESTS "Build tests" ${BUILD_TESTS_DEFAULT})
+set(BUILD_STATISMO_TESTS_DEFAULT OFF)
+OPTION(BUILD_STATISMO_TESTS "Build tests" ${BUILD_STATISMO_TESTS_DEFAULT})
+
+set(BUILD_REPRESENTER_TESTS_DEFAULT OFF)
+OPTION(BUILD_REPRESENTER_TESTS "Build tests" ${BUILD_REPRESENTER_TESTS_DEFAULT})
 
 
 # the name of the library seems to depend on the platform
@@ -79,8 +82,13 @@ if (BUILD_VTK_EXAMPLES)
   add_subdirectory(Examples/VTK)
 endif()
 
-if (BUILD_TESTS)
+if (BUILD_STATISMO_TESTS)
   set(BUILD_VTK_WRAPPING ON)
+  add_custom_target(test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)  
+endif()
+
+if (BUILD_REPRESENTER_TESTS)
+  add_subdirectory(Tests/representerTests)	  
 endif()
 
 
@@ -92,6 +100,3 @@ if (BUILD_ITK_WRAPPING)
   add_subdirectory(Wrapping/ITK)
 endif()
 
-if (BUILD_TESTS)
-  add_custom_target(test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)
-endif()
