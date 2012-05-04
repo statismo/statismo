@@ -34,11 +34,23 @@ link_directories(${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR})
 ADD_EXECUTABLE(itkVectorImageRepresenterTest itkVectorImageRepresenterTest.cpp) 
 TARGET_LINK_LIBRARIES(itkVectorImageRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
+ADD_EXECUTABLE(itkImageRepresenterTest itkImageRepresenterTest.cpp) 
+TARGET_LINK_LIBRARIES(itkImageRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+
+
+ADD_EXECUTABLE(itkMeshRepresenterTest itkMeshRepresenterTest.cpp) 
+TARGET_LINK_LIBRARIES(itkMeshRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+
 
 ADD_EXECUTABLE(vtkPolyDataRepresenterTest vtkPolyDataRepresenterTest.cpp) 
 TARGET_LINK_LIBRARIES(vtkPolyDataRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES})
 
+ADD_EXECUTABLE(vtkStructuredPointsRepresenterTest vtkStructuredPointsRepresenterTest.cpp) 
+TARGET_LINK_LIBRARIES(vtkStructuredPointsRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES})
+
 
 ADD_TEST(itkVectorImageRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/itkVectorImageRepresenterTest ${STATISMO_ROOT_DIR}/data)
+ADD_TEST(itkImageRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/itkImageRepresenterTest ${STATISMO_ROOT_DIR}/data)
+ADD_TEST(itkMeshRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/itkMeshRepresenterTest ${STATISMO_ROOT_DIR}/data)
 ADD_TEST(vtkPolyDataRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/vtkPolyDataRepresenterTest ${STATISMO_ROOT_DIR}/data)
-
+ADD_TEST(vtkStructuredPointsRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/vtkStructuredPointsRepresenterTest ${STATISMO_ROOT_DIR}/data)
