@@ -1,3 +1,6 @@
+
+
+
 /*
  * itkVectorImageRepresenterTest.cpp
  *
@@ -5,21 +8,21 @@
  *      Author: luethi
  */
 
-#include "itkVectorImageRepresenter.h"
+#include "itkImageRepresenter.h"
 #include "genericRepresenterTest.hxx"
 
 
 
-typedef itk::Image< itk::Vector<float, 2> ,2 > VectorImageType;
-typedef itk::VectorImageRepresenter<float, 2, 2> RepresenterType;
+typedef itk::Image< float,2 > ImageType;
+typedef itk::ImageRepresenter<float, 2> RepresenterType;
 
 typedef GenericRepresenterTest<RepresenterType> RepresenterTestType;
 
-VectorImageType::Pointer loadVectorImage(const std::string& filename) {
-	itk::ImageFileReader<VectorImageType>::Pointer reader = itk::ImageFileReader<VectorImageType>::New();
+ImageType::Pointer loadImage(const std::string& filename) {
+	itk::ImageFileReader<ImageType>::Pointer reader = itk::ImageFileReader<ImageType>::New();
 	reader->SetFileName(filename);
 	reader->Update();
-	VectorImageType::Pointer img = reader->GetOutput();
+	ImageType::Pointer img = reader->GetOutput();
 	img->DisconnectPipeline();
 	return img;
 }
@@ -31,21 +34,21 @@ int main(int argc, char** argv) {
 	}
 	std::string datadir = std::string(argv[1]);
 
-	const std::string referenceFilename = datadir + "/hand_dfs/df-hand-1.vtk";
-	const std::string testDatasetFilename = datadir + "/hand_dfs/df-hand-2.vtk";
+	const std::string referenceFilename = datadir + "/hand_images/hand-1.vtk";
+	const std::string testDatasetFilename = datadir + "/hand_images/hand-2.vtk";
 
 	RepresenterType::Pointer representer = RepresenterType::New();
-	VectorImageType::Pointer reference = loadVectorImage(referenceFilename);
+	ImageType::Pointer reference = loadImage(referenceFilename);
 	representer->SetReference(reference);
 
 	// choose a test dataset, a point and its associate pixel value
 
-	VectorImageType::Pointer testDataset = loadVectorImage(testDatasetFilename);
-	VectorImageType::IndexType idx;
+	ImageType::Pointer testDataset = loadImage(testDatasetFilename);
+	ImageType::IndexType idx;
 	idx.Fill(0);
-	VectorImageType::PointType testPt;
+	ImageType::PointType testPt;
 	reference->TransformIndexToPhysicalPoint(idx, testPt);
-	VectorImageType::PixelType testValue = testDataset->GetPixel(idx);
+	ImageType::PixelType testValue = testDataset->GetPixel(idx);
 
 	RepresenterTestType representerTest(representer, testDataset, std::make_pair(testPt, testValue));
 
@@ -57,4 +60,5 @@ int main(int argc, char** argv) {
 	}
 
 }
+
 

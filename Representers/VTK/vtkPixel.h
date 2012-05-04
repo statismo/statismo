@@ -40,6 +40,7 @@
 #define VTKPIXEL_H
 
 #include <iostream>
+#include <sstream>
 #include "statismo/Exceptions.h"
 
 using statismo::StatisticalModelException;

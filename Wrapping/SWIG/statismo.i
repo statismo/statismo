@@ -49,7 +49,7 @@
 %include "statismoTypemaps.i"
 %include "vtkPolyDataRepresenter.i"
 %include "vtkStructuredPointsRepresenter.i"
-
+%include "TrivialVectorialRepresenter.i"
 
   
 %{
@@ -84,24 +84,6 @@ public:
 
 
 //////////////////////////////////////////////////////
-// vtk related stuff
-//////////////////////////////////////////////////////
-
-
-class vtkPoint {
-public:
-	vtkPoint(double x, double y, double z);
-};	
-
-
-template <class TPixel, unsigned Dimensions>
-class vtkNDPixel {
-public:
-	vtkNDPixel(TPixel* x);
-};
-%template(vtkNDPixel_F3) vtkNDPixel<float, 3>;
-
-//////////////////////////////////////////////////////
 // DataManager
 //////////////////////////////////////////////////////
 
@@ -127,8 +109,10 @@ struct SampleDataWithSurrogates : public SampleData<Representer> {
 };
 }
 
+%template(SampleData_tvr) statismo::SampleData<TrivialVectorialRepresenter>;
 %template(SampleData_vtkPD) statismo::SampleData<vtkPolyDataRepresenter>;
 %template(SampleData_vtkSPF3) statismo::SampleData<vtkStructuredPointsRepresenter<float, 3> >;
+%template(SampleDataWithSurrogates_tvr) statismo::SampleDataWithSurrogates<TrivialVectorialRepresenter>;
 %template(SampleDataWithSurrogates_vtkPD) statismo::SampleDataWithSurrogates<vtkPolyDataRepresenter>;
 %template(SampleDataWithSurrogates_vtkSPF3) statismo::SampleDataWithSurrogates<vtkStructuredPointsRepresenter<float, 3> >;
 
@@ -144,6 +128,9 @@ struct SampleDataWithSurrogates : public SampleData<Representer> {
 %fragment(SWIG_Traits_frag(statismo::SampleData<vtkStructuredPointsRepresenter<float, 3> >));  // workaround for a swig bug with const ptr
 %template(SampleDataList_vtkSPF3) std::list<const statismo::SampleData<vtkStructuredPointsRepresenter<float, 3> >* > ;
 
+%traits_swigtype(statismo::SampleData<TrivialVectorialRepresenter>);  // workaround for a swig bug with const ptr
+%fragment(SWIG_Traits_frag(statismo::SampleData<TrivialVectorialRepresenter>));  // workaround for a swig bug with const ptr
+%template(SampleDataList_tvr) std::list<const statismo::SampleData<TrivialVectorialRepresenter>* > ;
 
 
 template <typename Representer>
@@ -157,9 +144,11 @@ public:
 	SampleDataListType GetTestingData() const;
 
 };
+%template(CrossValidationFold_tvr) statismo::CrossValidationFold<TrivialVectorialRepresenter>;
 %template(CrossValidationFold_vtkPD) statismo::CrossValidationFold<vtkPolyDataRepresenter>;
 %template(CrossValidationFold_vtkSPF3) statismo::CrossValidationFold<vtkStructuredPointsRepresenter<float, 3> >;
 
+%template(CrossValidationFoldList_tvr) std::list<statismo::CrossValidationFold<TrivialVectorialRepresenter> >;
 %template(CrossValidationFoldList_vtkPD) std::list<statismo::CrossValidationFold<vtkPolyDataRepresenter> >;
 %template(CrossValidationFoldList_vtkSPF3) std::list<statismo::CrossValidationFold<vtkStructuredPointsRepresenter<float, 3> > > ;
 
@@ -200,7 +189,7 @@ private:
 	DataManager();
 };
 }
-
+%template(DataManager_tvr) statismo::DataManager<TrivialVectorialRepresenter>;
 %template(DataManager_vtkPD) statismo::DataManager<vtkPolyDataRepresenter>;
 %template(DataManager_vtkSPF3) statismo::DataManager<vtkStructuredPointsRepresenter<float, 3> >;
 
@@ -218,6 +207,7 @@ private:
 	DataManagerWithSurrogates();
 };
 }
+%template(DataManagerWithSurrogates_tvr) statismo::DataManagerWithSurrogates<TrivialVectorialRepresenter>;
 %template(DataManagerWithSurrogates_vtkPD) statismo::DataManagerWithSurrogates<vtkPolyDataRepresenter>;
 %template(DataManagerWithSurrogates_vtkSPF3) statismo::DataManagerWithSurrogates<vtkStructuredPointsRepresenter<float, 3> >;
 
@@ -227,8 +217,10 @@ private:
 //////////////////////////////////////////////////////
 
 
+%template(PointValuePair_tvr) std::pair<TrivialVectorialRepresenter::PointType, TrivialVectorialRepresenter::ValueType>;
 %template(PointValuePair_vtkPD) std::pair<vtkPolyDataRepresenter::PointType, vtkPolyDataRepresenter::ValueType>;
 %template(PointValueList_vtkPD) std::list<std::pair<vtkPolyDataRepresenter::PointType, vtkPolyDataRepresenter::ValueType> >;
+%template(PointIdValuePair_tvr) std::pair<unsigned, TrivialVectorialRepresenter::ValueType>;
 %template(PointIdValuePair_vtkPD) std::pair<unsigned, vtkPolyDataRepresenter::ValueType>;
 %template(PointIdValueList_vtkPD) std::list<std::pair<unsigned, vtkPolyDataRepresenter::ValueType> >;
 
@@ -288,14 +280,14 @@ public:
 
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 	 DatasetPointerType DrawMean() const;	
-	 Representer::ValueType DrawMeanAtPoint(const vtkPoint& pt) const;
+	 Representer::ValueType DrawMeanAtPoint(const Representer::PointType& pt) const;
 	 %rename("DrawMeanAtPointId") DrawMeanAtPoint(unsigned) const;
 	 Representer::ValueType DrawMeanAtPoint(unsigned ptId) const;
 
 	 %rename("DrawRandomSample") DrawSample() const;	 
 	 DatasetPointerType DrawSample() const;	  
 	 DatasetPointerType DrawSample(const statismo::VectorType& coeffs) const;
-	 Representer::ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, const vtkPoint& pt) const;	 
+	 Representer::ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, const Representer::PointType& pt) const;	 
 	 %rename("DrawSampleAtPointId") DrawSampleAtPoint(const statismo::VectorType&, unsigned) const;
 	 Representer::ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, unsigned ptId) const;
 
@@ -309,7 +301,7 @@ public:
 	 double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const;
 	 double ComputeProbabilityOfDataset(DatasetConstPointerType ds) const;
 	 
-	 statismo::MatrixType GetCovarianceAtPoint(const vtkPoint& pt1, const vtkPoint& pt2) const;
+	 statismo::MatrixType GetCovarianceAtPoint(const Representer::PointType& pt1, const Representer::PointType& pt2) const;
 	 statismo::MatrixType GetCovarianceAtPoint(unsigned ptId1, unsigned ptId2) const;
 
 	 unsigned GetNumberOfPrincipalComponents();	 	
@@ -329,6 +321,7 @@ public:
 };
 } 
 
+%template(StatisticalModel_tvr) statismo::StatisticalModel<TrivialVectorialRepresenter>;
 %template(StatisticalModel_vtkPD) statismo::StatisticalModel<vtkPolyDataRepresenter>;
 %template(StatisticalModel_vtkSPF3) statismo::StatisticalModel<vtkStructuredPointsRepresenter<float, 3> >;
 
@@ -357,6 +350,7 @@ private:
 };
 }
 
+%template(PCAModelBuilder_tvr) statismo::PCAModelBuilder<TrivialVectorialRepresenter>;
 %template(PCAModelBuilder_vtkPD) statismo::PCAModelBuilder<vtkPolyDataRepresenter>;
 %template(PCAModelBuilder_vtkSPF3) statismo::PCAModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
 
@@ -393,6 +387,7 @@ public:
 };
 }
 
+%template(PartiallyFixedModelBuilder_tvr) statismo::PartiallyFixedModelBuilder<TrivialVectorialRepresenter>;
 %template(PartiallyFixedModelBuilder_vtkPD) statismo::PartiallyFixedModelBuilder<vtkPolyDataRepresenter>;
 %template(PartiallyFixedModelBuilder_vtkSPF3) statismo::PartiallyFixedModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
 

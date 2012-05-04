@@ -40,6 +40,13 @@
 %}
 
 
+template <class TPixel, unsigned Dimensions>
+class vtkNDPixel {
+public:
+	vtkNDPixel(TPixel* x);
+};
+%template(vtkNDPixel_F3) vtkNDPixel<float, 3>;
+
 
 template <class TPixel, unsigned TDimensions>
 class vtkStructuredPointsRepresenter {
