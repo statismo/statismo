@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 	VectorImageType::IndexType idx;
 	idx.Fill(0);
 	VectorImageType::PointType testPt;
-	testDataset->TransformIndexToPhysicalPoint(idx, testPt);
+	reference->TransformIndexToPhysicalPoint(idx, testPt);
 	VectorImageType::PixelType testValue = testDataset->GetPixel(idx);
 
 	RepresenterTestType representerTest(representer, testDataset, std::make_pair(testPt, testValue));
