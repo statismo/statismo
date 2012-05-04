@@ -163,12 +163,6 @@ StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients,
 
 	unsigned dim = Representer::GetDimensions();
 
-	if (ptId >= this->m_representer->GetNumberOfPoints()) {
-		std::ostringstream os;
-		os << "Invalid point number provided for DrawSampleAtPoint " << ptId << " > " << this->m_representer->GetNumberOfPoints();
-		throw StatisticalModelException(os.str().c_str());
-	}
-
 	VectorType v(dim);
 	VectorType epsilon = VectorType::Zero(dim);
 	if (addNoise) {
@@ -176,6 +170,14 @@ StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients,
 	}
 	for (unsigned d = 0; d < dim; d++) {
 		unsigned idx =Representer::MapPointIdToInternalIdx(ptId, d);
+
+		if (idx >= m_mean.rows()) {
+			std::ostringstream os;
+			os << "Invalid idx computed in DrawSampleAtPoint. ";
+			os << " The most likely cause of this error is that you provided an invalid point id (" << ptId <<")";
+			throw StatisticalModelException(os.str().c_str());
+		}
+
 		v[d] = m_mean[idx] + m_pcaBasisMatrix.row(idx).dot(coefficients) + epsilon[d];
 	}
 
@@ -486,7 +488,7 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 	try {
 		Group representerGroup = file.openGroup("./representer");
 		std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
-		if (rep_name != Representer::GetName()) {
+		if (rep_name != Representer::GetName() && Representer::GetName() != "TrivialVectorialRepresenter") {
 			throw StatisticalModelException("A different representer was used to create the file. Cannot load hdf5 file.");
 		}
 
