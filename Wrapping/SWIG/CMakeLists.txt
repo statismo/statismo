@@ -23,8 +23,10 @@ set (VTK_LIBRARIES_PYTHON
         )
 
 include_directories(${STATISMO_ROOT_DIR} ${STATISMO_INCLUDE_DIR} ${STATISMO_ROOT_DIR}/3rdParty 
-					${VTK_INCLUDE_DIR}  ${STATISMO_ROOT_DIR}/Representers/VTK ${STATISMO_ROOT_DIR}/Representers)
-link_directories (${STATISMO_LIBRARY_DIR})   
+					${VTK_INCLUDE_DIR}  ${STATISMO_ROOT_DIR}/Representers/VTK ${STATISMO_ROOT_DIR}/Representers
+						${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})
+						
+link_directories (${STATISMO_LIBRARY_DIR} ${HDF5_LIBRARY_DIR})   
 
 
 FIND_PACKAGE(SWIG REQUIRED)

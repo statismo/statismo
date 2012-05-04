@@ -18,8 +18,12 @@ set(VTK_LIBRARIES
 FILE(GLOB INCLUDE_FILES *.h)
 FILE(GLOB SOURCE_FILES  *.txx *.cpp)
 
-include_directories(${STATISMO_ROOT_DIR}  ${STATISMO_ROOT_DIR}/3rdParty  ${STATISMO_INCLUDE_DIR} ${VTK_INCLUDE_DIR}  ${STATISMO_ROOT_DIR}/Representers/VTK)
-link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} )
+
+include_directories(${STATISMO_ROOT_DIR}  ${STATISMO_ROOT_DIR}/3rdParty  ${STATISMO_INCLUDE_DIR} 
+					${VTK_INCLUDE_DIR}  ${STATISMO_ROOT_DIR}/Representers/VTK 
+					${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})					
+
+link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} ${HDF5_LIBRARY_DIR})
  
 add_executable (BuildShapeModelExample BuildShapeModelExample.cxx) 
 target_link_libraries (BuildShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
