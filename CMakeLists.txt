@@ -51,9 +51,10 @@ ENDIF (NOT HDF5_USE_EXTERNAL)
 #
 OPTION(BUILD_ITK_EXAMPLES "Build the itk examples " OFF)
 OPTION(BUILD_VTK_EXAMPLES "Build the vtk examples " OFF)
-OPTION(BUILD_ITK_WRAPPING "Build itk wrapping" OFF)
+OPTION(BUILD_ITK_WRAPPING "Build itk wrapping (untested)" OFF)
 OPTION(BUILD_VTK_WRAPPING "Build vtk wrapping" OFF)
 
+MARK_AS_ADVANCED(BUILD_ITK_WRAPPING)
 #
 #optional tests
 #
