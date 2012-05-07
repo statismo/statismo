@@ -58,8 +58,14 @@ namespace statismo {
 /**
  * \brief A number of small utility functions - internal use only.
  */
+
+
+
+
 class Utils {
 public:
+
+
 
 	/**
 	 * return string representation of t
@@ -74,17 +80,16 @@ public:
 
 	/** return a N(0,1) vector of size n */
 	static VectorType generateNormalVector(unsigned n) {
-		VectorType v = VectorType::Zero(n);
-
 		// we would like to use tr1 here as well, but on some versions of visual studio it hangs forever.
 		// therefore we use the functionality from boost
-		using namespace boost;
-		minstd_rand gen;
-		normal_distribution<> dist(0, 1);
-		gen.seed((unsigned int) time(0));
 
-		variate_generator<minstd_rand, normal_distribution<> > r(gen, dist);
+		// we make the random generate static, to ensure that the seed is only set once, and not with
+		// every call
+		static boost::minstd_rand randgen(static_cast<unsigned>(time(0)));
+		static boost::normal_distribution<> dist(0, 1);
+		static boost::variate_generator<boost::minstd_rand, boost::normal_distribution<> > r(randgen, dist);
 
+		VectorType v = VectorType::Zero(n);
 		for (unsigned i=0; i < n; i++) {
 			v(i) = r();
 		}
