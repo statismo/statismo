@@ -128,6 +128,16 @@ public:
 	}
 
 
+	void Load(const char* filename, const char* location, unsigned maxNumberOfPCAComponents) {
+		try {
+			SetstatismoImplObj(ImplType::Load(filename, location, maxNumberOfPCAComponents));
+		}
+		catch (statismo::StatisticalModelException& s) {
+			itkExceptionMacro(<< s.what());
+		}
+	}
+
+
 	const Representer* GetRepresenter() const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::GetRepresenter, this->m_impl));
 	}
@@ -194,6 +204,11 @@ public:
 	void Save(const char* modelname) {
 		callstatismoImpl(std::tr1::bind(&ImplType::Save, this->m_impl, modelname));
 	}
+
+	void Save(const char* modelname, const char* location) {
+		callstatismoImpl(std::tr1::bind(&ImplType::Save, this->m_impl, modelname, location));
+	}
+
 
 	MatrixType GetCovarianceAtPoint(const PointType& pt1, const PointType& pt2) const {
 		typedef statismo::MatrixType (ImplType::*functype)(const PointType&, const PointType&) const;

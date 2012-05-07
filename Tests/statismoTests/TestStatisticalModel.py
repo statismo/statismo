@@ -129,6 +129,21 @@ class Test(unittest.TestCase):
         self.assertTrue((newModelSub.GetPCABasisMatrix()[:,0:1] == self.model.GetPCABasisMatrix()[:,0:1]).all())
 
 
+    def testLoadSaveNonstandardLocation(self):
+        """ test whether saving and loading a model restores the model correctly, when a non-standard location is used"""
+        tmpfile = tempfile.mktemp(suffix="h5")
+
+        self.model.Save(tmpfile, "/model1")
+        #self.model.Save(tmpfile, "./model1")        
+        self.model.Save(tmpfile, "/model2")
+        newModel1 = statismo.StatisticalModel_vtkPD.Load(tmpfile, "/model1")
+        newModel2 = statismo.StatisticalModel_vtkPD.Load(tmpfile, "/model2")
+
+        # we only run minimal tests, as the basic load save functionality is tested in an individual test
+        self.assertEqual(newModel1.GetNumberOfPrincipalComponents(), self.model.GetNumberOfPrincipalComponents())
+        self.assertEqual(newModel2.GetNumberOfPrincipalComponents(), self.model.GetNumberOfPrincipalComponents())
+
+
     def testDatasetToSample(self):
         """ Checks wheter DatasetToSample applied to a Sample returns the same sample """
         

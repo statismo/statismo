@@ -273,8 +273,10 @@ public:
      ~StatisticalModel();
 	 
 	 %newobject Load;
-     static StatisticalModel* Load(const char* filename, unsigned numComponents=10000);
-	 void Save(const char* filename);
+     static StatisticalModel* Load(const std::string& filename, unsigned numComponents=10000);
+     static StatisticalModel* Load(const std::string& filename, const std::string& location, unsigned numComponents=10000);
+	 void Save(const std::string& filename);
+	 void Save(const std::string& filename, const std::string& location);
 
 	const Representer* GetRepresenter() const;
 

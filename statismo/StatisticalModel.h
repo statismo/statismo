@@ -147,11 +147,19 @@ public:
 	 * Returns a new statistical model, which is loaded from the given HDF5 file
 	 * \param filename The filename
 	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
-	 * \param checkRepresenterName if true, Load throws an exception if a different representer was used
 	 * to create the model.
 	 */
 	static StatisticalModel* Load(const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
+	/**
+	 * Returns a new statistical model, which is loaded from the given HDF5 file, from the given location.
+	 *
+	 * \param filename The filename
+	 * \param path An absolute path in the HDF5 file, which defines where the model is located.
+	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
+	 * to create the model.
+	 */
+	static StatisticalModel* Load(const std::string& filename, const std::string& path, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
 
 	/**
@@ -168,6 +176,15 @@ public:
 	 * \param filename The filename (preferred extension is .h5)
 	 * */
 	void Save(const std::string& filename) const;
+
+	/**
+	 * Saves the statistical model to a HDF5 file, to a specific location in the file
+	 *
+	 * \param filename The filename (preferred extension is .h5)
+	 * \param path The absolute path to the location where the model is stored in the hdf5 file.
+	 * */
+	void Save(const std::string& filename, const std::string& path) const;
+
 	///@}
 
 

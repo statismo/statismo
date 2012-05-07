@@ -58,6 +58,7 @@ StatisticalModel<Representer>::StatisticalModel(const Representer* representer, 
   {
 	VectorType D = pcaVariance.array().sqrt();
 	m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
+
   }
 
 
@@ -470,6 +471,14 @@ StatisticalModel<Representer>::GetJacobian(const PointType& pt) const {
 template <typename Representer>
 StatisticalModel<Representer>*
 StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNumberOfPCAComponents) {
+
+	return Load(filename, "/", maxNumberOfPCAComponents);
+}
+
+
+template <typename Representer>
+StatisticalModel<Representer>*
+StatisticalModel<Representer>::Load(const std::string& filename, const std::string& path, unsigned maxNumberOfPCAComponents) {
 	using namespace H5;
 
 
@@ -484,9 +493,18 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 		 throw StatisticalModelException(msg.c_str());
 	}
 
+	Group modelRoot;
+	try {
+		modelRoot = HDF5Utils::openPath(file, path);
+	}
+	catch (Exception& e) {
+		std::ostringstream msg;
+		msg << "could not open the location " << path << ": " << e.getCDetailMsg();
+		throw StatisticalModelException(msg.str().c_str());
+	}
 
 	try {
-		Group representerGroup = file.openGroup("./representer");
+		Group representerGroup = modelRoot.openGroup("./representer");
 		std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
 		if (rep_name != Representer::GetName() && Representer::GetName() != "TrivialVectorialRepresenter") {
 			throw StatisticalModelException("A different representer was used to create the file. Cannot load hdf5 file.");
@@ -495,14 +513,14 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 		newModel = new StatisticalModel(Representer::Load(representerGroup));
 		representerGroup.close();
 
-		Group modelGroup = file.openGroup("./model");
+		Group modelGroup = modelRoot.openGroup("./model");
 		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
 		HDF5Utils::readVector(modelGroup, "./mean", newModel->m_mean);
 		HDF5Utils::readVector(modelGroup, "./pcaVariance", maxNumberOfPCAComponents, newModel->m_pcaVariance);
 		newModel->m_noiseVariance = HDF5Utils::readFloat(modelGroup, "./noiseVariance");
 
 		modelGroup.close();
-		newModel->m_modelInfo.Load(file);
+		newModel->m_modelInfo.Load(modelRoot);
 
 	}
 	catch (Exception& e) {
@@ -511,6 +529,7 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 		 throw StatisticalModelException(msg.c_str());
 	}
 
+	modelRoot.close();
 	file.close();
 
 	assert(newModel != 0);
@@ -519,44 +538,62 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 	return newModel;
 }
 
-
 template <typename Representer>
 void
 StatisticalModel<Representer>::Save(const std::string& filename) const {
+	Save(filename, "/");
+}
+
+template <typename Representer>
+void
+StatisticalModel<Representer>::Save(const std::string& filename, const std::string& location) const {
 	using namespace H5;
 
 	H5File file;
-
 	try {
-		 file = H5File( filename.c_str(), H5F_ACC_TRUNC );
-	 } catch (Exception& e) {
+		 file = HDF5Utils::openOrCreateFile(filename);
+	 } catch (FileIException& e) {
 		 std::string msg(std::string("Could not open HDF5 file for writing \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	 }
 
-	 try {
-		// its a new file, so we have to create the group structure by ourself
 
-		Group representerGroup = file.createGroup("./representer");
+	Group modelRoot;
+
+	try {
+		modelRoot = HDF5Utils::openPath(file, location, true);
+	}
+	catch (H5::Exception& e) {
+		std::ostringstream msg;
+		msg << "could not create group  " << location << ": " << e.getCDetailMsg();
+		throw StatisticalModelException(msg.str().c_str());
+	}
+
+
+	 try {
+		// create the group structure
+
+		Group representerGroup = modelRoot.createGroup("./representer");
 		HDF5Utils::writeStringAttribute(representerGroup, "name", Representer::GetName());
 
 		this->m_representer->Save(representerGroup);
 		representerGroup.close();
 
-		Group modelGroup = file.createGroup( "./model" );
+		Group modelGroup = modelRoot.createGroup( "./model" );
 		HDF5Utils::writeMatrix(modelGroup, "./pcaBasis", m_pcaBasisMatrix);
 		HDF5Utils::writeVector(modelGroup, "./pcaVariance", m_pcaVariance);
 		HDF5Utils::writeVector(modelGroup, "./mean", m_mean);
 		HDF5Utils::writeFloat(modelGroup, "./noiseVariance", m_noiseVariance);
 		modelGroup.close();
 
-		m_modelInfo.Save(file);
+		m_modelInfo.Save(modelRoot);
 
 
 	 } catch (Exception& e) {
 		 std::string msg(std::string("an exception occurred while writing HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
+	 modelRoot.close();
 	file.close();
 
 

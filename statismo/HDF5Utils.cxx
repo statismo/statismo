@@ -54,6 +54,59 @@ using namespace H5;
 
 
 inline
+H5::H5File
+HDF5Utils::openOrCreateFile(const std::string filename) {
+
+	// check if file exists
+	std::ifstream ifile(filename.c_str());
+	H5::H5File file;
+
+	if (!ifile) {
+		// create it
+		 file = H5File( filename.c_str(), H5F_ACC_EXCL);
+	}
+	else {
+		// open it
+		 file = H5File( filename.c_str(), H5F_ACC_RDWR);
+	}
+	return file;
+}
+
+
+
+inline
+H5::Group
+HDF5Utils::openPath(H5::H5File& file, const std::string& path, bool createPath) {
+	H5::Group group;
+
+	// take the first part of the path
+	size_t curpos = 1;
+	size_t nextpos = path.find_first_of("/", curpos);
+	H5::Group g = file.openGroup("/");
+
+	std::string name = path.substr(curpos, nextpos);
+
+	while (curpos != std::string::npos && name != "") {
+
+		if (existsObjectWithName(g, name)) {
+			g = g.openGroup(name);
+		} else {
+			if (createPath) {
+				g = g.createGroup(name);
+			} else {
+				std::string msg = std::string("the path ") +path +" does not exist";
+				throw StatisticalModelException(msg.c_str());
+			}
+		}
+
+		std::string name = path.substr(curpos, nextpos);
+		curpos = nextpos;
+	}
+
+	return g;
+}
+
+inline
 void HDF5Utils::readMatrix(const H5::CommonFG& fg, const char* name, MatrixType& matrix) {
 	DataSet ds = fg.openDataSet( name );
 	hsize_t dims[2];
@@ -272,6 +325,20 @@ HDF5Utils::dumpFileToHDF5( const char* filename, const H5::CommonFG& fg, const c
 	ds.write( &buffer[0], H5::PredType::NATIVE_CHAR );
 
 }
+
+
+inline
+bool
+HDF5Utils::existsObjectWithName(H5::CommonFG& fg, const std::string& name) {
+	for (hsize_t i = 0; i < fg.getNumObjs(); ++i) {
+		std::string objname= 	fg.getObjnameByIdx(i);
+		if (objname == name) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 } //namespace statismo
 

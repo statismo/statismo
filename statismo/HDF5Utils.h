@@ -45,6 +45,7 @@
 namespace H5 {
 class CommonFG;
 class Group;
+class H5File;
 }
 
 namespace statismo {
@@ -54,6 +55,24 @@ namespace statismo {
  */
 class HDF5Utils {
 public:
+
+
+
+	/**
+	 * Opens the hdf5 file with the given name, or creates it if the file does not exist
+	 */
+	static H5::H5File openOrCreateFile(const std::string filename);
+
+
+	/**
+	 * Opens the hdf5 group or creates it if it doesn't exist.
+	 * @param a file object
+	 * @param path An absolute path that defines a group
+	 * @param createPath if true, creates the path if it does not exist
+	 *
+	 * @return the group object representing the path in the hdf5 file
+	 */
+	static H5::Group openPath(H5::H5File& fg, const std::string& path, bool createPath=false);
 
 	/**
 	 * Read a Matrix from a HDF5 File
@@ -181,6 +200,9 @@ public:
 	static void writeFloat(const H5::CommonFG& fg, const char* name, float value);
 
 
+	/** Check whether an object (direct child) of fg with the given name exists
+	 */
+	static bool existsObjectWithName(H5::CommonFG& fg, const std::string& name);
 
 };
 
