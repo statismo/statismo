@@ -18,31 +18,33 @@ include_directories(${STATISMO_ROOT_DIR} ${STATISMO_ROOT_DIR}/statismo_ITK  ${ST
 					)
 link_directories(${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR}  ${HDF5_LIBRARY_DIR})
 
-add_executable (buildDeformationModel buildDeformationModel.cpp 
+add_executable (itkBuildDeformationModel buildDeformationModel.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
-ADD_DEPENDENCIES(buildDeformationModel HDF5)
-target_link_libraries (buildDeformationModel ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+ADD_DEPENDENCIES(itkBuildDeformationModel HDF5)
+target_link_libraries (itkBuildDeformationModel ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
-add_executable (deformationModelFitting deformationModelFitting.cpp 
+add_executable (itkDeformationModelFitting deformationModelFitting.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
-ADD_DEPENDENCIES(deformationModelFitting HDF5)
-target_link_libraries (deformationModelFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})
+ADD_DEPENDENCIES(itkDeformationModelFitting HDF5)
+target_link_libraries (itkDeformationModelFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})
 
-add_executable (buildShapeModel buildShapeModel.cpp 
+add_executable (itkBuildShapeModel buildShapeModel.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
-ADD_DEPENDENCIES(buildShapeModel HDF5)
-target_link_libraries (buildShapeModel ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+ADD_DEPENDENCIES(itkBuildShapeModel HDF5)
+target_link_libraries (itkBuildShapeModel ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 
-add_executable (shapeModelFitting shapeModelFitting.cpp 
+add_executable (itkShapeModelFitting shapeModelFitting.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
-ADD_DEPENDENCIES(shapeModelFitting HDF5)
-target_link_libraries (shapeModelFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})
+ADD_DEPENDENCIES(itkShapeModelFitting HDF5)
+target_link_libraries (itkShapeModelFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})
+
+INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkShapeModelFitting  RUNTIME DESTINATION bin)

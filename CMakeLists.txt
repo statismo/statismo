@@ -1,6 +1,14 @@
 cmake_minimum_required (VERSION 2.6)
 project (statismo)
- 
+
+SET(STATISMO_VERSION 0.8) 
+SET(STATISMO_MINOR_VERSION 0)
+
+# rpath settings
+SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${CMAKE_INSTALL_PREFIX}/lib/hdf5;")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Setup build locations.
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
@@ -39,8 +47,14 @@ IF (NOT HDF5_USE_EXTERNAL)
 	SET (HDF5_INCLUDE_DIR ${CMAKE_BINARY_DIR}/3rdParty/HDF5/include)
 	SET (HDF5_INCLUDE_DIR_CPP ${HDF5_INCLUDE_DIR}/cpp)			
 	SET (HDF5_LIBRARY_DIR ${CMAKE_BINARY_DIR}/3rdParty/HDF5/lib)
-	
-	INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5 DESTINATION 3rdParty)
+
+FILE(GLOB hdf5libfiles "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/*hdf5*")
+INSTALL(FILES ${hdf5libfiles} DESTINATION lib/hdf5)
+FILE(GLOB hdf5headerfiles "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/*.h")
+INSTALL(FILES ${hdf5headerfiles} DESTINATION include/hdf5)
+FILE(GLOB hdf5headerfilescpp "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/cpp/*.h")
+INSTALL(FILES ${hdf5headerfilescpp} DESTINATION include/hdf5/cpp)
+
 ELSE (NOT HDF5_USE_EXTERNAL)
  	FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED NO_MODULE)
 ENDIF (NOT HDF5_USE_EXTERNAL)
@@ -65,17 +79,17 @@ OPTION(BUILD_REPRESENTER_TESTS "Build tests" OFF)
 #
 # Install boost and eigen, by just copying them from the 3rdParty directory
 #  
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/boost DESTINATION 3rdParty)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/Eigen DESTINATION 3rdParty)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/boost DESTINATION include/)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/Eigen DESTINATION include/)
 
 #
 # Install the statismo and statismo itk files (these are header only, so no compilation needed)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo DESTINATION .)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo_ITK DESTINATION .)
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION .)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo DESTINATION include)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo_ITK DESTINATION include)
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION include)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION .)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_VERSION})
 
 set(STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -104,4 +118,5 @@ endif()
 if (BUILD_ITK_WRAPPING)
   add_subdirectory(Wrapping/ITK)
 endif()
+
 
