@@ -105,6 +105,7 @@ ModelInfo::Save(const H5::CommonFG& publicFg) const {
 inline
 void
 ModelInfo::Load(const H5::CommonFG& publicFg) {
+	using namespace H5;
 	Group publicModelGroup = publicFg.openGroup("./modelinfo");
 	try {
 		HDF5Utils::readMatrix(publicModelGroup, "./scores", m_scores);

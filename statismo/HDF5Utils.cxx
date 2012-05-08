@@ -50,7 +50,7 @@
 
 namespace statismo {
 
-using namespace H5;
+
 
 
 inline
@@ -63,11 +63,11 @@ HDF5Utils::openOrCreateFile(const std::string filename) {
 
 	if (!ifile) {
 		// create it
-		 file = H5File( filename.c_str(), H5F_ACC_EXCL);
+		 file = H5::H5File( filename.c_str(), H5F_ACC_EXCL);
 	}
 	else {
 		// open it
-		 file = H5File( filename.c_str(), H5F_ACC_RDWR);
+		 file = H5::H5File( filename.c_str(), H5F_ACC_RDWR);
 	}
 	return file;
 }
@@ -108,7 +108,7 @@ HDF5Utils::openPath(H5::H5File& file, const std::string& path, bool createPath) 
 
 inline
 void HDF5Utils::readMatrix(const H5::CommonFG& fg, const char* name, MatrixType& matrix) {
-	DataSet ds = fg.openDataSet( name );
+	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[2];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
 
@@ -120,7 +120,7 @@ void HDF5Utils::readMatrix(const H5::CommonFG& fg, const char* name, MatrixType&
 
 inline
 void HDF5Utils::readMatrix(const H5::CommonFG& fg, const char* name, unsigned maxNumColumns, MatrixType& matrix) {
-	DataSet ds = fg.openDataSet( name );
+	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[2];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
 
@@ -131,13 +131,13 @@ void HDF5Utils::readMatrix(const H5::CommonFG& fg, const char* name, unsigned ma
 	hsize_t count[2];
 	count[0] = nRows; count[1] =  nCols;
 
-	DataSpace dataspace = ds.getSpace();
+	H5::DataSpace dataspace = ds.getSpace();
 	dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
 
 	/* Define the memory dataspace. */
 	hsize_t     dimsm[2];
 	dimsm[0] = nRows; dimsm[1] = nCols;
-	DataSpace memspace( 2, dimsm );
+	H5::DataSpace memspace( 2, dimsm );
 
 	/* Define memory hyperslab. */
 	hsize_t      offset_out[2] = {0, 0};       // hyperslab offset in memory
@@ -160,13 +160,13 @@ void HDF5Utils::writeMatrix(const H5::CommonFG& fg, const char* name, const Matr
 	}
 
 	hsize_t dims[2] = {matrix.rows(), matrix.cols()};
-	DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_FLOAT, DataSpace(2, dims));
+	H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_FLOAT, H5::DataSpace(2, dims));
 	ds.write( matrix.data(), H5::PredType::NATIVE_FLOAT );
 }
 
 inline
 void HDF5Utils::readVector(const H5::CommonFG& fg, const char* name, VectorType& vector) {
-	DataSet ds = fg.openDataSet( name );
+	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[1];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
 	vector.resize(dims[0], 1);
@@ -175,7 +175,7 @@ void HDF5Utils::readVector(const H5::CommonFG& fg, const char* name, VectorType&
 
 inline
 void HDF5Utils::readVector(const H5::CommonFG& fg, const char* name, unsigned maxNumElements, VectorType& vector) {
-	DataSet ds = fg.openDataSet( name );
+	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[1];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
 
@@ -185,13 +185,13 @@ void HDF5Utils::readVector(const H5::CommonFG& fg, const char* name, unsigned ma
 	hsize_t count[1];
 	count[0] = nElements;
 
-	DataSpace dataspace = ds.getSpace();
+	H5::DataSpace dataspace = ds.getSpace();
 	dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
 
 	/* Define the memory dataspace. */
 	hsize_t     dimsm[1];
 	dimsm[0] = nElements;
-	DataSpace memspace( 1, dimsm );
+	H5::DataSpace memspace( 1, dimsm );
 
 	/* Define memory hyperslab. */
 	hsize_t      offset_out[1] = {0};       // hyperslab offset in memory
@@ -209,15 +209,15 @@ void HDF5Utils::readVector(const H5::CommonFG& fg, const char* name, unsigned ma
 inline
 void HDF5Utils::writeVector(const H5::CommonFG& fg, const char* name, const VectorType& vector) {
 	hsize_t dims[1] = {vector.size()};
-	DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_FLOAT, DataSpace(1, dims));
+	H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_FLOAT, H5::DataSpace(1, dims));
 	ds.write( vector.data(), H5::PredType::NATIVE_FLOAT );
 
 }
 
 inline
 void HDF5Utils::writeString(const H5::CommonFG& fg, const char* name, const std::string& s) {
-	StrType fls_type(PredType::C_S1, s.length() + 1); // + 1 for trailing zero
-	DataSet ds = fg.createDataSet(name, fls_type, DataSpace(H5S_SCALAR));
+	H5::StrType fls_type(H5::PredType::C_S1, s.length() + 1); // + 1 for trailing zero
+	H5::DataSet ds = fg.createDataSet(name, fls_type, H5::DataSpace(H5S_SCALAR));
 	ds.write(s, fls_type);
 }
 
@@ -225,16 +225,16 @@ void HDF5Utils::writeString(const H5::CommonFG& fg, const char* name, const std:
 inline
 std::string
 HDF5Utils::readString(const H5::CommonFG& fg, const char* name) {
-    H5std_string outputString;
-    DataSet ds = fg.openDataSet(name);
+	H5std_string outputString;
+    H5::DataSet ds = fg.openDataSet(name);
     ds.read(outputString, ds.getStrType());
     return outputString;
 }
 
 inline
 void HDF5Utils::writeStringAttribute(const H5::Group& fg, const char* name, const std::string& s) {
-	StrType strdatatype(PredType::C_S1, s.length() + 1 ); // + 1 for trailing 0
-	Attribute att = fg.createAttribute(name, strdatatype, DataSpace(H5S_SCALAR));
+	H5::StrType strdatatype(H5::PredType::C_S1, s.length() + 1 ); // + 1 for trailing 0
+	H5::Attribute att = fg.createAttribute(name, strdatatype, H5::DataSpace(H5S_SCALAR));
 	att.write(strdatatype, s);
 	att.close();
 }
@@ -244,22 +244,22 @@ std::string
 HDF5Utils::readStringAttribute(const H5::Group& fg, const char* name) {
 	H5std_string outputString;
 
-	Attribute myatt_out = fg.openAttribute(name);
+	H5::Attribute myatt_out = fg.openAttribute(name);
 	myatt_out.read(myatt_out.getStrType(), outputString);
 	return outputString;
 }
 
 inline
 void HDF5Utils::writeInt(const H5::CommonFG& fg, const char* name, int value) {
-	IntType fls_type(PredType::NATIVE_INT32); // 0 is a dummy argument
-	DataSet ds = fg.createDataSet(name, fls_type, DataSpace(H5S_SCALAR));
+	H5::IntType fls_type(H5::PredType::NATIVE_INT32); // 0 is a dummy argument
+	H5::DataSet ds = fg.createDataSet(name, fls_type, H5::DataSpace(H5S_SCALAR));
 	ds.write(&value, fls_type);
 }
 
 inline
 int HDF5Utils::readInt(const H5::CommonFG& fg, const char* name) {
-	IntType fls_type(PredType::NATIVE_INT32);
-	DataSet ds = fg.openDataSet( name );
+	H5::IntType fls_type(H5::PredType::NATIVE_INT32);
+	H5::DataSet ds = fg.openDataSet( name );
 
 	int value = 0;
 	ds.read(&value, fls_type);
@@ -268,15 +268,15 @@ int HDF5Utils::readInt(const H5::CommonFG& fg, const char* name) {
 
 inline
 void HDF5Utils::writeFloat(const H5::CommonFG& fg, const char* name, float value) {
-	FloatType fls_type(PredType::NATIVE_FLOAT); // 0 is a dummy argument
-	DataSet ds = fg.createDataSet(name, fls_type, DataSpace(H5S_SCALAR));
+	H5::FloatType fls_type(H5::PredType::NATIVE_FLOAT); // 0 is a dummy argument
+	H5::DataSet ds = fg.createDataSet(name, fls_type, H5::DataSpace(H5S_SCALAR));
 	ds.write(&value, fls_type);
 }
 
 inline
 float HDF5Utils::readFloat(const H5::CommonFG& fg, const char* name) {
-	FloatType fls_type(PredType::NATIVE_FLOAT);
-	DataSet ds = fg.openDataSet( name );
+	H5::FloatType fls_type(H5::PredType::NATIVE_FLOAT);
+	H5::DataSet ds = fg.openDataSet( name );
 
 	float value = 0;
 	ds.read(&value, fls_type);
@@ -285,7 +285,7 @@ float HDF5Utils::readFloat(const H5::CommonFG& fg, const char* name) {
 
 inline
 void HDF5Utils::getFileFromHDF5(const H5::CommonFG& fg, const char* name, const char* filename) {
-	DataSet ds = fg.openDataSet( name );
+	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[1];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
 	std::vector<char> buffer(dims[0]);
@@ -321,7 +321,7 @@ HDF5Utils::dumpFileToHDF5( const char* filename, const H5::CommonFG& fg, const c
 	ifile.close();
 
 	hsize_t dims[] = {buffer.size()};
-	DataSet ds = fg.createDataSet( name,  H5::PredType::NATIVE_CHAR, DataSpace(1, dims));
+	H5::DataSet ds = fg.createDataSet( name,  H5::PredType::NATIVE_CHAR, H5::DataSpace(1, dims));
 	ds.write( &buffer[0], H5::PredType::NATIVE_CHAR );
 
 }
