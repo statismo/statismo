@@ -40,8 +40,8 @@
  */
 
 #include "itkVectorImageRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkStatisticalDeformationModelTransform.h"
+#include "statismo_ITK/itkStatisticalModel.h"
+#include "statismo_ITK/itkStatisticalDeformationModelTransform.h"
 #include "itkMeanSquaresImageToImageMetric.h"
 #include "itkNormalizedCorrelationImageToImageMetric.h"
 #include "itkLBFGSOptimizer.h"

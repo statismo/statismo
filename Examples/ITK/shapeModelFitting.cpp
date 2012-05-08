@@ -40,8 +40,8 @@
  */
 
 #include "itkMeshRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkStatisticalShapeModelTransform.h"
+#include "statismo_ITK/itkStatisticalModel.h"
+#include "statismo_ITK/itkStatisticalShapeModelTransform.h"
 #include "itkMeanSquaresPointSetToImageMetric.h"
 #include "itkLBFGSOptimizer.h"
 #include "itkPointSetToImageRegistrationMethod.h"
