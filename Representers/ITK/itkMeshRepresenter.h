@@ -45,7 +45,7 @@
 #include "itkObject.h"
 #include "itkMesh.h"
 #include <H5Cpp.h>
-#include <boost/tr1/unordered_map.hpp>
+#include <boost/unordered_map.hpp>
 
 namespace itk {
 
@@ -98,7 +98,7 @@ public:
 	typedef typename MeshType::PointType ValueType;
 
 	// An unordered map is used to cache pointid for corresonding points
-	typedef std::tr1::unordered_map<PointType, unsigned> PointCacheType;
+	typedef boost::unordered_map<PointType, unsigned> PointCacheType;
 
 	 // not used for this representer, but needs to be here as it is part of the generic interface
 	struct DatasetInfo {};
