@@ -49,6 +49,7 @@
 #include "time.h"
 
 #ifdef _WIN32
+#define NOMINMAX // avoid including the min and max macro
 #include <windows.h>
 #include <tchar.h>
 #endif
