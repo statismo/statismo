@@ -128,7 +128,7 @@ public:
                            szTempFileName); // buffer for path
 		tmpDirectoryName.assign(szTempFileName);
 		std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0) +extension;
-		return tmpfilename
+		return tmpfilename;
 		#else
 			std::string tmpfilename = tmpnam(0);
 			tmpfilename += extension;

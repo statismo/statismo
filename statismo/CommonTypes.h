@@ -72,6 +72,12 @@ typedef Eigen::DiagonalMatrix<ScalarType, Eigen::Dynamic> DiagMatrixType;
 typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic> DiagMatrixTypeDoublePrecision;
 
 
+// on windows, max may be defined as a macro from windows.h
+// to use std::numeric limits we need to temporarily undef it
+#define maxsave max
+#undef max
+const unsigned MAXUINT = std::numeric_limits<unsigned>::max();
+#define max maxsave
 
 
 } //namespace statismo

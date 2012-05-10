@@ -110,6 +110,7 @@ public:
 
 
 
+
 	/**
 	 * Destructor
 	 */
@@ -149,7 +150,7 @@ public:
 	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
 	 * to create the model.
 	 */
-	static StatisticalModel* Load(const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+	static StatisticalModel* Load(const std::string& filename, unsigned maxNumberOfPCAComponents = MAXUINT);
 
 	/**
 	 * Returns a new statistical model, which is loaded from the given HDF5 file, from the given location.
@@ -159,7 +160,7 @@ public:
 	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
 	 * to create the model.
 	 */
-	static StatisticalModel* Load(const std::string& filename, const std::string& path, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+	static StatisticalModel* Load(const std::string& filename, const std::string& path, unsigned maxNumberOfPCAComponents = MAXUINT);
 
 
 	/**
