@@ -27,22 +27,22 @@ include_directories(${STATISMO_ROOT_DIR} ${STATISMO_ROOT_DIR}/statismo_ITK
 					${STATISMO_ROOT_DIR}/Representers/VTK ${VTK_INCLUDE_DIR} 
 					${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})
 
-link_directories(${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR}  ${HDF5_LIBRARY_DIR} )
+link_directories(   ${HDF5_LIBRARY_DIR} ${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR})
 
 
 
 ADD_EXECUTABLE(itkVectorImageRepresenterTest itkVectorImageRepresenterTest.cpp) 
 ADD_DEPENDENCIES(itkVectorImageRepresenterTest HDF5)
-TARGET_LINK_LIBRARIES(itkVectorImageRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+TARGET_LINK_LIBRARIES(itkVectorImageRepresenterTest   ${HDF5_LIBRARIES} ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 ADD_EXECUTABLE(itkImageRepresenterTest itkImageRepresenterTest.cpp) 
 ADD_DEPENDENCIES(itkImageRepresenterTest HDF5)
-TARGET_LINK_LIBRARIES(itkImageRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+TARGET_LINK_LIBRARIES(itkImageRepresenterTest   ${HDF5_LIBRARIES} ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 
 ADD_EXECUTABLE(itkMeshRepresenterTest itkMeshRepresenterTest.cpp) 
 ADD_DEPENDENCIES(itkMeshRepresenterTest HDF5)
-TARGET_LINK_LIBRARIES(itkMeshRepresenterTest ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+TARGET_LINK_LIBRARIES(itkMeshRepresenterTest   ${HDF5_LIBRARIES} ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
 
 
 ADD_EXECUTABLE(vtkPolyDataRepresenterTest vtkPolyDataRepresenterTest.cpp) 
