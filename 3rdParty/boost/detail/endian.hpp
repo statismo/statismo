@@ -30,7 +30,7 @@
 // GNU libc offers the helpful header <endian.h> which defines
 // __BYTE_ORDER
 
-#if 1
+#if defined (__GLIBC__)
 # include <endian.h>
 # if (__BYTE_ORDER == __LITTLE_ENDIAN)
 #  define BOOST_LITTLE_ENDIAN
