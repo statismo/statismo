@@ -232,15 +232,15 @@ public:
 	/// run all the tests
 	bool runAllTests() {
 		bool ok = true;
-		ok = testPointSampleDimension() and ok;
-		ok = testPointSampleToPointSampleVectorAndBack() and ok;
-		ok = testSampleVectorHasCorrectValueAtPoint() and ok;
-		ok = testSampleToVectorAndBack() and ok;
-		ok = testSaveLoad() and ok;
-		ok = testClone() and ok;
-		ok = testSampleVectorDimensions() and ok;
-		ok = testGetName() and ok;
-		ok = testDimensions() and ok;
+		ok = testPointSampleDimension() && ok;
+		ok = testPointSampleToPointSampleVectorAndBack() && ok;
+		ok = testSampleVectorHasCorrectValueAtPoint() && ok;
+		ok = testSampleToVectorAndBack() && ok;
+		ok = testSaveLoad() && ok;
+		ok = testClone() && ok;
+		ok = testSampleVectorDimensions() && ok;
+		ok = testGetName() && ok;
+		ok = testDimensions() && ok;
         return ok;
 	}
 
