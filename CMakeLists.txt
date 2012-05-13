@@ -22,13 +22,14 @@ endif()
 include(ExternalProject)
 OPTION (HDF5_USE_EXTERNAL "Use External Library Building for HDF5" OFF)
 
-# the name of the library seems to depend on the platform
+# it seems that on linux only the shared libraries work, while on windows we have trouble with them.
 IF(WIN32)
-	SET(HDF5_LIBRARIES hdf5dll;hdf5_cppdll)
+	SET(HDF5_BUILD_SHARED Off)
 ELSE(WIN32)
-	SET(HDF5_LIBRARIES hdf5;hdf5_cpp)
+	SET(HDF5_BUILD_SHARED On)
 ENDIF(WIN32)
 
+SET(HDF5_LIBRARIES hdf5;hdf5_cpp)
 IF (NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
 	  SOURCE_DIR HDF5
@@ -39,7 +40,7 @@ IF (NOT HDF5_USE_EXTERNAL)
 	  -DCMAKE_BUILD_TYPE:STRING=Release 
 	  -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=Off
 	  -DHDF5_BUILD_CPP_LIB:BOOL=On
-	  -DBUILD_SHARED_LIBS:BOOL=On
+	  -DBUILD_SHARED_LIBS:BOOL=${HDF5_BUILD_SHARED}
 	  -DHDF5_BUILD_TOOLS:BOOL=On
 	  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5
 	  INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5
@@ -66,14 +67,17 @@ ENDIF (NOT HDF5_USE_EXTERNAL)
 OPTION(BUILD_ITK_EXAMPLES "Build the itk examples " OFF)
 OPTION(BUILD_VTK_EXAMPLES "Build the vtk examples " OFF)
 OPTION(BUILD_ITK_WRAPPING "Build itk wrapping (untested)" OFF)
-OPTION(BUILD_VTK_WRAPPING "Build vtk wrapping" OFF)
+OPTION(BUILD_VTK_WRAPPING "Build vtk swig wrapping" OFF)
 
 MARK_AS_ADVANCED(BUILD_ITK_WRAPPING)
+
 #
 #optional tests
 #
 OPTION(BUILD_STATISMO_TESTS "Build tests" OFF)
-OPTION(BUILD_REPRESENTER_TESTS "Build tests" OFF)
+OPTION(BUILD_STATISMO_TESTS_PYTHON "Build Unit tests written in python") 
+OPTION(BUILD_REPRESENTER_TESTS "Build representer tests (requires ITK and VTK)" OFF)
+MARK_AS_ADVANCED(BUILD_REPRESENTER_TESTS)
 
 
 #
@@ -91,6 +95,10 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION include)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_VERSION})
 
+# 
+# copy the data
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/data DESTINATION share)
+
 set(STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
 if (BUILD_ITK_EXAMPLES)
@@ -101,10 +109,15 @@ if (BUILD_VTK_EXAMPLES)
   add_subdirectory(Examples/VTK)
 endif()
 
-if (BUILD_STATISMO_TESTS)
+if (BUILD_STATISMO_TESTS_PYTHON)
   set(BUILD_VTK_WRAPPING ON)
   add_custom_target(test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)  
 endif()
+
+if (BUILD_TESTS)
+  add_subdirectory(Tests)	  
+endif()
+
 
 if (BUILD_REPRESENTER_TESTS)
   add_subdirectory(Tests/representerTests)	  
