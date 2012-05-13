@@ -274,9 +274,9 @@ public:
 	 
 	 %newobject Load;
      static StatisticalModel* Load(const std::string& filename, unsigned numComponents=10000);
-     static StatisticalModel* Load(const std::string& filename, const std::string& location, unsigned numComponents=10000);
+     static StatisticalModel* Load(const H5::Group&  modelroot, unsigned numComponents=10000);
 	 void Save(const std::string& filename);
-	 void Save(const std::string& filename, const std::string& location);
+	 void Save(const H5::Group& modelroot);
 
 	const Representer* GetRepresenter() const;
 

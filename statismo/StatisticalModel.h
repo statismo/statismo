@@ -45,8 +45,11 @@
 #include <vector>
 #include <limits>
 
-namespace statismo {
+namespace H5 { 
+class Group;
+}
 
+namespace statismo {
 
 /**
  * \brief A Point/Value pair that is used to specify a value at a given point.
@@ -153,14 +156,13 @@ public:
 	static StatisticalModel* Load(const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
 	/**
-	 * Returns a new statistical model, which is loaded from the given HDF5 file, from the given location.
+	 * Returns a new statistical model, which is stored in the given HDF5 Group 
 	 *
-	 * \param filename The filename
-	 * \param path An absolute path in the HDF5 file, which defines where the model is located.
+	 * \param modelroot A h5 group where the model is saved
 	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
 	 * to create the model.
 	 */
-	static StatisticalModel* Load(const std::string& filename, const std::string& path, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+	static StatisticalModel* Load(const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
 
 	/**
@@ -179,12 +181,11 @@ public:
 	void Save(const std::string& filename) const;
 
 	/**
-	 * Saves the statistical model to a HDF5 file, to a specific location in the file
+	 * Saves the statistical model to the given HDF5 group.
 	 *
-	 * \param filename The filename (preferred extension is .h5)
-	 * \param path The absolute path to the location where the model is stored in the hdf5 file.
+	 * \param modelRoot the group where to store the model
 	 * */
-	void Save(const std::string& filename, const std::string& path) const;
+	void Save(const H5::Group& modelRoot) const;
 
 	///@}
 

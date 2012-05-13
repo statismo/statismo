@@ -40,7 +40,6 @@
 #include "StatisticalModel.h"
 #include "HDF5Utils.h"
 #include "Exceptions.h"
-
 #include <fstream>
 #include <string>
 #include <iostream>
@@ -472,19 +471,11 @@ template <typename Representer>
 StatisticalModel<Representer>*
 StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNumberOfPCAComponents) {
 
-	return Load(filename, "/", maxNumberOfPCAComponents);
-}
-
-
-template <typename Representer>
-StatisticalModel<Representer>*
-StatisticalModel<Representer>::Load(const std::string& filename, const std::string& path, unsigned maxNumberOfPCAComponents) {
 	using namespace H5;
-
 
 	StatisticalModel* newModel = 0;
 
-	H5File file;
+	H5::H5File file;
 	try {
 		file = H5File(filename.c_str(), H5F_ACC_RDONLY);
 	}
@@ -493,15 +484,24 @@ StatisticalModel<Representer>::Load(const std::string& filename, const std::stri
 		 throw StatisticalModelException(msg.c_str());
 	}
 
-	Group modelRoot;
-	try {
-		modelRoot = HDF5Utils::openPath(file, path);
-	}
-	catch (Exception& e) {
-		std::ostringstream msg;
-		msg << "could not open the location " << path << ": " << e.getCDetailMsg();
-		throw StatisticalModelException(msg.str().c_str());
-	}
+	Group modelRoot = file.openGroup("/");
+	
+	newModel =  Load(modelRoot, maxNumberOfPCAComponents);
+
+	modelRoot.close();
+	file.close();
+	return newModel;
+
+}
+
+
+template <typename Representer>
+StatisticalModel<Representer>*
+StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
+
+	using namespace H5;
+
+	StatisticalModel* newModel = 0;
 
 	try {
 		Group representerGroup = modelRoot.openGroup("./representer");
@@ -529,9 +529,6 @@ StatisticalModel<Representer>::Load(const std::string& filename, const std::stri
 		 throw StatisticalModelException(msg.c_str());
 	}
 
-	modelRoot.close();
-	file.close();
-
 	assert(newModel != 0);
 	newModel->m_cachedValuesValid = false;
 
@@ -541,34 +538,29 @@ StatisticalModel<Representer>::Load(const std::string& filename, const std::stri
 template <typename Representer>
 void
 StatisticalModel<Representer>::Save(const std::string& filename) const {
-	Save(filename, "/");
-}
-
-template <typename Representer>
-void
-StatisticalModel<Representer>::Save(const std::string& filename, const std::string& location) const {
 	using namespace H5;
 
 	H5File file;
+	std::ifstream ifile(filename.c_str());
+
 	try {
-		 file = HDF5Utils::openOrCreateFile(filename);
+	     file = H5::H5File( filename.c_str(), H5F_ACC_TRUNC);
 	 } catch (FileIException& e) {
 		 std::string msg(std::string("Could not open HDF5 file for writing \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	 }
 
 
-	Group modelRoot;
+	 H5::Group modelRoot = file.openGroup("/");
+	 Save(modelRoot);
+	 modelRoot.close();
+	file.close();	
+}
 
-	try {
-		modelRoot = HDF5Utils::openPath(file, location, true);
-	}
-	catch (H5::Exception& e) {
-		std::ostringstream msg;
-		msg << "could not create group  " << location << ": " << e.getCDetailMsg();
-		throw StatisticalModelException(msg.str().c_str());
-	}
-
+template <typename Representer>
+void
+StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
+	using namespace H5;
 
 	 try {
 		// create the group structure
@@ -593,10 +585,6 @@ StatisticalModel<Representer>::Save(const std::string& filename, const std::stri
 		 std::string msg(std::string("an exception occurred while writing HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
-	 modelRoot.close();
-	file.close();
-
-
 }
 
 template <typename Representer>
