@@ -54,8 +54,8 @@ ADD_DEPENDENCIES(vtkStructuredPointsRepresenterTest HDF5)
 TARGET_LINK_LIBRARIES(vtkStructuredPointsRepresenterTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES}  ${HDF5_LIBRARIES})
 
 
-ADD_TEST(itkVectorImageRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/itkVectorImageRepresenterTest ${STATISMO_ROOT_DIR}/data)
-ADD_TEST(itkImageRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/itkImageRepresenterTest ${STATISMO_ROOT_DIR}/data)
-ADD_TEST(itkMeshRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/itkMeshRepresenterTest ${STATISMO_ROOT_DIR}/data)
-ADD_TEST(vtkPolyDataRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/vtkPolyDataRepresenterTest ${STATISMO_ROOT_DIR}/data)
-ADD_TEST(vtkStructuredPointsRepresenterTest ${CMAKE_CURRENT_BINARY_DIR}/vtkStructuredPointsRepresenterTest ${STATISMO_ROOT_DIR}/data)
+ADD_TEST(itkVectorImageRepresenterTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/itkVectorImageRepresenterTest ${STATISMO_ROOT_DIR}/data)
+ADD_TEST(itkImageRepresenterTest  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/itkImageRepresenterTest ${STATISMO_ROOT_DIR}/data)
+ADD_TEST(itkMeshRepresenterTest  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/itkMeshRepresenterTest ${STATISMO_ROOT_DIR}/data)
+ADD_TEST(vtkPolyDataRepresenterTest  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/vtkPolyDataRepresenterTest ${STATISMO_ROOT_DIR}/data)
+ADD_TEST(vtkStructuredPointsRepresenterTest ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/vtkStructuredPointsRepresenterTest ${STATISMO_ROOT_DIR}/data)

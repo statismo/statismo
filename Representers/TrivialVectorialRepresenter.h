@@ -60,8 +60,8 @@ public:
 
 
 	// For simplicity, we don't use pointers, but copy the objects (as efficiency is not the goal of this representer).
-	typedef VectorType DatasetPointerType;
-	typedef VectorType DatasetConstPointerType;
+	typedef statismo::VectorType DatasetPointerType;
+	typedef statismo::VectorType DatasetConstPointerType;
 
 	typedef PointIdType PointType;
 	typedef statismo::ScalarType ValueType;

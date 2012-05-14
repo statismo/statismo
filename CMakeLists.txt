@@ -1,6 +1,8 @@
 cmake_minimum_required (VERSION 2.6)
 project (statismo)
 
+ENABLE_TESTING()
+
 SET(STATISMO_VERSION 0.8) 
 SET(STATISMO_MINOR_VERSION 0)
 
@@ -109,9 +111,14 @@ if (BUILD_VTK_EXAMPLES)
   add_subdirectory(Examples/VTK)
 endif()
 
+if (BUILD_STATISMO_TESTS)
+  add_subdirectory(Tests)
+endif()
+
+
 if (BUILD_STATISMO_TESTS_PYTHON)
   set(BUILD_VTK_WRAPPING ON)
-  add_custom_target(test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)  
+  add_custom_target(unit_tests  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)
 endif()
 
 if (BUILD_TESTS)
