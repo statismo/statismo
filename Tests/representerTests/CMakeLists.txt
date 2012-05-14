@@ -20,6 +20,10 @@ set(VTK_LIBRARIES
         vtkWidgets 
 )
 
+STRING(REGEX REPLACE "itkhdf5_cpp" "" ITK_LIBRARIES "${ITK_LIBRARIES}")
+STRING(REGEX REPLACE "itkhdf5" "" ITK_LIBRARIES "${ITK_LIBRARIES}")
+
+
 
 include_directories(${STATISMO_ROOT_DIR} ${STATISMO_ROOT_DIR}/statismo_ITK  
 					${STATISMO_ROOT_DIR}/3rdParty  ${STATISMO_INCLUDE_DIR}  

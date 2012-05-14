@@ -128,9 +128,9 @@ public:
 	}
 
 
-	void Load(const char* filename, const char* location, unsigned maxNumberOfPCAComponents) {
+	void Load(const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
 		try {
-			SetstatismoImplObj(ImplType::Load(filename, location, maxNumberOfPCAComponents));
+		  SetstatismoImplObj(ImplType::Load(modelRoot, maxNumberOfPCAComponents));
 		}
 		catch (statismo::StatisticalModelException& s) {
 			itkExceptionMacro(<< s.what());
@@ -202,11 +202,13 @@ public:
 	}
 
 	void Save(const char* modelname) {
-		callstatismoImpl(std::tr1::bind(&ImplType::Save, this->m_impl, modelname));
+	  typedef void (ImplType::*functype)(const std::string&) const;
+	  callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::Save), this->m_impl, modelname));
 	}
 
-	void Save(const char* modelname, const char* location) {
-		callstatismoImpl(std::tr1::bind(&ImplType::Save, this->m_impl, modelname, location));
+	void Save(const H5::Group& modelRoot) {
+	  typedef void (ImplType::*functype)(const H5::Group&) const;
+	  callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::Save), this->m_impl, modelRoot));
 	}
 
 
