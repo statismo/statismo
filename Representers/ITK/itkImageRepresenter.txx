@@ -103,18 +103,25 @@ ImageRepresenter<TPixel, ImageDimension>::Load(const H5::CommonFG& fg) {
 }
 
 
-template <class TPixel, unsigned ImageDimension>
-void
-ImageRepresenter<TPixel, ImageDimension>::SetReference(const char* referenceFilename) {
-
-	DatasetPointerType reference = ReadDataset(referenceFilename);
-	SetReference(reference);
-}
 
 template <class TPixel, unsigned ImageDimension>
 void
 ImageRepresenter<TPixel, ImageDimension>::SetReference(DatasetPointerType reference) {
 	m_reference = reference;
+
+	typename DomainType::DomainPointsListType domainPoints;
+	itk::ImageRegionConstIterator<DatasetType> it(reference, reference->GetLargestPossibleRegion());
+	it.GoToBegin();
+	for (;
+		it.IsAtEnd() == false
+		;)
+	{
+		PointType pt;
+		reference->TransformIndexToPhysicalPoint(it.GetIndex(), pt);
+		domainPoints.push_back(pt);
+		++it;
+	}
+	m_domain = DomainType(domainPoints);
 }
 
 template <class TPixel, unsigned ImageDimension>

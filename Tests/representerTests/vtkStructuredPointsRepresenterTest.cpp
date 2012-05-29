@@ -22,6 +22,7 @@ vtkStructuredPoints* loadStructuredPoints(const std::string& filename) {
 }
 
 int main(int argc, char** argv) {
+
 	if (argc < 2) {
 		std::cout << "Usage: " << argv[0] << " datadir" << std::endl;
 		exit(EXIT_FAILURE);
@@ -32,6 +33,7 @@ int main(int argc, char** argv) {
 	const std::string testDatasetFilename = datadir + "/hand_dfs/df-hand-2.vtk";
 
 	vtkStructuredPoints* reference = loadStructuredPoints(referenceFilename);
+
 	StructuredPointsRepresenterType* representer = StructuredPointsRepresenterType::Create(reference);
 
 	// choose a test dataset, a point (on the reference) and the associated point on the test example

@@ -39,6 +39,7 @@
 #define __COMMON_TYPES_H
 
 #include "Config.h"
+#include "Domain.h"
 #include <iostream>
 
 #include <exception>
@@ -70,7 +71,6 @@ typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> M
 /// Diagonal matrix type used throughout the library
 typedef Eigen::DiagonalMatrix<ScalarType, Eigen::Dynamic> DiagMatrixType;
 typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic> DiagMatrixTypeDoublePrecision;
-
 
 } //namespace statismo
 

@@ -96,30 +96,32 @@ MeshRepresenter<TPixel, MeshDimension>::Load(const H5::CommonFG& fg) {
 }
 
 
-template <class TPixel, unsigned MeshDimension>
-void
-MeshRepresenter<TPixel, MeshDimension>::SetReference(const char* referenceFilename) {
 
-	DatasetPointerType reference = ReadDataset(referenceFilename);
-	SetReference(reference);
-}
 
 template <class TPixel, unsigned MeshDimension>
 void
 MeshRepresenter<TPixel, MeshDimension>::SetReference(DatasetPointerType reference) {
 	m_reference = reference;
 
-	// we cache for all the points of the reference, as these are the most likely ones
+	// We create a list of poitns for the domain.
+	// Furthermore, we cache for all the points of the reference, as these are the most likely ones
 	// we have to look up later.
+	typename DomainType::DomainPointsListType domainPointList;
+
 	typename PointsContainerType::Pointer points = m_reference->GetPoints();
 	typename PointsContainerType::Iterator pointIterator= points->Begin();
 	unsigned id = 0;
 	while( pointIterator != points->End() ) {
+		domainPointList.push_back(pointIterator.Value());
 		m_pointCache.insert(std::pair<PointType, unsigned>(pointIterator.Value(), id));
 		++pointIterator;
 		++id;
 	}
+	m_domain = DomainType(domainPointList);
+
 }
+
+
 
 template <class TPixel, unsigned MeshDimension>
 typename MeshRepresenter<TPixel, MeshDimension>::DatasetPointerType

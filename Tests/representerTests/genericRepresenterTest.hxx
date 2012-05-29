@@ -57,6 +57,8 @@ class GenericRepresenterTest {
 
 	typedef typename Representer::DatasetInfo DatasetInfo;
 
+	typedef typename Representer::DomainType DomainType;
+
 public:
 	/// Create new test with the given representer.
 	/// Tests are performed using the given testDataset and the pointValuePair.
@@ -67,6 +69,43 @@ public:
 	  m_testPoint(pointValuePair.first),
 	  m_testValue(pointValuePair.second)
 	{}
+
+
+	bool testDomainValid() const {
+		std::cout << "testDomainValid" << std::endl;
+
+		const DomainType domain = m_representer->GetDomain();
+		typename DomainType::DomainPointsListType domPoints = domain.GetDomainPoints();
+
+		if (domPoints.size() == 0) {
+			std::cout << "representer defined empty domain" << std::endl;
+			return false;
+		}
+
+		if (domPoints.size() != domain.GetNumberOfPoints()) {
+			std::cout << "domPoints.size() != domain->GetNumberOfPoints" << std::endl;
+			return false;
+		}
+
+		unsigned ptNo = 0;
+		for (typename DomainType::DomainPointsListType::const_iterator it = domPoints.begin();
+				it != domPoints.end();
+				++it)
+		{
+			// since this can take long, we only do it for every 10th point
+			if (ptNo % 10 != 0)
+				break;
+
+			if (m_representer->GetPointIdForPoint(*it) >= domain.GetNumberOfPoints()) {
+				std::cout << "a point in the domain did not evaluate to a valid point it" << std::endl;
+				return false;
+			}
+			ptNo++;
+		}
+
+		return true;
+
+	}
 
 	/// test whether converting a sample to a vector and back to a sample yields the original sample
 	bool testSampleToVectorAndBack() const {
@@ -233,6 +272,7 @@ public:
 	bool runAllTests() {
 		bool ok = true;
 		ok = testPointSampleDimension() && ok;
+		ok = testDomainValid() && ok;
 		ok = testPointSampleToPointSampleVectorAndBack() && ok;
 		ok = testSampleVectorHasCorrectValueAtPoint() && ok;
 		ok = testSampleToVectorAndBack() && ok;

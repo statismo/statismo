@@ -54,12 +54,16 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::vtkStructuredPointsRepre
   : m_reference(vtkStructuredPoints::New())
 {
 	m_reference->DeepCopy(const_cast<vtkStructuredPoints*>(reference));
+	// set the domain
+   DomainType::DomainPointsListType ptList;
+   for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
+	   double* d = m_reference->GetPoint(i);
+	   ptList.push_back(vtkPoint(d));
+   }
+
+   m_domain = DomainType(ptList);
 }
 
-template <class TPrecision, unsigned Dimensions>
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::vtkStructuredPointsRepresenter(const std::string& referenceFilename)
-  : m_reference(ReadDataset(referenceFilename))
-{}
 
 
 template <class TPrecision, unsigned Dimensions>

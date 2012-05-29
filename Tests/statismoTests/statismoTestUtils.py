@@ -58,17 +58,18 @@ def getDataFiles(datadir):
 def buildPolyDataModel(datadir, noise):
     
     files = getDataFiles(datadir)
-    representer = statismo.vtkPolyDataRepresenter.Create(files[0], statismo.vtkPolyDataRepresenter.RIGID)    
-    
+    ref = read_vtkpd(files[0])
+        
+    representer = statismo.vtkPolyDataRepresenter.Create(ref, statismo.vtkPolyDataRepresenter.RIGID)    
     dm = statismo.DataManager_vtkPD.Create(representer)
 
     datasets = map(read_vtkpd, files)
     for (dataset, filename) in zip(datasets, files):        
         dm.AddDataset(dataset, filename)
-
     
     builder = statismo.PCAModelBuilder_vtkPD.Create()
     model =  builder.BuildNewModel(dm.GetSampleData(), noise)
+
     return model
   
 def getPDPointWithId(pd, id):

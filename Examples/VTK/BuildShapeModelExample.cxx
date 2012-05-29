@@ -84,7 +84,8 @@ int main(int argc, char** argv) {
 		// We create a new representer object. For the vtkPolyDataRepresenter, we have to set a reference
 		// and the alignmentType. The alignmenttype (which is here RIGID) determines how the dataset that we
 		// will use will later be aligned to the reference.
-		auto_ptr<RepresenterType> representer(RepresenterType::Create(datadir +"/hand_polydata/hand-0.vtk", RepresenterType::RIGID));
+		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand_polydata/hand-0.vtk");
+		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference, RepresenterType::RIGID));
 
 		// We create a datamanager and provide it with a pointer  to the representer
 		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
@@ -117,6 +118,8 @@ int main(int argc, char** argv) {
 		// Once we have built the model, we can save it to disk.
 		model->Save(modelname);
 		std::cout << "Succesfully saved shape model as " << modelname << std::endl;
+
+		reference->Delete();
 	}
 	catch (StatisticalModelException& e) {
 		std::cout << "Exception occured while building the shape model" << std::endl;

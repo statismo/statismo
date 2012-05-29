@@ -45,6 +45,7 @@
 #include "vtkTransformPolyDataFilter.h"
 #include "vtkPoint.h"
 #include "statismo/CommonTypes.h"
+#include "statismo/Domain.h"
 #include "vtkSmartPointer.h"
 #include <H5Cpp.h>
 
@@ -74,6 +75,8 @@ public:
 	typedef vtkPoint PointType;
 	typedef vtkPoint ValueType;
 
+	typedef statismo::Domain<PointType> DomainType;
+
 	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
 
 
@@ -88,9 +91,6 @@ public:
 	static vtkPolyDataRepresenter* Create(DatasetConstPointerType reference, AlignmentType alignment) {
 		return new vtkPolyDataRepresenter(reference, alignment);
 	}
-	static vtkPolyDataRepresenter* Create(const std::string& referenceFilename, AlignmentType alignment) {
-		return new vtkPolyDataRepresenter(referenceFilename, alignment);
-	}
 
 	static vtkPolyDataRepresenter* Load(const H5::CommonFG& fg);
 
@@ -102,6 +102,8 @@ public:
 
 	static std::string GetName() { return "vtkPolyDataRepresenter"; }
 	static unsigned GetDimensions() { return 3; }
+
+	const DomainType& GetDomain() const { return m_domain; }
 
 	AlignmentType GetAlignment() const { return m_alignment; }
 
@@ -149,6 +151,7 @@ private:
 
 	vtkTransformPolyDataFilter* m_pdTransform;
 	AlignmentType m_alignment;
+	DomainType m_domain;
 };
 
 #include "vtkPolyDataRepresenter.cpp"

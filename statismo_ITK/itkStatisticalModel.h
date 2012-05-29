@@ -114,6 +114,8 @@ public:
 	typedef typename statismo::StatisticalModel<Representer>::PointValuePairType PointValuePairType;
 	typedef typename statismo::StatisticalModel<Representer>::PointValueListType PointValueListType;
 
+	typedef typename statismo::StatisticalModel<Representer>::DomainType DomainType;
+
 	void Load(const char* filename) {
 		return Load(filename, 100000);
 	}
@@ -140,6 +142,10 @@ public:
 
 	const Representer* GetRepresenter() const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::GetRepresenter, this->m_impl));
+	}
+
+	const DomainType& GetDomain() const {
+		return callstatismoImpl(std::tr1::bind(&ImplType::GetDomain, this->m_impl));
 	}
 
 	DatasetPointerType DrawMean() const { return callstatismoImpl(std::tr1::bind(&ImplType::DrawMean, this->m_impl)); }

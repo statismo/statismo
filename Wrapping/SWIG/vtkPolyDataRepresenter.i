@@ -55,6 +55,8 @@ typedef vtkPoint ValueType;
 typedef vtkPolyData* DatasetPointerType;
 typedef const vtkPolyData* DatasetConstPointerType;
 
+typedef statismo::Domain<PointType> DomainType;
+
  enum AlignmentType {
    NONE=999,
    RIGID=VTK_LANDMARK_RIGIDBODY,
@@ -64,9 +66,10 @@ typedef const vtkPolyData* DatasetConstPointerType;
 
  %newobject Create; 
  static vtkPolyDataRepresenter* Create(const vtkPolyData* reference, AlignmentType alignment);
- static vtkPolyDataRepresenter* Create(const std::string& referenceFilename, AlignmentType alignment);
   static unsigned GetDimensions();
   AlignmentType GetAlignment() const;
+  
+  const DomainType& GetDomain() const;
   
  const vtkPolyData* GetReference() const;
  unsigned GetNumberOfPoints();

@@ -545,16 +545,17 @@ This restores the full model, including the representer.
 We stress however, that it is important that the same representer is used when loading the model, as the one that was used to build the model. 
 \Statismo will throw an exception if this is not the case. 
 
-\subsection{Visualizing the variability}
+\subsection{Visualizing the variability} \label{sec:visvariability}
 Probably the first and simplest application that is performed with a new model is to visualize the variability of the modeled objects. 
 This can easily be achieved by drawing random samples and visualizing them using standard tools (such as e.g. Paraview). 
 \begin{verbatim}
    vtkPolyData* sample = model->DrawSample()
 \end{verbatim}
-We can also explore the shape space more systematically, by specifying
+We can also explore the shape space more systematically by specifying
 the PCA coefficients for a given sample. In this example, we obtain three samples:
 The mean, a sample corresponding to 3 standard-deviation in the direction of the
 first principal component and one corresonding to 3 standard-deviation in the opposite direction.
+The result is visualized in Figure~\ref{fig:vispca}
 \begin{verbatim}
    vtkPolyData* mean = model->DrawMean()
    VectorType coeffs = VectorType::Zeros(model->GetNumberOfPrincipalComponents());
@@ -565,6 +566,15 @@ first principal component and one corresonding to 3 standard-deviation in the op
    // ... delete the samples - omitted
 \end{verbatim}
 Note that each call to DrawSample create a new sample which needs to be deleted by the user.
+\begin{figure}
+  The principal components
+  \begin{tabular}{ccc}
+    && \\
+    $-3 \sigma$ & mean & $+3 \sigma$
+  \end{tabular}
+  \itkcaption{The first mode of variation ($\pm 3$ standard deviations) for a shape model (TODO of what). }
+    \label{fig:vispca}
+\end{figure}
 
 
 \subsection{Using statistical models as  a prior}
@@ -685,7 +695,6 @@ MeshType::Pointer finalMesh = model->DrawSample(transform->GetCoefficients());
 \section{Adding more prior information: Constrained PCA models }
 One goal of \Statismo is to allow the integration of  different algorithms for building statistical models.
 Currently, \Statismo comes with three different methods to build statistical models (Cf. Figure~\ref{fig:class-diagram}). Besides the standard \code{PCAModelBuidler} that was used in all the examples presented so far, there is a \code{PartiallyFixedModelBuilder} \cite{luthi_probabilistic_2009} and a \code{ConditionalModelBuilder} \cite{blanc_conditional_2009}. Both model builders incorporate additional prior information into the model building and thus reduce the variability of the resulting model. The resulting models itself, are standard PCA models that can be used and interpreted in exactly the same way as the models discussed so far. 
-
 \subsection{Partially fixed models}
 \begin{figure}
   to be included
@@ -693,7 +702,7 @@ Currently, \Statismo comes with three different methods to build statistical mod
     \label{fig:constrained-model}
 \end{figure}
 Partially fixed models allow for introducing geometric constraints on the model. For example, a part of the shape may be known, and only the flexibility of the remaining part should be obtained. Another typical scenario is when in an application of the shape model, the user provides a number of landmarks that fix the shape. 
-Consider the shape model fitting example from Section~\ref{sec:model-fitting}. Assume that we have a set of landmark points, which determine the position of the target shape. We can incorporate these points already into the model building, to obtain a model that is fixed at the landmark points. Figure~\ref{fig:constrained-model} shows an example of such a  constrained model.  Using this model for model fitting leads to a simpler optimization problem, and furthermore guarantees that the landmark points are matched. 
+Consider the shape model fitting example from Section~\ref{sec:model-fitting}. Assume that we have a set of landmark points, which determine the position of the target shape. We can incorporate these points already into the model building, to obtain a model that is fixed at the landmark points. 
 The following (incomplete) code illustrates how such models can be built. 
 
 \begin{verbatim}
@@ -712,7 +721,7 @@ for (unsigned i = 0; i < numLandmarks; i++) {
 StatisticalModelType* constraintModel = 
    pfmb->BuildNewModel(dataManager->GetSampleData(), constraints);
 \end{verbatim}
-
+Figure~\ref{fig:constrained-model} shows the first variation of the constrained model (Cf. Section~\ref{sec:visvariability}). Compared to the first variation of the unconstrained model (Cf. Figure~\ref{fig:vispca}) we see that the first variation of the constrained model leaves the landmark points fixed.  Using this model for model fitting leads to a simpler optimization problem, and furthermore guarantees that the landmark points are matched. 
 For more details about the idea of these models, we refer to the papers \cite{luthi_probabilistic_2009,luthi_using_2011}.
 
 \subsection{Conditional Models}
@@ -813,15 +822,14 @@ models.
 %   & No registration is performed - Examples have to be in correspondence. \\ \\
 
 % \end{tabular}
-% \subsection{Defining your own representer}
-% TODO to be rewritten
-% Consider the method
-% \code{ComputeProbabilityForDataset(DatasetConstPointType object)} defined for the \code{StatisticalModel}. This probability 
-% can only be computed in a meaningful way if the object is discretized and normalized exactly in the same way 
-% as it was done for the training data. Therefore, a model is only well defined if it is used with the same \code{Representer} as was used to create the model.
-
+\subsection{Defining your own representer}
+%TODO to be rewritten
+%Consider the method
+%\code{ComputeProbabilityForDataset(DatasetConstPointType object)} defined for the \code{StatisticalModel}. This probability 
+%can only be computed in a meaningful way if the object is discretized and normalized exactly in the same way 
+%as it was done for the training data. Therefore, a model is only well defined if it is used with the same \code{Representer} as was used to create the model.
 % For specifying the semantics, a \code{Representer} implements the following methods:
-% \begin{verbatim}
+%\begin{verbatim}
 % 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 % 	VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
 % 	DatasetPointerType SampleVectorToSample(const VectorType& sample) const;

@@ -55,7 +55,7 @@ using std::auto_ptr;
 // This example shows how a statistical shape model can be built, when the position of some of the points
 // is known and fixed. // The constraint model can either be built from data sets that are added to the DataManager (see e.g.
 // BuildShapeModelExample.cxx) or from an already built model. We use the second option here.
-// In this example we simply fix the first point in the reference to the mean value of our input model.
+// In this example we simply fix the first point in the domain to the mean value of our input model.
 //
 int main(int argc, char** argv) {
 
@@ -73,23 +73,26 @@ int main(int argc, char** argv) {
 	typedef vtkPolyDataRepresenter RepresenterType;
 	typedef StatisticalModel<RepresenterType> StatisticalModelType;
 	typedef PartiallyFixedModelBuilder<RepresenterType> PartiallyFixedModelBuilderType;
+	typedef StatisticalModelType::DomainType DomainType;
 
 	try {
 		// load the model
 		auto_ptr<StatisticalModelType> inputModel(StatisticalModelType::Load(inputModelName));
 
-		// We
+
 		auto_ptr<PartiallyFixedModelBuilderType> pfmb(PartiallyFixedModelBuilderType::Create());
 
-		// We get the first point in the model, which we later want to fix.
-		const vtkPolyData* reference = inputModel->GetRepresenter()->GetReference();
-		double* refPt = const_cast<vtkPolyData*>(reference)->GetPoints()->GetPoint(0);
-		vtkPoint meanValueForPt = inputModel->DrawMeanAtPoint(refPt);
+		// For simplicity, we simply fix the 1st point in the domain
+		const DomainType::DomainPointsListType& domainPoints = inputModel->GetDomain().GetDomainPoints();
+
+
+		vtkPoint fixedPoint = domainPoints.front();
+		vtkPoint meanValueForPt = inputModel->DrawMeanAtPoint(fixedPoint);
 
 		// Create an empty list, holding the constraint and add the point
 		StatisticalModelType::PointValueListType constraints;
 
-		StatisticalModelType::PointValuePairType pointValue(vtkPoint(refPt), meanValueForPt);
+		StatisticalModelType::PointValuePairType pointValue(fixedPoint, meanValueForPt);
 		constraints.push_back(pointValue);
 
 		// build the new model. In addition to the input model and the constraints, we also specify

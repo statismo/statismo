@@ -86,6 +86,7 @@ public:
 	typedef typename ImageType::PointType PointType;
 	typedef typename ImageType::PixelType ValueType;
 
+	typedef statismo::Domain<PointType> DomainType;
 
 	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
 
@@ -95,10 +96,8 @@ public:
 	static unsigned GetDimensions() { return 1; }
 	static std::string GetName() { return "itkImageRepresenter"; }
 
+	const DomainType& GetDomain() const { return m_domain; }
 
-
-	/** Set the reference that is used to build the model */
-	void SetReference(const char* referenceFilename);
 
 	/** Set the reference that is used to build the model */
 	void SetReference(DatasetPointerType ds);
@@ -139,6 +138,7 @@ private:
     static void WriteDataset(const char* filename, const ImageType* image);
 
 	DatasetConstPointerType m_reference;
+	DomainType m_domain;
 };
 
 } // namespace itk

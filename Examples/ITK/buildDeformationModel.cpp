@@ -80,7 +80,8 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
 
 
 template <class RepresenterType, class ImageType>
-void itkExample(const char* reference, const char* dir, const char* modelname) {
+void itkExample(const char* referenceFilename, const char* dir, const char* modelname) {
+
 
 
 	typedef itk::PCAModelBuilder<RepresenterType> ModelBuilderType;
@@ -89,8 +90,12 @@ void itkExample(const char* reference, const char* dir, const char* modelname) {
     typedef itk::DataManager<RepresenterType> DataManagerType;
 	typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
 
+	typename ImageFileReaderType::Pointer refReader = ImageFileReaderType::New();
+	refReader->SetFileName(referenceFilename);
+	refReader->Update();
+
     typename RepresenterType::Pointer representer = RepresenterType::New();
-    representer->SetReference(reference);
+    representer->SetReference(refReader->GetOutput());
 
     StringVectorType filenames;
     getdir(dir, filenames, ".vtk");

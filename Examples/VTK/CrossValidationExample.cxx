@@ -84,7 +84,8 @@ int main(int argc, char** argv) {
 
 
 	try {
-		auto_ptr<RepresenterType> representer(RepresenterType::Create(datadir +"/hand_polydata/hand-0.vtk",RepresenterType::RIGID));
+		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand_polydata/hand-0.vtk");
+		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference, RepresenterType::RIGID));
 
 		// create a data manager and add a number of datasets for model building
 		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
@@ -135,7 +136,7 @@ int main(int argc, char** argv) {
 				testSample->Delete();
 			}
 		}
-
+		reference->Delete();
 	}
 	catch (StatisticalModelException& e) {
 		std::cout << "Exception occured while building the shape model" << std::endl;

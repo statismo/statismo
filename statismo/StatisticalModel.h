@@ -103,7 +103,10 @@ public:
     typedef typename Representer::ValueType RepresenterValueType;
 	typedef typename Representer::PointType PointType;
 
+	typedef Domain<PointType> DomainType;
+
 	typedef unsigned PointIdType;
+
 
 	//typedef  PointValuePair<Representer>  PointValuePairType;
 	typedef std::pair<PointType, RepresenterValueType> PointValuePairType;
@@ -492,7 +495,10 @@ public:
 		return m_representer;
 	}
 
-
+	/**
+	 * Return the domain of the statistical model
+	 */
+	const DomainType& GetDomain() const { return m_representer->GetDomain(); }
 
 	///@}
 

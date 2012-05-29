@@ -50,7 +50,8 @@ class Test(unittest.TestCase):
     def setUp(self):
 
         self.datafiles = getDataFiles(DATADIR)
-        self.representer = statismo.vtkPolyDataRepresenter.Create(self.datafiles[0], statismo.vtkPolyDataRepresenter.RIGID)        
+        ref = read_vtkpd(self.datafiles[0])
+        self.representer = statismo.vtkPolyDataRepresenter.Create(ref, statismo.vtkPolyDataRepresenter.RIGID)        
         self.dataManager = statismo.DataManager_vtkPD.Create(self.representer)
         
         datasets = map(read_vtkpd, self.datafiles)
@@ -118,10 +119,12 @@ class Test(unittest.TestCase):
         pvList = statismo.PointValueList_vtkPD()        
 
         reference = self.representer.GetReference()
-        for pt_id in xrange(0, sample.GetNumberOfPoints(), sample.GetNumberOfPoints() / nPointsFixed):
-            ref_pt = statismo.vtkPoint(*getPDPointWithId(reference, pt_id))
+        domainPoints = self.representer.GetDomain().GetDomainPoints()
+        
+        for pt_id in xrange(0, len(domainPoints), len(domainPoints) / nPointsFixed):
+            fixed_pt = domainPoints[pt_id]
             value = statismo.vtkPoint(*getPDPointWithId(sample, pt_id))
-            pointValue = statismo.PointValuePair_vtkPD(ref_pt, value)
+            pointValue = statismo.PointValuePair_vtkPD(fixed_pt, value)
             pvList.append(pointValue)
 
         pfmodelbuilder = statismo.PartiallyFixedModelBuilder_vtkPD.Create()

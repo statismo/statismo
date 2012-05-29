@@ -85,7 +85,8 @@ int main(int argc, char** argv) {
 	try {
 
 		// Model building is exactly the same as for shape models (see BuildShapeModelExample for detailed explanation)
-		auto_ptr<RepresenterType> representer(RepresenterType::Create(datadir +"/hand_images/hand-0.vtk"));
+		vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand_images/hand-0.vtk");
+		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
 		// load the data and add it to the data manager. We take the first 4 hand shapes that we find in the data folder
@@ -106,6 +107,7 @@ int main(int argc, char** argv) {
 		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
 		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleData(), 0.01));
 		model->Save(modelname);
+		reference->Delete();
 		std::cout << "Successfully saved model as " << modelname << std::endl;
 	}
 	catch (StatisticalModelException& e) {

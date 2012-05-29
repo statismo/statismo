@@ -60,11 +60,12 @@ int main(int argc, char* argv[]) {
 
 
     try {
-		std::auto_ptr<RepresenterType> representer(RepresenterType::Create());
+    	const unsigned Dim = 3;
+		std::auto_ptr<RepresenterType> representer(RepresenterType::Create(Dim));
 		std::auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
 		// we create three simple datasets
-		statismo::VectorType dataset1(3), dataset2(3), dataset3(3);
+		statismo::VectorType dataset1(Dim), dataset2(Dim), dataset3(Dim);
 		dataset1 << 1,0,0;
 		dataset2 << 0,2,0;
 		dataset3 << 0,0,4;

@@ -84,8 +84,9 @@ int main(int argc, char** argv) {
 	typedef StatisticalModel<RepresenterType> StatisticalModelType;
 
 	try {
+		vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand_images/hand-0.vtk");
+		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 
-		auto_ptr<RepresenterType> representer(RepresenterType::Create(datadir +"hand_images/hand-0.vtk"));
 
 		// We use the SurrogateDataManager, as we need to specify surrogate data in addition to the images.
 		// We provide in addition to the representer also a file that contains a description of the surrogate
@@ -138,6 +139,7 @@ int main(int argc, char** argv) {
 		// The resulting model is a normal statistical model, from which we could for example sample examples.
 		// Here we simply  save it to disk for later use.
 		model->Save(modelname);
+		reference->Delete();
 		std::cout << "save model as " << modelname << std::endl;
 	}
 	catch (StatisticalModelException& e) {
