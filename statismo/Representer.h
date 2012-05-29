@@ -74,6 +74,7 @@ public:
 	/// (for a image, this could for example be a scalar value or an RGB value)
 	typedef TValueType ValueType;
 
+
 	/// This struct can be used to pass additional information for a given dataste
 	/// A typical example are landmark points, that are used to align a datset.
 	/// This field is here for future use, Statismo does curently not support it.
@@ -126,6 +127,12 @@ public:
 	 * Returns the number of points of the datasets that are represented by this class.
 	 */
 	unsigned GetNumberOfPoints() const;
+
+	/**
+	 * Returns the Domain for this representers. The domain is essentially a list of all the points on which the model is defined.
+	 * \sa statismo::Domain
+	 */
+	const statismo::Domain<PointType>& GetDomain() const;
 
 
 	/**
