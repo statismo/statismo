@@ -106,6 +106,20 @@
 		$1= v ;
 	}
 
+	%typemap (in) (statismo::VectorType)
+	{
+		int is_new_object1 = 0;
+		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 1, 1);
+		unsigned dim = array->dimensions[0];
+		
+		VectorType* v = new VectorType(dim);
+		for (unsigned i = 0; i < dim; i++) { 
+			(*v)(i) = (float) ((double*) array->data)[i];
+		}		 
+		$1= *v ;
+		delete v;
+	}
+
 	%typemap (in) (const statismo::MatrixType&)
 	{
 		int is_new_object1 = 0;
