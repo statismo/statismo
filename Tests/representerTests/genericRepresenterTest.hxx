@@ -71,6 +71,23 @@ public:
 	{}
 
 
+	bool testSamplePointEvaluation() const {
+		DatasetConstPointerType sample = m_representer->DatasetToSample(m_testDataset, 0);
+		unsigned id = m_representer->GetPointIdForPoint(m_testPoint);
+		ValueType val = m_representer->PointSampleFromSample(sample, id);
+		VectorType valVec = m_representer->PointSampleToPointSampleVector(val);
+
+		// the obtained value should correspond to the value that is obtained by obtaining the sample vector, and evaluating it at the given position
+		VectorType sampleVector = m_representer->SampleToSampleVector(sample);
+		for (unsigned i = 0; i < Representer::GetDimensions(); ++i) {
+			unsigned idx = m_representer->MapPointIdToInternalIdx(id, i);
+			if (sampleVector(i) != valVec(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	bool testDomainValid() const {
 		std::cout << "testDomainValid" << std::endl;
 
@@ -272,6 +289,7 @@ public:
 	bool runAllTests() {
 		bool ok = true;
 		ok = testPointSampleDimension() && ok;
+		ok = testSamplePointEvaluation() && ok;
 		ok = testDomainValid() && ok;
 		ok = testPointSampleToPointSampleVectorAndBack() && ok;
 		ok = testSampleVectorHasCorrectValueAtPoint() && ok;

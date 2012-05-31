@@ -60,6 +60,7 @@ class Test(unittest.TestCase):
         modelLittleNoise = buildPolyDataModel(DATADIR, 1e-8)
 
 
+
     def testConversionFromSampleVectorToSample(self):
         
         # check whether the mechanism for vectors is ok in the first place
@@ -75,6 +76,21 @@ class Test(unittest.TestCase):
                              samplePts.GetPoint(pt_id)[1] == sampleVec[pt_id * 3 + 1] and
                              samplePts.GetPoint(pt_id)[2] == sampleVec[pt_id * 3 + 2])      
             
+
+    def testSampleEvaluationOk(self):
+        # draw a sample and check if the point evaluated is the same as what would be obtained by drawing the smaple directly at the point
+        
+        ptId = self.model.GetDomain().GetNumberOfPoints() / 2
+        pt = self.model.GetDomain().GetDomainPoints()[ptId]
+        
+        sample = self.model.DrawMean()         
+        pointSample = self.model.DrawMeanAtPoint(pt)
+        pointSample2 = self.model.EvaluateSampleAtPoint(sample, pt)
+        
+        self.assertTrue(pointSample[0] == pointSample2[0] and 
+                        pointSample[1] == pointSample2[1] and
+                        pointSample[2] == pointSample2[2])
+        
             
     def testSampleEqualsSampleAtPoint(self): 
         """ test for a number of points whether DrawSampleAtPoints yields the same  
@@ -214,8 +230,7 @@ class Test(unittest.TestCase):
         self.assertTrue((diff < 1e-3).all())                
         
 
-         
-        
+           
     
     
     def testInternalMatrixDimensionalities(self):

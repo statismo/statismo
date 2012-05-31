@@ -204,6 +204,16 @@ vtkPolyDataRepresenter::SampleVectorToSample(const VectorType& sample) const
 }
 
 inline
+vtkPolyDataRepresenter::ValueType
+vtkPolyDataRepresenter::PointSampleFromSample(DatasetConstPointerType sample_, unsigned ptid) const {
+	vtkPolyData* sample = const_cast<DatasetPointerType>(sample_);
+	if (ptid >= sample->GetNumberOfPoints()) {
+		throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
+	}
+	return vtkPoint(sample->GetPoints()->GetPoint(ptid));
+}
+
+inline
 statismo::VectorType
 vtkPolyDataRepresenter::PointSampleToPointSampleVector(const ValueType& v) const
 {

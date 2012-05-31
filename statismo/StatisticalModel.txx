@@ -80,6 +80,20 @@ StatisticalModel<Representer>::DatasetToSample(DatasetConstPointerType ds) const
 }
 
 
+template <typename Representer>
+typename StatisticalModel<Representer>::RepresenterValueType
+StatisticalModel<Representer>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, const PointType& point) const {
+	unsigned ptid = this->m_representer->GetPointIdForPoint(point);
+	return EvaluateSampleAtPoint(sample, ptid);
+}
+
+
+template <typename Representer>
+typename StatisticalModel<Representer>::RepresenterValueType
+StatisticalModel<Representer>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, unsigned ptid) const {
+	return this->m_representer->PointSampleFromSample(sample, ptid);
+}
+
 
 template <typename Representer>
 typename StatisticalModel<Representer>::DatasetPointerType

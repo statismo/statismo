@@ -180,6 +180,21 @@ ImageRepresenter<TPixel, ImageDimension>::SampleVectorToSample(const VectorType&
 	return clonedImage;
 }
 
+template <class TPixel, unsigned ImageDimension>
+typename ImageRepresenter<TPixel, ImageDimension>::ValueType
+ImageRepresenter<TPixel, ImageDimension>::PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const
+{
+	if (ptid >= GetDomain().GetNumberOfPoints()) {
+		throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
+	}
+
+	// we get the point with the id from the domain, as itk does not allow us get a point via its index.
+	PointType pt = GetDomain().GetDomainPoints()[ptid];
+	typename ImageType::IndexType idx;
+	sample->TransformPhysicalPointToIndex(pt, idx);
+	ValueType value = sample->GetPixel(idx);
+	return value;
+}
 
 template <class TPixel, unsigned ImageDimension>
 typename ImageRepresenter<TPixel, ImageDimension>::ValueType
@@ -189,6 +204,7 @@ ImageRepresenter<TPixel, ImageDimension>::PointSampleVectorToPointSample(const V
 	value = pointSample[0];
 	return value;
 }
+
 template <class TPixel, unsigned ImageDimension>
 statismo::VectorType
 ImageRepresenter<TPixel, ImageDimension>::PointSampleToPointSampleVector(const ValueType& v) const

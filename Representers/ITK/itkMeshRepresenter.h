@@ -135,6 +135,11 @@ public:
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
 	/**
+	 * Returns the value of the sample at the point with the given id.
+	 */
+	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
+
+	/**
 	 * Given a vector, represening a points convert it to an itkPoint
 	 */
 	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;

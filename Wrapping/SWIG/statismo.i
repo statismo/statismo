@@ -42,6 +42,7 @@
 %include "typemaps.i"
 %include "std_string.i"
 %include "std_list.i"
+%include "std_vector.i"
 %include "std_pair.i"
 %include "std_vector.i"
 %include "carrays.i"
@@ -255,15 +256,15 @@ namespace statismo {
 template <typename PointType>
 class Domain {
 public:
-	typedef std::list<PointType> DomainPointsListType;
-	const DomainPointsListType& GetDomainPoints() const { return m_domainPoints; }
-	const unsigned GetNumberOfPoints() const { return m_domainPoints.size(); }
+	typedef std::vector<PointType> DomainPointsListType;
+	const DomainPointsListType& GetDomainPoints() const;
+	const unsigned GetNumberOfPoints() const;
 };
 }
 %template(DomainVtkPoint) statismo::Domain<vtkPoint>;
 %template(DomainId) statismo::Domain<unsigned int>;
-%template(DomainPointsListVtkPoint) std::list<vtkPoint>;
-%template(DomainPointsListId) std::list<unsigned int>;
+%template(DomainPointsListVtkPoint) std::vector<vtkPoint>;
+%template(DomainPointsListId) std::vector<unsigned int>;
 
 //////////////////////////////////////////////////////
 // StatisticalModel
@@ -282,7 +283,7 @@ public:
 	typedef  std::pair<unsigned, typename Representer::ValueType>  PointIdValuePairType;
 	typedef std::list<PointIdValuePairType> PointIdValueListType;
 	
-	typedef Domain<PointType> DomainType;
+	typedef Domain<typename Representer::PointType> DomainType;
 	
 	%newobject Create;
      static StatisticalModel* Create(const Representer* representer,
@@ -301,7 +302,7 @@ public:
 	const Representer* GetRepresenter() const;
 	const DomainType& GetDomain() const;
 
-
+	 Representer::ValueType EvaluateSampleAtPoint(Representer::DatasetConstPointerType sample, const Representer::PointType& point) const;
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 	 DatasetPointerType DrawMean() const;	
 	 Representer::ValueType DrawMeanAtPoint(const Representer::PointType& pt) const;

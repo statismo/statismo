@@ -38,7 +38,7 @@
 #ifndef __DOMAIN_H
 #define __DOMAIN_H
 
-#include <list>
+#include <vector>
 
 namespace statismo {
 
@@ -49,7 +49,7 @@ namespace statismo {
 template <typename PointType>
 class Domain {
 public:
-	typedef std::list<PointType> DomainPointsListType;
+	typedef std::vector<PointType> DomainPointsListType;
 
 	/**
 	 * Create an empty domain

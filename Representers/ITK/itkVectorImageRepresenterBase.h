@@ -117,6 +117,7 @@ public:
 	virtual statismo::VectorType SampleToSampleVector(DatasetType* ds) const;
 	virtual DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
+	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
 	virtual ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
 	virtual statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
 

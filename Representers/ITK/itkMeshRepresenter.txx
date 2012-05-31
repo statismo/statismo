@@ -177,6 +177,17 @@ MeshRepresenter<TPixel, MeshDimension>::SampleVectorToSample(const VectorType& s
 	return mesh;
 }
 
+template <class TPixel, unsigned MeshDimension>
+typename MeshRepresenter<TPixel, MeshDimension>::ValueType
+MeshRepresenter<TPixel, MeshDimension>::PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const
+{
+	if (ptid >= sample->GetNumberOfPoints()) {
+		throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
+	}
+
+	return sample->GetPoint(ptid);
+}
+
 
 template <class TPixel, unsigned MeshDimension>
 typename MeshRepresenter<TPixel, MeshDimension>::ValueType

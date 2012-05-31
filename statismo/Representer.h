@@ -154,6 +154,12 @@ public:
 
 
 	/**
+	 * Returns the value of the sample at the point with the given id.
+	 */
+	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
+
+
+	/**
 	 * Take a point sample (i.e. the value of a sample at a given point) and converts it
 	 * to its vector representation.
 	 * The type of the point sample is a ValueType, that depends on the type of the dataset.

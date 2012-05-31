@@ -107,6 +107,8 @@ public:
 		return vec;
 
 	}
+
+	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const {return  sample[ptid]; }
 	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const {return pointSample(0); }
 
 
