@@ -64,7 +64,6 @@ class TrivialVectorialRepresenter  {
 public:
 
 
-
 	// For simplicity, we don't use pointers, but copy the objects (as efficiency is not the goal of this representer).
 	typedef statismo::VectorType DatasetPointerType;
 	typedef statismo::VectorType DatasetConstPointerType;
@@ -136,6 +135,8 @@ private:
 
     DomainType m_domain;
 
+    TrivialVectorialRepresenter(const TrivialVectorialRepresenter& orig);
+    TrivialVectorialRepresenter& operator=(const TrivialVectorialRepresenter& rhs);
 };
 
 
