@@ -58,7 +58,6 @@ class TrivialVectorialRepresenter  {
 public:
 
 
-
 	// For simplicity, we don't use pointers, but copy the objects (as efficiency is not the goal of this representer).
 	typedef statismo::VectorType DatasetPointerType;
 	typedef statismo::VectorType DatasetConstPointerType;
@@ -69,7 +68,7 @@ public:
 	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
 
 
-	static TrivialVectorialRepresenter* Create() {}
+	static TrivialVectorialRepresenter* Create() { return new TrivialVectorialRepresenter(); }
 
 	static TrivialVectorialRepresenter* Load(const H5::CommonFG& fg) {return TrivialVectorialRepresenter::Create();}
 
@@ -103,6 +102,10 @@ public:
 
     static unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) { return ptId; }
 
+ private:
+    TrivialVectorialRepresenter() {}
+    TrivialVectorialRepresenter(const TrivialVectorialRepresenter& orig);
+    TrivialVectorialRepresenter& operator=(const TrivialVectorialRepresenter& rhs);
 };
 
 
