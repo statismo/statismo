@@ -56,4 +56,7 @@ public:
 
 	 %newobject Create; 
  	 static TrivialVectorialRepresenter* Create();
+
+ private:
+	 TrivialVectorialRepresenter();
 };
