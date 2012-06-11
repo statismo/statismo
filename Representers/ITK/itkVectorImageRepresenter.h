@@ -41,11 +41,10 @@
 #define ITKVECTORIMAGE_REPRESENTER_H_
 
 #include "itkImage.h"
-#include "statismo/CommonTypes.h"
 #include "itkObject.h"
 #include "itkVectorImageRepresenterBase.h"
+#include "statismo/CommonTypes.h"
 
-#include <H5Cpp.h>
 
 namespace itk {
 /**

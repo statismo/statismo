@@ -41,6 +41,7 @@
 #define ITKIMAGE_REPRESENTER_H_
 
 #include "itkImage.h"
+#include "statismo_ITK/statismoITKConfig.h"
 #include "statismo/CommonTypes.h"
 #include "itkObject.h"
 #include <H5Cpp.h>
