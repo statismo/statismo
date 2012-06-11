@@ -88,12 +88,13 @@ public:
 	 * \param samples A sampleSet holding the data
 	 * \param noiseVariance The variance of N(0, noiseVariance) distributed noise on the points.
 	 * If this parameter is set to 0, we have a standard PCA model. For values > 0 we have a PPCA model.
-	 * \param tolerance All PCA components with variance smaller than tolerance are discarded.
+	 * \param computeScores Determines whether the scores (the pca coefficients of the examples) are computed and stored as model info
+	 * (computing the scores may take a long time for large models).
 	 *
 	 * \return A new Statistical model
 	 * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataListType& sampleSet, double noiseVariance) const;
+	StatisticalModelType* BuildNewModel(const SampleDataListType& samples, double noiseVariance, bool computeScores = true) const;
 
 
 private:

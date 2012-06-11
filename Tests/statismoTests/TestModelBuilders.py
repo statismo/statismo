@@ -99,6 +99,23 @@ class Test(unittest.TestCase):
             self.checkPointsAlmostEqual(sample_from_scores.GetPoints(), sample_from_dm.GetPoints(), 100)
 
 
+    def testBuildPCAModelWithoutScores(self):
+      
+        # check if a model can be build when there are no scores
+        modelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
+ 
+        model = modelbuilder.BuildNewModel(self.dataManager.GetSampleData(), 0, False)
+                        
+        self.assertTrue(model.GetNumberOfPrincipalComponents() <= len(self.datafiles))                
+
+        # we cannot have negative eigenvalues
+        self.assertTrue((model.GetPCAVarianceVector() >= 0).all() == True)
+        
+        # check if the scores can be used to restore the data in the datamanager
+        scores = model.GetModelInfo().GetScoresMatrix()
+        self.assertTrue (scores.shape[0] == 0 and scores.shape[1] == 0)
+
+
     def testBuildPCAModelZeroNoise(self):
         self.buildPCAModel(0)
         

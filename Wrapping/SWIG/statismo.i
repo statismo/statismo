@@ -345,7 +345,7 @@ public:
 	%newobject Create;
 	static PCAModelBuilder* Create();
 	
-	 StatisticalModel<Representer>* BuildNewModel(const SampleDataListType& sampleList, double noiseVariance) const;	 
+	 StatisticalModel<Representer>* BuildNewModel(const SampleDataListType& sampleList, double noiseVariance, bool computeScores=true) const;	 
 private:
 	PCAModelBuilder();
 

@@ -55,7 +55,7 @@ PCAModelBuilder<Representer>::PCAModelBuilder()
 
 template <typename Representer>
 typename PCAModelBuilder<Representer>::StatisticalModelType*
-PCAModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleDataList, double noiseVariance) const
+PCAModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleDataList, double noiseVariance, bool computeScores) const
  {
 
 	unsigned n = sampleDataList.size();
@@ -82,7 +82,10 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleData
 
 	// build the model
 	StatisticalModelType* model = BuildNewModelInternal(representer, X, noiseVariance);
-	MatrixType scores = this->ComputeScores(X, model);
+	MatrixType scores;
+	if (computeScores) {
+		scores = this->ComputeScores(X, model);
+	}
 
 	// finally add meta data to the model info
 	typename ModelInfo::BuilderInfoList bi;
