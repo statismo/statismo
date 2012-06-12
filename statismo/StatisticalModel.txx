@@ -52,7 +52,7 @@ StatisticalModel<Representer>::StatisticalModel(const Representer* representer, 
 : m_representer(representer->Clone()),
   m_mean(m),
   m_pcaVariance(pcaVariance),
-  m_noiseVariance(0),
+  m_noiseVariance(noiseVariance),
   m_cachedValuesValid(false)
   {
 	VectorType D = pcaVariance.array().sqrt();

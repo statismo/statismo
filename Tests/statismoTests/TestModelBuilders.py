@@ -97,7 +97,7 @@ class Test(unittest.TestCase):
             sample_from_dm = samples[i].GetAsNewSample()
 
             self.checkPointsAlmostEqual(sample_from_scores.GetPoints(), sample_from_dm.GetPoints(), 100)
-
+        return model
 
     def testBuildPCAModelWithoutScores(self):
       
@@ -116,11 +116,15 @@ class Test(unittest.TestCase):
         self.assertTrue (scores.shape[0] == 0 and scores.shape[1] == 0)
 
 
+        
+
     def testBuildPCAModelZeroNoise(self):
-        self.buildPCAModel(0)
+        model = self.buildPCAModel(0)
+        self.assertAlmostEqual(model.GetNoiseVariance(), 0)
         
     def testBuildPCAModelNonZeroNoise(self):
-        self.buildPCAModel(0.1)
+        model = self.buildPCAModel(0.1)
+        self.assertAlmostEqual(model.GetNoiseVariance(), 0.1)
         
         
         
