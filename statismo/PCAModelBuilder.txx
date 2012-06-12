@@ -139,7 +139,7 @@ PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* represent
 		VectorType singularValues = SVD.singularValues().cast<ScalarType>();
 		MatrixType V = SVD.matrixV().cast<ScalarType>();
 
-		unsigned numComponentsAboveTolerance = ((singularValues.array() - sqrt(noiseVariance) - Superclass::TOLERANCE) > 0).count();
+		unsigned numComponentsAboveTolerance = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
 
 		// there can be at most n-1 nonzero singular values in this case. Everything else must be due to numerical inaccuracies
 		unsigned numComponentsToKeep = std::min(numComponentsAboveTolerance, n - 1);
@@ -173,7 +173,7 @@ PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* represent
 		// we compute an SVD of the full p x p  covariance matrix 1/(n-1) X0^TX0 directly
 		SVDType SVD(X0.transpose() * X0 * 1.0/(n-1), Eigen::ComputeThinU);
 		VectorType singularValues = SVD.singularValues();
-		unsigned numComponentsToKeep = ((singularValues.array() - sqrt(noiseVariance) - Superclass::TOLERANCE) > 0).count();
+		unsigned numComponentsToKeep = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
 		MatrixType pcaBasis = SVD.matrixU().topLeftCorner(p, numComponentsToKeep);
 
 		if (numComponentsToKeep == 0) {
