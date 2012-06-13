@@ -48,12 +48,15 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 % At minimum, give your name and an email address.  You can include a
 % snail-mail address if you like.
-\author{Marcel L\"uthi$^{1}$, R{\'e}mi Blanc$^{2}$, Thomas Albrecht$^{1}$, Tobias Gass$^{3}$, Orcun Goksel$^3$, Philippe B\"uchler$^{4}$, Michael Kistler$^4$, Habib Bou-Sleiman$^4$,  Mauricio Reyes$^{4}$, Thomas Vetter$^{1}$ }
+\author{Marcel L\"uthi$^{1}$, R{\'e}mi Blanc$^{2}$, Thomas Albrecht$^{1}$, Tobias Gass$^{3}$, Orcun Goksel$^3$, Philippe B\"uchler$^{4}$, Michael Kistler$^4$, Habib Bou-Sleiman$^4$,  Mauricio Reyes$^{4}$, Philippe C. Cattin$^{5}$, Thomas Vetter$^{1}$ }
 
 \authoraddress{$^{1}$Department of Mathematics and Computer Science, University of Basel, Switzerland\\
                $^{2}$University of Bordeaux (TODO WHICH INSTITUTE!!!!), France\\
                $^{3}$Computer Vision Lab, ETH Zurich, Switzerland \\
-               $^{4}$Institute for Surgical Technology and Biomechanics, University of Berne, Switzerland }
+               $^{4}$Institute for Surgical Technology and Biomechanics, University of Berne, Switzerland  \\
+               $^{5}$Medical Image Analysis Center, University of Basel, Switzerland 
+             }
+
 
 \begin{document}
 
@@ -185,20 +188,25 @@ is used for creating a shape model from shapes represented in VTK can
 also be used for creating deformation models from ITK displacement
 fields.
 
-One of the main design goals of \Statismo is to facilitate the exchange of
-statistical models among different research groups and end users. We therefore
-defined a platform independent storage based on HDF5. \Statismo stores all the 
-information needed to capture the complete probabilistic interpretation of the model.
-This requires in particular that all the pre-processing steps, such as alignment or normalization 
-can be reproduced. \Statismo enforces this by requiring the same Representer to be used 
-in the application of the model, as was used for model building. Moreover, \Statismo stores
-all the parameters and additional metadata necessary to make the models more easily reproducible. 
-Another goal of \Statismo is to allow for the easy integration of
-different model building algorithms. This is achieved by the modular design of the data management, model building and model representation components. Thus, new algorithms for model building can be easily
-integrated into \Statismo and make use of all the functionality
-already implemented.  In addition to  standard PCA models, \Statismo
-currently supports the building of conditional models based on surrogate
-variables \cite{blanc_conditional_2009}, as well as geometric constraints \cite{luthi_probabilistic_2009}.
+One of the main design goals of \Statismo is to facilitate the
+exchange of statistical models among different research groups and end
+users. We therefore defined a platform independent storage based on
+HDF5 \cite{hdf5}. \Statismo stores all the information needed to
+capture the complete probabilistic interpretation of the model.  This
+requires in particular that all the pre-processing steps, such as
+alignment or normalization can be reproduced. \Statismo enforces this
+by requiring the same Representer to be used in the application of the
+model, as was used for model building. Moreover, \Statismo stores all
+the parameters and additional metadata necessary to make the models
+more easily reproducible.  Another goal of \Statismo is to allow for
+the easy integration of different model building algorithms. This is
+achieved by the modular design of the data management, model building
+and model representation components. Thus, new algorithms for model
+building can be easily integrated into \Statismo and make use of all
+the functionality already implemented.  In addition to standard PCA
+models, \Statismo currently supports the building of conditional
+models based on surrogate variables \cite{blanc_conditional_2009}, as
+well as geometric constraints \cite{luthi_probabilistic_2009}.
 
 \Statismo includes standard Representers for the most commonly used
 data representations in VTK and ITK, making it possible to build and
@@ -555,7 +563,6 @@ We can also explore the shape space more systematically by specifying
 the PCA coefficients for a given sample. In this example, we obtain three samples:
 The mean, a sample corresponding to 3 standard-deviation in the direction of the
 first principal component and one corresonding to 3 standard-deviation in the opposite direction.
-The result is visualized in Figure~\ref{fig:vispca}
 \begin{verbatim}
    vtkPolyData* mean = model->DrawMean()
    VectorType coeffs = VectorType::Zeros(model->GetNumberOfPrincipalComponents());
@@ -566,13 +573,16 @@ The result is visualized in Figure~\ref{fig:vispca}
    // ... delete the samples - omitted
 \end{verbatim}
 Note that each call to DrawSample create a new sample which needs to be deleted by the user.
-\begin{figure}
-  The principal components
+\begin{figure}[t]
   \begin{tabular}{ccc}
-    && \\
+    \includegraphics[width=0.3\textwidth]{pictures/femur-pc1m1.png}&
+    \includegraphics[width=0.3\textwidth]{pictures/femur-mean.png}& 
+    \includegraphics[width=0.3\textwidth]{pictures/femur-pc1p1.png}
+    \\
     $-3 \sigma$ & mean & $+3 \sigma$
   \end{tabular}
-  \itkcaption{The first mode of variation ($\pm 3$ standard deviations) for a shape model (TODO of what). }
+  \itkcaption{The first mode of variation ($\pm 3$ standard deviations) for a shape model of the femur. 
+    In this case the first variation mainly captures the size of the bone.}
     \label{fig:vispca}
 \end{figure}
 
@@ -694,16 +704,30 @@ MeshType::Pointer finalMesh = model->DrawSample(transform->GetCoefficients());
 
 \section{Adding more prior information: Constrained PCA models }
 One goal of \Statismo is to allow the integration of  different algorithms for building statistical models.
-Currently, \Statismo comes with three different methods to build statistical models (Cf. Figure~\ref{fig:class-diagram}). Besides the standard \code{PCAModelBuidler} that was used in all the examples presented so far, there is a \code{PartiallyFixedModelBuilder} \cite{luthi_probabilistic_2009} and a \code{ConditionalModelBuilder} \cite{blanc_conditional_2009}. Both model builders incorporate additional prior information into the model building and thus reduce the variability of the resulting model. The resulting models itself, are standard PCA models that can be used and interpreted in exactly the same way as the models discussed so far. 
+Currently, \Statismo comes with three different methods to build statistical models (Cf. Figure~\ref{fig:class-diagram}). Besides the standard \code{PCAModelBuidler} that was used in all the examples presented so far, there is a \code{PartiallyFixedModelBuilder} \cite{luthi_probabilistic_2009} and a \code{ConditionalModelBuilder} \cite{blanc_conditional_2009}. Both model builders incorporate additional prior information into the model building and thus reduce the variability of the resulting model. The resulting models itself are standard PCA models that can be used and interpreted in exactly the same way as the models discussed so far. 
 \subsection{Partially fixed models}
-\begin{figure}
-  to be included
-  \itkcaption{A constrained model (TODO text)}
+\begin{figure}[tbh]
+  \begin{tabular}{ccc}
+    \includegraphics[width=0.3\textwidth]{pictures/femur-constrained-pc1m1.png}&
+    \includegraphics[width=0.3\textwidth]{pictures/femur-mean-lm.png}& 
+    \includegraphics[width=0.3\textwidth]{pictures/femur-constrained-pc1p1.png}
+    \\
+    $-3 \sigma$ & mean & $+3 \sigma$
+  \end{tabular}
+  \itkcaption{A shape model of the femur, with two landmark points (in red) fixed. As the landmark points determine the size, 
+  of the femur, the first component is not the size anymore, but shows mainly variations on the femoral head and the condyles. }
     \label{fig:constrained-model}
 \end{figure}
-Partially fixed models allow for introducing geometric constraints on the model. For example, a part of the shape may be known, and only the flexibility of the remaining part should be obtained. Another typical scenario is when in an application of the shape model, the user provides a number of landmarks that fix the shape. 
-Consider the shape model fitting example from Section~\ref{sec:model-fitting}. Assume that we have a set of landmark points, which determine the position of the target shape. We can incorporate these points already into the model building, to obtain a model that is fixed at the landmark points. 
-The following (incomplete) code illustrates how such models can be built. 
+Partially fixed models allow for introducing geometric constraints on
+the model. This allows us to model the variability in a model, when we know the shape for a part of the model.
+A typical application of this model is the reconstruction of a fractured or traumatized bone. 
+Another scenario where these models are useful is in model fitting. 
+Consider the shape model fitting example from Section~\ref{sec:model-fitting}. Assume
+that we know for some points of the model the corresponding points on the target image. 
+Using the \code{PartiallyFixedModelBuilder}, we can
+incorporate these constraints into the model building, to obtain a
+model that represents only shapes that match the target points.  The
+following (incomplete) code illustrates how such models can be built.
 
 \begin{verbatim}
 // ... usual type definitions - omitted
@@ -711,18 +735,25 @@ typedef PartiallyFixedModelBuilder<RepresenterType> PartiallyFixedModelBuilderTy
 
 PartiallyFixedModelBuilderType*  pfmb = PartiallyFixedModelBuilderType::Create();
 
-// ... Read source and target landmarks, omitted
+// ... Read model and target landmarks, omitted
 
 StatisticalModelType::PointValueListType constraints;
 for (unsigned i = 0; i < numLandmarks; i++) { 
-   StatisticalModelType::PointValuePairType cnstr(sourceLandmarks[i] , targetLandmarks[i]);
+   StatisticalModelType::PointValuePairType cnstr(modelLandmarks[i], targetLandmarks[i]);
    constraints.push_back(cnstr);
 }
 StatisticalModelType* constraintModel = 
    pfmb->BuildNewModel(dataManager->GetSampleData(), constraints);
 \end{verbatim}
-Figure~\ref{fig:constrained-model} shows the first variation of the constrained model (Cf. Section~\ref{sec:visvariability}). Compared to the first variation of the unconstrained model (Cf. Figure~\ref{fig:vispca}) we see that the first variation of the constrained model leaves the landmark points fixed.  Using this model for model fitting leads to a simpler optimization problem, and furthermore guarantees that the landmark points are matched. 
-For more details about the idea of these models, we refer to the papers \cite{luthi_probabilistic_2009,luthi_using_2011}.
+Figure~\ref{fig:constrained-model} shows the first main variation for
+the same shape model as in Figure~\ref{fig:vispca}, but this time with
+2 points (in red) fixed. We see that the landmark point remain fixed
+in the first main variation.  By using this constrained model for model fitting, we can thus guarantee that
+the landmark points are matched, without having to change our fitting
+algorithm. An additional advantage is that the search space becomes
+smaller, and thus the optimization problem easier.  For more details
+on the theoretical background and the applications of these models, we
+refer to the papers \cite{luthi_probabilistic_2009,luthi_using_2011}.
 
 \subsection{Conditional Models}
 The second algorithm for model building, which we refer to as the
@@ -797,96 +828,58 @@ models.
 
 
 
+\appendix
+\section{Appendix}
 
-% \appendix
 
-% \section{Appendix}
-% \subsection{A list of standard representers}\label{app:representers}
-% TODO to be rewritten
+\subsection{The file format}
+\Statismo uses the platform independent HDF5 \cite{hdf5} to save the
+statistical models. The HDF5 file contains all the information that is
+needed to use the model from an application as well as information
+about the data and parameters used to create the model.  HDF5 provides
+a hierarchical, file-system like data organization. 
+For \Statismo, we have organized the data into  3 main groups:
+\begin{description}
+  \item [Model] Contains the vectors and matrices that define the model, i.e.\ the \code{mean}, the \code{pcaBasis}, the \code{pcaVariance} as well 
+    as the \code{noiseVariance} assumed in the model. 
+  \item [Modelinfo] Holds the metadata for the model. The metadata
+    consists of the \code{buildtime} of the model, the \code{scores} (the
+    PCA coefficients of the original example data), a section using 
+    \code{builderInfo} that contains all the parameters of the specific model builder used to build the model, as well as a section \code{dataInfo} that contains the URI's of the datasets that have been used to build the model. 
+  \item [Representer]
+    This group is used to store all the information that is needed by the representer. 
+ \end{description}
+ The data stored in the HDF5 file can eihter be explored using the API provided by \Statismo (Cf. the class \code{StatisticalModel}), or directly 
+ from one of the many software packages that support HDF5, such as e.g.\ Matlab \cite{matlab}, R \cite{R} or Pytables \cite{pytables}.
 
-% The following representers are shipped with \Statismo:
+\subsection{Currently available Representers}
+\Statismo comes with several Representer classes for building various types of statistical models, using VTK and ITK. 
+Currently, all the representers requires that the input datasets are discretized in the same way and in correspondence.
 
-% \begin{tabular}{ll}
-%   Name & Description \\ \hline 
-%   vtkPolyDataRepresenter & Shape models from vtk meshes.  \\
-%   & The examples are aligned to a reference using Procrustes alignment \\
-%   & No registration is performed - Examples have to be in correspondence. \\ \\
-%   vtkStructuredPointsRepresenter & Image models and Deformation models from vtk structured points.\\
-%   & No registration is performed - Examples have to be in correspondence. \\ \\
-%   itkImageRepresenter & Image (intensity) models from itk images \\
-%   & No registration is performed - Examples have to be in correspondence. \\ \\
-%   itkVectorImageRepresenter & Deformation models from itk displacement fields. \\
-%   & No registration is performed - Examples have to be in correspondence. \\ \\
-%   itkVectorLMAlignImageRepresenter & Deformation models from itk displacement fields \\
-%   & All deformation fields are aligned rigidly to a number of specified points. \\
-%   & No registration is performed - Examples have to be in correspondence. \\ \\
+In the following we briefly describe the different Representers:
+\begin{description}
+\item[TrivialVectorialRepresenter] This is the most basic representers. It can be used to build statistical models in the case where the input is already available in a vector representation. 
+\item[vtkPolyDataRepresenters] Used to build shape models from VTK, in case where the data is represented as VTK Polydata. This representer 
+  performs a Procrustes alignment \cite{horn_closed-form_1987} of the datasets before the model is built. 
+\item[vtkStructuredPointsRepresenter] This representer is used to
+  build image (appearance-) and deformation models from data that is
+  represented as vtkStructuredPoints. 
+\item[itkMeshRepresenter] This representer is used to build shape
+  models from itk Meshes.  In contrast to the vtkPolyDataRepresenter,
+  no alignment is performed.
+\item[itkImageRepresenter] Used to build 2D and 3D image (appearance-) models from itk images. 
+\item[itkVectorImageRepresenter] Used to build 2D and 3D deformation models from itk displacement fields. 
+\item[itkVectorImageLMAlignRepresenter] This representer is similar to the itkVectorImageRepresenter. 
+  In addition, the user can provide a number of landmark points. the input displacement fields are evaluated
+  at these landmark points, to obtain a set of corresponding points. From these points, a rigid transformation is computed, 
+  which is used to resample the displacement fields. 
 
-% \end{tabular}
-\subsection{Defining your own representer}
-%TODO to be rewritten
-%Consider the method
-%\code{ComputeProbabilityForDataset(DatasetConstPointType object)} defined for the \code{StatisticalModel}. This probability 
-%can only be computed in a meaningful way if the object is discretized and normalized exactly in the same way 
-%as it was done for the training data. Therefore, a model is only well defined if it is used with the same \code{Representer} as was used to create the model.
-% For specifying the semantics, a \code{Representer} implements the following methods:
-%\begin{verbatim}
-% 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
-% 	VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
-% 	DatasetPointerType SampleVectorToSample(const VectorType& sample) const;
-% 	statismo::VectorType PointSampleVectorToPointSample(const ValueType& v) const;
-% 	ValueType PointSampleToPointSampleVector(const VectorType& pointSample) const;
-% \end{verbatim}
-% The terminology used in this definitions is the following: 
-% \begin{description}
-%   \item[Dataset] A dataset is a representation of an object in the specific toolkit, such as e.g. a vtkPolyData or a itk::Mesh
-%   \item[Sample] A sample is of the same type as the Dataset, but is discretized and normalized as discussed in Section~\ref{sec:pca-models}. 
-%   \item[SampleVector] The SampleVector denotes the vectorial representation of a sample.
-%   \item[PointSample] This refers to the value of a sample at a given point. For an mesh this would for example be a point of the mesh, for a  image, this would denote a pixel value (e.g. image intensity).
-%   \end{description}
-  
-%   Defining these methods allows for a great variety of different models. On one
-%   hand, one could imagine implementing a representer that covers the whole
-%   pipeline including discretization and registration. At the other extreme, a representer may simply take vectorized data directly, without specifying any registration or normalization strategy.
-
-% To make the use of \Statismo easier for the user, \Statismo already provides a number of representers for the most common applications. See \ref{app:representers} for a list of predefined representers. 
-
-% \subsection{The file format}
-% TODO to be rewritten
-% The statistical models are stored in a HDF5 file format (TODO cite). HDF5 was chosen, as it allows for the efficient and platform independent storage of large data. HDF5 provides a hierarchical organization to store the data, similar to what is known from the common file systems. For \Statismo, we have defined 3 main groups:
-% \begin{description}
-%   \item [model] Contains the vectors matrices that make up the model. This information is stored under the keys \code{mean}, \code{pcaBasis}, \code{pcaVariance} and \code{noiseVariance}. 
-%   \item [modelinfo] Contains all the metadata for this model. The metadata consists of the \code{scores} (the PCA coefficients of the original example data), a section \code{builderInfo} containing all the parameters from the model builders, as well as a section \code{dataInfo} containing information about the data used to build this model, such as the URI's of the original examples. 
-%   \item [representer]
-%     This group is used to store all the information that is needed by a specific representer. 
-% \end{description}
-
-% \section{TODO}
-% \begin{itemize}
-%   \item include examples
-%   \item mention VSD
-% \end{itemize}
+\end{description}
 
 \subsection*{Acknowledgements}
 This work has been supported by the CO-ME/NCCR research network of
-the Swiss National Science Foundation. We thank Arnauld Gelas for helpful comments regarding this
+the Swiss National Science Foundation. The femur data has been made available by the Virtual Skeleton Database (VSD) project\footnote{http://www.virtualskeleton.ch}. We also would like to thank Arnauld Gelas for helpful comments regarding this
 submission. 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-%  Example on how to insert a figure
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%\begin{figure}
-%\center
-%\includegraphics[width=0.8\textwidth]{RegistrationComponentsDiagram.eps}
-%\itkcaption[Registration Framework Components]{The basic components of the
-%registration framework are two input images, a transform, a metric, an
-%interpolator and an optimizer.}
-%\label{fig:RegistrationComponents}
-%\end{figure}
-
-
 
 
 

@@ -60,4 +60,5 @@ public:
  	 
  private:
  	TrivialVectorialRepresenter(unsigned);
+
 };

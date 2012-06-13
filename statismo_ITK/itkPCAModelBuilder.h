@@ -42,6 +42,7 @@
 #include "itkObject.h"
 #include "itkObjectFactory.h"
 
+#include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
 #include "statismo/PCAModelBuilder.h"
@@ -91,8 +92,8 @@ public:
 
 
 
-	typename StatisticalModel<Representer>::Pointer BuildNewModel(SampleDataListType sampleDataList, float noiseVariance) {
-		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, sampleDataList, noiseVariance));
+	typename StatisticalModel<Representer>::Pointer BuildNewModel(SampleDataListType sampleDataList, float noiseVariance, bool computeScores = true) {
+		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, sampleDataList, noiseVariance, computeScores));
 		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
 		model_itk->SetstatismoImplObj(model_statismo);
 		return model_itk;

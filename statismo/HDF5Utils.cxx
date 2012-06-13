@@ -367,7 +367,7 @@ HDF5Utils::writeArray(const H5::CommonFG& fg, const char* name, std::vector<int>
 
 inline
 bool
-HDF5Utils::existsObjectWithName(H5::CommonFG& fg, const std::string& name) {
+HDF5Utils::existsObjectWithName(const H5::CommonFG& fg, const std::string& name) {
 	for (hsize_t i = 0; i < fg.getNumObjs(); ++i) {
 		std::string objname= 	fg.getObjnameByIdx(i);
 		if (objname == name) {

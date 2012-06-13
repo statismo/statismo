@@ -217,7 +217,7 @@ public:
 
 	/** Check whether an object (direct child) of fg with the given name exists
 	 */
-	static bool existsObjectWithName(H5::CommonFG& fg, const std::string& name);
+	static bool existsObjectWithName(const H5::CommonFG& fg, const std::string& name);
 
 };
 

@@ -41,10 +41,10 @@
 #define ITKMesh_REPRESENTER_H_
 
 #include "itkMesh.h"
-#include "statismo/CommonTypes.h"
 #include "itkObject.h"
 #include "itkMesh.h"
-#include <H5Cpp.h>
+#include "statismo_ITK/statismoITKConfig.h"
+#include "statismo/CommonTypes.h"
 #include <boost/unordered_map.hpp>
 
 namespace itk {

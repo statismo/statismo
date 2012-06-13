@@ -59,25 +59,33 @@ FILE(GLOB hdf5headerfilescpp "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/
 INSTALL(FILES ${hdf5headerfilescpp} DESTINATION include/hdf5/cpp)
 
 ELSE (NOT HDF5_USE_EXTERNAL)
- 	FIND_PACKAGE(HDF5 COMPONENTS CXX REQUIRED NO_MODULE)
+
+ 	FIND_PATH(HDF5_INCLUDE_DIR hdf5.h)
+ 	FIND_PATH(HDF5_INCLUDE_DIR_CPP H5Cpp.h)
+ 	FIND_LIBRARY(HDF5_LIBRARY hdf5)
+ 	FIND_LIBRARY(HDF5_CPP_LIBRARY hdf5_cpp)
+	GET_FILENAME_COMPONENT(HDF5_LIBRARY_DIR ${HDF5_LIBRARY_PATH} PATH) 
+	SET (HDF5_LIBRARIES ${HDF5_LIBRARY} ${HDF5_CPP_LIBRARY})
+	
 ENDIF (NOT HDF5_USE_EXTERNAL)
 
 
 #
 #optional examples and wrapping
-#
-OPTION(BUILD_ITK_EXAMPLES "Build the itk examples " OFF)
+# OPTION(BUILD_ITK_EXAMPLES "Build the itk examples " OFF)
 OPTION(BUILD_VTK_EXAMPLES "Build the vtk examples " OFF)
-OPTION(BUILD_ITK_WRAPPING "Build itk wrapping (untested)" OFF)
-OPTION(BUILD_VTK_WRAPPING "Build vtk swig wrapping" OFF)
+OPTION(BUILD_PYTHON_WRAPPING_ITK "Build python wrapping for the itk
+representers using wrapitk (untested)" OFF)
+OPTION(BUILD_PYTHON_WRAPPING_VTK "Build python wrapping for the VTK
+representers" OFF)
 
-MARK_AS_ADVANCED(BUILD_ITK_WRAPPING)
+MARK_AS_ADVANCED(BUILD_PYTHON_WRAPPING_ITK)
 
 #
 #optional tests
 #
 OPTION(BUILD_STATISMO_TESTS "Build tests" OFF)
-OPTION(BUILD_STATISMO_TESTS_PYTHON "Build Unit tests written in python") 
+OPTION(BUILD_STATISMO_TESTS_PYTHON "Build Unit tests written in python (requires python wrapping)") 
 OPTION(BUILD_REPRESENTER_TESTS "Build representer tests (requires ITK and VTK)" OFF)
 MARK_AS_ADVANCED(BUILD_REPRESENTER_TESTS)
 
@@ -117,8 +125,8 @@ endif()
 
 
 if (BUILD_STATISMO_TESTS_PYTHON)
-  set(BUILD_VTK_WRAPPING ON)
-  add_custom_target(unit_tests  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)
+  set(BUILD_PYTHON_WRAPPING_VTK ON)
+  add_custom_target(unit_test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)
 endif()
 
 if (BUILD_TESTS)
@@ -131,11 +139,11 @@ if (BUILD_REPRESENTER_TESTS)
 endif()
 
 
-if (BUILD_VTK_WRAPPING)
+if (BUILD_PYTHON_WRAPPING_VTK)
   add_subdirectory(Wrapping/SWIG)
 endif()
 
-if (BUILD_ITK_WRAPPING)
+if (BUILD_PYTHON_WRAPPING_ITK)
   add_subdirectory(Wrapping/ITK)
 endif()
 

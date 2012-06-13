@@ -43,6 +43,8 @@
 
 #include <vnl/vnl_matrix.h>
 #include <vnl/vnl_vector.h>
+
+#include "statismoITKConfig.h"
 #include "statismo/StatisticalModel.h"
 
 #include <boost/tr1/functional.hpp>
