@@ -1,4 +1,9 @@
 *.pyc
 *~
+.cproject
+.project
+.pydevproject
+.settings
+build*
 CMakeCache.txt
 CMakeFiles
