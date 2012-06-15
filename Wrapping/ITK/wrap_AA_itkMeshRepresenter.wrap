@@ -1,0 +1,6 @@
+itk_wrap_include("itkMesh.h")
+
+itk_wrap_class("itk::MeshRepresenter" POINTER)
+	itk_wrap_template("D2" "double, 2")
+	itk_wrap_template("D3" "double, 3")
+itk_end_wrap_class()

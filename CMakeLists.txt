@@ -75,7 +75,7 @@ ENDIF (NOT HDF5_USE_EXTERNAL)
 # OPTION(BUILD_ITK_EXAMPLES "Build the itk examples " OFF)
 OPTION(BUILD_VTK_EXAMPLES "Build the vtk examples " OFF)
 OPTION(BUILD_PYTHON_WRAPPING_ITK "Build python wrapping for the itk
-representers using wrapitk (untested)" OFF)
+representers using wrapitk (experimental)" OFF)
 OPTION(BUILD_PYTHON_WRAPPING_VTK "Build python wrapping for the VTK
 representers" OFF)
 
