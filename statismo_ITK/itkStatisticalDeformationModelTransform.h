@@ -62,7 +62,7 @@ public itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimensio
 public:
 	/* Standard class typedefs. */
 	typedef StatisticalDeformationModelTransform            Self;
-	typedef itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>	Superclass;
+	typedef itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>	 Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
@@ -71,7 +71,7 @@ public:
     
 
 	/** Run-time type information (and related methods). */
-	itkTypeMacro(StatisticalDeformationModelTransform,  StatisticalModelTransformBase);
+	itkTypeMacro(StatisticalDeformationModelTransform,  Superclass);
 
 
 	typedef typename Superclass::InputPointType         InputPointType;
@@ -114,6 +114,16 @@ public:
 		}
 		return transformedPoint;
 	}
+
+	virtual ~StatisticalDeformationModelTransform() {}
+
+	StatisticalDeformationModelTransform() {}
+
+private:
+
+
+	StatisticalDeformationModelTransform(const StatisticalDeformationModelTransform& orig); // purposely not implemented
+	StatisticalDeformationModelTransform& operator=(const StatisticalDeformationModelTransform& rhs); //purposely not implemented
 };
 
 
