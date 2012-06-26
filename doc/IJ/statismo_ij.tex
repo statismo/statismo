@@ -48,12 +48,12 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 
 % At minimum, give your name and an email address.  You can include a
 % snail-mail address if you like.
-\author{Marcel L\"uthi$^{1}$, R{\'e}mi Blanc$^{2}$, Thomas Albrecht$^{1}$, Tobias Gass$^{3}$, Orcun Goksel$^3$, Philippe B\"uchler$^{4}$, Michael Kistler$^4$, Habib Bou-Sleiman$^4$,  Mauricio Reyes$^{4}$, Philippe C. Cattin$^{5}$, Thomas Vetter$^{1}$ }
+\author{Marcel L\"uthi$^{1}$, R{\'e}mi Blanc$^{2}$, Thomas Albrecht$^{1}$, Tobias Gass$^{3}$, Orcun Goksel$^3$, Philippe B\"uchler$^{4}$, Michael Kistler$^4$, Habib Bousleiman$^4$,  Mauricio Reyes$^{4}$, Philippe C. Cattin$^{5}$, Thomas Vetter$^{1}$ }
 
 \authoraddress{$^{1}$Department of Mathematics and Computer Science, University of Basel, Switzerland\\
                $^{2}$University of Bordeaux, IMS Laboratory, University of Bordeaux, France\\
                $^{3}$Computer Vision Lab, ETH Zurich, Switzerland \\
-               $^{4}$Institute for Surgical Technology and Biomechanics, University of Berne, Switzerland  \\
+               $^{4}$Institute for Surgical Technology and Biomechanics, University of Bern, Switzerland  \\
                $^{5}$Medical Image Analysis Center, University of Basel, Switzerland 
              }
 
@@ -205,7 +205,7 @@ and model representation components. Thus, new algorithms for model
 building can be easily integrated into \Statismo and make use of all
 the functionality already implemented.  In addition to standard PCA
 models, \Statismo currently supports the building of conditional
-models based on surrogate variables \cite{blanc_conditional_2009}, as
+models based on surrogate variables \cite{blanc_conditional_2009,blanc_statistical_2011}, as
 well as geometric constraints \cite{luthi_probabilistic_2009}.
 
 \Statismo includes standard Representers for the most commonly used
@@ -232,8 +232,8 @@ domain $\Omega = \{p_1, \ldots, p_N\}$ on which we approximate all the objects. 
 \]
 For shape models, the domain $\Omega \subset \R^3$ is usually defined
 by the points of a 3D reference mesh and $\varphi^i : \R^3 \to \R^3$
-is a function that maps each point $p_i$ to the corresponding point of
-the target shape $\hat{O}^i$. For images $\Omega$ is an image domain
+is a function that maps each point $p_j \in \Omega$ to the corresponding point of
+an example shape $\hat{O}^i$. For images $\Omega$ is an image domain
 and $\varphi^i : \Omega \to \R$ that assigns to each point its image
 intensity. Similarly, for deformation models $\varphi^i : \Omega \to
 \R^d$ assigns to each point a deformation that is defined on the
@@ -268,15 +268,15 @@ training data, using the usual formula from statistics:
    \end{split}
 \end{equation}
 Using a singular value decomposition, the sample Covariance Matrix is decomposed
-as $S=UD^2V^T$. The column $u_i$ of the 
+as $S=UD^2U^T$. The column $u_i$ of the 
 matrix $U \in \R^{Nd \times {n}}$ is referred to as the $i$-th principal component.
 The principal components form a basis for the vector space in which all the examples are defined. 
 An entry $\lambda_i$ in the diagonal matrix $D^2 = \text{diag}(\lambda_1, \ldots, \lambda_{n})$,  denotes how much variance is represented by the $i$-th principal component \cite{mardia_multivariate_1980}.
-A statistical model is defined as the low dimensional generative model, that
+A statistical model is defined as the low dimensional generative model
 \[
 v = v(\alpha_1, \ldots, \alpha_m) = \overline{m}  + \sum_{i=1}^m \alpha_i \lambda_i u_i, 
 \]
-where $m < n$ is the number of principal components that are used to model span the model. 
+where $m < n$ is the number of principal components that span the model space.
 Each vector $\alpha = (\alpha_1, \ldots, \alpha_m)$ introduces a unique shape. 
 Usually it is assumed that $\alpha$ follows a standard normal distribution: 
 \begin{equation} \label{eq:coeff-normal-assumption}
@@ -323,7 +323,7 @@ PPCA  provides a well defined probabilistic interpretation, by assuming
 a small amount of noise on the examples. The new generative
 model is of the form
 \[
-v = v(\alpha_1, \ldots, \alpha_n) = \mu  + \sum_{i=1}^n \alpha_i \lambda_i u_i + \varepsilon
+v = v(\alpha_1, \ldots, \alpha_n) = \overline{m}  + \sum_{i=1}^n \alpha_i \lambda_i u_i + \varepsilon
 \]
 with $\varepsilon \sim \mathcal{N}(0, \sigma^2)$.  By virtue of the
 added noise term, this model now defines a valid probability distribution
@@ -360,7 +360,7 @@ obtained \cite{roweis_em_1998}.
 
 
 \subsection{Design overview}\label{sec:design-overview}
-To ensure flexibility and  extensibility, \Statismo uses a modular structure that clearly separate 
+To ensure flexibility and  extensibility, \Statismo uses a modular structure that clearly separates 
 data management, model building and model representation. 
 Figure~\ref{fig:class-diagram} shows a class diagram of \Statismo.
 \begin{figure}
@@ -372,7 +372,7 @@ The data used to build the model is added to the data manager
 \code{DataManager} class, via the \code{AddDataset} method. This
 method first preprocesses (e.g.\ aligns and normalizes) the dataset
 and converts it into an internal vectorial representation, which is
-stored together with metadata, such as the URI of the dataset. These
+stored together with metadata, such as the file name of the dataset. These
 preprocessed datasets are referred to as \emph{samples}. The
 \code{ModelBuilder} class takes a list of samples and uses it to build
 a statistical model. The \code{ModelBuilder} class is also responsible
@@ -389,7 +389,7 @@ based on HDF5.
 Most terminology used in \Statismo is directly motivated by the
 probabilistic interpretation, and does not require further
 clarification.  However, while in statistics the term \emph{sample} and
-\emph{dataset} are usually used synonymously, in \Statismo these terms have precise
+\emph{dataset} are usually used interchangeably, in \Statismo these terms have precise
 meanings.  An \emph{dataset} is a representation of an object used as an input to build the model.  A \emph{sample}
 represents the same object but after discretization and normalization have been applied
 to it (Cf. Section~\ref{sec:pca-models}).  It is an instance of the
@@ -435,12 +435,9 @@ sample is a mesh, in the specific data representation used by the \code{Represen
 
 \subsection{ITK Support}
 \Statismo was designed to work together with many different toolkit
-and libraries. It was therefore not possible to follow
-library-specific conventions. \Statismo therefore has its own
-conventions. These were chosen to make as few assumptions as possible
-for the user. For example, no smart pointer is used in \Statismo, as
-this would restrict the user to use the same smart pointer when using
-\Statismo. Using the generic \Statismo interface, a code snippet to
+and libraries. It was therefore not possible to follow the conventions of a specific toolkit. 
+To facilitate the integration with other libraries, we have tried to make as few assumptions as possible, and limit the
+interface to use standard \C++. Using the generic \Statismo interface, a code snippet to
 load a model looks like
 \begin{verbatim}
 statismo::StatisticalModel<RepresenterType>* model = 
@@ -464,7 +461,7 @@ the objects themselves are well defined after construction.
 The memory management is done manually whereas, with the ITK Wrapper, the memory is managed using the ITK smart pointers. 
 
 Specifically for ITK, \Statismo also provides a class \code{itk::StatisticalModelTransform}, which 
-enables the use of statistical models as ITK transforms. This has great practical value since these transform can then be used in the  ITK registration framework for statisitical model fitting. 
+enables the use of statistical models as ITK transforms. This has great practical value since these transform can then be used in the  ITK registration framework for statistical model fitting. 
 
 
 \section{Using \Statismo}
@@ -485,11 +482,15 @@ vectorial representation, it performs a Procrustes alignment
 \cite{horn_closed-form_1987} of the dataset to the reference, and thus normalizes pose
 variations automatically. Note that this representer assumes, that the
 datasets are already in correspondence.
-
 The last example illustrates the use of \Statismo with the ITK
 registration framework and makes use of the ITK Wrappers for
 statismo. For this we use the \code{itkMeshRepresenter} that represents datasets
 of type \code{itk::Mesh}. 
+
+The illustrations shown in this section have been obtained from a model built from 6 femur bones, 
+which are distributed along with this article.\footnote{The example data has been provided by the Virtual Skeleton Database (VSD) project. A larger collection of example data is available at http://www.virtualskeleton.ch}
+
+
 
 
 \subsection{Building statistical models in \Statismo}
@@ -511,20 +512,20 @@ Furthermore, we load all the datasets that we wish to use in our model.
   vtkPolyData* reference = loadVTKPolyData("referenceFilename.vtk");
   RepresenterType::Pointer representer = RepresenterType::create(reference);
 
-  vtkPolyData* dataset_1 = loadVTKPolyData(polydataFileName_1);
+  vtkPolyData* dataset_1 = loadVTKPolyData(path_to_polydata_1);
   ... 
-  vtkPolyData* dataset_n = loadVTKPolyData(polydataFileName_n);
+  vtkPolyData* dataset_n = loadVTKPolyData(path_to_polydata_n);
 \end{verbatim}
 
-These datasets are then added to the \code{DataManager}. Note that we also need to provide the filename as
+These datasets are then added to the \code{DataManager}. Note that we also need to provide the path of the dataset as
 a second argument to the \code{AddDataset} function. This information will be written as metadata for later
 reference. 
 
 \begin{verbatim}
   DataManagerType* dataManager =  DataManagerType::Create(representer);
-  dataManager->AddDataset(dataset_1, polydataFileName_1);
+  dataManager->AddDataset(dataset_1, path_to_polydata_1);
   ...
-  dataManager->AddDataset(dataset_n, polydataFilename_n);
+  dataManager->AddDataset(dataset_n, path_to_polydata_n);
 \end{verbatim}
 In the next step we build a model and save it as a HDF5 file. 
 \begin{verbatim}
@@ -533,7 +534,7 @@ In the next step we build a model and save it as a HDF5 file.
       pcaModelBuilder->BuildNewModel(dataManager->GetSampleData(), 0.01);
   model->Save("model.h5");
 \end{verbatim}
-At the end we need to delete all the create \Statismo objects (an alternative would, of course, be to use
+At the end we need to delete the created \Statismo objects (an alternative would, of course, be to use
 smart pointers).
 \begin{verbatim}
   delete model;
@@ -570,7 +571,6 @@ first principal component and one corresonding to 3 standard-deviation in the op
    vtkPolyData* sample1PC1 = model->DrawSample(coeffs);
    coeffs[0] = -3;
    vtkPolyData* sample2PC1 = model->DrawSample(coeffs);
-   // ... delete the samples - omitted
 \end{verbatim}
 Note that each call to DrawSample create a new sample which needs to be deleted by the user.
 \begin{figure}[t]
@@ -715,7 +715,7 @@ Currently, \Statismo comes with three different methods to build statistical mod
     $-3 \sigma$ & mean & $+3 \sigma$
   \end{tabular}
   \itkcaption{A shape model of the femur, with two landmark points (in red) fixed. As the landmark points determine the size, 
-  of the femur, the first component is not the size anymore, but shows mainly variations on the femoral head and the condyles. }
+  of the femur, the first component is not the size anymore (as in \ref{fig:vispca}), but shows mainly variations on the femoral head and the condyles. }
     \label{fig:constrained-model}
 \end{figure}
 Partially fixed models allow for introducing geometric constraints on
@@ -878,7 +878,7 @@ In the following we briefly describe the different Representers:
 
 \subsection*{Acknowledgements}
 This work has been supported by the CO-ME/NCCR research network of
-the Swiss National Science Foundation. The femur data has been made available by the Virtual Skeleton Database (VSD) project\footnote{http://www.virtualskeleton.ch}. We also would like to thank Arnauld Gelas for helpful comments regarding this
+the Swiss National Science Foundation. The femur data has been made available by the Virtual Skeleton Database (VSD) project\footnote{www.virtualskeleton.ch}. We also would like to thank Arnauld Gelas for helpful comments regarding this
 submission. 
 
 
