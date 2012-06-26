@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 		// We provide in addition to the representer also a file that contains a description of the surrogate
 		// variables (e.g. whether they are categorical or continuous). See the API doc for more details.
 		auto_ptr<DataManagerWithSurrogatesType> dataManager(DataManagerWithSurrogatesType::Create(representer.get(),
-													  datadir +"hand_images/surrogates/hand_surrogates_types.txt"));
+													  datadir +"/hand_images/surrogates/hand_surrogates_types.txt"));
 
 		// add the data information. The first argument is the dataset, the second the surrogate information
 		// and the 3rd the surrogate type
