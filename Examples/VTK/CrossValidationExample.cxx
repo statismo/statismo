@@ -66,12 +66,11 @@ vtkPolyData* loadVTKPolyData(const std::string& filename)
 // illustrates the crossvalidation functionality of the data manager
 int main(int argc, char** argv) {
 
-	if (argc < 3) {
-		std::cout << "Usage " << argv[0] << " datadir resultdir" << std::endl;
+	if (argc < 2) {
+		std::cout << "Usage " << argv[0] << " datadir" << std::endl;
 		exit(-1);
 	}
 	std::string datadir(argv[1]);
-	std::string resultdir(argv[2]);
 
 
 	// All the statismo classes have to be parameterized with the RepresenterType.
