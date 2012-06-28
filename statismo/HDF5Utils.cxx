@@ -84,7 +84,7 @@ HDF5Utils::openPath(H5::H5File& file, const std::string& path, bool createPath) 
 	size_t nextpos = path.find_first_of("/", curpos);
 	H5::Group g = file.openGroup("/");
 
-	std::string name = path.substr(curpos, nextpos);
+	std::string name = path.substr(curpos, nextpos-1);
 
 	while (curpos != std::string::npos && name != "") {
 
@@ -99,8 +99,12 @@ HDF5Utils::openPath(H5::H5File& file, const std::string& path, bool createPath) 
 			}
 		}
 
-		std::string name = path.substr(curpos, nextpos);
-		curpos = nextpos;
+		curpos = nextpos+1;
+    nextpos = path.find_first_of("/", curpos);
+		if ( nextpos != std::string::npos )
+      name = path.substr(curpos, nextpos-curpos);
+    else
+      name = path.substr(curpos);
 	}
 
 	return g;
