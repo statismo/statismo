@@ -40,6 +40,7 @@
 #include "vtkStructuredPointsReader.h"
 #include "vtkStructuredPointsWriter.h"
 #include "vtkPointData.h"
+#include "vtkDataArray.h"
 #include "statismo/HDF5Utils.h"
 #include "statismo/utils.h"
 
