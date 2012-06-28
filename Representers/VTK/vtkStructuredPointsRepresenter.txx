@@ -106,6 +106,13 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetToSample(DatasetC
 	// for this representer, a dataset is always the same as a sample
 	vtkStructuredPoints* clone = vtkStructuredPoints::New();
 	clone->DeepCopy(const_cast<vtkStructuredPoints*>(dataset));
+
+
+	if (const_cast<vtkStructuredPoints*>(m_reference)->GetNumberOfPoints() != const_cast<vtkStructuredPoints*>(dataset)->GetNumberOfPoints()) {
+		throw StatisticalModelException("The dataset need to have the same number of points as the reference");
+	}
+
+
 	return clone;
 }
 
@@ -116,6 +123,11 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleToSampleVector(Dat
 
 	vtkStructuredPoints* reference = const_cast<vtkStructuredPoints*>(this->m_reference);
 	vtkStructuredPoints* sp = const_cast<vtkStructuredPoints*>(_sp);
+
+	if (reference->GetNumberOfPoints() != sp->GetNumberOfPoints()) {
+		throw StatisticalModelException("The sample does not have the correct number of points");
+	}
+
 	VectorType sample = VectorType::Zero(m_reference->GetNumberOfPoints() * Dimensions);
 
 	vtkDataArray* scalars = sp->GetPointData()->GetScalars();
