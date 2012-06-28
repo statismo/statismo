@@ -199,6 +199,11 @@
 	PyImport_ImportModule("vtk");
 	    $result =  vtkPythonGetObjectFromPointer((vtkStructuredPoints*) $1);
 	}
+	%typemap (out) vtkStructuredPoints*
+	{
+	PyImport_ImportModule("vtk");
+	    $result =  vtkPythonGetObjectFromPointer((vtkStructuredPoints*) $1);
+	}	
 	
 	// the typecheck is needed to disambiguate char* from vtkStructuredPoints* in overloaded method
 	%typecheck(SWIG_TYPECHECK_POINTER) vtkStructuredPoints * {
