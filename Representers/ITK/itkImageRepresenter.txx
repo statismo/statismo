@@ -106,7 +106,7 @@ ImageRepresenter<TPixel, ImageDimension>::Load(const H5::CommonFG& fg) {
 
 template <class TPixel, unsigned ImageDimension>
 void
-ImageRepresenter<TPixel, ImageDimension>::SetReference(DatasetPointerType reference) {
+ImageRepresenter<TPixel, ImageDimension>::SetReference(ImageType* reference) {
 	m_reference = reference;
 
 	typename DomainType::DomainPointsListType domainPoints;
