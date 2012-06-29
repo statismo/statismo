@@ -36,38 +36,35 @@
  */
 
 /*
- * This example shows how the fitting of a statistical shape model can be performed with statismo.
+ * This example shows how the fitting of a statistical shape model to a Mesh can be performed with Statismo and the itk Registration framework.
  */
 
 #include "itkMeshRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkStatisticalShapeModelTransform.h"
-#include "itkMeanSquaresPointSetToImageMetric.h"
-#include "itkLBFGSOptimizer.h"
-#include "itkPointSetToImageRegistrationMethod.h"
-#include "itkImageFileReader.h"
+#include "itkEuclideanDistancePointMetric.h"
+#include "itkLevenbergMarquardtOptimizer.h"
+#include "itkPointSetToPointSetRegistrationMethod.h"
+#include "itkMeshFileReader.h"
 #include "itkCommand.h"
-#include "itkLinearInterpolateImageFunction.h"
 #include "itkMesh.h"
 
 
 const unsigned Dimensions = 3;
-typedef itk::Image<float, Dimensions> ImageType;
 typedef itk::Mesh<float, Dimensions  > MeshType;
 
 typedef itk::MeshRepresenter<float, Dimensions> RepresenterType;
 
-typedef itk::ImageFileReader<ImageType> ImageReaderType;
-typedef itk::MeanSquaresPointSetToImageMetric<MeshType, ImageType> MetricType;
+typedef itk::MeshFileReader<MeshType> MeshReaderType;
+typedef itk::EuclideanDistancePointMetric<MeshType, MeshType> MetricType;
 
 // As a transform, we use the StatisticalShapeModelTransform, that comes with statismo
 typedef itk::StatisticalShapeModelTransform<RepresenterType, double, Dimensions> TransformType;
 
 
-typedef itk::PointSetToImageRegistrationMethod<MeshType, ImageType> RegistrationFilterType;
-typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
+typedef itk::PointSetToPointSetRegistrationMethod<MeshType, MeshType> RegistrationFilterType;
 
-typedef  itk::LBFGSOptimizer OptimizerType;
+typedef  itk::LevenbergMarquardtOptimizer OptimizerType;
 
 typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
 
@@ -82,7 +79,6 @@ public:
 
   itkNewMacro( Self );
 
-  typedef itk::LBFGSOptimizer    OptimizerType;
 
   typedef const OptimizerType                     *OptimizerPointer;
 
@@ -102,9 +98,7 @@ public:
       return;
     }
 
-    std::cout << "Iteration: " << ++m_iter_no ;
-    std::cout << "; Value: " << optimizer->GetCachedValue();
-    std::cout << "; Current Parameters: " << optimizer->GetCachedCurrentPosition() << std::endl;
+    std::cout << "Iteration: " << ++m_iter_no  << " model arameters " << optimizer->GetCachedCurrentPosition() << std::endl;
   }
 
 
@@ -138,10 +132,10 @@ int main(int argc, char* argv[]) {
 	std::cout << "model succesully loaded " << std::endl;
 
 	// load the image to which we will fit
-	ImageReaderType::Pointer targetReader = ImageReaderType::New();
+	MeshReaderType::Pointer targetReader = MeshReaderType::New();
 	targetReader->SetFileName(targetname);
 	targetReader->Update();
-	ImageType::Pointer targetImage = targetReader->GetOutput();
+	MeshType::Pointer targetMesh = targetReader->GetOutput();
 
 
 	// now we perform the fitting, using the itk registration framework
@@ -151,25 +145,28 @@ int main(int argc, char* argv[]) {
 
 	// Setting up the fitting
 	OptimizerType::Pointer optimizer = OptimizerType::New();
-	optimizer->MinimizeOn();
-	optimizer->SetMaximumNumberOfFunctionEvaluations(100);
+	optimizer->SetNumberOfIterations(100);
+	optimizer->SetUseCostFunctionGradient(false);
+	optimizer->SetGradientTolerance( 1e-5);
+	optimizer->SetValueTolerance( 1e-5 );
+	optimizer->SetEpsilonFunction( 1e-6);
+
+
 
 	typedef  IterationStatusObserver ObserverType;
 	ObserverType::Pointer observer = ObserverType::New();
 	optimizer->AddObserver( itk::IterationEvent(), observer );
 
 	MetricType::Pointer metric = MetricType::New();
-	InterpolatorType::Pointer interpolator = InterpolatorType::New();
 
 
 	RegistrationFilterType::Pointer registration = RegistrationFilterType::New();
 	registration->SetInitialTransformParameters(transform->GetParameters());
 	registration->SetMetric(metric);
-	registration->SetOptimizer(   optimizer   );
+	registration->SetOptimizer(   optimizer);
 	registration->SetTransform(   transform );
-	registration->SetInterpolator( interpolator );
-	registration->SetFixedPointSet( fixedPointSet );
-	registration->SetMovingImage( targetImage );
+	registration->SetFixedPointSet( targetMesh  );
+	registration->SetMovingPointSet( fixedPointSet);
 
 
 	try {
