@@ -62,7 +62,6 @@ typedef itk::Image< itk::Vector<float, ImageType2D::ImageDimension> , ImageType2
 typedef itk::VectorImageRepresenter<float, 2, 2> RepresenterType2D;
 
 
-/*function... might want it in some class?*/
 int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*")
 {
 	itk::Directory::Pointer directory = itk::Directory::New();
@@ -80,7 +79,7 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
 
 
 template <class RepresenterType, class ImageType>
-void itkExample(const char* referenceFilename, const char* dir, const char* modelname) {
+void itkExample(const char* dir, const char* modelname) {
 
 
 
@@ -90,6 +89,12 @@ void itkExample(const char* referenceFilename, const char* dir, const char* mode
     typedef itk::DataManager<RepresenterType> DataManagerType;
 	typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
 
+
+    StringVectorType filenames;
+    getdir(dir, filenames, ".vtk");
+
+    // we take an arbitrary dataset as the reference, as they have all the same resolution anyway
+    std::string referenceFilename = (std::string(dir) + "/" + filenames[0]);
 	typename ImageFileReaderType::Pointer refReader = ImageFileReaderType::New();
 	refReader->SetFileName(referenceFilename);
 	refReader->Update();
@@ -97,8 +102,6 @@ void itkExample(const char* referenceFilename, const char* dir, const char* mode
     typename RepresenterType::Pointer representer = RepresenterType::New();
     representer->SetReference(refReader->GetOutput());
 
-    StringVectorType filenames;
-    getdir(dir, filenames, ".vtk");
 
     typename DataManagerType::Pointer dataManager = DataManagerType::New();
     dataManager->SetRepresenter(representer);
@@ -123,26 +126,19 @@ void itkExample(const char* referenceFilename, const char* dir, const char* mode
 int main(int argc, char* argv[]) {
 
 	if (argc < 4) {
-		std::cout << "usage " << argv[0] << " referenceDeformationField deformationFieldDir modelname" << std::endl;
+		std::cout << "usage " << argv[0] << " dimension deformationFieldDir modelname" << std::endl;
 		exit(-1);
 	}
 
-	const char* reference = argv[1];
+	unsigned int dimension = atoi(argv[1]);
 	const char* dir = argv[2];
 	const char* modelname = argv[3];
 
-	itk::ImageIOBase::Pointer imageIO =
-	  itk::ImageIOFactory::CreateImageIO(reference, itk::ImageIOFactory::ReadMode);
- 
-	imageIO->SetFileName(reference);
-	imageIO->ReadImageInformation();
-	const size_t numDimensions =  imageIO->GetNumberOfDimensions();
-    
-	if (numDimensions==2){
-	  itkExample<RepresenterType2D, VectorImageType2D>(reference, dir, modelname);
+	if (dimension==2){
+	  itkExample<RepresenterType2D, VectorImageType2D>(dir, modelname);
 	}
-	else if (numDimensions==3){
-	  itkExample<RepresenterType3D, VectorImageType3D>(reference, dir, modelname);
+	else if (dimension==3){
+	  itkExample<RepresenterType3D, VectorImageType3D>(dir, modelname);
 	}
 	else{
 	  assert(0);

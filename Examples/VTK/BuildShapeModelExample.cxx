@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
 		// We create a new representer object. For the vtkPolyDataRepresenter, we have to set a reference
 		// and the alignmentType. The alignmenttype (which is here RIGID) determines how the dataset that we
 		// will use will later be aligned to the reference.
-		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand_polydata/hand-0.vtk");
+		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand-0.vtk");
 		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference, RepresenterType::RIGID));
 
 		// We create a datamanager and provide it with a pointer  to the representer
@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
 		for (unsigned i = 0; i < 17; i++) {
 
 			std::ostringstream ss;
-			ss << datadir +"/hand_polydata/hand-" << i << ".vtk";
+			ss << datadir +"/hand-" << i << ".vtk";
 			const std::string datasetFilename = ss.str();
 			vtkPolyData* dataset = loadVTKPolyData(datasetFilename);
 

@@ -54,3 +54,4 @@ add_DEPENDENCIES(vtkBuildConditionalModelExample HDF5)
 target_link_libraries (vtkBuildConditionalModelExample  ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPartiallyFixedModelExample vtkBuildConditionalModelExample RUNTIME DESTINATION bin)
+INSTALL(PROGRAMS runVTKExamples.sh DESTINATION  bin)

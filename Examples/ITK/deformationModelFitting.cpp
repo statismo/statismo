@@ -116,11 +116,14 @@ private:
 
 };
 
-
+/*
+ * The fixedImage needs to correspond to the image that was used to obtain the displacement fields of the model
+ * (e.g. the fixed image in the registration that generated the displacement fields).
+ */
 int main(int argc, char* argv[]) {
 
 	if (argc < 5) {
-		std::cout << "usage " << argv[0] << " modelname reference target output-df" << std::endl;
+		std::cout << "usage " << argv[0] << " modelname fixedImage movingImage output-df" << std::endl;
 		exit(-1);
 	}
 

@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
 
 
 	try {
-		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand_polydata/hand-0.vtk");
+		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand-0.vtk");
 		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference, RepresenterType::RIGID));
 
 		// create a data manager and add a number of datasets for model building
@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 		for (unsigned i = 0; i < 17; i++) {
 
 				std::ostringstream ss;
-				ss << datadir +"/hand_polydata/hand-" << i << ".vtk";
+				ss << datadir +"/hand-" << i << ".vtk";
 				const std::string datasetFilename = ss.str();
 				vtkPolyData* dataset = loadVTKPolyData(datasetFilename);
 
