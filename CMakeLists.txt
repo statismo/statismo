@@ -6,6 +6,7 @@ ENABLE_TESTING()
 SET(STATISMO_VERSION 0.8) 
 SET(STATISMO_MINOR_VERSION 0)
 
+
 # rpath settings
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
@@ -31,6 +32,10 @@ ELSE(WIN32)
 	SET(HDF5_BUILD_SHARED On)
 ENDIF(WIN32)
 
+# We always build hdf5 as release (we don't want to debug it). By setting the CMAKE_DEBUG_POSTFIX to "" we make sure
+# that the target does not have funny (platform specific) extensions added to it. 
+# It is okay to set that globally, as we are not compiling any other libraries
+SET(CMAKE_DEBUG_POSTFIX "")
 SET(HDF5_LIBRARIES hdf5;hdf5_cpp)
 IF (NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
