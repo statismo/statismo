@@ -117,7 +117,7 @@ int main(int argc, char** argv) {
 
 		// Once we have built the model, we can save it to disk.
 		model->Save(modelname);
-		std::cout << "Succesfully saved shape model as " << modelname << std::endl;
+		std::cout << "Successfully saved shape model as " << modelname << std::endl;
 
 		reference->Delete();
 	}
