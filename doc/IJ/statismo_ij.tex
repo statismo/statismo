@@ -103,15 +103,15 @@ training samples. Originally developed to model shapes, statistical models are n
 the variation in different kind of data, such as for example images, volumetric meshes or deformation fields. 
 
 \Statismo has been developed with the following main goals in mind:
-$1)$ To provide a generic tools for learning all kinds of PCA based
+$1)$ To provide generic tools for learning different kinds of PCA based
 statistical models, such as shape, appearance or deformations models.
 $2)$ To make the exchange of such models easier among different
 research groups and to improve the reproducibility of the models.
-$3)$ To allow for an easy integration of new methods for model
+$3)$ To allow for easy integration of new methods for model
 building into the framework.  To achieve the first goal, we have
 abstracted all the aspects that are specific to a given model and data
 representation, into a user defined class. This does not only make it
-possible to use \Statismo to create all different kinds of PCA models,
+possible to use \Statismo to create different kinds of PCA models,
 but also allows \Statismo to be used with any toolkit and data format.
 To facilitate data exchange, \Statismo defines a storage format based
 on HDF5, which includes all the information necessary to use the
@@ -127,8 +127,8 @@ Although \Statismo has been designed to be independent of a particular toolkit, 
 made to make it directly useful for VTK and ITK. Besides supporting
 model building for most data representations used by VTK and ITK, it
 also provides an ITK transform class, which allows for the integration
-of \Statismo with the ITK registration framework. This leverage the
-effort that has been done in ITK, to obtain powerful methods for model
+of \Statismo with the ITK registration framework. This leverages the
+efforts from the ITK project to readily access powerful methods for model
 fitting.
 
 \end{abstract}
@@ -169,7 +169,7 @@ interpretation as a multivariate normal distribution.
 
 The standard example for a statistical PCA model is the statistical
 shape model.  It represents a class of shapes in terms of deformations
-of a triangulated reference surface. Nevertheless the concept can be
+of a triangulated reference surface. Nevertheless, the concept can be
 applied to various other types of data, such as images, displacements
 fields, volumetric meshes, etc. Independent of the concrete type of
 model, the statistical analysis requires each dataset to be converted
@@ -183,7 +183,7 @@ functionality, to convert the vectorial representation back to its
 original representation.  The abstraction introduced by the
 Representer does not only allow for a unified treatment of different
 kinds of PCA based models, but also to make \Statismo independent of
-the library used to represent the data. Thus the exact same code that
+the library used to represent the data. Thus, the exact same code that
 is used for creating a shape model from shapes represented in VTK can
 also be used for creating deformation models from ITK displacement
 fields.
@@ -226,22 +226,22 @@ O^n\}$ be a set of training examples. These
 objects can for example be images, deformation fields or shapes. Model
 building consists of the following three steps:
 \paragraph{1) Discretization:} This aims to define a discrete
-domain $\Omega = \{p_1, \ldots, p_N\}$ on which we approximate all the objects. I.e.\ we define an object as
+domain $\Omega = \{p_1, \ldots, p_N\}$ on which we approximate all the objects, i.e.\ we define an object as:
 \[
 \hat{O}^i = (\varphi^i(p_1), \ldots, \varphi^i(p_N)), \; i  = 1 \dots, n. 
 \]
 For shape models, the domain $\Omega \subset \R^3$ is usually defined
 by the points of a 3D reference mesh and $\varphi^i : \R^3 \to \R^3$
 is a function that maps each point $p_j \in \Omega$ to the corresponding point of
-an example shape $\hat{O}^i$. For images $\Omega$ is an image domain
+an example shape $\hat{O}^i$. For images, $\Omega$ is an image domain
 and $\varphi^i : \Omega \to \R$ that assigns to each point its image
-intensity. Similarly, for deformation models $\varphi^i : \Omega \to
+intensity. Similarly, for deformation models, $\varphi^i : \Omega \to
 \R^d$ assigns to each point a deformation that is defined on the
 deformation field $\hat{O}^i$.
 
 Note that this definition implies correspondence between all the examples. The
-exact notion of correspondence depends both on the type of objects and the
-application. Ensuring the correspondence between the examples is usually done by performing a registration.
+exact notion of correspondence depends on the type of both the objects and the
+application. The correspondence between the examples is usually established through registration.
 \paragraph{2) Normalization:}
 Depending on the type of the objects, further preprocessing steps may
 follow. Shapes, for example, are usually rigidly aligned using
@@ -267,12 +267,12 @@ training data, using the usual formula from statistics:
    S &= \frac{1}{n-1} \sum_{i=1}^n (v_i - \overline{m}) (v_i - \overline{m})^T.
    \end{split}
 \end{equation}
-Using a singular value decomposition, the sample Covariance Matrix is decomposed
+Using singular value decomposition, the sample Covariance Matrix is decomposed
 as $S=UD^2U^T$. The column $u_i$ of the 
 matrix $U \in \R^{Nd \times {n}}$ is referred to as the $i$-th principal component.
 The principal components form a basis for the vector space in which all the examples are defined. 
-An entry $\lambda_i$ in the diagonal matrix $D^2 = \text{diag}(\lambda_1, \ldots, \lambda_{n})$,  denotes how much variance is represented by the $i$-th principal component \cite{mardia_multivariate_1980}.
-A statistical model is defined as the low dimensional generative model
+An entry $\lambda_i$ in the diagonal matrix $D^2 = \text{diag}(\lambda_1, \ldots, \lambda_{n})$ denotes how much variance is represented by the $i$-th principal component \cite{mardia_multivariate_1980}.
+A statistical model $v$ is then defined as the low dimensional generative model:
 \[
 v = v(\alpha_1, \ldots, \alpha_m) = \overline{m}  + \sum_{i=1}^m \alpha_i \lambda_i u_i, 
 \]
@@ -299,8 +299,8 @@ v \sim \mathcal{N}(\overline{m}, UD^2U^T) \approx \mathcal{N}(\overline{m}, S).
 % training examples $O_1, \ldots, O_n$.
 
 \subsection{Probabilistic PCA}
-In section \ref{sec:pca-models} we have sketched the basic idea behind
-PCA based statistical models, as it is commonly presented and used in the
+In section \ref{sec:pca-models} we have sketched the fundamentals of
+PCA based statistical modeling as it is commonly presented and used in the
 literature.  There is, however, a flaw with this simple probabilistic
 interpretation (Cf. Equations \eqref{eq:coeff-normal-assumption} and
 \eqref{eq:prob-interpretation}).  This model assumes that all the
@@ -318,7 +318,7 @@ but also because the data itself is usually noisy.
 % this example becomes zero, although we know that it is in fact a member
 % of the object class represented by the model. 
  To alleviate this
-problem, Probabilistic PCA (PPCA) \cite{tipping_probabilistic_1999} is used in \Statismo.
+problem, Probabilistic PCA (PPCA) \cite{tipping_probabilistic_1999} is implemented in \Statismo.
 PPCA  provides a well defined probabilistic interpretation, by assuming
 a small amount of noise on the examples. The new generative
 model is of the form
@@ -327,16 +327,16 @@ v = v(\alpha_1, \ldots, \alpha_n) = \overline{m}  + \sum_{i=1}^n \alpha_i \lambd
 \]
 with $\varepsilon \sim \mathcal{N}(0, \sigma^2)$.  By virtue of the
 added noise term, this model now defines a valid probability distribution
-on the whole of $\R^{Nd}$. The probability for instances now depends
-on the distance from this subspace. Objects that are far away are less
-likely than those instances that are close to the space.  It can be
+on the whole of $\R^{Nd}$. The probability of an instance now depends
+on the distance from this subspace, i.e.\ the objects that are far away are less
+likely than those instances that are closer to the space.  It can be
 shown that when $\sigma^2$ goes to $0$ a standard PCA model is
 obtained \cite{roweis_em_1998}.
 
 \section{Design / Architecture}
 \Statismo has been designed to achieve the following goals:
 \begin{description}
-\item[High level:] Most applications of statistical models exploit the
+\item[High level:] Most applications using statistical models exploit the
   fact that these models define a probability distribution over the objects of interest. 
   The interface of \Statismo is designed to reflect this fact and provides
   high-level methods to work with the represented distribution, rather than 
@@ -350,12 +350,12 @@ obtained \cite{roweis_em_1998}.
   It is often fruitful to exchange data and models with colleagues or other researchers. 
   An important design goal is to facilitate this exchange by providing a platform independent data format, 
   which contain all the information needed to use the model from an application. 
-  Furthermore, to help reproduce an experiment the stored model should contain all the parameters
+  Furthermore, to help reproduce an experiment, the stored model should contain all the parameters
   that were used to build the model. 
 \item[Flexibility and Extensibility:] 
-  \Statismo should make it easy to integrate new algorithms for model building. 
-  This will on one hand increase the usefulness of \Statismo itself, but also 
-  allow the algorithms to benefit from the facilities implemented in \Statismo. 
+  \Statismo aims to simplify the integration of new algorithms for model building. 
+  This will not only increase the usefulness of \Statismo itself, but also will 
+  allow such algorithms to benefit from the functionalities implemented in \Statismo. 
 \end{description}
 
 
@@ -385,16 +385,15 @@ classes. It contains all the information needed in the application of
 a statistical model and accordingly is saved in a platform independent storage format 
 based on HDF5. 
 
-\subsubsection{A note on the terminology}
 Most terminology used in \Statismo is directly motivated by the
 probabilistic interpretation, and does not require further
 clarification.  However, while in statistics the term \emph{sample} and
 \emph{dataset} are usually used interchangeably, in \Statismo these terms have precise
-meanings.  An \emph{dataset} is a representation of an object used as an input to build the model.  A \emph{sample}
+meanings.  A \emph{dataset} is a representation of an object used as an input to build the model.  A \emph{sample}
 represents the same object but after discretization and normalization have been applied
 to it (Cf. Section~\ref{sec:pca-models}).  It is an instance of the
-object as it is represented by the model.  The probability distribution defined by the statistical model, 
-models the probability of the \emph{samples} but not of the \emph{datasets}. 
+object as it is represented by the model.  In other words, the probability distribution defined by the statistical model 
+represents the probability of the \emph{samples} but not of the \emph{datasets}. 
 Finally, a \emph{sample
  vector} is the representation of a \emph{sample} as a vector. 
 
@@ -454,7 +453,7 @@ itk::StatisticalModel<RepresenterType>::Pointer model =
 model->Load("model.h5");
 SampleType::Pointer sample = model->DrawSample();
 \end{verbatim}
-The main difference between the two interfaces, is that the former generic \Statismo interface
+The main difference between the two interfaces is that the former generic \Statismo interface
 requires all arguments as the object is created
 (here with the Load function) and thus ensures that 
 the objects themselves are well defined after construction.
@@ -714,8 +713,8 @@ Currently, \Statismo comes with three different methods to build statistical mod
     \\
     $-3 \sigma$ & mean & $+3 \sigma$
   \end{tabular}
-  \itkcaption{A shape model of the femur, with two landmark points (in red) fixed. As the landmark points determine the size, 
-  of the femur, the first component is not the size anymore (as in \ref{fig:vispca}), but shows mainly variations on the femoral head and the condyles. }
+  \itkcaption{A shape model of the femur, with two landmark points (in red) fixed. As the landmark points determine the size 
+  of the femur the first component is not the size anymore (as in \ref{fig:vispca}), but shows mainly the variations of the femoral head and the condyles. }
     \label{fig:constrained-model}
 \end{figure}
 Partially fixed models allow for introducing geometric constraints on
@@ -802,28 +801,27 @@ models can be found in \cite{blanc_conditional_2009}.
 \section{Conclusion}
 In this paper we have presented \Statismo, which is a framework for
 PCA based statistical models.  \Statismo implements a high level view
-on PCA models by interpreting these models as normal distribution over
+on PCA models by interpreting these models as a normal distribution over
 the modeled objects. The underlying low level vectorial representation
-of the object is never exposed to the user.  The conversion between
-the data representation by the user, and the vectorial representation
-used by \Statismo is done by special Representer classes, which are
+of an object is never exposed to the user.  The conversion between
+the data representation of the user and the vectorial representation
+used by \Statismo is done via special Representer classes, which are
 defined for each data representation. This allows \Statismo to ensure
 that the same discretization and normalization steps are applied when
-using the model, as those that were used during model building.  A
-statistical model in \Statismo thus always have a well defined
+using the model, as those that were used during the model building.  A
+statistical model in \Statismo thus always has a well defined
 interpretation and semantics.  This, together with the fact that
 \Statismo writes all its information into a single, portable HDF5
-file, makes the exchange of statistical models built with \Statismo
-easy. To use the model, the user only needs to have access to the same Representer that was used to build the model. 
+file, greatly simplifies the exchange of statistical models built with \Statismo.
+To use the model, the user only needs to have access to the same Representer that was used to build the model. 
 
 \Statismo comes with ready made Representer classes for the most important object representations used in VTK and ITK. 
-Currently all these representers require that the data is already in correspondence. It is, however, easily possible to 
+Currently all these representers require that the data is already in correspondence. It is, however, straight-forward to 
 write representers that also establish correspondence, and thus to cover the full model creation pipeline with \Statismo.
-By writing custom representers, it becomes also possible to use \Statismo with other toolkits than ITK or VTK. 
-
-Statismo also makes it easy to integrate new methods for building models. Our hope is, that the number of different representers
-and model builders will grow and thus \Statismo will become a more and more powerful toolkit for building a large variety of differnet 
-models.
+By writing custom representers, it becomes also possible to use \Statismo with other toolkits than ITK or VTK. \Statismo
+also simplifies the integration of new methods for building models.  As it is a powerful toolkit for building
+statistical models, we hope that the number of different representers and model builders
+for \Statismo will grow quickly, enabling its use in several applications across various fields.
 
 
 
