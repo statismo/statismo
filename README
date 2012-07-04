@@ -60,6 +60,13 @@ require that Statismo has been compiled with the option BUILD_PYTHON_WRAPPING_VT
 To run the tests, write 
 > make unit_test
 
+Known issues
+------------
+Statismo has been implemented and thoroughly tested on Linux.
+It also has been tested and used on Windows. However, depending on the configuration of your windows system, you may experience problems building the debug version.   
+We recommend to set the CMAKE_BUILD_TYPE to RELEASE in that case.
+
+
 Main Authors:
 -------------
 - Marcel Luethi
@@ -69,7 +76,8 @@ Contributors:
 ------------
 - Tobias Gass 
 - Thomas Albrecht 
-- Habib Bou-Sleiman
+- Habib Bousleiman
+- Orcun Goksel
 
 License:
 --------

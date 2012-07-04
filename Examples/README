@@ -14,3 +14,8 @@ Once you have compiled the examples, you can run them on the example data
 provided in the STATISMO_DIR/data folder. 
 
 
+Visualization of the results
+----------------------------
+To view the results (samples drawn from the model) we suggest the use of paraview, which is available at
+www.paraview.org. 
+The HDF5 file, which stores the model information, can for example be viewed using hdfview (http://www.hdfgroup.org/hdf-java-html/hdfview/)
