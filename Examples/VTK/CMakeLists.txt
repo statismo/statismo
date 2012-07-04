@@ -55,5 +55,3 @@ target_link_libraries (vtkBuildConditionalModelExample  ${VTK_LIBRARIES} ${HDF5_
 
 INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPartiallyFixedModelExample vtkBuildConditionalModelExample RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runVTKExamples.sh DESTINATION  bin)
-
-add_subdirectory(FaceModel)
