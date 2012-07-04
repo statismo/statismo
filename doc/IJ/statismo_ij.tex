@@ -859,12 +859,12 @@ In the following we briefly describe the different Representers:
 \item[vtkPolyDataRepresenters] Used to build shape models from VTK, in case where the data is represented as VTK Polydata. This representer 
   performs a Procrustes alignment \cite{horn_closed-form_1987} of the datasets before the model is built. 
 \item[vtkStructuredPointsRepresenter] This representer is used to
-  build image (appearance-) and deformation models from data that is
+  build image (intensity) models and deformation models from data that is
   represented as vtkStructuredPoints. 
 \item[itkMeshRepresenter] This representer is used to build shape
   models from itk Meshes.  In contrast to the vtkPolyDataRepresenter,
   no alignment is performed.
-\item[itkImageRepresenter] Used to build 2D and 3D image (appearance-) models from itk images. 
+\item[itkImageRepresenter] Used to build 2D and 3D image (intensity) models from itk images. 
 \item[itkVectorImageRepresenter] Used to build 2D and 3D deformation models from itk displacement fields. 
 \item[itkVectorImageLMAlignRepresenter] This representer is similar to the itkVectorImageRepresenter. 
   In addition, the user can provide a number of landmark points. the input displacement fields are evaluated
@@ -876,13 +876,12 @@ In the following we briefly describe the different Representers:
 \subsection{Third Party libraries used in \Statismo}
 \Statismo depends on a number of open source libraries: \emph{HDF5} \cite{hdf5} is used to store the statistical models. 
 For linear algebra we use the \emph{Eigen} template library \cite{eigenweb}. Furthermore, \emph{Boost.tr1} was used to make TR1 available on all platforms. 
-All the libraries are distributed along with \Statismo. See the source for detailed information about the licensing. 
+All the libraries are distributed along with \Statismo. Detailed information regarding the license terms of the different libraries can be found in the source tree.
 
 \subsection*{Acknowledgements}
 This work has been supported by the CO-ME/NCCR research network of
-the Swiss National Science Foundation. The femur data has been made available by the Virtual Skeleton Database (VSD) project\footnote{www.virtualskeleton.ch}. We also would like to thank Arnauld Gelas for helpful comments regarding this
-submission. 
-
+the Swiss National Science Foundation. The femur data has been made available by the Virtual Skeleton Database (VSD) project\footnote{www.virtualskeleton.ch}. We also would like to thank Arnaud Gelas for helpful feedback regarding 
+this software package. 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
