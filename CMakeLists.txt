@@ -32,11 +32,7 @@ ELSE(WIN32)
 	SET(HDF5_BUILD_SHARED On)
 ENDIF(WIN32)
 
-# We always build hdf5 as release (we don't want to debug it). By setting the CMAKE_DEBUG_POSTFIX to "" we make sure
-# that the target does not have funny (platform specific) extensions added to it. 
-# It is okay to set that globally, as we are not compiling any other libraries
-SET(CMAKE_DEBUG_POSTFIX "")
-SET(HDF5_LIBRARIES hdf5;hdf5_cpp)
+SET(HDF5_LIBRARIES optimized hdf5; optimized hdf5_cpp)
 IF (NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
 	  SOURCE_DIR ${CMAKE_BINARY_DIR}/HDF5
