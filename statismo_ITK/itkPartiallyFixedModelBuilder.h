@@ -40,6 +40,7 @@
 #define ITK_PARTIALLY_FIXED_MODELBUILDER_H_
 
 #include "itkObject.h"
+#include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
 #include "statismo/PartiallyFixedModelBuilder.h"

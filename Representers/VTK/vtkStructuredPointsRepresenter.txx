@@ -54,12 +54,16 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::vtkStructuredPointsRepre
   : m_reference(vtkStructuredPoints::New())
 {
 	m_reference->DeepCopy(const_cast<vtkStructuredPoints*>(reference));
+	// set the domain
+   DomainType::DomainPointsListType ptList;
+   for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
+	   double* d = m_reference->GetPoint(i);
+	   ptList.push_back(vtkPoint(d));
+   }
+
+   m_domain = DomainType(ptList);
 }
 
-template <class TPrecision, unsigned Dimensions>
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::vtkStructuredPointsRepresenter(const std::string& referenceFilename)
-  : m_reference(ReadDataset(referenceFilename))
-{}
 
 
 template <class TPrecision, unsigned Dimensions>
@@ -150,6 +154,27 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleVectorToSample(con
 	sp->GetPointData()->SetScalars(scalars);
 	return sp;
 }
+
+
+template <class TPrecision, unsigned Dimensions>
+typename vtkStructuredPointsRepresenter<TPrecision, Dimensions>::ValueType
+vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleFromSample(DatasetConstPointerType sample_, unsigned ptid) const {
+	DatasetPointerType sample = const_cast<DatasetPointerType>(sample_);
+	if (ptid >= sample->GetNumberOfPoints()) {
+		throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
+	}
+
+	double doubleVal[Dimensions];
+	sample->GetPointData()->GetScalars()->GetTuple(ptid, doubleVal);
+	ValueType val;
+
+	// vtk returns double. We need to convert it to whatever precision we are using in NDPixel
+	for (unsigned i = 0; i < Dimensions; i++) {
+		val[i] = static_cast<TPrecision>(doubleVal[i]);
+	}
+	return val;
+}
+
 
 template <class TPrecision, unsigned Dimensions>
 statismo::VectorType

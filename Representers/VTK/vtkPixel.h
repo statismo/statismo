@@ -63,6 +63,7 @@ public:
 
 	}
 
+
 	TPixel& operator[](unsigned i) {
 		if (i >= TDimensions) {
 			std::ostringstream os;

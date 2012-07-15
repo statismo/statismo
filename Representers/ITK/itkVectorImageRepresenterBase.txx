@@ -81,18 +81,28 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::CloneBaseMe
 	clone->m_reference = clonedReference;
 }
 
-template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
-void
-VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SetReference(const char* referenceFilename) {
 
-	DatasetPointerType reference = ReadDataset(referenceFilename);
-	SetReference(reference);
-}
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 void
 VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SetReference(DatasetPointerType reference) {
+
 	m_reference = reference;
+
+	typename DomainType::DomainPointsListType domainPoints;
+	itk::ImageRegionConstIterator<DatasetType> it(reference, reference->GetLargestPossibleRegion());
+	it.GoToBegin();
+	for (;
+		it.IsAtEnd() == false
+		;)
+	{
+		PointType pt;
+		reference->TransformIndexToPhysicalPoint(it.GetIndex(), pt);
+		domainPoints.push_back(pt);
+		++it;
+	}
+	m_domain = DomainType(domainPoints);
+
 }
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
@@ -140,6 +150,23 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SampleVecto
 		it.Set(v);
 	}
 	return clonedImage;
+}
+
+template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
+typename VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::ValueType
+VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const
+{
+
+	if (ptid >= GetDomain().GetNumberOfPoints()) {
+		throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
+	}
+
+	// we get the point with the id from the domain, as itk does not allow us get a point via its index.
+	PointType pt = GetDomain().GetDomainPoints()[ptid];
+	typename ImageType::IndexType idx;
+	sample->TransformPhysicalPointToIndex(pt, idx);
+	ValueType value = sample->GetPixel(idx);
+	return value;
 }
 
 

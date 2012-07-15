@@ -40,9 +40,9 @@
 #define ITKVECTORIMAGE_REPRESENTER_BASE_H_
 
 #include "itkImage.h"
+#include "statismo_ITK/statismoITKConfig.h"
 #include "statismo/CommonTypes.h"
 #include "itkObject.h"
-#include <H5Cpp.h>
 
 namespace itk {
 
@@ -81,16 +81,15 @@ public:
 	typedef typename ImageType::PointType PointType;
 	typedef typename ImageType::PixelType ValueType;
 
+	typedef statismo::Domain<PointType> DomainType;
 
 	void CloneBaseMembers(VectorImageRepresenterBase* clone) const;
 	static void LoadBaseMembers(VectorImageRepresenterBase* b, const H5::CommonFG& fg);
 
 	/** Set the reference that is used to build the model */
-	virtual void SetReference(const char* referenceFilename);
-
-	/** Set the reference that is used to build the model */
 	virtual void SetReference(DatasetPointerType ds);
 
+	virtual const DomainType& GetDomain() const { return m_domain; }
 
 	virtual void Save(const H5::CommonFG& fg) const;
 	virtual unsigned GetNumberOfPoints() const;
@@ -118,6 +117,7 @@ public:
 	virtual statismo::VectorType SampleToSampleVector(DatasetType* ds) const;
 	virtual DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
+	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
 	virtual ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
 	virtual statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
 
@@ -135,6 +135,7 @@ protected:
 	virtual ~VectorImageRepresenterBase();
 
 	DatasetConstPointerType m_reference;
+	DomainType m_domain;
 };
 
 } // namespace itk

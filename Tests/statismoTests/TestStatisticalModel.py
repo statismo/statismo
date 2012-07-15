@@ -60,6 +60,7 @@ class Test(unittest.TestCase):
         modelLittleNoise = buildPolyDataModel(DATADIR, 1e-8)
 
 
+
     def testConversionFromSampleVectorToSample(self):
         
         # check whether the mechanism for vectors is ok in the first place
@@ -75,6 +76,21 @@ class Test(unittest.TestCase):
                              samplePts.GetPoint(pt_id)[1] == sampleVec[pt_id * 3 + 1] and
                              samplePts.GetPoint(pt_id)[2] == sampleVec[pt_id * 3 + 2])      
             
+
+    def testSampleEvaluationOk(self):
+        # draw a sample and check if the point evaluated is the same as what would be obtained by drawing the smaple directly at the point
+        
+        ptId = self.model.GetDomain().GetNumberOfPoints() / 2
+        pt = self.model.GetDomain().GetDomainPoints()[ptId]
+        
+        sample = self.model.DrawMean()         
+        pointSample = self.model.DrawMeanAtPoint(pt)
+        pointSample2 = self.model.EvaluateSampleAtPoint(sample, pt)
+        
+        self.assertTrue(pointSample[0] == pointSample2[0] and 
+                        pointSample[1] == pointSample2[1] and
+                        pointSample[2] == pointSample2[2])
+        
             
     def testSampleEqualsSampleAtPoint(self): 
         """ test for a number of points whether DrawSampleAtPoints yields the same  
@@ -128,20 +144,6 @@ class Test(unittest.TestCase):
         self.assertTrue((newModelSub.GetPCAVarianceVector()[0:1] == self.model.GetPCAVarianceVector()[0:1]).all)
         self.assertTrue((newModelSub.GetPCABasisMatrix()[:,0:1] == self.model.GetPCABasisMatrix()[:,0:1]).all())
 
-
-    def testLoadSaveNonstandardLocation(self):
-        """ test whether saving and loading a model restores the model correctly, when a non-standard location is used"""
-        tmpfile = tempfile.mktemp(suffix="h5")
-
-        self.model.Save(tmpfile, "/model1")
-        #self.model.Save(tmpfile, "./model1")        
-        self.model.Save(tmpfile, "/model2")
-        newModel1 = statismo.StatisticalModel_vtkPD.Load(tmpfile, "/model1")
-        newModel2 = statismo.StatisticalModel_vtkPD.Load(tmpfile, "/model2")
-
-        # we only run minimal tests, as the basic load save functionality is tested in an individual test
-        self.assertEqual(newModel1.GetNumberOfPrincipalComponents(), self.model.GetNumberOfPrincipalComponents())
-        self.assertEqual(newModel2.GetNumberOfPrincipalComponents(), self.model.GetNumberOfPrincipalComponents())
 
 
     def testDatasetToSample(self):
@@ -228,8 +230,7 @@ class Test(unittest.TestCase):
         self.assertTrue((diff < 1e-3).all())                
         
 
-         
-        
+           
     
     
     def testInternalMatrixDimensionalities(self):

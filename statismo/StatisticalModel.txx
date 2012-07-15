@@ -52,7 +52,7 @@ StatisticalModel<Representer>::StatisticalModel(const Representer* representer, 
 : m_representer(representer->Clone()),
   m_mean(m),
   m_pcaVariance(pcaVariance),
-  m_noiseVariance(0),
+  m_noiseVariance(noiseVariance),
   m_cachedValuesValid(false)
   {
 	VectorType D = pcaVariance.array().sqrt();
@@ -79,6 +79,20 @@ StatisticalModel<Representer>::DatasetToSample(DatasetConstPointerType ds) const
 	return m_representer->DatasetToSample(ds, 0);
 }
 
+
+template <typename Representer>
+typename StatisticalModel<Representer>::RepresenterValueType
+StatisticalModel<Representer>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, const PointType& point) const {
+	unsigned ptid = this->m_representer->GetPointIdForPoint(point);
+	return EvaluateSampleAtPoint(sample, ptid);
+}
+
+
+template <typename Representer>
+typename StatisticalModel<Representer>::RepresenterValueType
+StatisticalModel<Representer>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, unsigned ptid) const {
+	return this->m_representer->PointSampleFromSample(sample, ptid);
+}
 
 
 template <typename Representer>

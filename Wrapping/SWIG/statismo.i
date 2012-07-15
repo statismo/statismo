@@ -42,6 +42,7 @@
 %include "typemaps.i"
 %include "std_string.i"
 %include "std_list.i"
+%include "std_vector.i"
 %include "std_pair.i"
 %include "std_vector.i"
 %include "carrays.i"
@@ -247,6 +248,24 @@ public:
 %template (KeyValuePair) std::pair<std::string, std::string>; 
 %template(KeyValueList) std::list<std::pair<std::string, std::string> >;
 
+
+/////////////////////////////////////////////////////////////////
+// Domain
+/////////////////////////////////////////////////////////////////
+namespace statismo { 
+template <typename PointType>
+class Domain {
+public:
+	typedef std::vector<PointType> DomainPointsListType;
+	const DomainPointsListType& GetDomainPoints() const;
+	const unsigned GetNumberOfPoints() const;
+};
+}
+%template(DomainVtkPoint) statismo::Domain<vtkPoint>;
+%template(DomainId) statismo::Domain<unsigned int>;
+%template(DomainPointsListVtkPoint) std::vector<vtkPoint>;
+%template(DomainPointsListId) std::vector<unsigned int>;
+
 //////////////////////////////////////////////////////
 // StatisticalModel
 //////////////////////////////////////////////////////
@@ -264,6 +283,8 @@ public:
 	typedef  std::pair<unsigned, typename Representer::ValueType>  PointIdValuePairType;
 	typedef std::list<PointIdValuePairType> PointIdValueListType;
 	
+	typedef Domain<typename Representer::PointType> DomainType;
+	
 	%newobject Create;
      static StatisticalModel* Create(const Representer* representer,
 									 const statismo::VectorType& m,
@@ -279,7 +300,9 @@ public:
 	 void Save(const H5::Group& modelroot);
 
 	const Representer* GetRepresenter() const;
+	const DomainType& GetDomain() const;
 
+	 Representer::ValueType EvaluateSampleAtPoint(Representer::DatasetConstPointerType sample, const Representer::PointType& point) const;
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 	 DatasetPointerType DrawMean() const;	
 	 Representer::ValueType DrawMeanAtPoint(const Representer::PointType& pt) const;
@@ -345,7 +368,7 @@ public:
 	%newobject Create;
 	static PCAModelBuilder* Create();
 	
-	 StatisticalModel<Representer>* BuildNewModel(const SampleDataListType& sampleList, double noiseVariance) const;	 
+	 StatisticalModel<Representer>* BuildNewModel(const SampleDataListType& sampleList, double noiseVariance, bool computeScores=true) const;	 
 private:
 	PCAModelBuilder();
 

@@ -57,15 +57,14 @@ vtkPolyDataRepresenter::vtkPolyDataRepresenter(DatasetConstPointerType reference
 {
 	   m_reference = vtkPolyData::New();
 	   m_reference->DeepCopy(const_cast<DatasetPointerType>(reference));
-}
 
-inline
-vtkPolyDataRepresenter::vtkPolyDataRepresenter(const std::string& referenceFilename, AlignmentType alignment)
-  :
-        m_alignment(alignment),
-        m_pdTransform(vtkTransformPolyDataFilter::New())
-{
-		m_reference = ReadDataset(referenceFilename);
+	   // set the domain
+	   DomainType::DomainPointsListType ptList;
+	   for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
+		   double* d = m_reference->GetPoint(i);
+		   ptList.push_back(vtkPoint(d));
+	   }
+	   m_domain = DomainType(ptList);
 }
 
 inline
@@ -202,6 +201,16 @@ vtkPolyDataRepresenter::SampleVectorToSample(const VectorType& sample) const
 	}
 
 	return pd;
+}
+
+inline
+vtkPolyDataRepresenter::ValueType
+vtkPolyDataRepresenter::PointSampleFromSample(DatasetConstPointerType sample_, unsigned ptid) const {
+	vtkPolyData* sample = const_cast<DatasetPointerType>(sample_);
+	if (ptid >= sample->GetNumberOfPoints()) {
+		throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
+	}
+	return vtkPoint(sample->GetPoints()->GetPoint(ptid));
 }
 
 inline

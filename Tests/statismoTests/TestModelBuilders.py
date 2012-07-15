@@ -37,7 +37,7 @@
 import unittest
 from os import listdir
 from os.path import join
-from scipy import zeros, randn, log
+from scipy import zeros, randn, log, isnan, any, sqrt
 
 import statismo
 
@@ -50,7 +50,8 @@ class Test(unittest.TestCase):
     def setUp(self):
 
         self.datafiles = getDataFiles(DATADIR)
-        self.representer = statismo.vtkPolyDataRepresenter.Create(self.datafiles[0], statismo.vtkPolyDataRepresenter.RIGID)        
+        ref = read_vtkpd(self.datafiles[0])
+        self.representer = statismo.vtkPolyDataRepresenter.Create(ref, statismo.vtkPolyDataRepresenter.RIGID)        
         self.dataManager = statismo.DataManager_vtkPD.Create(self.representer)
         
         datasets = map(read_vtkpd, self.datafiles)
@@ -61,14 +62,14 @@ class Test(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def checkPointsAlmostEqual(self, pts1, pts2, numPoints):
+    def checkPointsAlmostEqual(self, pts1, pts2, numPoints, noise):
         step =  pts1.GetNumberOfPoints() / numPoints
         for i in xrange(0, pts1.GetNumberOfPoints(), step ):
-            self.assertAlmostEqual(pts1.GetPoint(i)[0], pts2.GetPoint(i)[0], 2)
-            self.assertAlmostEqual(pts1.GetPoint(i)[1], pts2.GetPoint(i)[1], 2)
-            self.assertAlmostEqual(pts1.GetPoint(i)[2], pts2.GetPoint(i)[2], 2)
+            self.assertTrue(abs(pts1.GetPoint(i)[0] - pts2.GetPoint(i)[0]) <= max(sqrt(noise), 1e-2))
+            self.assertTrue(abs(pts1.GetPoint(i)[1] - pts2.GetPoint(i)[1]) <= max(sqrt(noise), 1e-2))
+            self.assertTrue(abs(pts1.GetPoint(i)[2] - pts2.GetPoint(i)[2]) <= max(sqrt(noise), 1e-2))
         
-    def buildPCAModel(self, noise):
+    def buildAndTestPCAModel(self, noise):
         modelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
  
         model = modelbuilder.BuildNewModel(self.dataManager.GetSampleData(), noise)
@@ -77,7 +78,8 @@ class Test(unittest.TestCase):
         
         # we cannot have negative eigenvalues
         self.assertTrue((model.GetPCAVarianceVector() >= 0).all() == True)
-        
+        self.assertTrue(isnan(model.GetPCAVarianceVector()).any() == False) 
+
         # we project a dataset into the model and try to restore it.
   
         samples = self.dataManager.GetSampleData()
@@ -88,7 +90,7 @@ class Test(unittest.TestCase):
 
         self.assertEqual(sample.GetNumberOfPoints(), restored_sample.GetNumberOfPoints())
 
-        self.checkPointsAlmostEqual(sample.GetPoints(), restored_sample.GetPoints(), 100)
+        self.checkPointsAlmostEqual(sample.GetPoints(), restored_sample.GetPoints(), 100, noise)
 
         # check if the scores can be used to restore the data in the datamanager
         scores = model.GetModelInfo().GetScoresMatrix()
@@ -96,15 +98,41 @@ class Test(unittest.TestCase):
             sample_from_scores = model.DrawSample(scores[:,i])
             sample_from_dm = samples[i].GetAsNewSample()
 
-            self.checkPointsAlmostEqual(sample_from_scores.GetPoints(), sample_from_dm.GetPoints(), 100)
+            self.checkPointsAlmostEqual(sample_from_scores.GetPoints(), sample_from_dm.GetPoints(), 100, noise)
+        return model
 
+    def testBuildPCAModelWithoutScores(self):
+      
+        # check if a model can be build when there are no scores
+        modelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
+ 
+        model = modelbuilder.BuildNewModel(self.dataManager.GetSampleData(), 0, False)
+                        
+        self.assertTrue(model.GetNumberOfPrincipalComponents() <= len(self.datafiles))                
+
+        # we cannot have negative eigenvalues
+        self.assertTrue((model.GetPCAVarianceVector() >= 0).all() == True)
+        
+        # check if the scores can be used to restore the data in the datamanager
+        scores = model.GetModelInfo().GetScoresMatrix()
+        self.assertTrue (scores.shape[0] == 0 and scores.shape[1] == 0)
+
+
+        
 
     def testBuildPCAModelZeroNoise(self):
-        self.buildPCAModel(0)
+        model = self.buildAndTestPCAModel(0)
+        self.assertAlmostEqual(model.GetNoiseVariance(), 0)
         
     def testBuildPCAModelNonZeroNoise(self):
-        self.buildPCAModel(0.1)
+        model = self.buildAndTestPCAModel(0.1)
+        self.assertAlmostEqual(model.GetNoiseVariance(), 0.1)
         
+    def testBuildPCAModelWithLargeNoise(self):
+        model = self.buildAndTestPCAModel(1000)
+        self.assertAlmostEqual(model.GetNoiseVariance(), 1000)
+        
+
         
         
     def testCheckPartiallyFixedModelMean(self):
@@ -118,10 +146,12 @@ class Test(unittest.TestCase):
         pvList = statismo.PointValueList_vtkPD()        
 
         reference = self.representer.GetReference()
-        for pt_id in xrange(0, sample.GetNumberOfPoints(), sample.GetNumberOfPoints() / nPointsFixed):
-            ref_pt = statismo.vtkPoint(*getPDPointWithId(reference, pt_id))
+        domainPoints = self.representer.GetDomain().GetDomainPoints()
+        
+        for pt_id in xrange(0, len(domainPoints), len(domainPoints) / nPointsFixed):
+            fixed_pt = domainPoints[pt_id]
             value = statismo.vtkPoint(*getPDPointWithId(sample, pt_id))
-            pointValue = statismo.PointValuePair_vtkPD(ref_pt, value)
+            pointValue = statismo.PointValuePair_vtkPD(fixed_pt, value)
             pvList.append(pointValue)
 
         pfmodelbuilder = statismo.PartiallyFixedModelBuilder_vtkPD.Create()

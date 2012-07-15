@@ -34,31 +34,45 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
-%{
-#include "TrivialVectorialRepresenter.h"
-%}
 
-struct PointIdType {
-	PointIdType();
-	PointIdType(unsigned);
-	unsigned ptId;
+#ifndef __DOMAIN_H
+#define __DOMAIN_H
 
-};
-	
-class TrivialVectorialRepresenter {
+#include <vector>
+
+namespace statismo {
+
+/**
+ * This class represents the domain on which a statistical model is defined.
+ * A domain is simply a list of points.
+ */
+template <typename PointType>
+class Domain {
 public:
+	typedef std::vector<PointType> DomainPointsListType;
 
-	typedef statismo::VectorType DatasetPointerType;
-	typedef const statismo::VectorType DatasetConstPointerType;
+	/**
+	 * Create an empty domain
+	 */
+	Domain() {}
 
-	typedef PointIdType PointType;
-	typedef statismo::ScalarType ValueType;
+	/**
+	 * Create a new domain from the given list of points
+	 */
+	Domain(const DomainPointsListType& domainPoints)
+	: m_domainPoints(domainPoints) {}
+	
+	/** Returns a list of points that define the domain */
+	const DomainPointsListType& GetDomainPoints() const { return m_domainPoints; }
 
-	 %newobject Create; 
- 	 static TrivialVectorialRepresenter* Create(unsigned );
- 	 
- private:
- 	TrivialVectorialRepresenter(unsigned);
+	/** Returns the number of poitns of the domain */
+	const unsigned GetNumberOfPoints() const { return m_domainPoints.size(); }
 
+private:
+
+	DomainPointsListType m_domainPoints;
 };
+
+} // namespace statismo
+
+#endif

@@ -46,7 +46,9 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         self.datafiles = getDataFiles(DATADIR)
-        self.representer = statismo.vtkPolyDataRepresenter.Create(self.datafiles[0],statismo.vtkPolyDataRepresenter.RIGID)        
+        ref = read_vtkpd(self.datafiles[0])
+            
+        self.representer = statismo.vtkPolyDataRepresenter.Create(ref, statismo.vtkPolyDataRepresenter.RIGID)        
 
     def tearDown(self):
         pass

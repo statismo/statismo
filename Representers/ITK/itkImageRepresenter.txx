@@ -103,18 +103,25 @@ ImageRepresenter<TPixel, ImageDimension>::Load(const H5::CommonFG& fg) {
 }
 
 
-template <class TPixel, unsigned ImageDimension>
-void
-ImageRepresenter<TPixel, ImageDimension>::SetReference(const char* referenceFilename) {
-
-	DatasetPointerType reference = ReadDataset(referenceFilename);
-	SetReference(reference);
-}
 
 template <class TPixel, unsigned ImageDimension>
 void
 ImageRepresenter<TPixel, ImageDimension>::SetReference(DatasetPointerType reference) {
 	m_reference = reference;
+
+	typename DomainType::DomainPointsListType domainPoints;
+	itk::ImageRegionConstIterator<DatasetType> it(reference, reference->GetLargestPossibleRegion());
+	it.GoToBegin();
+	for (;
+		it.IsAtEnd() == false
+		;)
+	{
+		PointType pt;
+		reference->TransformIndexToPhysicalPoint(it.GetIndex(), pt);
+		domainPoints.push_back(pt);
+		++it;
+	}
+	m_domain = DomainType(domainPoints);
 }
 
 template <class TPixel, unsigned ImageDimension>
@@ -173,6 +180,21 @@ ImageRepresenter<TPixel, ImageDimension>::SampleVectorToSample(const VectorType&
 	return clonedImage;
 }
 
+template <class TPixel, unsigned ImageDimension>
+typename ImageRepresenter<TPixel, ImageDimension>::ValueType
+ImageRepresenter<TPixel, ImageDimension>::PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const
+{
+	if (ptid >= GetDomain().GetNumberOfPoints()) {
+		throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
+	}
+
+	// we get the point with the id from the domain, as itk does not allow us get a point via its index.
+	PointType pt = GetDomain().GetDomainPoints()[ptid];
+	typename ImageType::IndexType idx;
+	sample->TransformPhysicalPointToIndex(pt, idx);
+	ValueType value = sample->GetPixel(idx);
+	return value;
+}
 
 template <class TPixel, unsigned ImageDimension>
 typename ImageRepresenter<TPixel, ImageDimension>::ValueType
@@ -182,6 +204,7 @@ ImageRepresenter<TPixel, ImageDimension>::PointSampleVectorToPointSample(const V
 	value = pointSample[0];
 	return value;
 }
+
 template <class TPixel, unsigned ImageDimension>
 statismo::VectorType
 ImageRepresenter<TPixel, ImageDimension>::PointSampleToPointSampleVector(const ValueType& v) const

@@ -56,7 +56,6 @@ public:
 	typedef vtkNDPixel<TPixel, TDimensions> ValueType; 
 
 %newobject Create;
-static vtkStructuredPointsRepresenter* Create(const char* reference);
 static vtkStructuredPointsRepresenter* Create(const vtkStructuredPoints* reference);
  static unsigned GetDimensions();
  const vtkStructuredPoints* GetReference() const;

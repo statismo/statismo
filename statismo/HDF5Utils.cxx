@@ -326,10 +326,48 @@ HDF5Utils::dumpFileToHDF5( const char* filename, const H5::CommonFG& fg, const c
 
 }
 
+template<typename T>
+inline
+void
+HDF5Utils::readArray(const H5::CommonFG& fg, const char* name, std::vector<T> & array)
+{
+  throw StatisticalModelException( "not implemented" );
+}
+
+
+template<typename T>
+inline
+void
+HDF5Utils::writeArray(const H5::CommonFG& fg, const char* name, std::vector<T> const& array)
+{
+  throw StatisticalModelException( "not implemented" );
+}
+
+template<>
+inline
+void
+HDF5Utils::readArray(const H5::CommonFG& fg, const char* name, std::vector<int> & array)
+{
+  H5::DataSet ds = fg.openDataSet( name );
+	hsize_t dims[1];
+	ds.getSpace().getSimpleExtentDims(dims, NULL);
+	array.resize(dims[0]);
+	ds.read( &array[0], H5::PredType::NATIVE_INT32);
+}
+
+template<>
+inline
+void
+HDF5Utils::writeArray(const H5::CommonFG& fg, const char* name, std::vector<int> const& array)
+{
+	hsize_t dims[1] = {array.size()};
+  H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_INT32, H5::DataSpace(1, dims));
+	ds.write( &array[0], H5::PredType::NATIVE_INT32 );
+}
 
 inline
 bool
-HDF5Utils::existsObjectWithName(H5::CommonFG& fg, const std::string& name) {
+HDF5Utils::existsObjectWithName(const H5::CommonFG& fg, const std::string& name) {
 	for (hsize_t i = 0; i < fg.getNumObjs(); ++i) {
 		std::string objname= 	fg.getObjnameByIdx(i);
 		if (objname == name) {
@@ -338,7 +376,6 @@ HDF5Utils::existsObjectWithName(H5::CommonFG& fg, const std::string& name) {
 	}
 	return false;
 }
-
 
 } //namespace statismo
 

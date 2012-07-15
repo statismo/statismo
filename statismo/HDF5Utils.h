@@ -199,10 +199,25 @@ public:
 	 */
 	static void writeFloat(const H5::CommonFG& fg, const char* name, float value);
 
+	/** Reads an array from the hdf5 group
+	 * @param fg The hdf5 group
+	 * @param name The name
+	 * @param array The array (type std::vector<T>) to be read, contents will be lost
+	 */
+  template<typename T>
+	static void readArray(const H5::CommonFG& fg, const char* name, std::vector<T> & array);
+
+	/** Writes an array to the hdf5 group
+	 * @param fg The hdf5 group
+	 * @param name The name
+	 * @param array The array (type std::vector<T>) to be written
+	 */
+  template<typename T>
+	static void writeArray(const H5::CommonFG& fg, const char* name, std::vector<T> const& array );
 
 	/** Check whether an object (direct child) of fg with the given name exists
 	 */
-	static bool existsObjectWithName(H5::CommonFG& fg, const std::string& name);
+	static bool existsObjectWithName(const H5::CommonFG& fg, const std::string& name);
 
 };
 

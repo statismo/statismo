@@ -45,6 +45,7 @@
 #include "vtkPoint.h"
 #include "vtkPixel.h"
 #include "statismo/CommonTypes.h"
+#include "statismo/Domain.h"
 #include "vtkSmartPointer.h"
 
 #include <H5Cpp.h>
@@ -68,10 +69,12 @@ public:
 	//typedef double* PointType;
 	typedef vtkPoint PointType;
 
+	typedef statismo::Domain<PointType> DomainType;
+
 	typedef vtkNDPixel<TPixel, TDimensions> ValueType;
 
 	static vtkStructuredPointsRepresenter* Create(DatasetConstPointerType reference) { return new vtkStructuredPointsRepresenter(reference); }
-	static vtkStructuredPointsRepresenter* Create(const std::string referenceFilename) { return new vtkStructuredPointsRepresenter(referenceFilename); }
+
 	static vtkStructuredPointsRepresenter* Load(const H5::CommonFG& fg);
 	vtkStructuredPointsRepresenter* Clone() const;
 
@@ -83,6 +86,8 @@ public:
 
 
 	static unsigned GetDimensions() { return  TDimensions; }
+	const DomainType& GetDomain() const  { return m_domain; }
+
 	static std::string GetName() { return "vtkStructuredPointsRepresenter"; }
 
 	const vtkStructuredPoints* GetReference() const { return m_reference; }
@@ -93,6 +98,7 @@ public:
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
 
+	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
 	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
 	ValueType PointSampleVectorToPointSample(const statismo::VectorType& samplePoint) const;
 
@@ -117,13 +123,13 @@ public:
 private:
 
 	vtkStructuredPointsRepresenter(DatasetConstPointerType reference);
-	vtkStructuredPointsRepresenter(const std::string& referenceFilename);
 
     static DatasetPointerType ReadDataset(const std::string& filename);
 	static void WriteDataset(const std::string& filename, DatasetConstPointerType sp);
 
 
 	DatasetType* m_reference;
+	DomainType m_domain;
 };
 
 #include "vtkStructuredPointsRepresenter.txx"

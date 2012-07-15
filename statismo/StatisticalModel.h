@@ -103,7 +103,10 @@ public:
     typedef typename Representer::ValueType RepresenterValueType;
 	typedef typename Representer::PointType PointType;
 
+	typedef Domain<PointType> DomainType;
+
 	typedef unsigned PointIdType;
+
 
 	//typedef  PointValuePair<Representer>  PointValuePairType;
 	typedef std::pair<PointType, RepresenterValueType> PointValuePairType;
@@ -225,6 +228,28 @@ public:
 	 * \returns A new sample corresponding to the dataset
 	 */
 	DatasetPointerType DatasetToSample(DatasetConstPointerType dataset) const;
+
+	/**
+	 * Returns the value of the given sample at the point specified with the ptId
+	 *
+	 * \param sample A sample
+	 * \param ptId the point id where to evaluate the sample
+	 *
+	 * \returns The value of the sample, at the specified point
+	 */
+	RepresenterValueType EvaluateSampleAtPoint(DatasetConstPointerType sample, unsigned ptId) const ;
+
+
+	/**
+	 * Returns the value of the given sample corresponding to the given domain point
+	 *
+	 * \param sample A sample
+	 * \param point the (domain) point on which the sample should be evaluated.
+	 *
+	 * \returns The value of the sample, at the specified point
+	 */
+	RepresenterValueType EvaluateSampleAtPoint(DatasetConstPointerType sample, const PointType& pt) const;
+
 
 	/**
 	 * \return A new sample representing the mean of the model
@@ -492,7 +517,10 @@ public:
 		return m_representer;
 	}
 
-
+	/**
+	 * Return the domain of the statistical model
+	 */
+	const DomainType& GetDomain() const { return m_representer->GetDomain(); }
 
 	///@}
 

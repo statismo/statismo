@@ -23,21 +23,21 @@ add_executable (itkBuildDeformationModel buildDeformationModel.cpp
 	${INCLUDE_FILES}
 ) 
 ADD_DEPENDENCIES(itkBuildDeformationModel HDF5)
-target_link_libraries (itkBuildDeformationModel ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+target_link_libraries (itkBuildDeformationModel ${ITK_LIBRARIES})
 
 add_executable (itkDeformationModelFitting deformationModelFitting.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
 ADD_DEPENDENCIES(itkDeformationModelFitting HDF5)
-target_link_libraries (itkDeformationModelFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})
+target_link_libraries (itkDeformationModelFitting   ${ITK_LIBRARIES})
 
 add_executable (itkBuildShapeModel buildShapeModel.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
 ADD_DEPENDENCIES(itkBuildShapeModel HDF5)
-target_link_libraries (itkBuildShapeModel ${ITK_LIBRARIES} ${STATISMO_LIBRARIES})
+target_link_libraries (itkBuildShapeModel ${ITK_LIBRARIES} )
 
 
 add_executable (itkShapeModelFitting shapeModelFitting.cpp 
@@ -45,6 +45,6 @@ add_executable (itkShapeModelFitting shapeModelFitting.cpp
 	${INCLUDE_FILES}
 ) 
 ADD_DEPENDENCIES(itkShapeModelFitting HDF5)
-target_link_libraries (itkShapeModelFitting  ${STATISMO_LIBRARIES} ${ITK_LIBRARIES})
+target_link_libraries (itkShapeModelFitting  ${ITK_LIBRARIES})
 
 INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkShapeModelFitting  RUNTIME DESTINATION bin)

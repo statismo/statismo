@@ -57,6 +57,8 @@ class GenericRepresenterTest {
 
 	typedef typename Representer::DatasetInfo DatasetInfo;
 
+	typedef typename Representer::DomainType DomainType;
+
 public:
 	/// Create new test with the given representer.
 	/// Tests are performed using the given testDataset and the pointValuePair.
@@ -67,6 +69,72 @@ public:
 	  m_testPoint(pointValuePair.first),
 	  m_testValue(pointValuePair.second)
 	{}
+
+
+	bool testSamplePointEvaluation() const {
+		DatasetConstPointerType sample = m_representer->DatasetToSample(m_testDataset, 0);
+		unsigned id = m_representer->GetPointIdForPoint(m_testPoint);
+		ValueType val = m_representer->PointSampleFromSample(sample, id);
+		VectorType valVec = m_representer->PointSampleToPointSampleVector(val);
+
+		// the obtained value should correspond to the value that is obtained by obtaining the sample vector, and evaluating it at the given position
+		VectorType sampleVector = m_representer->SampleToSampleVector(sample);
+		for (unsigned i = 0; i < Representer::GetDimensions(); ++i) {
+			unsigned idx = m_representer->MapPointIdToInternalIdx(id, i);
+			if (sampleVector(i) != valVec(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	bool testDomainValid() const {
+		std::cout << "testDomainValid" << std::endl;
+
+		const DomainType domain = m_representer->GetDomain();
+		typename DomainType::DomainPointsListType domPoints = domain.GetDomainPoints();
+
+		if (domPoints.size() == 0) {
+			std::cout << "representer defined empty domain" << std::endl;
+			return false;
+		}
+
+		if (domPoints.size() != domain.GetNumberOfPoints()) {
+			std::cout << "domPoints.size() != domain->GetNumberOfPoints" << std::endl;
+			return false;
+		}
+
+		// if we convert a dataset to a samplevector, the resulting vector needs to have
+		// as many entries as there are points * dimensions
+		DatasetConstPointerType sample = m_representer->DatasetToSample(m_testDataset, 0);
+		VectorType sampleVector = m_representer->SampleToSampleVector(sample);
+		if (sampleVector.cols() != Representer::GetDimensions() * domain.GetNumberOfPoints()) {
+			std::cout << "the dimension of the sampleVector does not agree with the number of points in the domain (#points * dimensionality)" << std::endl;
+		}
+
+
+		unsigned ptNo = 0;
+		for (typename DomainType::DomainPointsListType::const_iterator it = domPoints.begin();
+				it != domPoints.end();
+				++it)
+		{
+			// since this can take long, we only do it for every 10th point
+			if (ptNo % 10 != 0)
+				break;
+
+			if (m_representer->GetPointIdForPoint(*it) >= domain.GetNumberOfPoints()) {
+				std::cout << "a point in the domain did not evaluate to a valid point it" << std::endl;
+				return false;
+			}
+			ptNo++;
+		}
+
+
+		return true;
+
+	}
+
+
 
 	/// test whether converting a sample to a vector and back to a sample yields the original sample
 	bool testSampleToVectorAndBack() const {
@@ -233,6 +301,8 @@ public:
 	bool runAllTests() {
 		bool ok = true;
 		ok = testPointSampleDimension() && ok;
+		ok = testSamplePointEvaluation() && ok;
+		ok = testDomainValid() && ok;
 		ok = testPointSampleToPointSampleVectorAndBack() && ok;
 		ok = testSampleVectorHasCorrectValueAtPoint() && ok;
 		ok = testSampleToVectorAndBack() && ok;

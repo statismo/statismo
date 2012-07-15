@@ -41,10 +41,10 @@
 #define ITKMesh_REPRESENTER_H_
 
 #include "itkMesh.h"
-#include "statismo/CommonTypes.h"
 #include "itkObject.h"
 #include "itkMesh.h"
-#include <H5Cpp.h>
+#include "statismo_ITK/statismoITKConfig.h"
+#include "statismo/CommonTypes.h"
 #include <boost/unordered_map.hpp>
 
 namespace itk {
@@ -97,6 +97,8 @@ public:
 	typedef typename MeshType::PointType PointType;
 	typedef typename MeshType::PointType ValueType;
 
+	typedef statismo::Domain<PointType> DomainType;
+
 	// An unordered map is used to cache pointid for corresonding points
 	typedef boost::unordered_map<PointType, unsigned> PointCacheType;
 
@@ -107,11 +109,11 @@ public:
 	virtual ~MeshRepresenter();
 
 	static unsigned GetDimensions() { return MeshDimension; }
+
 	static std::string GetName() { return "itkMeshRepresenter"; }
 
 
-	/** Set the reference that is used to build the model */
-	void SetReference(const char* referenceFilename);
+	const DomainType& GetDomain() const { return m_domain; }
 
 	/** Set the reference that is used to build the model */
 	void SetReference(DatasetPointerType ds);
@@ -131,6 +133,11 @@ public:
 	 * Converts the given sample Vector to a Sample (an itk::Mesh)
 	 */
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
+
+	/**
+	 * Returns the value of the sample at the point with the given id.
+	 */
+	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
 
 	/**
 	 * Given a vector, represening a points convert it to an itkPoint
@@ -182,6 +189,7 @@ private:
     unsigned FindClosestPoint(const MeshType* mesh, const PointType pt) const ;
 
 	DatasetConstPointerType m_reference;
+	DomainType m_domain;
 	mutable PointCacheType m_pointCache;
 };
 

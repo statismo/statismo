@@ -77,7 +77,7 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
 
 
 
-void buildShapeModel(const char* reference, const char* dir, const char* modelname) {
+void buildShapeModel(const char* referenceFilename, const char* dir, const char* modelname) {
 
 
 	typedef itk::PCAModelBuilder<RepresenterType> ModelBuilderType;
@@ -87,7 +87,11 @@ void buildShapeModel(const char* reference, const char* dir, const char* modelna
     typedef itk::MeshFileReader<MeshType> MeshReaderType;
 
     RepresenterType::Pointer representer = RepresenterType::New();
-    representer->SetReference(reference);
+
+    typename MeshReaderType::Pointer refReader = MeshReaderType::New();
+    refReader->SetFileName(referenceFilename);
+    refReader->Update();
+    representer->SetReference(refReader->GetOutput());
 
     StringVectorType filenames;
     getdir(dir, filenames, ".vtk");
