@@ -31,7 +31,7 @@ PROJECT_NAME           =  Statismo
 # This could be handy for archiving the generated documentation or
 # if some version control system is used.
 
-PROJECT_NUMBER         =  0.7
+PROJECT_NUMBER         =  0.8
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute)
 # base path where the generated documentation will be put.
@@ -623,7 +623,7 @@ EXCLUDE_SYMLINKS       = NO
 # certain files from those directories. Note that the wildcards are matched
 # against the file with absolute path, so to exclude all test directories
 # for example use the pattern */test/*
-EXCLUDE_PATTERNS       = */Applications/*  */Representers/* */3rdParty/* */statismo_ITK/* */Wrapping/* */build/*
+EXCLUDE_PATTERNS       = */Applications/*  */Representers/* */3rdParty/* */statismo_ITK/* */Wrapping/* */build*/* */.git/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
