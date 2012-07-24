@@ -32,11 +32,7 @@ ELSE(WIN32)
 	SET(HDF5_BUILD_SHARED On)
 ENDIF(WIN32)
 
-# We always build hdf5 as release (we don't want to debug it). By setting the CMAKE_DEBUG_POSTFIX to "" we make sure
-# that the target does not have funny (platform specific) extensions added to it. 
-# It is okay to set that globally, as we are not compiling any other libraries
-SET(CMAKE_DEBUG_POSTFIX "")
-SET(HDF5_LIBRARIES hdf5;hdf5_cpp)
+SET(HDF5_LIBRARIES optimized hdf5; optimized hdf5_cpp)
 IF (NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
 	  SOURCE_DIR ${CMAKE_BINARY_DIR}/HDF5
@@ -56,12 +52,9 @@ IF (NOT HDF5_USE_EXTERNAL)
 	SET (HDF5_INCLUDE_DIR_CPP ${HDF5_INCLUDE_DIR}/cpp)			
 	SET (HDF5_LIBRARY_DIR ${CMAKE_BINARY_DIR}/3rdParty/HDF5/lib)
 
-FILE(GLOB hdf5libfiles "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/*hdf5*")
-INSTALL(FILES ${hdf5libfiles} DESTINATION lib/hdf5)
-FILE(GLOB hdf5headerfiles "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/*.h")
-INSTALL(FILES ${hdf5headerfiles} DESTINATION include/hdf5)
-FILE(GLOB hdf5headerfilescpp "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/cpp/*.h")
-INSTALL(FILES ${hdf5headerfilescpp} DESTINATION include/hdf5/cpp)
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/ DESTINATION include/hdf5 FILES_MATCHING PATTERN "*.h") 
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/cpp/ DESTINATION include/hdf5/cpp FILES_MATCHING PATTERN "*.h") 
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/ DESTINATION lib/hdf5 FILES_MATCHING PATTERN "*hdf5*") 
 
 ELSE (NOT HDF5_USE_EXTERNAL)
 
