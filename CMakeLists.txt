@@ -32,7 +32,7 @@ ELSE(WIN32)
 	SET(HDF5_BUILD_SHARED On)
 ENDIF(WIN32)
 
-SET(HDF5_LIBRARIES optimized hdf5; optimized hdf5_cpp)
+SET(HDF5_LIBRARIES debug hdf5 debug hdf5_cpp optimized hdf5; optimized hdf5_cpp)
 IF (NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
 	  SOURCE_DIR ${CMAKE_BINARY_DIR}/HDF5
