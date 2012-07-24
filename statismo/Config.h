@@ -41,3 +41,8 @@
 #define EIGEN_DONT_VECTORIZE 1
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
 #endif
+
+// used to prevent an error when linking debug in VS10
+#ifdef _WIN32
+#define _ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH 1
+#endif
