@@ -35,6 +35,8 @@
  *
  */
 
+#ifndef __CONFIG_H
+#define __CONFIG_H
 
 // gccxml (as used by e.g. wrapitk) does not compile with vectorization enabled.
 #if defined(__GCCXML__)
@@ -45,4 +47,7 @@
 // used to prevent an error when linking debug in VS10
 #ifdef _WIN32
 #define _ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH 1
+#endif
+
+
 #endif

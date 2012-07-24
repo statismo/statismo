@@ -38,6 +38,7 @@
 #ifndef __CONDITIONALMODELBUILDER_H_
 #define __CONDITIONALMODELBUILDER_H_
 
+#include "Config.h"
 #include "ModelBuilder.h"
 #include "StatisticalModel.h"
 #include "CommonTypes.h"

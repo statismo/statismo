@@ -38,6 +38,7 @@
 #ifndef __PCAMODELBUILDER_H_
 #define __PCAMODELBUILDER_H_
 
+#include "Config.h"
 #include "ModelInfo.h"
 #include "ModelBuilder.h"
 #include "DataManager.h"
