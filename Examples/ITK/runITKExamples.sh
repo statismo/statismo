@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export DATADIR=$PWD/../share/data
-export RESIDR=/tmp/results
+export RESDIR=/tmp/results
 mkdir $RESDIR
 
 # build a shape model from the hand data

@@ -39,6 +39,7 @@
 #ifndef STATISTICALMODEL_H_
 #define STATISTICALMODEL_H_
 
+#include "Config.h"
 #include "DataManager.h"
 #include "CommonTypes.h"
 #include "ModelInfo.h"

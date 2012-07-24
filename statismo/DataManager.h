@@ -39,7 +39,7 @@
 #ifndef __DATAMANAGER_H_
 #define __DATAMANAGER_H_
 
-
+#include "Config.h"
 #include "CommonTypes.h"
 #include "utils.h"
 #include "Exceptions.h"
