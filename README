@@ -63,8 +63,8 @@ To run the tests, write
 Known issues
 ------------
 Statismo has been implemented and thoroughly tested on Linux.
-It also has been tested and used on Windows. However, depending on the configuration of your windows system, you may experience problems building the debug version.   
-We recommend to set the CMAKE_BUILD_TYPE to RELEASE in that case.
+It also has been tested and used on Windows. Depending on your system, you may experience linking problems when building a debug configuration.   
+For more information regarding this issue and possible workarounds, see the project wiki. 
 
 
 Main Authors:
