@@ -25,14 +25,18 @@ endif()
 include(ExternalProject)
 OPTION (HDF5_USE_EXTERNAL "Use External Library Building for HDF5" OFF)
 
-# it seems that on linux only the shared libraries work, while on windows we have trouble with them.
+# it seems that on linux only the shared libraries work, while on windows static seems to work fine
 IF(WIN32)
-	SET(HDF5_BUILD_SHARED On)
-	SET(HDF5_LIBRARIES debug hdf5ddll debug hdf5_cppddll optimized hdf5dll; optimized hdf5_cppdll)
+	SET(HDF5_BUILD_SHARED Off)
+	SET(HDF5_LIBRARIES debug hdf5d debug hdf5_cppd optimized hdf5; optimized hdf5_cpp)	
+	SET (HDF5_BUILD_TYPE "RELEASE" CACHE STRING "Build type (RELEASE DEBUG) of the hdf5 library" )
 ELSE(WIN32)
 	SET(HDF5_BUILD_SHARED On)
 	SET(HDF5_LIBRARIES debug hdf5 debug hdf5_cpp optimized hdf5; optimized hdf5_cpp)
+	SET (HDF5_BUILD_TYPE "RELEASE")
 ENDIF(WIN32)
+
+
 
 IF (NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
@@ -41,7 +45,7 @@ IF (NOT HDF5_USE_EXTERNAL)
 	  URL "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hdf5-1.8.7.tar.gz"
 	  UPDATE_COMMAND ""
 	  CMAKE_ARGS
-	  -DCMAKE_BUILD_TYPE:STRING=Release
+	  -DCMAKE_BUILD_TYPE:STRING=${HDF5_BUILD_TYPE}
 	  -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=Off
 	  -DHDF5_BUILD_CPP_LIB:BOOL=On
 	  -DBUILD_SHARED_LIBS:BOOL=${HDF5_BUILD_SHARED}
@@ -56,17 +60,9 @@ IF (NOT HDF5_USE_EXTERNAL)
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/ DESTINATION include/hdf5 FILES_MATCHING PATTERN "*.h") 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/cpp/ DESTINATION include/hdf5/cpp FILES_MATCHING PATTERN "*.h") 
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/ DESTINATION lib/hdf5 FILES_MATCHING PATTERN "*hdf5*") 
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/bin/ DESTINATION lib/hdf5 FILES_MATCHING PATTERN "*hdf5*dll*")
 install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/bin/ DESTINATION bin FILES_MATCHING PATTERN "*hdf5*") 
 
 SET (STATISMO_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib/hdf5)
-
-
-IF(WIN32)
-# make sure that the dlls from the hdf5 are in the same directory as the binaries, otherwise the tests won't run
- add_custom_command(TARGET HDF5 POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory  "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/bin/"  "${CMAKE_CURRENT_BINARY_DIR}/bin/$<CONFIGURATION>")
-ENDIF(WIN32)
 
 
 ELSE (NOT HDF5_USE_EXTERNAL)

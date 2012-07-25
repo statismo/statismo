@@ -35,19 +35,13 @@
  *
  */
 
-#ifndef __CONFIG_H
-#define __CONFIG_H
+#ifndef __STATISMO_CONFIG_H
+#define __STATISMO_CONFIG_H
 
 // gccxml (as used by e.g. wrapitk) does not compile with vectorization enabled.
 #if defined(__GCCXML__)
 #define EIGEN_DONT_VECTORIZE 1
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
 #endif
-
-// used to prevent an error when linking debug in VS10
-#ifdef _WIN32
-#define _ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH 1
-#endif
-
 
 #endif
