@@ -88,7 +88,7 @@ public:
 
 
 	/** Run-time type information (and related methods). */
-	itkTypeMacro( StatisticalModelTransformBase, Transform );
+	itkTypeMacro( StatisticalModelTransformBase, Superclass );
 
 	/* Dimension of parameters. */
 	itkStaticConstMacro(SpaceDimension, unsigned int, TDimension);
@@ -195,9 +195,7 @@ public:
 protected:
 
 	StatisticalModelTransformBase();
-	StatisticalModelTransformBase(unsigned int outputSpaceDim,
-			unsigned int paramDim);
-	~StatisticalModelTransformBase(){};
+	virtual ~StatisticalModelTransformBase(){};
 
 	void PrintSelf(std::ostream &os, Indent indent) const;
 
@@ -206,8 +204,8 @@ protected:
 	unsigned m_usedNumberCoefficients;
 	ParametersType m_FixedParameters;
 
-	StatisticalModelTransformBase(const Self&); //purposely not implemented
-	void operator=(const Self&); //purposely not implemented
+	StatisticalModelTransformBase(const Self& obj);// : Superclass(obj) {} //purposely not implemented
+	void operator=(const Self& rhs);// { return Superclass::operator=(rhs); } //purposely not implemented
 
 
 

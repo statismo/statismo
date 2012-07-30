@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
 	typedef StatisticalModel<RepresenterType> StatisticalModelType;
 
 	try {
-		vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand_images/hand-0.vtk");
+		vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand-0.vtk");
 		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 
 
@@ -92,7 +92,7 @@ int main(int argc, char** argv) {
 		// We provide in addition to the representer also a file that contains a description of the surrogate
 		// variables (e.g. whether they are categorical or continuous). See the API doc for more details.
 		auto_ptr<DataManagerWithSurrogatesType> dataManager(DataManagerWithSurrogatesType::Create(representer.get(),
-													  datadir +"hand_images/surrogates/hand_surrogates_types.txt"));
+													  datadir +"/surrogates/hand_surrogates_types.txt"));
 
 		// add the data information. The first argument is the dataset, the second the surrogate information
 		// and the 3rd the surrogate type
@@ -101,11 +101,11 @@ int main(int argc, char** argv) {
 		for (unsigned i = 0; i < 4; i++) {
 
 			std::ostringstream ssFilename;
-			ssFilename << datadir << "/hand_images/hand-" << i << ".vtk";
+			ssFilename << datadir << "/hand-" << i << ".vtk";
 			const std::string datasetFilename = ssFilename.str();
 
 			std::ostringstream ssSurrogateFilename;
-			ssSurrogateFilename << datadir << "hand_images/surrogates/hand-" << i << "_surrogates.txt";
+			ssSurrogateFilename << datadir << "/surrogates/hand-" << i << "_surrogates.txt";
 			const std::string surrogateFilename = ssSurrogateFilename.str();
 
 			vtkStructuredPoints* dataset = loadVTKStructuredPointsData(datasetFilename);

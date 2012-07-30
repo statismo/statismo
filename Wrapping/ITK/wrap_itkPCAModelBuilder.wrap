@@ -1,0 +1,12 @@
+itk_wrap_include("itkImageRepresenter.h")
+itk_wrap_include("itkVectorImageRepresenter.h")
+itk_wrap_include("itkMeshRepresenter.h")
+
+itk_wrap_class("itk::PCAModelBuilder" POINTER)
+	itk_wrap_template("IRF2" "itk::ImageRepresenter<float, 2 >")
+	itk_wrap_template("IRF3" "itk::ImageRepresenter<float, 3 >")	
+	itk_wrap_template("VIRF22" "itk::VectorImageRepresenter<float, 2, 2 >")
+	itk_wrap_template("VIRF33" "itk::VectorImageRepresenter<float, 3, 3 >")
+	itk_wrap_template("MRD2" "itk::MeshRepresenter<double, 2>")
+	itk_wrap_template("MRD3" "itk::MeshRepresenter<double, 3>")	
+itk_end_wrap_class()

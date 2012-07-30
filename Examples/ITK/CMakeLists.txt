@@ -48,3 +48,4 @@ ADD_DEPENDENCIES(itkShapeModelFitting HDF5)
 target_link_libraries (itkShapeModelFitting  ${ITK_LIBRARIES})
 
 INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkShapeModelFitting  RUNTIME DESTINATION bin)
+INSTALL(PROGRAMS runITKExamples.sh DESTINATION  bin)

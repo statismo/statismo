@@ -6,6 +6,7 @@ ENABLE_TESTING()
 SET(STATISMO_VERSION 0.8) 
 SET(STATISMO_MINOR_VERSION 0)
 
+
 # rpath settings
 SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
@@ -24,14 +25,19 @@ endif()
 include(ExternalProject)
 OPTION (HDF5_USE_EXTERNAL "Use External Library Building for HDF5" OFF)
 
-# it seems that on linux only the shared libraries work, while on windows we have trouble with them.
+# it seems that on linux only the shared libraries work, while on windows static seems to work fine
 IF(WIN32)
 	SET(HDF5_BUILD_SHARED Off)
+	SET(HDF5_LIBRARIES debug hdf5d debug hdf5_cppd optimized hdf5; optimized hdf5_cpp)	
+	SET (HDF5_BUILD_TYPE "RELEASE" CACHE STRING "Build type (RELEASE DEBUG) of the hdf5 library" )
 ELSE(WIN32)
 	SET(HDF5_BUILD_SHARED On)
+	SET(HDF5_LIBRARIES debug hdf5 debug hdf5_cpp optimized hdf5; optimized hdf5_cpp)
+	SET (HDF5_BUILD_TYPE "RELEASE")
 ENDIF(WIN32)
 
-SET(HDF5_LIBRARIES hdf5;hdf5_cpp)
+
+
 IF (NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
 	  SOURCE_DIR ${CMAKE_BINARY_DIR}/HDF5
@@ -39,24 +45,25 @@ IF (NOT HDF5_USE_EXTERNAL)
 	  URL "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hdf5-1.8.7.tar.gz"
 	  UPDATE_COMMAND ""
 	  CMAKE_ARGS
-	  -DCMAKE_BUILD_TYPE:STRING=Release 
+	  -DCMAKE_BUILD_TYPE:STRING=${HDF5_BUILD_TYPE}
 	  -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=Off
 	  -DHDF5_BUILD_CPP_LIB:BOOL=On
 	  -DBUILD_SHARED_LIBS:BOOL=${HDF5_BUILD_SHARED}
-	  -DHDF5_BUILD_TOOLS:BOOL=On
-	  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5
-	  INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5
+	  -DHDF5_BUILD_TOOLS:BOOL=Off
+	  -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/
+	  INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/
 	) 
 	SET (HDF5_INCLUDE_DIR ${CMAKE_BINARY_DIR}/3rdParty/HDF5/include)
 	SET (HDF5_INCLUDE_DIR_CPP ${HDF5_INCLUDE_DIR}/cpp)			
 	SET (HDF5_LIBRARY_DIR ${CMAKE_BINARY_DIR}/3rdParty/HDF5/lib)
+     
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/ DESTINATION include/hdf5 FILES_MATCHING PATTERN "*.h") 
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/cpp/ DESTINATION include/hdf5/cpp FILES_MATCHING PATTERN "*.h") 
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/ DESTINATION lib/hdf5 FILES_MATCHING PATTERN "*hdf5*") 
+install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/bin/ DESTINATION bin FILES_MATCHING PATTERN "*hdf5*") 
 
-FILE(GLOB hdf5libfiles "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/*hdf5*")
-INSTALL(FILES ${hdf5libfiles} DESTINATION lib/hdf5)
-FILE(GLOB hdf5headerfiles "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/*.h")
-INSTALL(FILES ${hdf5headerfiles} DESTINATION include/hdf5)
-FILE(GLOB hdf5headerfilescpp "${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/cpp/*.h")
-INSTALL(FILES ${hdf5headerfilescpp} DESTINATION include/hdf5/cpp)
+SET (STATISMO_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib/hdf5)
+
 
 ELSE (NOT HDF5_USE_EXTERNAL)
 
@@ -64,18 +71,17 @@ ELSE (NOT HDF5_USE_EXTERNAL)
  	FIND_PATH(HDF5_INCLUDE_DIR_CPP H5Cpp.h)
  	FIND_LIBRARY(HDF5_LIBRARY hdf5)
  	FIND_LIBRARY(HDF5_CPP_LIBRARY hdf5_cpp)
-	GET_FILENAME_COMPONENT(HDF5_LIBRARY_DIR ${HDF5_LIBRARY_PATH} PATH) 
+	GET_FILENAME_COMPONENT(HDF5_LIBRARY_DIR ${HDF5_LIBRARY} PATH) 
 	SET (HDF5_LIBRARIES ${HDF5_LIBRARY} ${HDF5_CPP_LIBRARY})
-	
+	SET (STATISMO_LIBRARY_DIR ${HDF5_LIBRARY_DIR})	
 ENDIF (NOT HDF5_USE_EXTERNAL)
 
 
 #
 #optional examples and wrapping
-# OPTION(BUILD_ITK_EXAMPLES "Build the itk examples " OFF)
+OPTION(BUILD_ITK_EXAMPLES "Build the itk examples " OFF)
 OPTION(BUILD_VTK_EXAMPLES "Build the vtk examples " OFF)
-OPTION(BUILD_PYTHON_WRAPPING_ITK "Build python wrapping for the itk
-representers using wrapitk (untested)" OFF)
+OPTION(BUILD_PYTHON_WRAPPING_ITK "Build python wrapping for the itk representers using wrapitk (experimental)" OFF)
 OPTION(BUILD_PYTHON_WRAPPING_VTK "Build python wrapping for the VTK
 representers" OFF)
 
@@ -126,7 +132,7 @@ endif()
 
 if (BUILD_STATISMO_TESTS_PYTHON)
   set(BUILD_PYTHON_WRAPPING_VTK ON)
-  add_custom_target(unit_test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${STATISMO_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)
+  add_custom_target(unit_test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${CMAKE_CURRENT_BINARY_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)
 endif()
 
 if (BUILD_TESTS)

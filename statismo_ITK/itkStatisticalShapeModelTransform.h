@@ -62,7 +62,7 @@ public itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimensio
 public:
 	/* Standard class typedefs. */
 	typedef StatisticalShapeModelTransform            Self;
-	typedef itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>	Superclass;
+	typedef itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>	 Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
@@ -71,7 +71,7 @@ public:
     
 
 	/** Run-time type information (and related methods). */
-	itkTypeMacro(StatisticalShapeModelTransform,  StatisticalModelTransformBase);
+	itkTypeMacro(StatisticalShapeModelTransform,  Superclass);
 
 
 	typedef typename Superclass::InputPointType         InputPointType;
@@ -110,6 +110,13 @@ public:
 		}
 		return d;
 	}
+
+	StatisticalShapeModelTransform() {}
+
+private:
+
+	StatisticalShapeModelTransform(const StatisticalShapeModelTransform& orig); // purposely not implemented
+	StatisticalShapeModelTransform& operator=(const StatisticalShapeModelTransform& rhs); //purposely not implemented
 };
 
 

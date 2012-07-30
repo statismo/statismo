@@ -101,7 +101,7 @@ public:
 
 
 	/** Set the reference that is used to build the model */
-	void SetReference(DatasetPointerType ds);
+	void SetReference(ImageType* ds);
 
 
 	/**

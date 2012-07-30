@@ -1,152 +1,25 @@
 /*! \mainpage StaImSMo - Statistical Image and Shape Model Library
  *  
  * \section Introduction
- * Statismo provides a flexible framework for generating and manipulating Statistical Shape and Image Models.
- * 
- * The idea behind such models is to generate a compact, low dimensional probability
- * distribution model of the variability, such that new, statistical plausible samples may be
- * extracted, or that a given object may be approximated through a small set of parameters.
- * The most commonly known examples of such models are the Eigenfaces model (Turk and Pentland), 
- * Active Shape and Appearence models (Cootes and Taylor, 1995/1998) and the Morphable Model (Blanz and Vetter, 1999), 
+ * Welcome to Statismo.
  *
- * The core library is designed to be independent of the representation of the given data set and 
- * can thus be used with many different standard libraries such as VTK and ITK. 
- * The link to these libraries is given by a special Representer class, which abstracts
- * all library specific representations and also provides methods to convert the datasets to 
- * the vector representation used by Statismo. 
+ * Statismo is a C++ library for generating and manipulating Statistical
+ * Shape and Image Models. It supports all commonly known types of
+ * statistical models, including Shape models, Deformation Models and
+ * Appearance Models. The implementation and interpretation is based on
+ * Probabilistic PCA, which generalizes the standard PCA models and gives
+ * a fully probabilistic interpretation.
  *
- * In the current version, Statismo supports statistical only linear PCA models. The implementation and interpretation 
- * is based on Probabilistic PCA, which generalizes the standard PCA models and gives a fully probabilistic interpretation. 
+ * \section Home Home Page
  *
- * \section Definitions
- * The following terminology is used for the library and throughout this documentation.
- * 
- * \subsection Dataset
- * A Shape, Image or Deformation field in some user defined format (such as e.g. a vtk mesh or an itk image).
+ * The Home Page of Statismo be found at :
+ * http://statismo.github.com
  *
- * \subsection Sample
- * A sample is a representation of a dataset as it is obtained by sampling from the model.  
- * In contrast to a dataset, it has the same topology and the same number of points as the model. 
- * Furthermore, its pose is standardized and given by the model. 
- * Thus, many different datasets may have the same representation as a sample.
- *
- * The exact relationship between a dataset and a sample is defined by the Representer.
- * A representer may for example choose to align the datasets to a common reference before building the model. 
- * Another, very fancy, representer may even do a non-rigid registration of the datasets. 
- *  
- * \subsection Instance
- * An instance is closely related to the concept of a sample.
- * In the Probabilistic PCA Model, we assume that the data our model explains are subject to uncorrelated Gaussian noise.  
- * Consequently, when we obtain a sample from the model, this sample is also subject to this noise.
- * An instance of the model instead does not include this noise.  
- * In other words, an instance is a sample from the model with the noise is suppressed. 
- * 
- * \subsection Representer
- * A Representer is a class that abstracts all dataset specific aspects from the library. 
- * It provides a unified interface for creating, reading or writing datasets, etc. 
- * (i.e. it is an adapter). Furthermore, it defines the methods to convert a dataset
- * into the sample representation used by the model.
- *
- * Example implementations of Representers are provided for vtkPolyData, vtkStructuredPoints as well as 
- * itk Images and itk Vector Images.
- * 
- *  
- * \section main_principles Features and design principles
- * - Statismo uses Probabilistic PCA to compute and represent the model. This gives the model a sound probabilistic interpretation.
- * - Different model builders are provided. Besides the standard model builder for PCA model (statismo::PCAModelBuilder), 
- *   Statismo allows you to build models that are conditioned on surrogate data (statismo::ConditionalModelBuilder) 
- *   or include point constraints (statismo::PartiallyFixedModelBuilder). 
- *
- * - The core library is independent of any application specific code and user libraries, to ensure
- *   that it remains easy to deploy and versatile. 
- * - All datatype and application specific aspects are encoded by special representer classes. 
- * - As statismo is parameterized with a representer, it feels like it natively supports the
- *   represented datatypes. As an example, when using a Representer for vtkPolyData, drawing a sample
- *   from the model by StatisticalModel::DrawSample() yields directly a vtkPolyData, rather than 
- *   a statismo specific object. 
- * - The library provides a high level interface. The user can directly work with the probability distribution
- *   defined over the samples (e.g. sample form the distribution, computing probabilities, etc), without
- *   having to worry about the underlying vector representation of the components.
- * - To make the exchange of models easier, statismo saves all the information needed to use the model in one file. 
- *   To ensure portability and efficiency, it is stored in the widely used HDF5 format (http://www.hdfgroup.org/HDF5)
-
- *
- * \subsection MM Memory management
- *  * - All the objects of statismo are created on the heap using the Create method. This ensures that the objects
- *      are not accidentally copied or created on the stack (which would for most application be disastrous). 
- *      The create method always returns a naked pointer. We recommend the use of the standard smart pointers   
- *      such as e.g. std::auto_ptr or boost::unique_pointer.  
- *  * - Whenever statistimo returns a sample, this sample is created by the representer. Depending on the representer, 
- *      (which is out of the control of statismo) it may return a smart pointer or a naked pointer. Make sure that 
- *      you don't forget to delete the sample if necessary. 
- *
- * \section Architecture
- * The following diagrams shows the main classes and their connections. 
+ * \section Documentation 
+ * This documentation describes the API of the Toolkit. 
+ * The main classes are shown in the following diagram:
  * \image html class_diagram.png "Class diagram" 
- *
- * \section example Example Usage
- *  
- * The first step for using the statismo classes is define which type of dataset should be used.  
- * @code
-	typedef vtkPolyDataRepresenter RepresenterType;
-	typedef statismo::DataManager<RepresenterType> DataManagerType;
-	typedef statismo::PCAModelBuilder<RepresenterType> ModelBuilderType;
-	typedef statismo::StatisticalModel<RepresenterType> StatisticalModelType;	
- * @endcode
- *
- * We create a representer and provide it with a reference dataset
- * @code
- 	RepresenterType* representer = RepresenterType::Create("reference.vtk");
- * @endcode
- *
- * In a second step we create a data manager, which holds the datasets we would like to use for building the model.
- * We provide the representer object to the datamanager, to tell it that it how the data need to be converted and 
- * interpreted. Then we add our data to the datamanager using the AddDataset method. 
-  
- * @code
-	DataManagerType* datamanager = DataManagerType::Create(representer);
-	datamanager->AddDataset("dataset1.vtk");
-	datamanager->AddDataset("dataset2.vtk");
-	datamanager->AddDataset("dataset3.vtk");
- * @endcode
- *
- * To build the model, we use the model builder and call its method 
- * BuildNewModel. The first parameters is a list of samples, which we obtain from the datamanager.
- * The second parameter is the variance of a Gaussian noise term. It specifies how noisy we think the data is.    
-
- * @code 	
- 	ModelBuilderType* modelBuilder = ModelBuilderType::Create();
- 	StatisticalModelType* model = modelBuilder->BuildNewModel(datamanager->GetSampleData(), 0.1);
- * @endcode
- *
- * The model is now built. We can explore it by drawing samples from it.  
- * @code
-	vtkPolyData* aSample = model->DrawSample();
-   @endcode
- *
- * It may also be interesting to see to which linear combination of loadings
- * a sample corresponds.  This information can be obtained as follows: 
-  * @code
-	statismo::VectorType coeffs = model->ComputeCoefficientsForDataset(sample);
-   @endcode
- *
- * We can draw a sample that corresponds to a particular linear 
- * combination 
- * @code
-	statismo::VectorType coeffs(model->GetNumberOfPCACoefficients(), 0); 
-	coeffs[0] = 1;
-	vtkPolyData* model->DrawSample(coeffs);
- * @endcode
  * 
- * We save the model for future use
- * @code
-	model->Save("model.hd5");
- * @endcode
  * 
- * Finally we have to do the cleanup (alternatively,  we could have used a smart pointer that does it for us)
- * @code
-	representer->Delete();
-	model->Delete();
-	datamanager->Delete();
- * @endcode
- */
+ * Click on classes (above) to get detailed documentation of the classes. 
+*/

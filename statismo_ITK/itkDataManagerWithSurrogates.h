@@ -36,15 +36,15 @@
  */
 
 
-#ifndef ITK_DATAMANAGER_H_
-#define ITK_DATAMANAGER_H_
+#ifndef ITK_DATAMANAGER_WITH_SURROGATES_H_
+#define ITK_DATAMANAGER_WITH_SURROGATES_H_
 
 #include <boost/tr1/functional.hpp>
 
 #include "itkObject.h"
 #include "itkObjectFactory.h"
 #include "statismoITKConfig.h"
-#include "statismo/DataManager.h"
+#include "statismo/DataManagerWithSurrogates.h"
 
 namespace itk
 {
@@ -55,25 +55,25 @@ namespace itk
  * \see statismo::DataManager for detailed documentation.
  */
 template <class Representer>
-class DataManager : public Object {
+class DataManagerWithSurrogates : public DataManager<Representer> {
 public:
 
 
-	typedef DataManager            Self;
-	typedef Object	Superclass;
+	typedef DataManagerWithSurrogates            Self;
+	typedef DataManager<Representer>	Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
 	itkNewMacro( Self );
-	itkTypeMacro( DataManager, Object );
+	itkTypeMacro( DataManagerWithSurrogates, Object );
 
 
-	typedef statismo::DataManager<Representer> ImplType;
+	typedef statismo::DataManagerWithSurrogates<Representer> ImplType;
 
 	template <class F>
 	typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {
 		if (m_impl == 0) {
-			itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
+			itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetParameters");
 		}
 		try {
 			  return f();
@@ -84,16 +84,14 @@ public:
 	}
 
 
-	DataManager() : m_impl(0) {}
+	DataManagerWithSurrogates() : m_impl(0) {}
 
-	virtual ~DataManager() {
+	virtual ~DataManagerWithSurrogates() {
 		if (m_impl) {
 			delete m_impl;
 			m_impl = 0;
 		}
 	}
-
-	ImplType* GetstatismoImplObj() const { return m_impl; }
 
 
   	void SetstatismoImplObj(ImplType* impl) {
@@ -103,35 +101,27 @@ public:
   		m_impl = impl;
   	}
 
+  	void SetRepresenterAndSurrogateFilename(const Representer* representer, const char* surrogTypeFilename) {
+		SetstatismoImplObj(ImplType::Create(representer, surrogTypeFilename));
+  	}
+
 	void SetRepresenter(const Representer* representer) {
-		SetstatismoImplObj(ImplType::Create(representer));
+		itkExceptionMacro(<< "Please call SetRepresenterAndSurrogateFilename to initialize the object");
 	}
 
-	void AddDataset(typename Representer::DatasetType* ds, const char* filename) {
-		callstatismoImpl(std::tr1::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
-	}
 
-	void Load(const char* filename) {
-		try {
-				SetstatismoImplObj(ImplType::Load(filename));
-			}
-		catch (statismo::StatisticalModelException& s) {
-			itkExceptionMacro(<< s.what());
-		}
-	}
 
-	void Save(const char* filename) {
-		callstatismoImpl(std::tr1::bind(&ImplType::Save, this->m_impl, filename));
-	}
-
-	typename statismo::DataManager<Representer>::SampleDataListType GetSampleData() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetSampleData, this->m_impl));
+	void AddDatasetWithSurrogates(typename Representer::DatasetConstPointerType ds,
+			 	 	 	 	 	 	 const char* datasetURI,
+			 	 	 	 	 	 	const char* surrogateFilename) {
+		callstatismoImpl(std::tr1::bind(&ImplType::AddDatasetWithSurrogates, this->m_impl, ds, datasetURI, surrogateFilename));
 	}
 
 
 private:
-	DataManager(const DataManager& orig);
-	DataManager& operator=(const DataManager& rhs);
+
+	DataManagerWithSurrogates(const DataManagerWithSurrogates& orig);
+	DataManagerWithSurrogates& operator=(const DataManagerWithSurrogates& rhs);
 
 	ImplType* m_impl;
 };
@@ -139,4 +129,4 @@ private:
 
 }
 
-#endif /* ITK_DATAMANAGER_H_ */
+#endif /* ITK_DATAMANAGER_WITH_SURROGATES_H_ */

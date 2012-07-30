@@ -66,12 +66,11 @@ vtkPolyData* loadVTKPolyData(const std::string& filename)
 // illustrates the crossvalidation functionality of the data manager
 int main(int argc, char** argv) {
 
-	if (argc < 3) {
-		std::cout << "Usage " << argv[0] << " datadir resultdir" << std::endl;
+	if (argc < 2) {
+		std::cout << "Usage " << argv[0] << " datadir" << std::endl;
 		exit(-1);
 	}
 	std::string datadir(argv[1]);
-	std::string resultdir(argv[2]);
 
 
 	// All the statismo classes have to be parameterized with the RepresenterType.
@@ -84,7 +83,7 @@ int main(int argc, char** argv) {
 
 
 	try {
-		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand_polydata/hand-0.vtk");
+		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand-0.vtk");
 		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference, RepresenterType::RIGID));
 
 		// create a data manager and add a number of datasets for model building
@@ -93,7 +92,7 @@ int main(int argc, char** argv) {
 		for (unsigned i = 0; i < 17; i++) {
 
 				std::ostringstream ss;
-				ss << datadir +"/hand_polydata/hand-" << i << ".vtk";
+				ss << datadir +"/hand-" << i << ".vtk";
 				const std::string datasetFilename = ss.str();
 				vtkPolyData* dataset = loadVTKPolyData(datasetFilename);
 

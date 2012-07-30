@@ -39,7 +39,7 @@
 #ifndef __PARTIALLYFIXEDMODELBUILDER_H_
 #define __PARTIALLYFIXEDMODELBUILDER_H_
 
-
+#include "Config.h"
 #include "ModelBuilder.h"
 #include "DataManager.h"
 #include "StatisticalModel.h"

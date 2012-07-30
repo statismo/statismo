@@ -168,7 +168,7 @@ public:
 	}
 
 	DatasetPointerType DrawSample(bool addNoise = false) const {
-		typedef DatasetPointerType (ImplType::*functype)() const;
+		typedef DatasetPointerType (ImplType::*functype)(bool) const;
 		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, addNoise));
 	}
 

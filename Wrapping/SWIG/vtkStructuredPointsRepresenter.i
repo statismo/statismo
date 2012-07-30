@@ -53,6 +53,9 @@ class vtkStructuredPointsRepresenter {
 public: 
 
 	typedef vtkStructuredPoints DatasetType;
+	typedef vtkStructuredPoints* DatasetPointerType;
+	typedef const vtkStructuredPoints* DatasetConstPointerType;
+
 	typedef vtkNDPixel<TPixel, TDimensions> ValueType; 
 
 %newobject Create;

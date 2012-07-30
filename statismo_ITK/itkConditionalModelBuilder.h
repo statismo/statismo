@@ -36,45 +36,52 @@
  */
 
 
-#ifndef ITK_DATAMANAGER_H_
-#define ITK_DATAMANAGER_H_
-
-#include <boost/tr1/functional.hpp>
+#ifndef ITKMODELBUILDER_H_
+#define ITKMODELBUILDER_H_
 
 #include "itkObject.h"
 #include "itkObjectFactory.h"
+
 #include "statismoITKConfig.h"
-#include "statismo/DataManager.h"
+#include "itkDataManager.h"
+#include "itkStatisticalModel.h"
+#include "statismo/ConditionalModelBuilder.h"
 
 namespace itk
 {
 
-
 /**
- * \brief ITK Wrapper for the statismo::DataManager class.
- * \see statismo::DataManager for detailed documentation.
+ * \brief ITK Wrapper for the statismo::PCAModelBuilder class.
+ * \see statismo::PCAModelBuilder for detailed documentation.
  */
 template <class Representer>
-class DataManager : public Object {
+class ConditionalModelBuilder : public Object {
 public:
 
-
-	typedef DataManager            Self;
+	typedef ConditionalModelBuilder            Self;
 	typedef Object	Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
 	itkNewMacro( Self );
-	itkTypeMacro( DataManager, Object );
+	itkTypeMacro( ConditionalModelBuilder, Object );
 
 
-	typedef statismo::DataManager<Representer> ImplType;
+	typedef statismo::ConditionalModelBuilder<Representer> ImplType;
+	typedef statismo::DataManager<Representer> DataManagerType;
+	typedef typename DataManagerType::SampleDataListType SampleDataListType;
+
+	ConditionalModelBuilder() : m_impl(ImplType::Create()){}
+
+	virtual ~ConditionalModelBuilder() {
+		if (m_impl) {
+			delete m_impl;
+			m_impl = 0;
+		}
+	}
 
 	template <class F>
 	typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {
-		if (m_impl == 0) {
-			itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
-		}
 		try {
 			  return f();
 		}
@@ -84,54 +91,22 @@ public:
 	}
 
 
-	DataManager() : m_impl(0) {}
-
-	virtual ~DataManager() {
-		if (m_impl) {
-			delete m_impl;
-			m_impl = 0;
+		typename StatisticalModel<Representer>::Pointer
+		BuildNewModel(SampleDataListType sampleDataList,
+						const typename statismo::ConditionalModelBuilder<Representer>::SurrogateTypeVectorType& surrogateTypes,
+						const typename statismo::ConditionalModelBuilder<Representer>::CondVariableValueVectorType& conditioningInfo,
+						float noiseVariance)
+		{
+			statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, sampleDataList, surrogateTypes, conditioningInfo, noiseVariance));
+			typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
+			model_itk->SetstatismoImplObj(model_statismo);
+			return model_itk;
 		}
-	}
-
-	ImplType* GetstatismoImplObj() const { return m_impl; }
-
-
-  	void SetstatismoImplObj(ImplType* impl) {
-  		if (m_impl) {
-  			delete m_impl;
-  		}
-  		m_impl = impl;
-  	}
-
-	void SetRepresenter(const Representer* representer) {
-		SetstatismoImplObj(ImplType::Create(representer));
-	}
-
-	void AddDataset(typename Representer::DatasetType* ds, const char* filename) {
-		callstatismoImpl(std::tr1::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
-	}
-
-	void Load(const char* filename) {
-		try {
-				SetstatismoImplObj(ImplType::Load(filename));
-			}
-		catch (statismo::StatisticalModelException& s) {
-			itkExceptionMacro(<< s.what());
-		}
-	}
-
-	void Save(const char* filename) {
-		callstatismoImpl(std::tr1::bind(&ImplType::Save, this->m_impl, filename));
-	}
-
-	typename statismo::DataManager<Representer>::SampleDataListType GetSampleData() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetSampleData, this->m_impl));
-	}
 
 
 private:
-	DataManager(const DataManager& orig);
-	DataManager& operator=(const DataManager& rhs);
+		ConditionalModelBuilder(const ConditionalModelBuilder& orig);
+		ConditionalModelBuilder& operator=(const ConditionalModelBuilder& rhs);
 
 	ImplType* m_impl;
 };
@@ -139,4 +114,4 @@ private:
 
 }
 
-#endif /* ITK_DATAMANAGER_H_ */
+#endif /* ITKMODELBUILDER_H_ */

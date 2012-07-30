@@ -88,7 +88,7 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
 
     RepresenterType::Pointer representer = RepresenterType::New();
 
-    typename MeshReaderType::Pointer refReader = MeshReaderType::New();
+    MeshReaderType::Pointer refReader = MeshReaderType::New();
     refReader->SetFileName(referenceFilename);
     refReader->Update();
     representer->SetReference(refReader->GetOutput());

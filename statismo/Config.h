@@ -35,9 +35,13 @@
  *
  */
 
+#ifndef __STATISMO_CONFIG_H
+#define __STATISMO_CONFIG_H
 
 // gccxml (as used by e.g. wrapitk) does not compile with vectorization enabled.
 #if defined(__GCCXML__)
 #define EIGEN_DONT_VECTORIZE 1
 #define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
+#endif
+
 #endif

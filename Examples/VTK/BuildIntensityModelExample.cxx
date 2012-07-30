@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 	try {
 
 		// Model building is exactly the same as for shape models (see BuildShapeModelExample for detailed explanation)
-		vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand_images/hand-0.vtk");
+		vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand-0.vtk");
 		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
@@ -93,7 +93,7 @@ int main(int argc, char** argv) {
 		for (unsigned i = 0; i < 4; i++) {
 
 			std::ostringstream ss;
-			ss << datadir +"/hand_images/hand-" << i << ".vtk";
+			ss << datadir +"/hand-" << i << ".vtk";
 			const std::string datasetFilename = ss.str();
 			vtkStructuredPoints* dataset = loadVTKStructuredPointsData(datasetFilename);
 

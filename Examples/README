@@ -1,4 +1,4 @@
-C++ example programs that illustrate the basic functionality of statismo. 
+C++ example programs that illustrate the basic functionality of Statismo. 
 The examples illustrate the use of Statismo together with VTK and ITK: 
 
 Compiling the examples:
@@ -11,6 +11,16 @@ Depending on which examples you build, you will also have to have VTK (www.vtk.o
 Running the examples
 --------------------
 Once you have compiled the examples, you can run them on the example data
-provided in the STATISMO_DIR/data folder. 
+provided in the STATISMO_DIR/data folder.
 
+Visualization of the results
+----------------------------
+To view the results (samples drawn from the model) we suggest the use of paraview, which is available at
+www.paraview.org. 
+The HDF5 file, which stores the model information, can for example be viewed using hdfview (http://www.hdfgroup.org/hdf-java-html/hdfview/)
 
+Building models of more interesting structures
+----------------------------------------------
+For simplicity all the examples have been written for the simple example datasets that are provided with statismo (2D images of the hand). 
+Example data  (Faces scans and Femur images) for building more interesting models can be downloaded directly from the projects website.
+ 
