@@ -95,7 +95,7 @@ ModelInfo::Save(const H5::CommonFG& publicFg) const {
 		 builderInfoPublic.close();
 		 publicInfo.close();
 
-	} catch (Exception& e) {
+	} catch (H5::Exception& e) {
 		 std::string msg(std::string("an exception occurred while writing model info HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
@@ -109,7 +109,7 @@ ModelInfo::Load(const H5::CommonFG& publicFg) {
 	Group publicModelGroup = publicFg.openGroup("./modelinfo");
 	try {
 		HDF5Utils::readMatrix(publicModelGroup, "./scores", m_scores);
-	} catch (Exception& e) {
+	} catch (H5::Exception& e) {
 		// the likely cause is that there are no scores. so we set them as empty
 		m_scores.resize(0,0);
 	}

@@ -82,7 +82,7 @@ DataManager<Representer>::Load(const std::string& filename) {
 	try {
 		file = H5File(filename.c_str(), H5F_ACC_RDONLY);
 	}
-	catch (Exception& e) {
+	catch (H5::Exception& e) {
 		 std::string msg(std::string("could not open HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
@@ -112,7 +112,7 @@ DataManager<Representer>::Load(const std::string& filename) {
 		}
 
 
-	} catch (Exception& e) {
+	} catch (H5::Exception& e) {
 		 std::string msg(std::string("an exception occurred while reading data matrix to HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
@@ -134,7 +134,7 @@ DataManager<Representer>::Save(const std::string& filename) const {
 
 	try {
 		 file = H5File( filename.c_str(), H5F_ACC_TRUNC );
-	 } catch (Exception& e) {
+	 } catch (H5::Exception& e) {
 		 std::string msg(std::string("Could not open HDF5 file for writing \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	 }
@@ -164,7 +164,7 @@ DataManager<Representer>::Save(const std::string& filename) const {
 			dsGroup.close();
 			num++;
 		}
-	} catch (Exception& e) {
+	} catch (H5::Exception& e) {
 		 std::string msg(std::string("an exception occurred while writing data matrix to HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
