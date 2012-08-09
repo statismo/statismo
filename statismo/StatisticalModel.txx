@@ -493,7 +493,7 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 	try {
 		file = H5File(filename.c_str(), H5F_ACC_RDONLY);
 	}
-	catch (Exception& e) {
+	catch (H5::Exception& e) {
 		 std::string msg(std::string("could not open HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
@@ -537,7 +537,7 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 		newModel->m_modelInfo.Load(modelRoot);
 
 	}
-	catch (Exception& e) {
+	catch (H5::Exception& e) {
 		 std::string msg(std::string("an exeption occured while reading HDF5 file") +
 				 	 "The most likely cause is that the hdf5 file does not contain the required objects. \n" + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
@@ -595,7 +595,7 @@ StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
 		m_modelInfo.Save(modelRoot);
 
 
-	 } catch (Exception& e) {
+	 } catch (H5::Exception& e) {
 		 std::string msg(std::string("an exception occurred while writing HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
