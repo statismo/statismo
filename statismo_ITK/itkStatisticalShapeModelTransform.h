@@ -85,7 +85,7 @@ public:
 	  {
 		  ::itk::LightObject::Pointer smartPtr;
 		  Pointer another = Self::New().GetPointer();
-		  CopyBaseMembers(another);
+		  this->CopyBaseMembers(another);
 
 		  smartPtr = static_cast<Pointer>(another);
 		  return smartPtr;
