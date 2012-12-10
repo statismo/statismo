@@ -45,7 +45,7 @@
 #include "itkEuclideanDistancePointMetric.h"
 #include "itkLevenbergMarquardtOptimizer.h"
 #include "itkPointSetToPointSetRegistrationMethod.h"
-#include "itkMeshFileReader.h"
+#include "itkVTKPolyDataReader.h"
 #include "itkCommand.h"
 #include "itkMesh.h"
 
@@ -55,7 +55,7 @@ typedef itk::Mesh<float, Dimensions  > MeshType;
 
 typedef itk::MeshRepresenter<float, Dimensions> RepresenterType;
 
-typedef itk::MeshFileReader<MeshType> MeshReaderType;
+typedef itk::VTKPolyDataReader<MeshType> MeshReaderType;
 typedef itk::EuclideanDistancePointMetric<MeshType, MeshType> MetricType;
 
 // As a transform, we use the StatisticalShapeModelTransform, that comes with statismo
@@ -182,7 +182,7 @@ int main(int argc, char* argv[]) {
 	MeshType::Pointer mesh = model->DrawSample(transform->GetCoefficients());
 
 	// Write out the fitting result
-	itk::MeshFileWriter<MeshType>::Pointer writer = itk::MeshFileWriter<MeshType>::New();
+	itk::VTKPolyDataWriter<MeshType>::Pointer writer = itk::VTKPolyDataWriter<MeshType>::New();
 	writer->SetFileName(outputmeshname);
 	writer->SetInput(mesh);
 	writer->Update();

@@ -50,7 +50,7 @@ namespace itk
 template < class TRepresenter, class TScalarType,  unsigned int TDimension >
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TDimension>
 ::StatisticalModelTransformBase() :
-	Superclass(0), // we don't know the number of parameters at this point.
+	Superclass(TDimension, 0), // we don't know the number of parameters at this point.
 	m_StatisticalModel(0),
 	m_coeff_vector(0),
 	m_usedNumberCoefficients(10000) // something large
@@ -160,25 +160,22 @@ StatisticalModelTransformBase<TRepresenter,  TScalarType, TDimension>
 
 
 template < class TRepresenter, class TScalarType,  unsigned int TDimension >
-void
+const typename StatisticalModelTransformBase<TRepresenter,  TScalarType, TDimension>::JacobianType&
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TDimension>
-::ComputeJacobianWithRespectToParameters(const InputPointType  &pt, JacobianType &jacobian)  const
+::GetJacobian(const InputPointType  &pt) const
 {
-	jacobian.SetSize(OutputSpaceDimension, m_StatisticalModel->GetNumberOfPrincipalComponents());
-	jacobian.Fill(0);
+	this->m_Jacobian.set_size(OutputSpaceDimension, m_StatisticalModel->GetNumberOfPrincipalComponents());
+	this->m_Jacobian.Fill(0);
 
 	const MatrixType& statModelJacobian = m_StatisticalModel->GetJacobian(pt);
 
 	for (unsigned i = 0; i < statModelJacobian.rows(); i++) {
 		for (unsigned j = 0; j <  std::min(m_usedNumberCoefficients, (unsigned) this->GetNumberOfParameters()); j++) {
-			jacobian[i][j] = statModelJacobian[i][j];
+			this->m_Jacobian[i][j] = statModelJacobian[i][j];
 		}
 	}
 
-
-	itkDebugMacro( << "Jacobian with MM:\n" << jacobian);
-	itkDebugMacro( << "After GetMorphableModelJacobian:"
-			<< "\nJacobian = \n" << jacobian);
+	return this->m_Jacobian;
 }
 
 

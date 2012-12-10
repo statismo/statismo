@@ -67,8 +67,20 @@ public:
 	typedef SmartPointer<const Self>          ConstPointer;
 
 
-    itkSimpleNewMacro( Self );
-    
+
+	 //itkNewMacro( Self );
+	  static Pointer New(void) {
+
+	    Pointer smartPtr = ::itk::ObjectFactory< Self >::Create();
+	    if(smartPtr.IsNull())
+	      {
+	      smartPtr = static_cast<Pointer>(new Self);
+	      }
+	    smartPtr->UnRegister();
+	    return smartPtr;
+	  }
+
+
 
 	/** Run-time type information (and related methods). */
 	itkTypeMacro(StatisticalDeformationModelTransform,  Superclass);

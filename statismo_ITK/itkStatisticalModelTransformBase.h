@@ -115,7 +115,7 @@ public:
 	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
 
 
-	virtual void ComputeJacobianWithRespectToParameters(const InputPointType  &pt, JacobianType & jacobian) const;
+	virtual const JacobianType& GetJacobian(const InputPointType  &pt) const;
 
 	/**
 	 * Transform a given point according to the deformation induced by the StatisticalModel,

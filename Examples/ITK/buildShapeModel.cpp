@@ -43,8 +43,8 @@
 #include "statismo_ITK/itkDataManager.h"
 #include "itkDirectory.h"
 #include "itkMesh.h"
-#include "itkMeshFileWriter.h"
-#include "itkMeshFileReader.h"
+#include "itkVTKPolyDataWriter.h"
+#include "itkVTKPolyDataReader.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>
@@ -84,7 +84,7 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
 	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
     typedef itk::DataManager<RepresenterType> DataManagerType;
-    typedef itk::MeshFileReader<MeshType> MeshReaderType;
+    typedef itk::VTKPolyDataReader<MeshType> MeshReaderType;
 
     RepresenterType::Pointer representer = RepresenterType::New();
 

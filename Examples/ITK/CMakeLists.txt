@@ -3,7 +3,7 @@ PROJECT(ssm_itk)
 SET(CMAKE_VERBOSE_MAKEFILE ON)
 
 
-FIND_PACKAGE(ITK 4.1 REQUIRED)
+FIND_PACKAGE(ITK REQUIRED)
 include (${ITK_USE_FILE})
 
     
@@ -23,21 +23,21 @@ add_executable (itkBuildDeformationModel buildDeformationModel.cpp
 	${INCLUDE_FILES}
 ) 
 ADD_DEPENDENCIES(itkBuildDeformationModel HDF5)
-target_link_libraries (itkBuildDeformationModel ${ITK_LIBRARIES})
+target_link_libraries (itkBuildDeformationModel ${ITK_LIBRARIES}  ${HDF5_LIBRARIES})
 
 add_executable (itkDeformationModelFitting deformationModelFitting.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
 ADD_DEPENDENCIES(itkDeformationModelFitting HDF5)
-target_link_libraries (itkDeformationModelFitting   ${ITK_LIBRARIES})
+target_link_libraries (itkDeformationModelFitting   ${ITK_LIBRARIES}  ${HDF5_LIBRARIES})
 
 add_executable (itkBuildShapeModel buildShapeModel.cpp 
 	${SOURCE_FILES}
 	${INCLUDE_FILES}
 ) 
 ADD_DEPENDENCIES(itkBuildShapeModel HDF5)
-target_link_libraries (itkBuildShapeModel ${ITK_LIBRARIES} )
+target_link_libraries (itkBuildShapeModel ${ITK_LIBRARIES}  ${HDF5_LIBRARIES})
 
 
 add_executable (itkShapeModelFitting shapeModelFitting.cpp 
@@ -45,7 +45,7 @@ add_executable (itkShapeModelFitting shapeModelFitting.cpp
 	${INCLUDE_FILES}
 ) 
 ADD_DEPENDENCIES(itkShapeModelFitting HDF5)
-target_link_libraries (itkShapeModelFitting  ${ITK_LIBRARIES})
+target_link_libraries (itkShapeModelFitting  ${ITK_LIBRARIES} ${HDF5_LIBRARIES})
 
 INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkShapeModelFitting  RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runITKExamples.sh DESTINATION  bin)

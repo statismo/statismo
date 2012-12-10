@@ -58,7 +58,7 @@ typedef itk::VectorImageRepresenter<float, Dimensions, Dimensions> RepresenterTy
 
 typedef itk::ImageFileReader<ImageType> ImageReaderType;
 //typedef itk::MeanSquaresImageToImageMetric<ImageType, ImageType> MetricType;
-typedef itk::NormalizedCorrelationImageToImageMetric<ImageType, ImageType> MetricType;
+typedef itk::MeanSquaresImageToImageMetric<ImageType, ImageType> MetricType;
 typedef itk::StatisticalDeformationModelTransform<RepresenterType, double, Dimensions> TransformType;
 typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
 typedef itk::ImageRegistrationMethod<ImageType, ImageType> RegistrationFilterType;

@@ -42,8 +42,10 @@
 #include "statismo/HDF5Utils.h"
 #include "statismo/utils.h"
 #include <iostream>
-#include "itkMeshFileReader.h"
-#include "itkMeshFileWriter.h"
+//#include "itkMeshFileReader.h"
+//#include "itkMeshFileWriter.h"
+#include "itkVTKPolyDataReader.h"
+#include "itkVTKPolyDataWriter.h"
 #include "itkTransformMeshFilter.h"
 #include "itkIdentityTransform.h"
 
@@ -253,12 +255,12 @@ MeshRepresenter<TPixel, MeshDimension>::GetPointIdForPoint(const PointType& pt) 
 template <class TPixel, unsigned MeshDimension>
 typename MeshRepresenter<TPixel, MeshDimension>::DatasetPointerType
 MeshRepresenter<TPixel, MeshDimension>::ReadDataset(const char* filename) {
-    typename itk::MeshFileReader<MeshType>::Pointer reader = itk::MeshFileReader<MeshType>::New();
+    typename itk::VTKPolyDataReader<MeshType>::Pointer reader = itk::VTKPolyDataReader<MeshType>::New();
     reader->SetFileName(filename);
     try {
         reader->Update();
     }
-    catch (itk::MeshFileReaderException& e) {
+    catch (itk::ExceptionObject& e) {
         throw StatisticalModelException((std::string("Could not read file ") + filename).c_str());
     }
 
@@ -267,13 +269,13 @@ MeshRepresenter<TPixel, MeshDimension>::ReadDataset(const char* filename) {
 
 template <class TPixel, unsigned MeshDimension>
 void MeshRepresenter<TPixel, MeshDimension>::WriteDataset(const char* filename, const MeshType* mesh) {
-    typename itk::MeshFileWriter<MeshType>::Pointer writer =itk::MeshFileWriter<MeshType>::New();
+    typename itk::VTKPolyDataWriter<MeshType>::Pointer writer =itk::VTKPolyDataWriter<MeshType>::New();
     writer->SetFileName(filename);
     writer->SetInput(mesh);
     try {
 		writer->Update();
     }
-    catch (itk::MeshFileWriterException& e) {
+    catch (itk::ExceptionObject& e) {
         throw StatisticalModelException((std::string("Could not write file ") + filename).c_str());
     }
 
