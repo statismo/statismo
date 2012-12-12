@@ -182,9 +182,12 @@ public:
 		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), ptid, addNoise));
 	}
 
-
 	VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const {
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataset, this->m_impl, ds)));
+	}
+
+	VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const {
+		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForSample, this->m_impl, ds)));
 	}
 
 	double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
