@@ -46,7 +46,7 @@
 
 #include "statismoITKConfig.h"
 #include "statismo/StatisticalModel.h"
-
+#include "statismo/SampleData.h"
 #include <boost/tr1/functional.hpp>
 
 namespace itk
@@ -109,6 +109,8 @@ public:
 
 	typedef typename Representer::DatasetPointerType DatasetPointerType;
 	typedef typename Representer::DatasetConstPointerType DatasetConstPointerType;
+
+	typedef statismo::SampleData<Representer> SampleDataType;
 
 	typedef typename Representer::ValueType ValueType;
 	typedef typename Representer::PointType PointType;
@@ -189,6 +191,11 @@ public:
 	VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const {
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForSample, this->m_impl, ds)));
 	}
+	
+	VectorType ComputeCoefficientsForDataSample(const SampleDataType* sample) const {
+		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataSample, this->m_impl, sample)));
+	}
+
 
 	double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfDataset, this->m_impl, ds));

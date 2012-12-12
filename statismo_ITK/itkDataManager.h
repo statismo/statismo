@@ -69,6 +69,9 @@ public:
 
 
 	typedef statismo::DataManager<Representer> ImplType;
+	typedef typename statismo::DataManager<Representer>::SampleDataType     SampleDataType;
+	typedef typename statismo::DataManager<Representer>::SampleDataListType SampleDataListType;
+	
 
 	template <class F>
 	typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {

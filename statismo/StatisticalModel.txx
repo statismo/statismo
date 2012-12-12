@@ -256,6 +256,12 @@ StatisticalModel<Representer>::ComputeCoefficientsForSample(DatasetConstPointerT
 
 template <typename Representer>
 VectorType
+StatisticalModel<Representer>::ComputeCoefficientsForDataSample(const SampleDataType* sample) const {
+	return ComputeCoefficientsForSampleVector( sample->GetSampleVector() );
+}
+
+template <typename Representer>
+VectorType
 StatisticalModel<Representer>::ComputeCoefficientsForSampleVector(const VectorType& sample) const {
 
 	CheckAndUpdateCachedParameters();

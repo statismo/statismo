@@ -46,6 +46,8 @@
 #include <vector>
 #include <limits>
 
+#include "SampleData.h"
+
 namespace H5 { 
 class Group;
 }
@@ -115,7 +117,7 @@ public:
 	typedef std::list<PointValuePairType> PointValueListType;
 	typedef std::list<PointIdValuePairType> PointIdValueListType;
 
-
+	typedef SampleData<Representer> SampleDataType;
 
 
 	/**
@@ -402,7 +404,9 @@ public:
 	 *
 	 * @returns The coefficient vectro \f$\alpha\f$
 	 */
-	VectorType ComputeCoefficientsForSample(DatasetConstPointerType sample) const;
+	VectorType ComputeCoefficientsForSample(DatasetConstPointerType dataset) const;
+
+	VectorType ComputeCoefficientsForDataSample(const SampleDataType* sample) const;
 
 
 	/**
