@@ -46,7 +46,6 @@
 
 #include "statismoITKConfig.h"
 #include "statismo/StatisticalModel.h"
-#include "statismo/ModelInfo.h"
 
 #include <boost/tr1/functional.hpp>
 
@@ -73,9 +72,6 @@ public:
 
 	// statismo stuff
 	typedef statismo::StatisticalModel<Representer> ImplType;
-	
-	typedef typename statismo::DataManager<Representer>::SampleDataType     SampleDataType;
-	
 	typedef vnl_matrix<statismo::ScalarType> MatrixType;
 	typedef vnl_vector<statismo::ScalarType> VectorType;
 
@@ -191,14 +187,6 @@ public:
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataset, this->m_impl, ds)));
 	}
 
-	VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForSample, this->m_impl, ds)));
-	}
-
-	VectorType ComputeCoefficientsForDataSample(const SampleDataType* sample) const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataSample, this->m_impl, sample)));
-	}
-	
 	double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfDataset, this->m_impl, ds));
 	}
@@ -256,10 +244,6 @@ public:
 
 	VectorType GetMeanVector() const {
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::GetMeanVector, this->m_impl)));
-	}
-
-	const statismo::ModelInfo& GetModelInfo() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetModelInfo, this->m_impl));
 	}
 
 private:

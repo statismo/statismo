@@ -284,7 +284,7 @@ StatisticalModel<Representer>::ComputeCoefficientsForPointValues(const PointValu
 
 template <typename Representer>
 VectorType
-StatisticalModel<Representer>::ComputeCoefficientsForPointValues(const PointIdValueListType&  pointIdValueList, double pointValueNoiseVariance) const {
+StatisticalModel<Representer>::ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointIdValueList, double pointValueNoiseVariance) const {
 
 	unsigned dim = Representer::GetDimensions();
 

@@ -52,6 +52,7 @@
  *
  * \warning This class is never actually used, but serves only for documentation purposes.
  */
+ //RB: would it be possible to make all representers inherit from it, so as to strictly enforce the interface?
 class Representer {
 public:
 
