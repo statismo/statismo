@@ -4,6 +4,6 @@
 .project
 .pydevproject
 .settings
-build*
+build/*
 CMakeCache.txt
 CMakeFiles
