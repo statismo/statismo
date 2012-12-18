@@ -76,7 +76,7 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
 }
 
 /*
- * Reads a .vtk image, and convert it into ITK format
+ * Reads input images
 */
  
 ImageType::Pointer ReadImageFromFile(const std::string& filename) {
@@ -88,7 +88,7 @@ ImageType::Pointer ReadImageFromFile(const std::string& filename) {
 
 
 
-void buildImageIntensityModelOnROI(const char* referenceFilename, const char* maskFilename, const char* dir, const char* modelname) {
+void buildImageIntensityModelOnROI(const char* referenceFilename, const char* maskFilename, const char* dir, const char* outputImageFilename) {
 
 
 	typedef itk::PCAModelBuilder<RepresenterType> ModelBuilderType;
@@ -119,26 +119,32 @@ void buildImageIntensityModelOnROI(const char* referenceFilename, const char* ma
 
 	ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleData(), 0);
-    model->Save(modelname);
 
     std::cout<<"dimensionality of the data: "<<model->GetDomain().GetNumberOfPoints()<<", dimension of the images: "<<(*dataManager->GetSampleData().begin())->GetAsNewSample()->GetLargestPossibleRegion().GetNumberOfPixels()<<std::endl;
 
+    std::cout<<"writing the mean sample to a png file..."<<std::endl;
+    
+	typedef itk::ImageFileWriter< ImageType > ImageWriterType;
+	ImageWriterType::Pointer writer = ImageWriterType::New();
+	writer->SetFileName( outputImageFilename );
+	writer->SetInput(model->DrawSample());
+    writer->Update();
 
 }
 
 int main(int argc, char* argv[]) {
 
 	if (argc < 5) {
-		std::cout << "usage " << argv[0] << " referenceShape ROIFilename shapeDir modelname" << std::endl;
+		std::cout << "usage " << argv[0] << " referenceShape ROIFilename shapeDir outputImage" << std::endl;
 		exit(-1);
 	}
 
 	const char* reference = argv[1];
 	const char* maskFilename = argv[2];
 	const char* dir = argv[3];
-	const char* modelname = argv[4];
+	const char* outputImageFilename = argv[4];
     
-	buildImageIntensityModelOnROI(reference, maskFilename, dir, modelname);
+	buildImageIntensityModelOnROI(reference, maskFilename, dir, outputImageFilename);
 
 	std::cout << "Model building is completed successfully." << std::endl;
 }
