@@ -431,7 +431,8 @@ public:
 	 * \param pointValues A list with (Point,Value) pairs, a list of (PointId, Value) is provided.
 	 * \param pointValueNoiseVariance The variance of estimated (gaussian) noise at the known points
 	 */
-	VectorType ComputeCoefficientsForPointValues(const PointIdValueListType&  pointValues, double pointValueNoiseVariance=0.0) const;
+	 //RB: I had to modify the method name, to avoid prototype collisions when the PointType corresponds to unsigned (= type of the point id)
+	VectorType ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointValues, double pointValueNoiseVariance=0.0) const;
 
 	/**
 	 * Computes the coefficients of the latent variables in a robust way.

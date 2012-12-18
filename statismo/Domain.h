@@ -46,6 +46,7 @@ namespace statismo {
  * This class represents the domain on which a statistical model is defined.
  * A domain is simply a list of points.
  */
+//RB: enable adding / removing elements to avoid copying data? 
 template <typename PointType>
 class Domain {
 public:

@@ -75,7 +75,7 @@ VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>*
 VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::Clone() const {
 	VectorImageRepresenter* clone = new VectorImageRepresenter();
 	clone->Register();
-	CloneBaseMembers(clone);
+	this->CloneBaseMembers(clone);
 	return clone;
 }
 
