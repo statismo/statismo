@@ -51,7 +51,7 @@ namespace itk {
 /**
  * \ingroup Representers
  * \brief A representer for scalar valued itk Images, restricted within a ROI specified through a binary mask
- * \warning for efficiency reasons, all images must be defined on the exact same grid of pixels
+ * \warning the images must be defined on the exact same grid of pixels (same number of pixels in every dimension)
  */
 
 template <class TPixel, unsigned ImageDimension, class TMaskPixel = unsigned char>
@@ -109,6 +109,7 @@ public:
 	/** Set the reference that is used to build the model
 	 * if the mask is not specified, the full image is used,
 	 * otherwise the pixels with mask value 0 are excluded from the model
+	 * any non-zero value is considered 'inside'
 	 */
 	void SetReference(ImageType* ds, MaskType* mask = NULL);
 
@@ -152,7 +153,6 @@ private:
 	DatasetConstPointerType m_reference;
 	MaskConstPointerType    m_mask;
 	DomainType m_domain;
-	//m_mapPointIDToInternalIdx has as many entries as pixels in the image. The value m_mapInternalIdxToPointID[i] is the index number of the corresponding point in the internal vector representation, while masked out pixels are pointing to std::numeric_limits<unsigned int>::max()
 	std::vector<unsigned> m_mapPointIDToInternalIdx;
 };
 
