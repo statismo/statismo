@@ -1,0 +1,14 @@
+FIND_PACKAGE(STATISMO REQUIRED)
+include_directories(${STATISMO_INCLUDE_DIRS})
+link_directories(${STATISMO_LIBRARY_DIR})
+
+ADD_ELXCOMPONENT( StatisticalDeformationModelTransformElastix
+ #itkStatisticalDeformationModelTransformInitializer.h
+ #itkStatisticalDeformationModelTransformInitializer.hxx
+ itkAdvancedStatisticalDeformationModelTransform.h
+ itkAdvancedStatisticalModelTransformBase.h
+ itkAdvancedStatisticalModelTransformBase.txx
+ elxStatisticalDeformationModelTransform.h
+ elxStatisticalDeformationModelTransform.hxx
+ elxStatisticalDeformationModelTransform.cxx )
+
