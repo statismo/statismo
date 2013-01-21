@@ -80,8 +80,8 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& samp
 	}
 	conditions->resize(nbContinuousSurrogatesInUse);
 	for (unsigned i=0 ; i<nbContinuousSurrogatesInUse ; i++) (*conditions)(i) = conditioningInfo[i].second;
-	surrogateMatrix->resize(nbContinuousSurrogatesInUse, sampleDataList.size()); //number of variables is now known: nbContinuousSurrogatesInUse ; the number of samples is yet unknown... //CHECK FOR ROWS / COLUMNS
-
+	surrogateMatrix->resize(nbContinuousSurrogatesInUse, sampleDataList.size()); //number of variables is now known: nbContinuousSurrogatesInUse ; the number of samples is yet unknown... 
+	
 	//now, browse all samples to select the ones which fall into the requested categories
 	for (typename SampleDataListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
 	{
@@ -133,8 +133,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 	unsigned nSamples = PrepareData(sampleDataList, surrogateTypes, conditioningInfo, &acceptedSamples, &X, &x0);
 	assert(nSamples == acceptedSamples.size());
 
-	unsigned nCondVariables = X.cols();
-
+	unsigned nCondVariables = X.rows();
 
 	// build a normal PCA model
 	typedef PCAModelBuilder<Representer> PCAModelBuilderType;
@@ -181,7 +180,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 		// compute the conditional covariance
 		MatrixType condCov = Sbb - Sbx * Sxx.inverse() * Sbx.transpose();
 
-
+		
 		// get the sample mean corresponding the the conditional given mean of the parameter vectors
 		VectorType condMeanSample = pcaModel->GetRepresenter()->SampleToSampleVector(pcaModel->DrawSample(condMean));
 
@@ -207,7 +206,16 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 		typename ModelInfo::BuilderInfoList bi;
 		bi.push_back(ModelInfo::KeyValuePair("BuilderName ", "ConditionalModelBuilder"));
 		bi.push_back(ModelInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
-		bi.push_back(ModelInfo::KeyValuePair("WARNING ", "The conditional model builder does not save all of its parameters yet"));
+		
+		//generate a matrix ; first column = boolean (yes/no, this variable is used) ; second: conditioning value.
+		MatrixType conditioningInfoMatrix(conditioningInfo.size(), 2);
+		for (unsigned i=0 ; i<conditioningInfo.size() ; i++) {
+			conditioningInfoMatrix(i,0) = conditioningInfo[i].first;
+			conditioningInfoMatrix(i,1) = conditioningInfo[i].second;
+		}
+		bi.push_back(ModelInfo::KeyValuePair("ConditioningInfo ", Utils::toString(conditioningInfoMatrix)));
+		//Is this all that is necessary? do something special when loading?
+		//bi.push_back(ModelInfo::KeyValuePair("WARNING ", "The conditional model builder does not save all of its parameters yet"));
 
 		typename ModelInfo::DataInfoList di = pcaModel->GetModelInfo().GetDataInfo();
 
