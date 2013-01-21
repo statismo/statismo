@@ -239,6 +239,33 @@ DataManager<Representer>::GetCrossValidationFolds(unsigned nFolds, bool randomiz
 }
 
 
+template <typename Representer>
+typename DataManager<Representer>::CrossValidationFoldListType
+DataManager<Representer>::GetLeaveOneOutCrossValidationFolds() const {
+CrossValidationFoldListType foldList;
+	for (unsigned currentFold = 0; currentFold < GetNumberOfSamples(); currentFold++)
+	{
+		SampleDataListType trainingData;
+		SampleDataListType testingData;
+
+		unsigned sampleNum = 0;
+		for (typename SampleDataListType::const_iterator it = m_sampleDataList.begin();
+			  it != m_sampleDataList.end();
+			  ++it, ++sampleNum)
+		{
+			if (sampleNum == currentFold) {
+				testingData.push_back(*it);
+			}
+			else {
+				trainingData.push_back(*it);
+			}
+		}
+		CrossValidationFoldType fold(trainingData, testingData);
+		foldList.push_back(fold);
+	}
+	return foldList;
+}
+
 
 
 
