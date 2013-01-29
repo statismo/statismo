@@ -156,7 +156,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 		// Thus the i-th row of A contains the PCA parameters b of the i-th sample,
 		// together with the conditional information for each sample
 		MatrixType A(nSamples, nPCAComponents+nCondVariables);
-		A << B, X;
+		A << B,X.transpose();
 
 		// Compute the mean and the covariance of the joint data matrix
 		VectorType mu = A.colwise().mean().transpose(); // colwise returns a row vector
@@ -179,7 +179,6 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 
 		// compute the conditional covariance
 		MatrixType condCov = Sbb - Sbx * Sxx.inverse() * Sbx.transpose();
-
 		
 		// get the sample mean corresponding the the conditional given mean of the parameter vectors
 		VectorType condMeanSample = pcaModel->GetRepresenter()->SampleToSampleVector(pcaModel->DrawSample(condMean));

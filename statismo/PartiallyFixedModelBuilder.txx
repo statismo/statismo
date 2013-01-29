@@ -112,7 +112,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 	VectorType D2 = inputModel->GetPCAVarianceVector().array() - pointValuesNoiseVariance;
 	// the values of D2 can be negative. We need to be careful when taking the root
 	for (unsigned i = 0; i < D2.rows(); i++) {
-		D2(i) = std::max((float) 0, D2(i));
+		D2(i) = std::max((ScalarType) 0, D2(i));
 	}
 	VectorType D = D2.array().sqrt();
 
