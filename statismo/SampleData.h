@@ -41,7 +41,7 @@
 #include "CommonTypes.h"
 
 namespace statismo {
-/*
+/* \class SampleData
  * \brief Holds all the information for a given sample.
  */
 template <typename Representer>
@@ -88,7 +88,7 @@ public:
 
 	/**
 	 * Returns the sample in the representation given by the representer
-	 * \warning A new sample is created. The user is responsible for releasing it.
+	 * \warning This method generates a new object containing the sample. If the Representer does not provide a smart pointer, the user is responsible for releasing memory.
 	 */
 	const DatasetPointerType GetAsNewSample() const { return m_representer->SampleVectorToSample(m_sampleVector); }
 
@@ -119,6 +119,16 @@ protected:
 	std::string m_URI;
 	VectorType m_sampleVector;
 };
+
+
+
+
+/* \class SampleDataWithSurrogates
+ * \brief Holds all the information for a given sample.
+ * In particular, it enables to associate categorical or continuous variables with a sample, in a vectorial representation.
+ * The vector is provided by a file providing the values in ascii format (empty space or EOL separating the values)
+ * \sa DataManagerWithSurrogates
+ */
 
 template <typename Representer>
 class SampleDataWithSurrogates : public SampleData<Representer>

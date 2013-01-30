@@ -100,8 +100,12 @@ private:
  * to leave a few datasets out to validate the model. For this purpose, the DataManager class implements basic
  * crossvalidation functionality.
  *
- * Internally, the data is kept as a large matrix. This datamatrix is built from the training data,
- * once the DataManager::LoadData method is called.
+ * Note that while Dataset are provided, the Representer class automatically converts them into Samples (Representer::DatasetToSample)
+ * For efficiency purposes, the data is internally stored as a large matrix, using the internal SampleVector representation (Representer::DatasetToSample).
+ * Furthermore, Statismo emphasizes on traceability, and ties information with the datasets, such as the original filename.
+ * This means that when accessing the data stored in the DataManager, one gets a SampleData structure
+ * \sa Representer
+ * \sa SampleData
  */
 template <typename Representer>
 class DataManager {
@@ -165,6 +169,7 @@ public:
 
 	/**
 	 * return a list with all the sample data objects managed by the data manager
+	 * \sa SampleData
 	 */
 	SampleDataListType GetSampleData() const;
 

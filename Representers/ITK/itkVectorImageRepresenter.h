@@ -50,6 +50,7 @@ namespace itk {
 /**
  * \ingroup Representers
  * \brief A representer for itkVector images
+ * \sa Representer
  */
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>

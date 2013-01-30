@@ -45,15 +45,12 @@ namespace statismo {
 
 /**
  * \brief Manages Training and Test Data for building Statistical Models and provides functionality for Crossvalidation.
- *
- * The DataManager class provides functionality for loading and managing data sets to be used in the
- * statistical model. The datasets are loaded either by using DataManager::AddDataset or directly from a hdf5 File using
- * the Load function. Per default all the datasets are marked as training data. It is, however, often useful
- * to leave a few datasets out to validate the model. For this purpose, the DataManager class implements basic
- * crossvalidation functionality.
- *
- * Internally, the data is kept as a large matrix. This datamatrix is built from the training data,
- * once the DataManager::LoadData method is called.
+ * Manages data together with surrogate information.
+ * The surrogate variables are provided through a vector (see DataManager), and can contain both continuous or categorical data.
+ * The surrogate data is provided through files. One file for each dataset, and one file describing the types of surrogates. This file is also an ascii file 
+ * with space or EOL separated values. Those values are either 0 or 1, standing for respectively categorical or continuous variable.
+ * This class does not support any missing data, so each dataset must come with a surrogate data file, all of which must contain the same number of entries as the type-file.
+ * \sa DataManager
  */
 template <typename Representer>
 class DataManagerWithSurrogates : public DataManager<Representer> {
@@ -103,7 +100,7 @@ protected:
 
 	/**
 	 * Loads the information concerning the types of the surrogates variables (categorical=0, continuous=1)
-	 * => it is assumed to be in a text file with the entries separated by spaces
+	 * => it is assumed to be in a text file with the entries separated by spaces or EOL character
 	 */
 	void LoadSurrogateTypes(const std::string& filename);
 

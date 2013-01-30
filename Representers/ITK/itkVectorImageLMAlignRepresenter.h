@@ -50,6 +50,7 @@
  * This class provides a specialization of the Representer for the type itkImage.
  *
  * See Representer for more details about representer classes
+ * \sa Representer
  */
 
 namespace itk {
