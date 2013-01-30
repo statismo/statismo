@@ -182,6 +182,10 @@ public:
 	 */
 	CrossValidationFoldListType GetCrossValidationFolds(unsigned nFolds, bool randomize = true) const;
 
+	/**
+	 * Generates Leave-one-out cross validation folds
+	 */
+	CrossValidationFoldListType GetLeaveOneOutCrossValidationFolds() const;
 
 
 
