@@ -7,6 +7,12 @@ mkdir $RESDIR
 # build a shape model from the hand data
 ./itkBuildShapeModel $DATADIR/hand_polydata/hand-0.vtk $DATADIR/hand_polydata/ $RESDIR/itkShapeModel.h5
 
+# build a shape model from the hand data keeping 75pc of the total variance
+./itkBuildShapeModel_75pcvar $DATADIR/hand_polydata/hand-0.vtk $DATADIR/hand_polydata/ $RESDIR/itkShapeModel_75pcvar.h5
+
+# build an Image Intensity model using a ROI to ignore some pixels of the images
+./itkBuildImageIntensityModelOnROI $DATADIR/hand_images/hand-0.vtk $DATADIR/hand_images/hand_ROI.png $DATADIR/hand_images/ $RESDIR/ImageModelWithROI_Mean.vtk
+
 # Fitting the shape model to a point set (mesh)
 ./itkShapeModelFitting $RESDIR/itkShapeModel.h5 $DATADIR/hand_polydata/hand-1.vtk $RESDIR/fitted-hand-shape.vtk
  

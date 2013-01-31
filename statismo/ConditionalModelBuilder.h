@@ -112,7 +112,8 @@ public:
 	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleSet,
 										const SurrogateTypeVectorType& surrogateTypes,
 										const CondVariableValueVectorType& conditioningInfo,
-										float noiseVariance) const;
+										float noiseVariance,
+										double modelVarianceRetained = 1) const;
 
 private:
 

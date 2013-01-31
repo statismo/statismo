@@ -80,12 +80,10 @@ protected:
 
 	ModelInfo CollectModelInfo() const;
 
-
 private:
 	// private - to prevent use	
 	ModelBuilder(const ModelBuilder& orig);				
 	ModelBuilder& operator=(const ModelBuilder& rhs);
-
 
 };
 

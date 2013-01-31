@@ -76,7 +76,7 @@ public:
 	 * The same effect can be achieved by deleting the object in the usual
 	 * way using the c++ delete keyword.
 	 */
-	void Delete() {delete this; }
+	void Delete() { delete this; }
 
 
 	/**
@@ -95,7 +95,8 @@ public:
 	 * \return A new Statistical model
 	 * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& samples, double noiseVariance, bool computeScores = true) const;
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& samples, double noiseVariance, 
+	                                    double modelVarianceRetained = 1, bool computeScores = true) const;
 
 
 private:
@@ -104,7 +105,8 @@ private:
 	PCAModelBuilder(const PCAModelBuilder& orig);
 	PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
 
-	StatisticalModelType* BuildNewModelInternal(const Representer* representer, const MatrixType& X, double noiseVariance) const;
+	StatisticalModelType* BuildNewModelInternal(const Representer* representer, const MatrixType& X, double noiseVariance, 
+	                                            double modelVarianceRetained = 1) const;
 
 
 };

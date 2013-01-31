@@ -124,7 +124,8 @@ typename ConditionalModelBuilder<Representer>::StatisticalModelType*
 ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList,
 													const SurrogateTypeVectorType& surrogateTypes,
 													const CondVariableValueVectorType& conditioningInfo,
-													float noiseVariance) const
+													float noiseVariance,										
+													double modelVarianceRetained) const
 {
 
 	SampleDataStructureListType acceptedSamples;
@@ -139,6 +140,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 	typedef PCAModelBuilder<Representer> PCAModelBuilderType;
 	PCAModelBuilderType* modelBuilder = PCAModelBuilderType::Create();
 	StatisticalModelType* pcaModel = modelBuilder->BuildNewModel(acceptedSamples, noiseVariance);
+	double totalDataVariance = pcaModel->GetTotalDataVariance();
 	unsigned nPCAComponents = pcaModel->GetNumberOfPrincipalComponents();
 	
 	if ( X.cols() == 0 || X.rows() == 0)
@@ -169,7 +171,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 		assert(cov.rows() == pcaModel->GetNumberOfPrincipalComponents() + nCondVariables);
 
 		// extract the submatrices involving the conditionals x
-		// note that since the matrix is symmetrix, Sbx = Sxb.transpose(), hence we only store one
+		// note that since the matrix is symmetric, Sbx = Sxb.transpose(), hence we only store one
 		MatrixType Sbx = cov.topRightCorner(nPCAComponents, nCondVariables);
 		MatrixType Sxx = cov.bottomRightCorner(nCondVariables, nCondVariables);
 		MatrixType Sbb = cov.topLeftCorner(nPCAComponents, nPCAComponents);
@@ -194,11 +196,25 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 		typedef Eigen::JacobiSVD<MatrixTypeDoublePrecision> SVDType;
 		MatrixTypeDoublePrecision innerMatrix = pcaSdev.asDiagonal() * condCov.cast<double>() * pcaSdev.asDiagonal();
 		SVDType svd(innerMatrix, Eigen::ComputeThinU);
+  	VectorType singularValues = svd.singularValues().cast<ScalarType>();
 
-		VectorType newPCAVariance = svd.singularValues().cast<ScalarType>();
-		MatrixType newPCABasisMatrix = pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>();
+    // keep only the necessary number of modes, wrt modelVarianceRetained...
+    double totalRemainingVariance = singularValues.sum(); //
+    //and count the number of modes required for the model
+    double cumulatedVariance = singularValues(0);
+    unsigned numComponentsToReachPrescribedVariance = 1;
+    while ( cumulatedVariance/totalRemainingVariance < modelVarianceRetained ) {
+      numComponentsToReachPrescribedVariance++;
+      if (numComponentsToReachPrescribedVariance==singularValues.size()) break;
+      cumulatedVariance += singularValues(numComponentsToReachPrescribedVariance-1);
+    }
 
-		StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(), condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance);
+    unsigned numComponentsToKeep = std::min<unsigned>( numComponentsToReachPrescribedVariance, singularValues.size() );
+
+  	VectorType newPCAVariance = singularValues.topRows(numComponentsToKeep);
+  	MatrixType newPCABasisMatrix = (pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).topLeftCorner(X.cols(), numComponentsToKeep);
+
+		StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(), condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance, totalDataVariance);
 
 		// add builder info and data info to the info list
 		MatrixType scores(0,0);
