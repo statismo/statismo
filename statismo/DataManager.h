@@ -45,7 +45,7 @@
 #include "Exceptions.h"
 #include "HDF5Utils.h"
 #include "ModelInfo.h"
-#include "SampleData.h"
+#include "SampleDataStructure.h"
 
 #include <list>
 
@@ -59,8 +59,8 @@ namespace statismo {
 template <typename Representer>
 class CrossValidationFold {
 public:
-	typedef SampleData<Representer> SampleDataType;
-	typedef std::list<const SampleDataType*> SampleDataListType;
+	typedef SampleDataStructure<Representer> SampleDataStructureType;
+	typedef std::list<const SampleDataStructureType*> SampleDataStructureListType;
 
 	/***
 	 * Create an empty fold
@@ -70,24 +70,24 @@ public:
 	/**
 	 * Create a fold with the given trainingData and testingData
 	 */
-	CrossValidationFold(const SampleDataListType& trainingData, const SampleDataListType& testingData)
+	CrossValidationFold(const SampleDataStructureListType& trainingData, const SampleDataStructureListType& testingData)
 	: m_trainingData(trainingData), m_testingData(testingData)
 	{}
 
 	/**
 	 * Get a list holding the training data
 	 */
-	SampleDataListType GetTrainingData() const { return m_trainingData; }
+	SampleDataStructureListType GetTrainingData() const { return m_trainingData; }
 
 	/**
 	 * Get a list holding the testing data
 	 */
-	SampleDataListType GetTestingData() const { return m_testingData; }
+	SampleDataStructureListType GetTestingData() const { return m_testingData; }
 
 
 private:
-	SampleDataListType m_trainingData;
-	SampleDataListType m_testingData;
+	SampleDataStructureListType m_trainingData;
+	SampleDataStructureListType m_testingData;
 };
 
 
@@ -100,8 +100,12 @@ private:
  * to leave a few datasets out to validate the model. For this purpose, the DataManager class implements basic
  * crossvalidation functionality.
  *
- * Internally, the data is kept as a large matrix. This datamatrix is built from the training data,
- * once the DataManager::LoadData method is called.
+ * Note that while Dataset are provided, the Representer class automatically converts them into Samples (Representer::DatasetToSample)
+ * For efficiency purposes, the data is internally stored as a large matrix, using the internal SampleVector representation (Representer::DatasetToSample).
+ * Furthermore, Statismo emphasizes on traceability, and ties information with the datasets, such as the original filename.
+ * This means that when accessing the data stored in the DataManager, one gets a SampleDataStructure structure
+ * \sa Representer
+ * \sa SampleDataStructure
  */
 template <typename Representer>
 class DataManager {
@@ -113,9 +117,9 @@ class DataManager {
 public:
 	typedef Representer RepresenterType;
 
-	typedef SampleData<Representer> SampleDataType;
-	typedef SampleDataWithSurrogates<Representer> SampleDataWithSurrogatesType;
-	typedef std::list<const SampleDataType*> SampleDataListType;
+	typedef SampleDataStructure<Representer> SampleDataStructureType;
+	typedef SampleDataStructureWithSurrogates<Representer> SampleDataStructureWithSurrogatesType;
+	typedef std::list<const SampleDataStructureType*> SampleDataStructureListType;
 	typedef CrossValidationFold<Representer> CrossValidationFoldType;
 	typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
 
@@ -165,13 +169,14 @@ public:
 
 	/**
 	 * return a list with all the sample data objects managed by the data manager
+	 * \sa SampleDataStructure
 	 */
-	SampleDataListType GetSampleData() const;
+	SampleDataStructureListType GetSampleDataStructure() const;
 
 	/**
 	 * returns the number of samples managed by the datamanager
 	 */
-	unsigned GetNumberOfSamples() const { return m_sampleDataList.size(); }
+	unsigned GetNumberOfSamples() const { return m_SampleDataStructureList.size(); }
 
 	/**
 	 * Assigns the data to one of n Folds to be used for cross validation.
@@ -198,7 +203,7 @@ protected:
 	Representer* m_representer; // TODO make this a shared pointer
 
 	// members
-	SampleDataListType m_sampleDataList;
+	SampleDataStructureListType m_SampleDataStructureList;
 };
 
 }

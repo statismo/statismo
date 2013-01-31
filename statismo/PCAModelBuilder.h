@@ -64,7 +64,7 @@ public:
 	typedef ModelBuilder<Representer> Superclass;
 	typedef typename Superclass::DataManagerType DataManagerType;
 	typedef typename Superclass::StatisticalModelType StatisticalModelType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
 	/**
 	 * Factory method to create a new PCAModelBuilder
@@ -95,7 +95,7 @@ public:
 	 * \return A new Statistical model
 	 * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataListType& samples, double noiseVariance, bool computeScores = true) const;
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& samples, double noiseVariance, bool computeScores = true) const;
 
 
 private:

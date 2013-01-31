@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 	typedef StatisticalModel<RepresenterType> StatisticalModelType;
 	typedef PCAModelBuilder<RepresenterType> ModelBuilderType;
 	typedef DataManagerType::CrossValidationFoldListType CVFoldListType;
-	typedef DataManagerType::SampleDataListType SampleDataListType;
+	typedef DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
 
 	try {
@@ -122,13 +122,13 @@ int main(int argc, char** argv) {
 			std::cout << "built model with  " << model->GetNumberOfPrincipalComponents() << " principal components"<< std::endl;
 
 			// Now we can iterate over the test data and do whatever validation we would like to do.
-			const SampleDataListType testSamplesList = it->GetTestingData();
+			const SampleDataStructureListType testSamplesList = it->GetTestingData();
 
-			for (SampleDataListType::const_iterator it = testSamplesList.begin();
+			for (SampleDataStructureListType::const_iterator it = testSamplesList.begin();
 					it != testSamplesList.end();
 					++it)
 			{
-				vtkPolyData* testSample = (*it)->GetAsNewSample();
+				vtkPolyData* testSample = (*it)->GetSample();
 				std::cout << "probability of test sample under the model: " << model->ComputeProbabilityOfDataset(testSample) << std::endl;
 
 				// We are responsible for deleting the sample.

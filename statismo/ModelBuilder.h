@@ -58,7 +58,7 @@ public:
 
 	typedef StatisticalModel<Representer> StatisticalModelType;
 	typedef DataManager<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
 	// Values below this tolerance are treated as 0.
 	static const double TOLERANCE;

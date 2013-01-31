@@ -66,7 +66,7 @@ StatisticalModel<Representer>::~StatisticalModel()
 {
 	if (m_representer != 0) {
 		// not all representers can implement a const correct version of delete.
-		// We therefore simply const cast it. This is save here.
+		// We therefore simply const cast it. This is safe here.
 		const_cast<Representer*>(m_representer)->Delete();
 	}
 }

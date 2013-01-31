@@ -55,7 +55,7 @@ PCAModelBuilder<Representer>::PCAModelBuilder()
 
 template <typename Representer>
 typename PCAModelBuilder<Representer>::StatisticalModelType*
-PCAModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleDataList, double noiseVariance, bool computeScores) const
+PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList, double noiseVariance, bool computeScores) const
  {
 
 	unsigned n = sampleDataList.size();
@@ -70,7 +70,7 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleData
 	MatrixType X(n, p);
 
 	unsigned i = 0;
-	for (typename SampleDataListType::const_iterator it = sampleDataList.begin();
+	for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin();
 		it != sampleDataList.end();
 		++it)
 	{
@@ -94,7 +94,7 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleData
 
 	typename ModelInfo::DataInfoList dataInfo;
 	i = 0;
-	for (typename SampleDataListType::const_iterator it = sampleDataList.begin();
+	for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin();
 		it != sampleDataList.end();
 		++it, i++)
 	{

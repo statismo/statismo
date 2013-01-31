@@ -64,6 +64,7 @@
  * that the dataset that are read by the class need to be aligned.
  *
  * See Representer for more details about representer classes
+ * \sa Representer
  */
 class vtkPolyDataRepresenter  {
 public:
