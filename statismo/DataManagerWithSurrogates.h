@@ -61,9 +61,9 @@ class DataManagerWithSurrogates : public DataManager<Representer> {
 
 public:
 	typedef Representer RepresenterType;
-	typedef SampleDataWithSurrogates<Representer> SampleDataWithSurrogatesType;
+	typedef SampleDataStructureWithSurrogates<Representer> SampleDataStructureWithSurrogatesType;
 
-	typedef typename SampleDataWithSurrogatesType::SurrogateTypeVectorType SurrogateTypeVectorType;
+	typedef typename SampleDataStructureWithSurrogatesType::SurrogateTypeVectorType SurrogateTypeVectorType;
 
 	/**
 	 * Destructor

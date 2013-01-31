@@ -74,7 +74,7 @@ public:
 	typedef typename Representer::ValueType ValueType;
 	typedef typename Representer::PointType PointType;
 	typedef typename StatisticalModelType::PointValueListType PointValueListType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
 
 	/**
@@ -106,7 +106,7 @@ public:
 	 *
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataListType& sampleDataList,
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& SampleDataStructureList,
 										const PointValueListType& pointValues,
 										double pointValueNoiseVariance,
 										double noiseVariance) const;
