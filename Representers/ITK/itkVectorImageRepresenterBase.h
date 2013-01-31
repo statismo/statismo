@@ -49,6 +49,7 @@ namespace itk {
 /**
  *  \ingroup Representers
  * \brief Base class for all Representers representing itk Vector images
+ * \sa Representer
  */
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>

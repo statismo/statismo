@@ -60,8 +60,8 @@ DataManagerWithSurrogates<Representer>::LoadSurrogateTypes(const std::string& fi
 	VectorType tmpVector;
 	tmpVector = Utils::ReadVectorFromTxtFile(filename.c_str());
 	for (unsigned i=0 ; i<tmpVector.size() ; i++) {
-		if (tmpVector(i)==0) m_surrogateTypes.push_back(SampleDataWithSurrogatesType::Categorical);
-		else m_surrogateTypes.push_back(SampleDataWithSurrogatesType::Continuous);
+		if (tmpVector(i)==0) m_surrogateTypes.push_back(SampleDataStructureWithSurrogatesType::Categorical);
+		else m_surrogateTypes.push_back(SampleDataStructureWithSurrogatesType::Continuous);
 	}
 }
 
@@ -83,7 +83,7 @@ DataManagerWithSurrogates<Representer>::AddDatasetWithSurrogates(typename Repres
 
 	DatasetPointerType sample = this->m_representer->DatasetToSample(ds, 0);
 
-	this->m_sampleDataList.push_back(SampleDataWithSurrogatesType::Create(this->m_representer,
+	this->m_SampleDataStructureList.push_back(SampleDataStructureWithSurrogatesType::Create(this->m_representer,
 																			datasetURI,
 																		this->m_representer->SampleToSampleVector(sample),
 																	   surrogateFilename,

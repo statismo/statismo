@@ -1,5 +1,5 @@
 /*
- * SampleData.h
+ * SampleDataStructure.h
  *
  * Created by Marcel Luethi
  *
@@ -41,31 +41,33 @@
 #include "CommonTypes.h"
 
 namespace statismo {
-/*
+/* \class SampleDataStructure
  * \brief Holds all the information for a given sample.
+ * Use GetSample() to recover a Sample 
+ * \warning This method generates a new object containing the sample. If the Representer does not provide a smart pointer, the user is responsible for releasing memory.
  */
 template <typename Representer>
-class SampleData {
+class SampleDataStructure {
 public:
 	typedef typename Representer::DatasetPointerType DatasetPointerType;
 
 	/**
 	 * Ctor. Usually not called from outside of the library
 	 */
-	static SampleData* Create(const Representer* representer, const std::string& URI, const VectorType& sampleVector)
+	static SampleDataStructure* Create(const Representer* representer, const std::string& URI, const VectorType& sampleVector)
 	{
-		return new SampleData(representer, URI, sampleVector);
+		return new SampleDataStructure(representer, URI, sampleVector);
 	}
 
 	/**
 	 * Dtor
 	 */
-	virtual ~SampleData() {}
+	virtual ~SampleDataStructure() {}
 
-	/** Create a new SampleData object, using the data from the group in the HDF5 file
+	/** Create a new SampleDataStructure object, using the data from the group in the HDF5 file
 	 * \param dsGroup. The group in the hdf5 file for this dataset
 	 */
-	static SampleData* Load(const Representer* representer, const H5::Group& dsGroup);
+	static SampleDataStructure* Load(const Representer* representer, const H5::Group& dsGroup);
 	/**
 	 *  Save the sample data to the hdf5 group dsGroup.
 	 */
@@ -88,18 +90,18 @@ public:
 
 	/**
 	 * Returns the sample in the representation given by the representer
-	 * \warning A new sample is created. The user is responsible for releasing it.
+	 * \warning This method generates a new object containing the sample. If the Representer does not provide a smart pointer, the user is responsible for releasing memory.
 	 */
-	const DatasetPointerType GetAsNewSample() const { return m_representer->SampleVectorToSample(m_sampleVector); }
+	const DatasetPointerType GetSample() const { return m_representer->SampleVectorToSample(m_sampleVector); }
 
 protected:
 
-	SampleData(const Representer* representer, const std::string& URI, const VectorType& sampleVector)
+	SampleDataStructure(const Representer* representer, const std::string& URI, const VectorType& sampleVector)
 		: m_representer(representer), m_URI(URI), m_sampleVector(sampleVector)
 	{
 	}
 
-	SampleData(const Representer* representer) : m_representer(representer)
+	SampleDataStructure(const Representer* representer) : m_representer(representer)
 	{}
 
 	// loads the internal state from the hdf5 file
@@ -120,10 +122,23 @@ protected:
 	VectorType m_sampleVector;
 };
 
+
+
+
+/* \class SampleDataStructureWithSurrogates
+ * \brief Holds all the information for a given sample.
+  * Use GetSample() to recover a Sample 
+ * \warning This method generates a new object containing the sample. If the Representer does not provide a smart pointer, the user is responsible for releasing memory.
+ * In particular, it enables to associate categorical or continuous variables with a sample, in a vectorial representation.
+ * The vector is provided by a file providing the values in ascii format (empty space or EOL separating the values)
+ * \sa SampleDataStructure
+ * \sa DataManagerWithSurrogates
+ */
+
 template <typename Representer>
-class SampleDataWithSurrogates : public SampleData<Representer>
+class SampleDataStructureWithSurrogates : public SampleDataStructure<Representer>
 {
-	friend class SampleData<Representer>;
+	friend class SampleDataStructure<Representer>;
 
 public:
 
@@ -136,48 +151,48 @@ public:
 	typedef std::vector<SurrogateType>	SurrogateTypeVectorType;
 
 
-	static SampleDataWithSurrogates* Create(const Representer* representer,
+	static SampleDataStructureWithSurrogates* Create(const Representer* representer,
 									 const std::string& datasetURI,
 									 const VectorType& sampleVector,
 									 const std::string& surrogateFilename,
 									 const VectorType& surrogateVector)
 	{
-		return new SampleDataWithSurrogates(representer, datasetURI, sampleVector, surrogateFilename, surrogateVector);
+		return new SampleDataStructureWithSurrogates(representer, datasetURI, sampleVector, surrogateFilename, surrogateVector);
 	}
 
 
 
 
-	virtual ~SampleDataWithSurrogates() {}
+	virtual ~SampleDataStructureWithSurrogates() {}
 
 	const VectorType& GetSurrogateVector() const { return m_surrogateVector; }
 	const std::string& GetSurrogateFilename() const { return m_surrogateFilename; }
 
 private:
 
-	SampleDataWithSurrogates(const Representer* representer,
+	SampleDataStructureWithSurrogates(const Representer* representer,
 							const std::string& datasetURI,
 							const VectorType& sampleVector,
 							const std::string& surrogateFilename,
 							const VectorType& surrogateVector)
-	: SampleData<Representer>(representer, datasetURI, sampleVector),
+	: SampleDataStructure<Representer>(representer, datasetURI, sampleVector),
 	  m_surrogateFilename(surrogateFilename),
 	  m_surrogateVector(surrogateVector)
 	{
 	}
 
-	SampleDataWithSurrogates(const Representer* r) : SampleData<Representer>(r) {}
+	SampleDataStructureWithSurrogates(const Representer* r) : SampleDataStructure<Representer>(r) {}
 
 	// loads the internal state from the hdf5 file
 	virtual void LoadInternal(const H5::Group& dsGroup) {
-		SampleData<Representer>::LoadInternal(dsGroup);
+		SampleDataStructure<Representer>::LoadInternal(dsGroup);
 		VectorType v;
 		HDF5Utils::readVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
 		m_surrogateFilename = HDF5Utils::readString(dsGroup, "./surrogateFilename");
 	}
 
 	virtual void SaveInternal(const H5::Group& dsGroup) const {
-		SampleData<Representer>::SaveInternal(dsGroup);
+		SampleDataStructure<Representer>::SaveInternal(dsGroup);
 		HDF5Utils::writeVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
 		HDF5Utils::writeString(dsGroup, "./surrogateFilename", this->m_surrogateFilename);
 	}
@@ -189,7 +204,7 @@ private:
 
 } // namespace statismo
 
-#include "SampleData.txx"
+#include "SampleDataStructure.txx"
 
 #endif // __SAMPLE_DATA_H
 

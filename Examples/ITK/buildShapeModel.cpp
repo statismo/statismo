@@ -110,7 +110,7 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
     }
 
     ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleData(), 0);
+    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
     model->Save(modelname);
 
 

@@ -52,10 +52,10 @@ namespace statismo {
 
 template <typename Representer>
 unsigned
-ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& sampleDataList,
+ConditionalModelBuilder<Representer>::PrepareData(const SampleDataStructureListType& sampleDataList,
                                                   const SurrogateTypeVectorType& surrogateTypes,
 												  const CondVariableValueVectorType& conditioningInfo,
-												  SampleDataListType *acceptedSamples,
+												  SampleDataStructureListType *acceptedSamples,
 												  MatrixType *surrogateMatrix,
 												  VectorType *conditions) const
 {
@@ -68,7 +68,7 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& samp
 	//first: identify the continuous and categorical variables, which are used for conditioning and which are not
 	for (unsigned i=0 ; i<conditioningInfo.size() ; i++) {
 		if (conditioningInfo[i].first) { //only variables that are used for conditioning are of interest here
-			if (surrogateTypes[i] == SampleDataWithSurrogatesType::Continuous) {
+			if (surrogateTypes[i] == SampleDataStructureWithSurrogatesType::Continuous) {
 				nbContinuousSurrogatesInUse++;
 				indicesContinuousSurrogatesInUse.push_back(i);
 			}
@@ -83,9 +83,9 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& samp
 	surrogateMatrix->resize(nbContinuousSurrogatesInUse, sampleDataList.size()); //number of variables is now known: nbContinuousSurrogatesInUse ; the number of samples is yet unknown... 
 	
 	//now, browse all samples to select the ones which fall into the requested categories
-	for (typename SampleDataListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
+	for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
 	{
-		const SampleDataWithSurrogatesType* sampleData = dynamic_cast<const SampleDataWithSurrogatesType*>(*it);
+		const SampleDataStructureWithSurrogatesType* sampleData = dynamic_cast<const SampleDataStructureWithSurrogatesType*>(*it);
 		if (sampleData == 0)  {
 			// this is a normal sample without surrogate information.
 			// we simply discard it
@@ -121,13 +121,13 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& samp
 
 template <typename Representer>
 typename ConditionalModelBuilder<Representer>::StatisticalModelType*
-ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleDataList,
+ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList,
 													const SurrogateTypeVectorType& surrogateTypes,
 													const CondVariableValueVectorType& conditioningInfo,
 													float noiseVariance) const
 {
 
-	SampleDataListType acceptedSamples;
+	SampleDataStructureListType acceptedSamples;
 	MatrixType X;
 	VectorType x0;
 	unsigned nSamples = PrepareData(sampleDataList, surrogateTypes, conditioningInfo, &acceptedSamples, &X, &x0);

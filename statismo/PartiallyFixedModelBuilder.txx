@@ -56,7 +56,7 @@ PartiallyFixedModelBuilder<Representer>::PartiallyFixedModelBuilder()
 template <typename Representer>
 typename PartiallyFixedModelBuilder<Representer>::StatisticalModelType*
 PartiallyFixedModelBuilder<Representer>::BuildNewModel(
-		const SampleDataListType& sampleDataList,
+		const SampleDataStructureListType& sampleDataList,
 		const PointValueListType& pointValues,
 		double pointValuesNoiseVariance,
 		double noiseVariance) const

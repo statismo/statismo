@@ -67,7 +67,7 @@ public:
 
 	typedef statismo::PartiallyFixedModelBuilder<Representer> ImplType;
 	typedef statismo::DataManager<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
 
 
@@ -106,8 +106,8 @@ public:
 		return model_itk;
 	}
 
-	typename StatisticalModel<Representer>::Pointer BuildNewModel(SampleDataListType sampleDataList, const PointValueListType& pointValues, double pointValuesNoiseVariance, double noiseVariance) {
-		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, sampleDataList ,pointValues, pointValuesNoiseVariance, noiseVariance));
+	typename StatisticalModel<Representer>::Pointer BuildNewModel(SampleDataStructureListType SampleDataStructureList, const PointValueListType& pointValues, double pointValuesNoiseVariance, double noiseVariance) {
+		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList ,pointValues, pointValuesNoiseVariance, noiseVariance));
 		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
 		model_itk->SetstatismoImplObj(model_statismo);
 		return model_itk;

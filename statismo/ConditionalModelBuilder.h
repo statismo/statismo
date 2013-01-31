@@ -1,7 +1,7 @@
 /*
  * ConditionalModelBuilder.h
  *
- * Created byRemi Blanc,
+ * Created by Remi Blanc,
  *
  * Copyright (c) 2011 ETH Zurich
  * All rights reserved.
@@ -82,8 +82,8 @@ public:
 	typedef std::vector<CondVariableValuePair> CondVariableValueVectorType; //replace list by vector, to gain direct access
 
 	typedef DataManagerWithSurrogates<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;
-	typedef typename DataManagerType::SampleDataWithSurrogatesType SampleDataWithSurrogatesType;
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
+	typedef typename DataManagerType::SampleDataStructureWithSurrogatesType SampleDataStructureWithSurrogatesType;
 	typedef typename DataManagerType::SurrogateTypeVectorType SurrogateTypeVectorType;
 
 	/**
@@ -109,17 +109,17 @@ public:
 	 *
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataListType& sampleSet,
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleSet,
 										const SurrogateTypeVectorType& surrogateTypes,
 										const CondVariableValueVectorType& conditioningInfo,
 										float noiseVariance) const;
 
 private:
 
-	unsigned PrepareData(const SampleDataListType& sampleDataList,
+	unsigned PrepareData(const SampleDataStructureListType& SampleDataStructureList,
 						 const SurrogateTypeVectorType& surrogateTypes,
 						 const CondVariableValueVectorType& conditioningInfo,
-						 SampleDataListType* acceptedSamples,
+						 SampleDataStructureListType* acceptedSamples,
 						 MatrixType* surrogateMatrix,
 						 VectorType* conditions) const;
 
