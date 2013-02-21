@@ -141,6 +141,19 @@ StatisticalModel<Representer>::DrawSample(const VectorType& coefficients, bool a
 
 
 template <typename Representer>
+typename StatisticalModel<Representer>::DatasetPointerType
+StatisticalModel<Representer>::DrawPCABasisSample(const unsigned pcaComponent) const {
+	if (pcaComponent >= this->GetNumberOfPrincipalComponents()) {
+		throw StatisticalModelException("Wrong pcaComponent index provided to DrawPCABasisSample!");
+	}
+
+
+	return m_representer->SampleVectorToSample( m_pcaBasisMatrix.col(pcaComponent));
+}
+
+
+
+template <typename Representer>
 VectorType
 StatisticalModel<Representer>::DrawSampleVector(const VectorType& coefficients, bool addNoise) const {
 

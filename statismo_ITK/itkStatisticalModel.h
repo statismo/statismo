@@ -176,6 +176,11 @@ public:
 		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, addNoise));
 	}
 
+	DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const {
+		typedef DatasetPointerType (ImplType::*functype)(unsigned) const;
+		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawPCABasisSample), this->m_impl, componentNumber));
+	}
+
 	ValueType DrawSampleAtPoint(const VectorType& coeffs, const PointType& pt, bool addNoise = false) const {
 		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, const PointType&, bool) const;
 		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), pt, addNoise));
