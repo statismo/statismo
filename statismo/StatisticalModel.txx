@@ -236,7 +236,8 @@ StatisticalModel<Representer>::GetCovarianceAtPoint(unsigned ptId1, unsigned ptI
 		for (unsigned j = 0; j < dim; j++) {
 			unsigned idxj = Representer::MapPointIdToInternalIdx(ptId2, j);
 			VectorType vj = m_pcaBasisMatrix.row(idxj);
-			cov(i,j) = vi.dot(vj) + m_noiseVariance;
+			cov(i,j) = vi.dot(vj);
+			if (i == j) cov(i,j) += m_noiseVariance;
 		}
 	}
 	return cov;
