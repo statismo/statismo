@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
 			dataset->Delete();
 		}
 		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
-		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleData(), 0.01));
+		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0.01));
 		model->Save(modelname);
 		reference->Delete();
 		std::cout << "Successfully saved model as " << modelname << std::endl;

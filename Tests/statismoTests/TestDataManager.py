@@ -67,7 +67,7 @@ class Test(unittest.TestCase):
 
         self.assertEqual(datamanager.GetNumberOfSamples(),len(self.datafiles))
         
-        for (i, sampleData) in enumerate(datamanager.GetSampleData()): 
+        for (i, sampleData) in enumerate(datamanager.GetSampleDataStructure()): 
             self.assertEqual(sampleData.GetDatasetURI(),self.datafiles[i])
 
             
@@ -86,8 +86,8 @@ class Test(unittest.TestCase):
 
         self.assertEqual(datamanager.GetNumberOfSamples(), datamanager_new.GetNumberOfSamples())
         
-        sampleSet = datamanager.GetSampleData()
-        newSampleSet = datamanager_new.GetSampleData()
+        sampleSet = datamanager.GetSampleDataStructure()
+        newSampleSet = datamanager_new.GetSampleDataStructure()
         for (sample, newSample) in zip(sampleSet, newSampleSet):
             self.assertTrue((sample.GetSampleVector() == newSample.GetSampleVector()).all() == True)
 
@@ -105,8 +105,8 @@ class Test(unittest.TestCase):
 
         self.assertEqual(datamanager.GetNumberOfSamples(), datamanager_new.GetNumberOfSamples())
         
-        sampleSet = datamanager.GetSampleData()
-        newSampleSet = datamanager_new.GetSampleData()
+        sampleSet = datamanager.GetSampleDataStructure()
+        newSampleSet = datamanager_new.GetSampleDataStructure()
         for (sample, newSample) in zip(sampleSet, newSampleSet):
             self.assertTrue((sample.GetSampleVector() == newSample.GetSampleVector()).all() == True)
 

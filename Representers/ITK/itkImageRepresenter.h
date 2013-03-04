@@ -51,6 +51,7 @@ namespace itk {
 /**
  * \ingroup Representers
  * \brief A representer for scalar valued itk Images
+ * \sa Representer
  */
 
 template <class TPixel, unsigned ImageDimension>

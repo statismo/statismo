@@ -52,10 +52,10 @@ namespace statismo {
 
 template <typename Representer>
 unsigned
-ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& sampleDataList,
+ConditionalModelBuilder<Representer>::PrepareData(const SampleDataStructureListType& sampleDataList,
                                                   const SurrogateTypeVectorType& surrogateTypes,
 												  const CondVariableValueVectorType& conditioningInfo,
-												  SampleDataListType *acceptedSamples,
+												  SampleDataStructureListType *acceptedSamples,
 												  MatrixType *surrogateMatrix,
 												  VectorType *conditions) const
 {
@@ -68,7 +68,7 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& samp
 	//first: identify the continuous and categorical variables, which are used for conditioning and which are not
 	for (unsigned i=0 ; i<conditioningInfo.size() ; i++) {
 		if (conditioningInfo[i].first) { //only variables that are used for conditioning are of interest here
-			if (surrogateTypes[i] == SampleDataWithSurrogatesType::Continuous) {
+			if (surrogateTypes[i] == SampleDataStructureWithSurrogatesType::Continuous) {
 				nbContinuousSurrogatesInUse++;
 				indicesContinuousSurrogatesInUse.push_back(i);
 			}
@@ -80,12 +80,12 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& samp
 	}
 	conditions->resize(nbContinuousSurrogatesInUse);
 	for (unsigned i=0 ; i<nbContinuousSurrogatesInUse ; i++) (*conditions)(i) = conditioningInfo[i].second;
-	surrogateMatrix->resize(nbContinuousSurrogatesInUse, sampleDataList.size()); //number of variables is now known: nbContinuousSurrogatesInUse ; the number of samples is yet unknown... //CHECK FOR ROWS / COLUMNS
-
+	surrogateMatrix->resize(nbContinuousSurrogatesInUse, sampleDataList.size()); //number of variables is now known: nbContinuousSurrogatesInUse ; the number of samples is yet unknown... 
+	
 	//now, browse all samples to select the ones which fall into the requested categories
-	for (typename SampleDataListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
+	for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
 	{
-		const SampleDataWithSurrogatesType* sampleData = dynamic_cast<const SampleDataWithSurrogatesType*>(*it);
+		const SampleDataStructureWithSurrogatesType* sampleData = dynamic_cast<const SampleDataStructureWithSurrogatesType*>(*it);
 		if (sampleData == 0)  {
 			// this is a normal sample without surrogate information.
 			// we simply discard it
@@ -121,20 +121,19 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataListType& samp
 
 template <typename Representer>
 typename ConditionalModelBuilder<Representer>::StatisticalModelType*
-ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sampleDataList,
+ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList,
 													const SurrogateTypeVectorType& surrogateTypes,
 													const CondVariableValueVectorType& conditioningInfo,
 													float noiseVariance) const
 {
 
-	SampleDataListType acceptedSamples;
+	SampleDataStructureListType acceptedSamples;
 	MatrixType X;
 	VectorType x0;
 	unsigned nSamples = PrepareData(sampleDataList, surrogateTypes, conditioningInfo, &acceptedSamples, &X, &x0);
 	assert(nSamples == acceptedSamples.size());
 
-	unsigned nCondVariables = X.cols();
-
+	unsigned nCondVariables = X.rows();
 
 	// build a normal PCA model
 	typedef PCAModelBuilder<Representer> PCAModelBuilderType;
@@ -157,7 +156,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 		// Thus the i-th row of A contains the PCA parameters b of the i-th sample,
 		// together with the conditional information for each sample
 		MatrixType A(nSamples, nPCAComponents+nCondVariables);
-		A << B, X;
+		A << B,X.transpose();
 
 		// Compute the mean and the covariance of the joint data matrix
 		VectorType mu = A.colwise().mean().transpose(); // colwise returns a row vector
@@ -180,8 +179,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 
 		// compute the conditional covariance
 		MatrixType condCov = Sbb - Sbx * Sxx.inverse() * Sbx.transpose();
-
-
+		
 		// get the sample mean corresponding the the conditional given mean of the parameter vectors
 		VectorType condMeanSample = pcaModel->GetRepresenter()->SampleToSampleVector(pcaModel->DrawSample(condMean));
 
@@ -207,7 +205,16 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataListType& sa
 		typename ModelInfo::BuilderInfoList bi;
 		bi.push_back(ModelInfo::KeyValuePair("BuilderName ", "ConditionalModelBuilder"));
 		bi.push_back(ModelInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
-		bi.push_back(ModelInfo::KeyValuePair("WARNING ", "The conditional model builder does not save all of its parameters yet"));
+		
+		//generate a matrix ; first column = boolean (yes/no, this variable is used) ; second: conditioning value.
+		MatrixType conditioningInfoMatrix(conditioningInfo.size(), 2);
+		for (unsigned i=0 ; i<conditioningInfo.size() ; i++) {
+			conditioningInfoMatrix(i,0) = conditioningInfo[i].first;
+			conditioningInfoMatrix(i,1) = conditioningInfo[i].second;
+		}
+		bi.push_back(ModelInfo::KeyValuePair("ConditioningInfo ", Utils::toString(conditioningInfoMatrix)));
+		//Is this all that is necessary? do something special when loading?
+		//bi.push_back(ModelInfo::KeyValuePair("WARNING ", "The conditional model builder does not save all of its parameters yet"));
 
 		typename ModelInfo::DataInfoList di = pcaModel->GetModelInfo().GetDataInfo();
 

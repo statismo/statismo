@@ -72,7 +72,7 @@ class Test(unittest.TestCase):
     def buildAndTestPCAModel(self, noise):
         modelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
  
-        model = modelbuilder.BuildNewModel(self.dataManager.GetSampleData(), noise)
+        model = modelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), noise)
                         
         self.assertTrue(model.GetNumberOfPrincipalComponents() <= len(self.datafiles))        
         
@@ -82,8 +82,8 @@ class Test(unittest.TestCase):
 
         # we project a dataset into the model and try to restore it.
   
-        samples = self.dataManager.GetSampleData()
-        sample = samples[0].GetAsNewSample()
+        samples = self.dataManager.GetSampleDataStructure()
+        sample = samples[0].GetSample()
         
         coeffs_sample = model.ComputeCoefficientsForDataset(sample)
         restored_sample = model.DrawSample(coeffs_sample)
@@ -96,7 +96,7 @@ class Test(unittest.TestCase):
         scores = model.GetModelInfo().GetScoresMatrix()
         for i in xrange(0, scores.shape[1]):
             sample_from_scores = model.DrawSample(scores[:,i])
-            sample_from_dm = samples[i].GetAsNewSample()
+            sample_from_dm = samples[i].GetSample()
 
             self.checkPointsAlmostEqual(sample_from_scores.GetPoints(), sample_from_dm.GetPoints(), 100, noise)
         return model
@@ -106,7 +106,7 @@ class Test(unittest.TestCase):
         # check if a model can be build when there are no scores
         modelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
  
-        model = modelbuilder.BuildNewModel(self.dataManager.GetSampleData(), 0, False)
+        model = modelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), 0, False)
                         
         self.assertTrue(model.GetNumberOfPrincipalComponents() <= len(self.datafiles))                
 
@@ -141,7 +141,7 @@ class Test(unittest.TestCase):
         nPointsFixed = 100
         nPointsTest = 1000        
         
-        sample = self.dataManager.GetSampleData()[0].GetAsNewSample()        
+        sample = self.dataManager.GetSampleDataStructure()[0].GetSample()        
 
         pvList = statismo.PointValueList_vtkPD()        
 
@@ -155,7 +155,7 @@ class Test(unittest.TestCase):
             pvList.append(pointValue)
 
         pfmodelbuilder = statismo.PartiallyFixedModelBuilder_vtkPD.Create()
-        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleData(), pvList, 0.1, 0.1)
+        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.1, 0.1)
 
         
         partial_mean = pf_model.DrawMean()
@@ -175,12 +175,12 @@ class Test(unittest.TestCase):
         pvList = statismo.PointValueList_vtkPD()        
             
         pfmodelbuilder = statismo.PartiallyFixedModelBuilder_vtkPD.Create()
-        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleData(), pvList, 0.1, 0.1)
+        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.1, 0.1)
 
         pcamodelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
-        pca_model = pcamodelbuilder.BuildNewModel(self.dataManager.GetSampleData(), 0.1)
+        pca_model = pcamodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), 0.1)
         
-        sample  =  self.dataManager.GetSampleData()[0].GetAsNewSample()
+        sample  =  self.dataManager.GetSampleDataStructure()[0].GetSample()
         coeffs_pf_model = pf_model.ComputeCoefficientsForDataset(sample)
         coeffs_pca_model =   pca_model.ComputeCoefficientsForDataset(sample)
         for i in xrange(0, len(coeffs_pf_model)):
@@ -191,19 +191,19 @@ class Test(unittest.TestCase):
         # checks whether with every added point, the variance is decreasing
                        
         reference = self.representer.GetReference()
-        sample  =  self.dataManager.GetSampleData()[0].GetAsNewSample()
+        sample  =  self.dataManager.GetSampleDataStructure()[0].GetSample()
         num_points = sample.GetNumberOfPoints()
         pvList = statismo.PointValueList_vtkPD()
         
         pfmodelbuilder = statismo.PartiallyFixedModelBuilder_vtkPD.Create()
-        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleData(), pvList, 0.1, 0.1)
+        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.1, 0.1)
         total_var = pf_model.GetPCAVarianceVector().sum() 
         for pt_id in xrange(0, num_points, num_points / 10):
             ref_pt = statismo.vtkPoint(*getPDPointWithId(reference, pt_id))
             pt = statismo.vtkPoint(*getPDPointWithId(sample, pt_id))
             pvList.append(statismo.PointValuePair_vtkPD(ref_pt, pt))
             pfmodelbuilder = statismo.PartiallyFixedModelBuilder_vtkPD.Create()
-            pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleData(), pvList, 0.1, 0.1)
+            pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.1, 0.1)
             total_sdev_prev = total_var
             total_var = pf_model.GetPCAVarianceVector().sum() 
             self.assertTrue(total_var < total_sdev_prev)
@@ -213,14 +213,14 @@ class Test(unittest.TestCase):
         #Checks if a point that is fixed really stays where it was constrained to stay
                        
         reference = self.representer.GetReference()
-        sample  =  self.dataManager.GetSampleData()[0].GetAsNewSample()
+        sample  =  self.dataManager.GetSampleDataStructure()[0].GetSample()
         pvList = statismo.PointValueList_vtkPD()
                 
         ref_pt = getPDPointWithId(reference, 0)
         fixedpt = getPDPointWithId(sample, 0)
         pvList.append(statismo.PointValuePair_vtkPD(statismo.vtkPoint(*ref_pt),  statismo.vtkPoint(*fixedpt)))
         pfmodelbuilder = statismo.PartiallyFixedModelBuilder_vtkPD.Create()
-        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleData(), pvList, 0.01, 0.01)
+        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.01, 0.01)
         
         # check for some samples if the points stay put
         coeffs1 = zeros(pf_model.GetNumberOfPrincipalComponents())        

@@ -118,9 +118,9 @@ void buildImageIntensityModelOnROI(const char* referenceFilename, const char* ma
     }
 
 	ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleData(), 0);
+    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
 
-    std::cout<<"dimensionality of the data: "<<model->GetDomain().GetNumberOfPoints()<<", dimension of the images: "<<(*dataManager->GetSampleData().begin())->GetAsNewSample()->GetLargestPossibleRegion().GetNumberOfPixels()<<std::endl;
+    std::cout<<"dimensionality of the data: "<<model->GetDomain().GetNumberOfPoints()<<", dimension of the images: "<<(*dataManager->GetSampleDataStructure().begin())->GetSample()->GetLargestPossibleRegion().GetNumberOfPixels()<<std::endl;
 
     std::cout<<"writing the mean sample to a png file..."<<std::endl;
     

@@ -69,7 +69,7 @@ public:
 
 	typedef statismo::ConditionalModelBuilder<Representer> ImplType;
 	typedef statismo::DataManager<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
 	ConditionalModelBuilder() : m_impl(ImplType::Create()){}
 
@@ -92,12 +92,12 @@ public:
 
 
 		typename StatisticalModel<Representer>::Pointer
-		BuildNewModel(SampleDataListType sampleDataList,
+		BuildNewModel(SampleDataStructureListType SampleDataStructureList,
 						const typename statismo::ConditionalModelBuilder<Representer>::SurrogateTypeVectorType& surrogateTypes,
 						const typename statismo::ConditionalModelBuilder<Representer>::CondVariableValueVectorType& conditioningInfo,
 						float noiseVariance)
 		{
-			statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, sampleDataList, surrogateTypes, conditioningInfo, noiseVariance));
+			statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, surrogateTypes, conditioningInfo, noiseVariance));
 			typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
 			model_itk->SetstatismoImplObj(model_statismo);
 			return model_itk;
