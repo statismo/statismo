@@ -53,7 +53,10 @@ namespace itk
  *
  * \brief An itk transform that allows for deformations defined by a given Statistical Deformation Model.
  *
-*
+ * In contrast to the standard StatisticalDeformationModelTransform, this transform performs a linear interpolation of the 
+ * PCABasis. This has the advantage that a model can be fitted which has a much lower resolution that the image, that needs to 
+ * be explained. 
+ * 
  * \ingroup Transforms
  */
 template <class TRepresenter, class TScalarType,  unsigned int TDimension >
@@ -93,7 +96,8 @@ public:
 		  ::itk::LightObject::Pointer smartPtr;
 		  Pointer another = Self::New().GetPointer();
 		  this->CopyBaseMembers(another);
-
+		  another->m_meanDeformation = this->m_meanDeformation;
+		  another->m_PCABasisDeformations = this->m_PCABasisDeformations;
 		  smartPtr = static_cast<Pointer>(another);
 		  return smartPtr;
 	     }
@@ -102,8 +106,8 @@ public:
 			this->Superclass::SetStatisticalModel(model);
 
 			m_meanDeformation = InterpolatorType::New();
-			m_meanDeformation->SetInputImage(model->DrawMean());
-
+			typename DeformationFieldType::Pointer meanDf = model->DrawMean();
+			m_meanDeformation->SetInputImage(meanDf);
 			for (unsigned i = 0; i < model->GetNumberOfPrincipalComponents(); i++) {
 				typename DeformationFieldType::Pointer deformationField = model->DrawPCABasisSample(i);
 				typename InterpolatorType::Pointer basisI = InterpolatorType::New();
@@ -118,9 +122,8 @@ public:
 		{
 			jacobian.SetSize(TDimension, m_PCABasisDeformations.size());
 			jacobian.Fill(0);
-
 			if (m_meanDeformation->IsInsideBuffer(pt) == false)
-						return;
+				return;
 
 			for(unsigned j = 0; j < m_PCABasisDeformations.size(); j++) {
 				typename RepresenterType::ValueType d = m_PCABasisDeformations[j]->Evaluate(pt);
@@ -128,7 +131,6 @@ public:
 					jacobian(i,j) += d[i] ;
 		        }
 			}
-
 
 			itkDebugMacro( << "Jacobian with MM:\n" << jacobian);
 			itkDebugMacro( << "After GetMorphableModelJacobian:"
@@ -145,18 +147,14 @@ public:
 	 */
 	virtual OutputPointType  TransformPoint(const InputPointType &pt) const
 	{
-		if (m_meanDeformation->IsInsideBuffer(pt) == false)
-			return pt;
-
-		assert(this->m_coeff_vector.size() == m_PCABasisDeformations.size());
-		typename RepresenterType::ValueType def = m_meanDeformation->Evaluate(pt);
+	  if (m_meanDeformation->IsInsideBuffer(pt) == false) { 
+	    return pt;
+	  }
+	  assert(this->m_coeff_vector.size() == m_PCABasisDeformations.size());
+	  typename RepresenterType::ValueType def = m_meanDeformation->Evaluate(pt);
 
 		for (unsigned i = 0; i < m_PCABasisDeformations.size(); i++) {
 			typename RepresenterType::ValueType defBasisI =  m_PCABasisDeformations[i]->Evaluate(pt);
-//			transformedPoint(i)
-//			for (unsigned d = 0; d < transformedPoint.GetPointDimension(); d++) {
-//				transformedPoint(d) += def(d);
-//			}
 			def += (defBasisI * this->m_coeff_vector[i]);
 		}
 
@@ -164,7 +162,6 @@ public:
 		for (unsigned i = 0; i < pt.GetPointDimension(); i++) {
 			transformedPoint[i] = pt[i] + def[i];
 		}
-
 
 		return transformedPoint;
 	}
