@@ -87,12 +87,11 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& s
 		scores = this->ComputeScores(X, model);
 	}
 
-	// finally add meta data to the model info
-	typename ModelInfo::BuilderInfoList bi;
-	bi.push_back(ModelInfo::KeyValuePair("BuilderName ", "PCAModelBuilder"));
-	bi.push_back(ModelInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
 
-	typename ModelInfo::DataInfoList dataInfo;
+	typename BuilderInfo::ParameterInfoList bi;
+	bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
+
+	typename BuilderInfo::DataInfoList dataInfo;
 	i = 0;
 	for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin();
 		it != sampleDataList.end();
@@ -100,10 +99,17 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& s
 	{
 		std::ostringstream os;
 		os << "URI_" << i;
-		dataInfo.push_back(ModelInfo::KeyValuePair(os.str().c_str(),(*it)->GetDatasetURI()));
+		dataInfo.push_back(BuilderInfo::KeyValuePair(os.str().c_str(),(*it)->GetDatasetURI()));
 	}
 
-	ModelInfo info(scores, dataInfo, bi);
+
+	// finally add meta data to the model info
+	BuilderInfo builderInfo("PCAModelBuilder", dataInfo, bi);
+
+	ModelInfo::BuilderInfoList biList;
+	biList.push_back(builderInfo);
+
+	ModelInfo info(scores, biList);
 	model->SetModelInfo(info);
 
 	return model;

@@ -592,7 +592,7 @@ StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
 
 	 try {
 		// create the group structure
-
+		HDF5Utils::writeString(modelRoot, "./statismo-version", STATISMO_VERSION);
 		Group representerGroup = modelRoot.createGroup("./representer");
 		HDF5Utils::writeStringAttribute(representerGroup, "name", Representer::GetName());
 
