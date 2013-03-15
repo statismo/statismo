@@ -75,8 +75,8 @@ public:
 	static ImageROIRepresenter* Load(const H5::CommonFG& fg);
 	ImageROIRepresenter* Clone() const;
 
-    typedef itk::Image<TPixel, ImageDimension>     ImageType;
-    typedef itk::Image<TMaskPixel, ImageDimension> MaskType;
+	typedef itk::Image<TPixel, ImageDimension>     ImageType;
+  typedef itk::Image<TMaskPixel, ImageDimension> MaskType;
 
 	/// The type of the data set to be used
 	typedef ImageType DatasetType;
@@ -115,6 +115,10 @@ public:
 	void SetReference(ImageType* ds, MaskType* mask = NULL);
 
 
+	/** Set / Get the Mask */
+  typename MaskType::Pointer SetMask() {return m_mask;}
+	typename MaskType::Pointer GetMask() {return m_mask;}
+
 	/**
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
 	 * Alignment.
@@ -131,7 +135,7 @@ public:
 	virtual unsigned GetNumberOfPoints() const;
 	virtual unsigned GetPointIdForPoint(const PointType& point) const;
 
-	 /* Maps a (Pointid,component) tuple to a component of the internal matrix.
+	/* Maps a (Pointid,component) tuple to a component of the internal matrix.
 	 * This is used to locate the place in the matrix to store the elements for a given point.
 	 * @params ptId The point id
 	 * @params the Component Index (range 0, Dimensionality)
@@ -141,15 +145,15 @@ public:
 		return m_mapPointIDToInternalIdx[ptId];
 	}
 
-    unsigned GetNumberOfPoints(DatasetConstPointerType ds);
+  unsigned GetNumberOfPoints(DatasetConstPointerType ds);
             
-    static void DeleteDataset(DatasetPointerType ds) {}// do nothing, as we are working with smart pointers
+  static void DeleteDataset(DatasetPointerType ds) {}// do nothing, as we are working with smart pointers
 
 private:
-    static DatasetPointerType ReadDataset(const char* filename);
-    static MaskPointerType ReadMask(const char* filename);
-    static void WriteDataset(const char* filename, const ImageType* image);
-    static void WriteMask(const char* filename, const MaskType* image);
+  static DatasetPointerType ReadDataset(const char* filename);
+  static MaskPointerType ReadMask(const char* filename);
+  static void WriteDataset(const char* filename, const ImageType* image);
+  static void WriteMask(const char* filename, const MaskType* image);
 
 	DatasetConstPointerType m_reference;
 	MaskConstPointerType    m_mask;
