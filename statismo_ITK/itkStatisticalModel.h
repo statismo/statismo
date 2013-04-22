@@ -74,7 +74,7 @@ public:
 	// statismo stuff
 	typedef statismo::StatisticalModel<Representer> ImplType;
 	
-	typedef typename statismo::DataManager<Representer>::SampleDataType     SampleDataType;
+	typedef typename statismo::DataManager<Representer>::SampleDataStructureType     SampleDataStructureType;
 	
 	typedef vnl_matrix<statismo::ScalarType> MatrixType;
 	typedef vnl_vector<statismo::ScalarType> VectorType;
@@ -200,7 +200,7 @@ public:
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForSample, this->m_impl, ds)));
 	}
 
-	VectorType ComputeCoefficientsForDataSample(const SampleDataType* sample) const {
+	VectorType ComputeCoefficientsForDataSample(const SampleDataStructureType* sample) const {
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataSample, this->m_impl, sample)));
 	}
 	

@@ -62,6 +62,7 @@ int hash_value(const PointType& pt) {
 /**
  * \ingroup Representers
  * \brief A representer for scalar valued itk Meshs
+ * \sa Representer
  */
 template <class TPixel, unsigned MeshDimension>
 class MeshRepresenter : public Object {

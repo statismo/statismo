@@ -66,7 +66,7 @@ StatisticalModel<Representer>::~StatisticalModel()
 {
 	if (m_representer != 0) {
 		// not all representers can implement a const correct version of delete.
-		// We therefore simply const cast it. This is save here.
+		// We therefore simply const cast it. This is safe here.
 		const_cast<Representer*>(m_representer)->Delete();
 	}
 }
@@ -236,7 +236,8 @@ StatisticalModel<Representer>::GetCovarianceAtPoint(unsigned ptId1, unsigned ptI
 		for (unsigned j = 0; j < dim; j++) {
 			unsigned idxj = Representer::MapPointIdToInternalIdx(ptId2, j);
 			VectorType vj = m_pcaBasisMatrix.row(idxj);
-			cov(i,j) = vi.dot(vj) + m_noiseVariance;
+			cov(i,j) = vi.dot(vj);
+			if (i == j) cov(i,j) += m_noiseVariance;
 		}
 	}
 	return cov;
@@ -591,7 +592,7 @@ StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
 
 	 try {
 		// create the group structure
-
+		HDF5Utils::writeString(modelRoot, "./statismo-version", STATISMO_VERSION);
 		Group representerGroup = modelRoot.createGroup("./representer");
 		HDF5Utils::writeStringAttribute(representerGroup, "name", Representer::GetName());
 

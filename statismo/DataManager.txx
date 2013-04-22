@@ -57,13 +57,13 @@ DataManager<Representer>::DataManager(const Representer* representer)
 template <typename Representer>
 DataManager<Representer>::~DataManager()
 {
-	for (typename SampleDataListType::iterator it = m_sampleDataList.begin();
-		 it != m_sampleDataList.end();
+	for (typename SampleDataStructureListType::iterator it = m_SampleDataStructureList.begin();
+		 it != m_SampleDataStructureList.end();
 		 ++it)
 	{
 		delete (*it);
 	}
-	m_sampleDataList.clear();
+	m_SampleDataStructureList.clear();
 	if (m_representer) {
 		m_representer->Delete();
 	}
@@ -107,7 +107,7 @@ DataManager<Representer>::Load(const std::string& filename) {
 			ss << "./dataset-" << num;
 
 			Group dsGroup = file.openGroup(ss.str().c_str());
-			newDataManager->m_sampleDataList.push_back(SampleDataType::Load(representer, dsGroup));
+			newDataManager->m_SampleDataStructureList.push_back(SampleDataStructureType::Load(representer, dsGroup));
 
 		}
 
@@ -147,11 +147,11 @@ DataManager<Representer>::Save(const std::string& filename) const {
 		representerGroup.close();
 
 		Group publicGroup = file.createGroup("/data");
-		HDF5Utils::writeInt(publicGroup, "./NumberOfDatasets", this->m_sampleDataList.size());
+		HDF5Utils::writeInt(publicGroup, "./NumberOfDatasets", this->m_SampleDataStructureList.size());
 
 		unsigned num = 0;
-		for (typename SampleDataListType::const_iterator it = this->m_sampleDataList.begin();
-				it != this->m_sampleDataList.end();
+		for (typename SampleDataStructureListType::const_iterator it = this->m_SampleDataStructureList.begin();
+				it != this->m_SampleDataStructureList.end();
 				++it)
 		{
 			std::ostringstream ss;
@@ -176,17 +176,17 @@ template <typename Representer>
 void
 DataManager<Representer>::AddDataset(DatasetConstPointerType dataset, const std::string& URI) {
 	DatasetPointerType sample = this->m_representer->DatasetToSample(dataset, 0);
-	m_sampleDataList.push_back(SampleDataType::Create(m_representer, URI , m_representer->SampleToSampleVector(sample)));
+	m_SampleDataStructureList.push_back(SampleDataStructureType::Create(m_representer, URI , m_representer->SampleToSampleVector(sample)));
 	Representer::DeleteDataset(sample);
 }
 
 
 
 template <typename Representer>
-typename DataManager<Representer>::SampleDataListType
-DataManager<Representer>::GetSampleData() const
+typename DataManager<Representer>::SampleDataStructureListType
+DataManager<Representer>::GetSampleDataStructure() const
 {
-	return m_sampleDataList;
+	return m_SampleDataStructureList;
 }
 
 template <typename Representer>
@@ -216,12 +216,12 @@ DataManager<Representer>::GetCrossValidationFolds(unsigned nFolds, bool randomiz
 	CrossValidationFoldListType foldList;
 	for (unsigned currentFold = 0; currentFold < nFolds; currentFold++)
 	{
-		SampleDataListType trainingData;
-		SampleDataListType testingData;
+		SampleDataStructureListType trainingData;
+		SampleDataStructureListType testingData;
 
 		unsigned sampleNum = 0;
-		for (typename SampleDataListType::const_iterator it = m_sampleDataList.begin();
-			  it != m_sampleDataList.end();
+		for (typename SampleDataStructureListType::const_iterator it = m_SampleDataStructureList.begin();
+			  it != m_SampleDataStructureList.end();
 			  ++it)
 		{
 			if (batchAssignment[sampleNum] != currentFold) {
@@ -238,6 +238,33 @@ DataManager<Representer>::GetCrossValidationFolds(unsigned nFolds, bool randomiz
 	return foldList;
 }
 
+
+template <typename Representer>
+typename DataManager<Representer>::CrossValidationFoldListType
+DataManager<Representer>::GetLeaveOneOutCrossValidationFolds() const {
+CrossValidationFoldListType foldList;
+	for (unsigned currentFold = 0; currentFold < GetNumberOfSamples(); currentFold++)
+	{
+		SampleDataStructureListType trainingData;
+		SampleDataStructureListType testingData;
+
+		unsigned sampleNum = 0;
+		for (typename SampleDataStructureListType::const_iterator it = m_SampleDataStructureList.begin();
+			  it != m_SampleDataStructureList.end();
+			  ++it, ++sampleNum)
+		{
+			if (sampleNum == currentFold) {
+				testingData.push_back(*it);
+			}
+			else {
+				trainingData.push_back(*it);
+			}
+		}
+		CrossValidationFoldType fold(trainingData, testingData);
+		foldList.push_back(fold);
+	}
+	return foldList;
+}
 
 
 

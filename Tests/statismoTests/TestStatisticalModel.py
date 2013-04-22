@@ -127,14 +127,25 @@ class Test(unittest.TestCase):
         scores = self.model.GetModelInfo().GetScoresMatrix()
         newScores = newModel.GetModelInfo().GetScoresMatrix()
 
-        di = self.model.GetModelInfo().GetDataInfo()
-        newDi = newModel.GetModelInfo().GetDataInfo()
+        builderInfoList = self.model.GetModelInfo().GetBuilderInfoList();
+        newBuilderInfoList = self.model.GetModelInfo().GetBuilderInfoList();
+        self.assertEqual(len(builderInfoList), len(newBuilderInfoList), 1)
+
+        di = builderInfoList[0].GetDataInfo() # there is only one list
+        newDi = newBuilderInfoList[0].GetDataInfo() #there is only one list
         self.assertEqual(len(di), len(newDi))
         
         for (sortedDi, sortedNewDi) in zip(sorted(di), sorted(newDi)):
             self.assertEqual(sortedDi[0], sortedNewDi[0])
             self.assertEqual(sortedDi[1], sortedNewDi[1])
 
+        pi = builderInfoList[0].GetParameterInfo()
+        newPi = newBuilderInfoList[0].GetParameterInfo() #there is only one list
+        self.assertEqual(len(pi), len(newPi))
+        
+        for (sortedPi, sortedNewPi) in zip(sorted(pi), sorted(newPi)):
+            self.assertEqual(sortedPi[0], sortedNewPi[0])
+            self.assertEqual(sortedPi[1], sortedNewPi[1])
         
         self.assertTrue(((scores - newScores) < 1e-3).all())
  
