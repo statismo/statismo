@@ -59,16 +59,15 @@ ModelInfo::Save(const H5::CommonFG& publicFg) const {
 	using namespace H5;
 
 	// get time and date
-
 	time_t rawtime;
 	struct tm * timeinfo;
+	std::time ( &rawtime );
+	timeinfo = std::localtime ( &rawtime );
 
-	time ( &rawtime );
-	timeinfo = localtime ( &rawtime );
 
 	 try {
 		 Group publicInfo = publicFg.createGroup("./modelinfo");
-		 HDF5Utils::writeString(publicInfo, "./build-time", asctime (timeinfo));
+		 HDF5Utils::writeString(publicInfo, "./build-time", std::asctime (timeinfo));
 		 if (m_scores.rows() != 0 && m_scores.cols() != 0) {
 			 HDF5Utils::writeMatrix(publicInfo, "./scores", m_scores);
 		 }
