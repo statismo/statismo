@@ -43,7 +43,7 @@
 #include "H5Cpp.h"
 #include "CommonTypes.h"
 #include <memory>
-
+#include <ctime>
 
 namespace statismo {
 
@@ -162,9 +162,9 @@ public:
 		time_t rawtime;
 		struct tm * timeinfo;
 
-		time ( &rawtime );
-		timeinfo = localtime ( &rawtime );
-		m_buildtime = asctime (timeinfo);
+		std::time ( &rawtime );
+		timeinfo = std::localtime ( &rawtime );
+		m_buildtime = std::asctime (timeinfo);
 
 	}
 
