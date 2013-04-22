@@ -51,7 +51,7 @@ namespace itk {
 /**
  * \ingroup Representers
  * \brief A representer for scalar valued itk Images, restricted within a ROI specified through a binary mask
- * \warning the images must be defined on the exact same grid of pixels (same number of pixels in every dimension)
+ * \warning the mask and image must be defined on the exact same grid of pixels (same number of pixels in every dimension)
  * \sa Representer
  */
 
