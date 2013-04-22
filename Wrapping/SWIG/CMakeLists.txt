@@ -20,6 +20,7 @@ set(VTK_LIBRARIES
 
 set (VTK_LIBRARIES_PYTHON
         vtkCommonPythonD
+        vtkPythonCore
         )
 
 include_directories(${STATISMO_ROOT_DIR} ${STATISMO_INCLUDE_DIR} ${STATISMO_ROOT_DIR}/3rdParty 

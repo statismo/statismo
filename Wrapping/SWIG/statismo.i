@@ -232,22 +232,29 @@ private:
 //////////////////////////////////////////////////////
 
 namespace statismo { 
-class ModelInfo {
+
+class BuilderInfo {
 public:
 	typedef std::pair<std::string, std::string> KeyValuePair;
 	typedef std::list<KeyValuePair> KeyValueList;
 			
-	ModelInfo(const statismo::MatrixType& scores, const KeyValueList& di, const KeyValueList& bi);	
-	const statismo::MatrixType& GetScoresMatrix() const;
-	virtual void Save(const H5::CommonFG& publicFg) const;
-	virtual void Load(const H5::CommonFG& publicFg);	
 	const KeyValueList& GetDataInfo() const;
-	const KeyValueList& GetBuilderInfo() const;	
+	const KeyValueList& GetParameterInfo() const;	
+};
+
+class ModelInfo {
+public:
+	typedef std::vector<BuilderInfo> BuilderInfoList;
+	const statismo::MatrixType& GetScoresMatrix() const;
+
+	virtual void Save(const H5::CommonFG& publicFg) const;
+	virtual void Load(const H5::CommonFG& publicFg);			
+	BuilderInfoList GetBuilderInfoList() const ;
 };
 }
 %template (KeyValuePair) std::pair<std::string, std::string>; 
 %template(KeyValueList) std::list<std::pair<std::string, std::string> >;
-
+%template(BuilderInfoList) std::vector<statismo::BuilderInfo>;
 
 /////////////////////////////////////////////////////////////////
 // Domain

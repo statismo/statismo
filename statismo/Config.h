@@ -38,6 +38,12 @@
 #ifndef __STATISMO_CONFIG_H
 #define __STATISMO_CONFIG_H
 
+#include <string>
+
+namespace statismo {
+const std::string STATISMO_VERSION = "0.9";
+}
+
 // gccxml (as used by e.g. wrapitk) does not compile with vectorization enabled.
 #if defined(__GCCXML__)
 #define EIGEN_DONT_VECTORIZE 1
