@@ -280,7 +280,7 @@ StatisticalModel<Representer>::ComputeCoefficientsForPointValues(const PointValu
 	{
 		ptIdValueList.push_back(PointIdValuePairType(m_representer->GetPointIdForPoint(it->first), it->second));
 	}
-	return ComputeCoefficientsForPointValues(ptIdValueList, pointValueNoiseVariance);
+	return ComputeCoefficientsForPointIDValues(ptIdValueList, pointValueNoiseVariance);
 }
 
 template <typename Representer>

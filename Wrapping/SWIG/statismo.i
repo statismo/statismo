@@ -320,9 +320,7 @@ public:
 	 
 	 statismo::VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const;
 	 statismo::VectorType ComputeCoefficientsForPointValues(const PointValueListType&  pointValues) const;
-
-	 //%rename("ComputeCoefficientsForPointIdValues") ComputeCoefficientsForPointValues(const PointIdValueListType&  pointValues) const;
-	 statismo::VectorType ComputeCoefficientsForPointValues(const PointIdValueListType&  pointValues) const;
+	 statismo::VectorType ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointValues) const;
 	 double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const;
 	 double ComputeProbabilityOfDataset(DatasetConstPointerType ds) const;
 	 

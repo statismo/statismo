@@ -219,7 +219,7 @@ class Test(unittest.TestCase):
             pvPair = statismo.PointValuePair_vtkPD(ref_pt, val)
             pvList.append(pvPair)
             
-        computed_coeffs_ptids = self.model.ComputeCoefficientsForPointValues(pidVList)                        
+        computed_coeffs_ptids = self.model.ComputeCoefficientsForPointIDValues(pidVList)                        
         computed_coeffs_pts = self.model.ComputeCoefficientsForPointValues(pvList)
         
         # does the list with the point and the one with the point ids yield the same result

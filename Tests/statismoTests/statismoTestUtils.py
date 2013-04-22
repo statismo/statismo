@@ -68,7 +68,7 @@ def buildPolyDataModel(datadir, noise):
         dm.AddDataset(dataset, filename)
     
     builder = statismo.PCAModelBuilder_vtkPD.Create()
-    model =  builder.BuildNewModel(dm.GetSampleData(), noise)
+    model =  builder.BuildNewModel(dm.GetSampleDataStructure(), noise)
 
     return model
   
