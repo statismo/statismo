@@ -92,8 +92,8 @@ public:
 
 
 
-	typename StatisticalModel<Representer>::Pointer BuildNewModel(SampleDataStructureListType SampleDataStructureList, float noiseVariance, bool computeScores = true) {
-		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, noiseVariance, computeScores));
+	typename StatisticalModel<Representer>::Pointer BuildNewModel(SampleDataStructureListType SampleDataStructureList, float noiseVariance, double modelVarianceRetained = 1, bool computeScores = true) {
+		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, noiseVariance, modelVarianceRetained, computeScores));
 		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
 		model_itk->SetstatismoImplObj(model_statismo);
 		return model_itk;

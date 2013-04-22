@@ -95,9 +95,11 @@ public:
 		BuildNewModel(SampleDataStructureListType SampleDataStructureList,
 						const typename statismo::ConditionalModelBuilder<Representer>::SurrogateTypeVectorType& surrogateTypes,
 						const typename statismo::ConditionalModelBuilder<Representer>::CondVariableValueVectorType& conditioningInfo,
-						float noiseVariance)
+						float noiseVariance,
+						double modelVarianceRetained
+						)
 		{
-			statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, surrogateTypes, conditioningInfo, noiseVariance));
+			statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, surrogateTypes, conditioningInfo, noiseVariance, modelVarianceRetained));
 			typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
 			model_itk->SetstatismoImplObj(model_statismo);
 			return model_itk;

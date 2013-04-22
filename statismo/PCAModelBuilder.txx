@@ -55,8 +55,9 @@ PCAModelBuilder<Representer>::PCAModelBuilder()
 
 template <typename Representer>
 typename PCAModelBuilder<Representer>::StatisticalModelType*
-PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList, double noiseVariance, bool computeScores) const
- {
+PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList, double noiseVariance, 
+                                            double modelVarianceRetained, bool computeScores) const
+{
 
 	unsigned n = sampleDataList.size();
 	if (n <= 0) {
@@ -81,7 +82,7 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& s
 
 
 	// build the model
-	StatisticalModelType* model = BuildNewModelInternal(representer, X, noiseVariance);
+	StatisticalModelType* model = BuildNewModelInternal(representer, X, noiseVariance, modelVarianceRetained);
 	MatrixType scores;
 	if (computeScores) {
 		scores = this->ComputeScores(X, model);
@@ -112,7 +113,8 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& s
 
 template <typename Representer>
 typename PCAModelBuilder<Representer>::StatisticalModelType*
-PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* representer, const MatrixType& X, double noiseVariance) const
+PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* representer, const MatrixType& X, double noiseVariance,
+                                                    double modelVarianceRetained) const
 {
 
 	typedef Eigen::JacobiSVD<MatrixType> SVDType;
@@ -141,8 +143,19 @@ PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* represent
 
 		unsigned numComponentsAboveTolerance = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
 
+    //store the total data variance
+    double totalDataVariance = singularValues.sum();
+    //and count the number of modes required for the model
+    double cumulatedVariance = singularValues(0);
+    unsigned numComponentsToReachPrescribedVariance = 1;
+    while ( cumulatedVariance/totalDataVariance < modelVarianceRetained ) {
+      numComponentsToReachPrescribedVariance++;
+      if (numComponentsToReachPrescribedVariance==singularValues.size()) break;
+      cumulatedVariance += singularValues(numComponentsToReachPrescribedVariance-1);
+    }
+
 		// there can be at most n-1 nonzero singular values in this case. Everything else must be due to numerical inaccuracies
-		unsigned numComponentsToKeep = std::min(numComponentsAboveTolerance, n - 1);
+		unsigned numComponentsToKeep = std::min( numComponentsToReachPrescribedVariance, std::min(numComponentsAboveTolerance, n - 1));
 		// compute the pseudo inverse of the square root of the singular values
 		// which is then needed to recompute the PCA basis
 		VectorType singSqrt = singularValues.array().sqrt();
@@ -156,7 +169,7 @@ PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* represent
 		// We use the fact that if we decompose X as X=UDV^T, then we get X^TX = UD^2U^T and XX^T = VD^2V^T (exploiting the orthogonormality
 		// of the matrix U and V from the SVD). The additional factor sqrt(n-1) is to compensate for the 1/sqrt(n-1) in the formula
 		// for the covariance matrix.
-		MatrixType pcaBasis = (X0.transpose() * V * singSqrtInv.asDiagonal() / sqrt(n-1.0)).topLeftCorner(p, numComponentsToKeep);;
+		MatrixType pcaBasis = (X0.transpose() * V * singSqrtInv.asDiagonal() / sqrt(n-1.0)).topLeftCorner(p, numComponentsToKeep);
 
 		if (numComponentsToKeep == 0) {
 			throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
@@ -165,15 +178,31 @@ PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* represent
 		VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
 		VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
 
-		StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance, totalDataVariance);
 
 		return model;
 	}
 	else {
 		// we compute an SVD of the full p x p  covariance matrix 1/(n-1) X0^TX0 directly
 		SVDType SVD(X0.transpose() * X0 * 1.0/(n-1), Eigen::ComputeThinU);
-		VectorType singularValues = SVD.singularValues();
-		unsigned numComponentsToKeep = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
+		VectorType singularValues = SVD.singularValues().cast<ScalarType>();
+	
+		unsigned numComponentsAboveTolerance = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
+			
+    //store the total data variance
+    double totalDataVariance = singularValues.sum();
+    //and count the number of modes required for the model
+    double cumulatedVariance = singularValues(0);
+    unsigned numComponentsToReachPrescribedVariance = 1;
+    while ( cumulatedVariance/totalDataVariance < modelVarianceRetained ) {
+      numComponentsToReachPrescribedVariance++;
+      if (numComponentsToReachPrescribedVariance==singularValues.size()) break;
+      cumulatedVariance += singularValues(numComponentsToReachPrescribedVariance-1);
+    }
+
+		// there can be at most n-1 nonzero singular values in this case. Everything else must be due to numerical inaccuracies
+		unsigned numComponentsToKeep = std::min( numComponentsToReachPrescribedVariance, std::min(numComponentsAboveTolerance, n - 1));
+		
 		MatrixType pcaBasis = SVD.matrixU().topLeftCorner(p, numComponentsToKeep);
 
 		if (numComponentsToKeep == 0) {
@@ -182,7 +211,7 @@ PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* represent
 
 		VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
 		VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
-		StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance, totalDataVariance);
 		return model;
 	}
 }

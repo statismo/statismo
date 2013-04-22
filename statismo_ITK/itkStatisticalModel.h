@@ -122,13 +122,10 @@ public:
 
 	typedef typename statismo::StatisticalModel<Representer>::DomainType DomainType;
 
+
 	void Load(const char* filename) {
-		return Load(filename, 100000);
-	}
-
-	void Load(const char* filename, unsigned maxNumberOfPCAComponents) {
 		try {
-			SetstatismoImplObj(ImplType::Load(filename, maxNumberOfPCAComponents));
+			SetstatismoImplObj(ImplType::Load(filename));
 		}
 		catch (statismo::StatisticalModelException& s) {
 			itkExceptionMacro(<< s.what());
@@ -136,15 +133,16 @@ public:
 	}
 
 
-	void Load(const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
+	void Load(const H5::Group& modelRoot) {
 		try {
-		  SetstatismoImplObj(ImplType::Load(modelRoot, maxNumberOfPCAComponents));
+		  SetstatismoImplObj(ImplType::Load(modelRoot));
 		}
 		catch (statismo::StatisticalModelException& s) {
 			itkExceptionMacro(<< s.what());
 		}
 	}
 
+  //TODO: wrap StatisticalModel* BuildReducedVarianceModel( double pcvar );
 
 	const Representer* GetRepresenter() const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::GetRepresenter, this->m_impl));

@@ -109,8 +109,23 @@ ImageROIRepresenter<TPixel, ImageDimension, TMaskPixel>::Load(const H5::CommonFG
 
 	newInstance->m_reference = ReadDataset(tmpfilename.c_str());
 	newInstance->m_mask = ReadMask(tmpfilename2.c_str());
-	std::remove(tmpfilename.c_str());
-	std::remove(tmpfilename2.c_str());
+
+	typename DomainType::DomainPointsListType domainPoints;
+  typename MaskType::PixelType* maskBuffer = newInstance->m_mask->GetBufferPointer();
+
+  newInstance->m_mapPointIDToInternalIdx.clear();
+  for (unsigned i=0 ; i<newInstance->m_mask->GetLargestPossibleRegion().GetNumberOfPixels () ; i++) {
+    if ( maskBuffer[i] != 0 ) {
+      newInstance->m_mapPointIDToInternalIdx.push_back( domainPoints.size() ); //-> has as many entries as the number of pixels
+      domainPoints.push_back(i); //-> to the index in the domain corresponds the pixel index (id) in the image
+    } else newInstance->m_mapPointIDToInternalIdx.push_back( std::numeric_limits<unsigned>::max() );
+  }
+
+  newInstance->m_domain = DomainType(domainPoints);
+
+
+  std::remove(tmpfilename.c_str());
+  std::remove(tmpfilename2.c_str());
 	return newInstance;
 }
 
@@ -120,39 +135,34 @@ template <class TPixel, unsigned ImageDimension, class TMaskPixel>
 void
 ImageROIRepresenter<TPixel, ImageDimension, TMaskPixel>::SetReference(ImageType* reference, MaskType* mask) {
 
-    if ( !mask ) { //default is the whole image
-        m_mask = MaskType::New();
-        m_mask->SetRegions(reference->GetLargestPossibleRegion());
-        m_mask->SetSpacing(reference->GetSpacing());
-        m_mask->SetOrigin(reference->GetOrigin());
-        m_mask->Allocate();
-        m_mask->FillBuffer(1);
+  if ( !mask ) { //default is the whole image
+    m_mask = MaskType::New();
+    m_mask->SetRegions(reference->GetLargestPossibleRegion());
+    m_mask->SetSpacing(reference->GetSpacing());
+    m_mask->SetOrigin(reference->GetOrigin());
+    m_mask->Allocate();
+    m_mask->FillBuffer(1);
+  }
+  else { //check the mask & reference image are consistent.
+    for (unsigned i=0 ; i<ImageDimension ; i++) {
+      if ( mask->GetLargestPossibleRegion().GetSize(i) != reference->GetLargestPossibleRegion().GetSize(i) ) throw StatisticalModelException("the reference image and mask must have the same size, spacing and origin");
     }
-    else { //check the mask & reference image are consistent.
-
-		for (unsigned i=0 ; i<ImageDimension ; i++) {
-            if ( mask->GetLargestPossibleRegion().GetSize(i) != reference->GetLargestPossibleRegion().GetSize(i) )
-                throw StatisticalModelException("the reference image and mask must have the same size, spacing and origin");
-        }
 		m_mask = mask;
-    }
-	m_reference = reference;
+  }
+  m_reference = reference;
 	
-
 	typename DomainType::DomainPointsListType domainPoints;
+  typename MaskType::PixelType* maskBuffer = m_mask->GetBufferPointer();
 
-    typename MaskType::PixelType* maskBuffer = m_mask->GetBufferPointer();
+  m_mapPointIDToInternalIdx.clear();
+  for (unsigned i=0 ; i<m_mask->GetLargestPossibleRegion().GetNumberOfPixels () ; i++) {
+    if ( maskBuffer[i] != 0 ) {
+      m_mapPointIDToInternalIdx.push_back( domainPoints.size() ); //-> has as many entries as the number of pixels
+      domainPoints.push_back(i); //-> to the index in the domain corresponds the pixel index (id) in the image
+    } else m_mapPointIDToInternalIdx.push_back( std::numeric_limits<unsigned>::max() );
+  }
 
-    m_mapPointIDToInternalIdx.clear();
-    for (unsigned i=0 ; i<m_mask->GetLargestPossibleRegion().GetNumberOfPixels () ; i++) {
-        if ( maskBuffer[i] != 0 ) {
-            m_mapPointIDToInternalIdx.push_back( domainPoints.size() ); //-> has as many entries as the number of pixels
-            domainPoints.push_back(i); //-> to the index in the domain corresponds the pixel index (id) in the image
-        }
-        else m_mapPointIDToInternalIdx.push_back( std::numeric_limits<unsigned>::max() );
-    }
-
-	m_domain = DomainType(domainPoints);
+  m_domain = DomainType(domainPoints);
 }
 
 template <class TPixel, unsigned ImageDimension, class TMaskPixel>

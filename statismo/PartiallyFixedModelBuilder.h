@@ -102,6 +102,7 @@ public:
 	 * \param pointValues A list of (point, value) pairs with the known values.
 	 * \param pointValueNoiseVariance The variance of the estimated error at the known points (the pointValues)
 	 * \param noiseVariance  The variance of the noise assumed on our data
+	 * \param modelVarianceRetained The percentage (in 0-1) of variance of the original data retained
 	 * \return a new statistical model
 	 *
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
@@ -109,7 +110,9 @@ public:
 	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& SampleDataStructureList,
 										const PointValueListType& pointValues,
 										double pointValueNoiseVariance,
-										double noiseVariance) const;
+										double noiseVariance,
+										double modelVarianceRetained = 1
+										) const;
 
 	/**
 	 * Builds a new StatisticalModel given a StatisticalModel and the given constraints.
@@ -120,12 +123,13 @@ public:
 	 * \param model A statistical model.
 	 * \param pointValues A list of (point, value) pairs with the known values.
 	 * \param pointValueNoiseVariance The variance of the estimated error at the known points (the pointValues)
+	 * \param modelVarianceRetained The percentage (in 0-1) of variance of the original data retained
 	 * \param computeScores Determines whether the scores are computed and stored in the model.
 	 * \return a new statistical model
 	 *
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
-	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, const PointValueListType& pointValues, double pointValueNoiseVariance, bool computeScores=true) const;
+	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, const PointValueListType& pointValues, double pointValueNoiseVariance, double modelVarianceRetained = 1, bool computeScores=true) const;
 
 protected:
 	

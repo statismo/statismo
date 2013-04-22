@@ -48,12 +48,13 @@
 namespace statismo {
 
 template <typename Representer>
-StatisticalModel<Representer>::StatisticalModel(const Representer* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
+StatisticalModel<Representer>::StatisticalModel(const Representer* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance, double totalDataVariance)
 : m_representer(representer->Clone()),
   m_mean(m),
   m_pcaVariance(pcaVariance),
   m_noiseVariance(noiseVariance),
-  m_cachedValuesValid(false)
+  m_cachedValuesValid(false),
+  m_totalDataVariance(totalDataVariance)
   {
 	VectorType D = pcaVariance.array().sqrt();
 	m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
@@ -483,7 +484,7 @@ StatisticalModel<Representer>::GetJacobian(const PointType& pt) const {
 
 template <typename Representer>
 StatisticalModel<Representer>*
-StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNumberOfPCAComponents) {
+StatisticalModel<Representer>::Load(const std::string& filename) {
 
 	using namespace H5;
 
@@ -500,7 +501,7 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 
 	Group modelRoot = file.openGroup("/");
 	
-	newModel =  Load(modelRoot, maxNumberOfPCAComponents);
+	newModel =  Load(modelRoot);
 
 	modelRoot.close();
 	file.close();
@@ -511,7 +512,7 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 
 template <typename Representer>
 StatisticalModel<Representer>*
-StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
+StatisticalModel<Representer>::Load(const H5::Group& modelRoot) {
 
 	using namespace H5;
 
@@ -528,10 +529,11 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 		representerGroup.close();
 
 		Group modelGroup = modelRoot.openGroup("./model");
-		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
+		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", newModel->m_pcaBasisMatrix);
 		HDF5Utils::readVector(modelGroup, "./mean", newModel->m_mean);
-		HDF5Utils::readVector(modelGroup, "./pcaVariance", maxNumberOfPCAComponents, newModel->m_pcaVariance);
+		HDF5Utils::readVector(modelGroup, "./pcaVariance", newModel->m_pcaVariance);
 		newModel->m_noiseVariance = HDF5Utils::readFloat(modelGroup, "./noiseVariance");
+		newModel->m_totalDataVariance = HDF5Utils::readFloat(modelGroup, "./totalDataVariance");
 
 		modelGroup.close();
 		newModel->m_modelInfo.Load(modelRoot);
@@ -547,6 +549,25 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 	newModel->m_cachedValuesValid = false;
 
 	return newModel;
+}
+
+template <typename Representer>
+StatisticalModel<Representer>*
+StatisticalModel<Representer>::BuildReducedVarianceModel( double pcvar ) {
+
+  //current model variance
+  double currentModelVariance = m_pcaVariance.sum();
+  //and count the number of modes required for the model
+  double cumulatedVariance = m_pcaVariance(0);
+  unsigned numComponentsToReachPrescribedVariance = 1;
+  while ( cumulatedVariance/currentModelVariance < pcvar ) {
+    numComponentsToReachPrescribedVariance++;
+    if (numComponentsToReachPrescribedVariance==m_pcaVariance.size()) break;
+    cumulatedVariance += m_pcaVariance(numComponentsToReachPrescribedVariance-1);
+  }
+  
+  StatisticalModel* model = this->Create(m_representer, m_mean, m_pcaBasisMatrix.leftCols(numComponentsToReachPrescribedVariance), m_pcaVariance.topRows(numComponentsToReachPrescribedVariance), m_noiseVariance, m_totalDataVariance);
+	return model;
 }
 
 template <typename Representer>
@@ -590,6 +611,7 @@ StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
 		HDF5Utils::writeVector(modelGroup, "./pcaVariance", m_pcaVariance);
 		HDF5Utils::writeVector(modelGroup, "./mean", m_mean);
 		HDF5Utils::writeFloat(modelGroup, "./noiseVariance", m_noiseVariance);
+		HDF5Utils::writeFloat(modelGroup, "./totalDataVariance", m_totalDataVariance);
 		modelGroup.close();
 
 		m_modelInfo.Save(modelRoot);
