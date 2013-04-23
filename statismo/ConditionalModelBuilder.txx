@@ -218,9 +218,10 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 
 		// add builder info and data info to the info list
 		MatrixType scores(0,0);
-		typename ModelInfo::BuilderInfoList bi;
-		bi.push_back(ModelInfo::KeyValuePair("BuilderName ", "ConditionalModelBuilder"));
-		bi.push_back(ModelInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
+		BuilderInfo::ParameterInfoList bi;
+
+		bi.push_back(BuilderInfo::KeyValuePair("BuilderName ", "ConditionalModelBuilder"));
+		bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
 		
 		//generate a matrix ; first column = boolean (yes/no, this variable is used) ; second: conditioning value.
 		MatrixType conditioningInfoMatrix(conditioningInfo.size(), 2);
@@ -228,13 +229,19 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 			conditioningInfoMatrix(i,0) = conditioningInfo[i].first;
 			conditioningInfoMatrix(i,1) = conditioningInfo[i].second;
 		}
-		bi.push_back(ModelInfo::KeyValuePair("ConditioningInfo ", Utils::toString(conditioningInfoMatrix)));
+		bi.push_back(BuilderInfo::KeyValuePair("ConditioningInfo ", Utils::toString(conditioningInfoMatrix)));
 		//Is this all that is necessary? do something special when loading?
 		//bi.push_back(ModelInfo::KeyValuePair("WARNING ", "The conditional model builder does not save all of its parameters yet"));
 
-		typename ModelInfo::DataInfoList di = pcaModel->GetModelInfo().GetDataInfo();
+		typename BuilderInfo::DataInfoList di;
 
-		ModelInfo info(scores, di, bi);
+
+		BuilderInfo builderInfo("ConditionalModelBuilder", di, bi);
+
+		ModelInfo::BuilderInfoList biList;
+		biList.push_back(builderInfo);
+
+		ModelInfo info(scores, biList);
 		model->SetModelInfo(info);
 
 		delete pcaModel;

@@ -142,6 +142,19 @@ StatisticalModel<Representer>::DrawSample(const VectorType& coefficients, bool a
 
 
 template <typename Representer>
+typename StatisticalModel<Representer>::DatasetPointerType
+StatisticalModel<Representer>::DrawPCABasisSample(const unsigned pcaComponent) const {
+	if (pcaComponent >= this->GetNumberOfPrincipalComponents()) {
+		throw StatisticalModelException("Wrong pcaComponent index provided to DrawPCABasisSample!");
+	}
+
+
+	return m_representer->SampleVectorToSample( m_pcaBasisMatrix.col(pcaComponent));
+}
+
+
+
+template <typename Representer>
 VectorType
 StatisticalModel<Representer>::DrawSampleVector(const VectorType& coefficients, bool addNoise) const {
 
@@ -224,7 +237,8 @@ StatisticalModel<Representer>::GetCovarianceAtPoint(unsigned ptId1, unsigned ptI
 		for (unsigned j = 0; j < dim; j++) {
 			unsigned idxj = Representer::MapPointIdToInternalIdx(ptId2, j);
 			VectorType vj = m_pcaBasisMatrix.row(idxj);
-			cov(i,j) = vi.dot(vj) + m_noiseVariance;
+			cov(i,j) = vi.dot(vj);
+			if (i == j) cov(i,j) += m_noiseVariance;
 		}
 	}
 	return cov;
@@ -599,7 +613,7 @@ StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
 
 	 try {
 		// create the group structure
-
+		HDF5Utils::writeString(modelRoot, "./statismo-version", STATISMO_VERSION);
 		Group representerGroup = modelRoot.createGroup("./representer");
 		HDF5Utils::writeStringAttribute(representerGroup, "name", Representer::GetName());
 

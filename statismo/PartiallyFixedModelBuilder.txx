@@ -189,10 +189,14 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 	StatisticalModelType* partiallyFixedModel = StatisticalModelType::Create(representer,newMean, newPCABasisMatrix, newPCAVariance, noiseVariance, totalDataVariance);
 
 	// Write the parameters used to build the models into the builderInfo
-	typename ModelInfo::BuilderInfoList bi;
-	bi.push_back(ModelInfo::KeyValuePair("BuilderName ", "PartiallyFixedModelBuilder"));
-	bi.push_back(ModelInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
-	bi.push_back(ModelInfo::KeyValuePair("FixedPointsVariance ", Utils::toString(pointValuesNoiseVariance)));
+
+	typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
+
+	BuilderInfo::ParameterInfoList bi;
+	bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
+	bi.push_back(BuilderInfo::KeyValuePair("FixedPointsVariance ", Utils::toString(pointValuesNoiseVariance)));
+//
+	BuilderInfo::DataInfoList di;
 
 	unsigned pt_no = 0;
 	for (typename PointValueListType::const_iterator it = pointValues.begin(); it != pointValues.end(); ++it) {
@@ -210,9 +214,12 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 		}
 		valueSStream << val[dim -1];
 		valueSStream << "))";
-		bi.push_back(ModelInfo::KeyValuePair(keySStream.str(), valueSStream.str()));
+		di.push_back(BuilderInfo::KeyValuePair(keySStream.str(), valueSStream.str()));
 		pt_no++;
 	}
+
+	BuilderInfo builderInfo("PartiallyFixedModelBuilder", di, bi);
+	builderInfoList.push_back(builderInfo);
 
 	MatrixType inputScores = inputModel->GetModelInfo().GetScoresMatrix();
 	MatrixType scores = MatrixType::Zero(inputScores.rows(), inputScores.cols());
@@ -227,7 +234,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 			Representer::DeleteDataset(ds);
 		}
 	}
-	ModelInfo info(scores, inputModel->GetModelInfo().GetDataInfo(), bi);
+	ModelInfo info(scores, builderInfoList);
 	partiallyFixedModel->SetModelInfo(info);
 
 	return partiallyFixedModel;

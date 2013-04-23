@@ -288,6 +288,17 @@ public:
 	DatasetPointerType DrawSample(bool addNoise = false) const ;
 
 
+
+	/**
+		 * Draws the sample corresponding to the ith pca matrix
+		 *
+		 * \param componentNumber The number of the PCA Basis to be retriefed
+		 *
+		 * \return A new sample
+		 * */
+	DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const;
+
+
 	/**
 	 * @name Point sampling and point information
 	 */
