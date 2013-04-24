@@ -40,6 +40,7 @@
 #include "itkMeshRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkPCAModelBuilder.h"
+#include "statismo_ITK/itkReducedVarianceModelBuilder.h"
 #include "statismo_ITK/itkDataManager.h"
 #include "itkDirectory.h"
 #include "itkMesh.h"
@@ -81,9 +82,11 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
 
 
 	typedef itk::PCAModelBuilder<RepresenterType> ModelBuilderType;
+	typedef itk::ReducedVarianceModelBuilder<RepresenterType> ReducedVarianceModelBuilderType;
 	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
     typedef itk::DataManager<RepresenterType> DataManagerType;
+
     typedef itk::MeshFileReader<MeshType> MeshReaderType;
 
     RepresenterType::Pointer representer = RepresenterType::New();
@@ -110,12 +113,12 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
     }
 
     ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0, 0.75);
-// RB: I don't know how to write the BuildReducedVarianceModel function in itkStatisticalModel.h, so I don't test this method for the moment...
-//    StatisticalModelType::Pointer fullmodel = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
-//   StatisticalModelType::Pointer reducedmodel = fullmodel->BuildReducedVarianceModel( 0.75)
+    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
+    ReducedVarianceModelBuilderType::Pointer reducedVarianceModelBuilder = ReducedVarianceModelBuilderType::New();
+    StatisticalModelType::Pointer reducedModel = reducedVarianceModelBuilder->BuildNewModelFromModel(model, 0.75);
 
-//    std::cout<<"number of modes in the direct model: " <<model->GetNumberOfPrincipalComponents()<<", and in the reduced model: "<<reducedmodel->GetNumberOfPrincipalComponents()<<" -- these should be equal"<<std::endl;
+    std::cout<<"number of modes in the direct model: " <<model->GetNumberOfPrincipalComponents()
+    		 <<", and in the reduced model: "<< reducedModel->GetNumberOfPrincipalComponents() << std::endl;
 
     model->Save(modelname);
 

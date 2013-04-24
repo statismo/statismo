@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __PCAMODELBUILDER_H_
-#define __PCAMODELBUILDER_H_
+#ifndef __ReducedVarianceModelBuilder_H_
+#define __ReducedVarianceModelBuilder_H_
 
 #include "Config.h"
 #include "ModelInfo.h"
@@ -51,60 +51,54 @@ namespace statismo {
 
 
 /**
- * \brief Creates StatisticalModel using Principal Component Analysis.
+ * \brief Builds a new model which retains only the specified total variance
  *
- * This class implements the classical PCA based approach to Statistical Models.
  */
 template <typename Representer>
-class PCAModelBuilder : public ModelBuilder<Representer> {
+class ReducedVarianceModelBuilder : public ModelBuilder<Representer> {
 
 
 public:
 
 	typedef ModelBuilder<Representer> Superclass;
-	typedef typename Superclass::DataManagerType DataManagerType;
 	typedef typename Superclass::StatisticalModelType StatisticalModelType;
-	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
 	/**
-	 * Factory method to create a new PCAModelBuilder
+	 * Factory method to create a new ReducedVarianceModelBuilder
 	 */
-	static PCAModelBuilder* Create() { return new PCAModelBuilder(); }
+	static ReducedVarianceModelBuilder* Create() { return new ReducedVarianceModelBuilder(); }
 
 	/**
 	 * Destroy the object.
 	 * The same effect can be achieved by deleting the object in the usual
 	 * way using the c++ delete keyword.
 	 */
-	void Delete() {delete this; }
+	void Delete() { delete this; }
 
 
 	/**
 	 * The desctructor
 	 */
-	virtual ~PCAModelBuilder() {}
+	virtual ~ReducedVarianceModelBuilder() {}
 
 	/**
-	 * Build a new model from the training data provided in the dataManager.
-	 * \param samples A sampleSet holding the data
-	 * \param noiseVariance The variance of N(0, noiseVariance) distributed noise on the points.
-	 * If this parameter is set to 0, we have a standard PCA model. For values > 0 we have a PPCA model.
-	 * \param computeScores Determines whether the scores (the pca coefficients of the examples) are computed and stored as model info
-	 * (computing the scores may take a long time for large models).
+	 * Build a new model from the given model, which retains only the specified variance
 	 *
-	 * \return A new Statistical model
-	 * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
+	 * \param model A statistical model.
+	 * \param totalVariance, The fraction of the variance to be retained
+	 * \param computeScores Determines whether the scores are computed and stored in the model.
+	 * \return a new statistical model
+	 *
+	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& samples, double noiseVariance, bool computeScores = true) const;
+	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const;
 
 
 private:
 	// to prevent use
-	PCAModelBuilder();
-	PCAModelBuilder(const PCAModelBuilder& orig);
-	PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
-
-	StatisticalModelType* BuildNewModelInternal(const Representer* representer, const MatrixType& X, double noiseVariance) const;
+	ReducedVarianceModelBuilder();
+	ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder& orig);
+	ReducedVarianceModelBuilder& operator=(const ReducedVarianceModelBuilder& rhs);
 
 
 };
@@ -113,6 +107,6 @@ private:
 
 } // namespace statismo
 
-#include "PCAModelBuilder.txx"
+#include "ReducedVarianceModelBuilder.txx"
 
-#endif /* __PCAMODELBUILDER_H_ */
+#endif /* __ReducedVarianceModelBuilder_H_ */

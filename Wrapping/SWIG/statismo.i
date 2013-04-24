@@ -58,6 +58,7 @@
 #include "statismo/DataManagerWithSurrogates.h"
 #include "statismo/StatisticalModel.h"
 #include "statismo/PartiallyFixedModelBuilder.h"
+#include "statismo/ReducedVarianceModelBuilder.h"
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/Exceptions.h"
 #include <list>
@@ -421,4 +422,32 @@ public:
 %template(PartiallyFixedModelBuilder_vtkPD) statismo::PartiallyFixedModelBuilder<vtkPolyDataRepresenter>;
 %template(PartiallyFixedModelBuilder_vtkSPF3) statismo::PartiallyFixedModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
 
+
+//////////////////////////////////////////////////////
+// ReducedVarianceModelBuilder
+//////////////////////////////////////////////////////
+
+namespace statismo { 
+%newobject *::BuildNewModelFromModel;
+
+template <typename Representer>
+class ReducedVarianceModelBuilder {
+	typedef ModelBuilder<Representer> Superclass;
+public:		
+	typedef  StatisticalModel<Representer> 	StatisticalModelType;	
+	
+	%newobject Create;
+	static ReducedVarianceModelBuilder* Create();
+	virtual ~ReducedVarianceModelBuilder();
+
+	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model,	double totalVariance, bool computeScores=true) const;
+
+	private:
+		ReducedVarianceModelBuilder();
+};
+}
+
+%template(ReducedVarianceModelBuilder_tvr) statismo::ReducedVarianceModelBuilder<TrivialVectorialRepresenter>;
+%template(ReducedVarianceModelBuilder_vtkPD) statismo::ReducedVarianceModelBuilder<vtkPolyDataRepresenter>;
+%template(ReducedVarianceModelBuilder_vtkSPF3) statismo::ReducedVarianceModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
 
