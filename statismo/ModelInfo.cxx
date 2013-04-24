@@ -142,8 +142,9 @@ ModelInfo::Load(const H5::CommonFG& publicFg) {
 	 publicModelGroup.close();
 }
 
-
-BuilderInfo ModelInfo::LoadDataInfoOldStatismoFormat(const H5::CommonFG& publicModelGroup) const {
+inline
+BuilderInfo 
+ModelInfo::LoadDataInfoOldStatismoFormat(const H5::CommonFG& publicModelGroup) const {
 	using namespace H5;
 
 	Group dataInfoGroup = publicModelGroup.openGroup("./dataInfo");
