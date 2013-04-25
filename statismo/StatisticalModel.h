@@ -138,44 +138,35 @@ public:
 	 * \param representer the represener
 	 * \param m the mean
 	 * \param orthonormalPCABasis An orthonormal matrix with the principal Axes.
-	 * \param pcaVariance The Variance for each principal Axis.
+	 * \param pcaVariance The Variance for each principal Axis
 	 * \param noiseVariance The variance of the (N(0,noiseVariance)) noise on each point
-	 * \param totalDataVariance The total amount of variance present in the pool of training data, before any dimensionality reduction or conditioning is applied.	 
 	 */
 	static StatisticalModel* Create(const Representer* representer,
 									const VectorType& m,
 									const MatrixType& orthonormalPCABasis,
 									const VectorType& pcaVariance,
-									double noiseVariance,
-									double totalDataVariance
-									)
+									double noiseVariance)
 	{
-		return new StatisticalModel(representer, m, orthonormalPCABasis, pcaVariance, noiseVariance, totalDataVariance);
+		return new StatisticalModel(representer, m, orthonormalPCABasis, pcaVariance, noiseVariance);
 	}
 
 
 	/**
 	 * Returns a new statistical model, which is loaded from the given HDF5 file
 	 * \param filename The filename
+	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
+	 * to create the model.
 	 */
-	static StatisticalModel* Load(const std::string& filename);
+	static StatisticalModel* Load(const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
 	/**
 	 * Returns a new statistical model, which is stored in the given HDF5 Group 
 	 *
 	 * \param modelroot A h5 group where the model is saved
+	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
+	 * to create the model.
 	 */
-	static StatisticalModel* Load(const H5::Group& modelroot);
-
-
-	/**
-	 * Returns a new statistical model, which contains only a reduced amount of the current model variability
-	 * This is achieved by discarding the least important modes, until the remaining cumulated variance 
-	 * is just greater or equal to the prescribed value
-	 *
-	 * \param pcvar, a value in [0,1] indicating the percentage of variance retained from the current model
-	 */
-	StatisticalModel* BuildReducedVarianceModel( double pcvar );
+	static StatisticalModel* Load(const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
 
 	/**
@@ -481,12 +472,6 @@ public:
 	 */
 	float GetNoiseVariance() const;
 
-
-	/**
-	 * Returns the total variance present in the data samples, regardless of the amount of variance retained in the model
-	 */
-  float GetTotalDataVariance() const { return m_totalDataVariance; }
-
 	/**
 	 * Returns a vector where each element holds the variance of the corresponding principal component in data space
 	 * */
@@ -562,7 +547,7 @@ private:
 	 * Create an instance of the StatisticalModel
 	 * @param representer An instance of the representer, used to convert the samples to dataset of the represented type.
 	 */
-	StatisticalModel(const Representer* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance, double totalDataVariance);
+	StatisticalModel(const Representer* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
 
 	/** Create an empty model. This is only used for the load method, which then sets all the parameters manually */
 	StatisticalModel(const Representer* representer) : m_representer(representer), m_noiseVariance(0), m_cachedValuesValid(0) {}
@@ -576,7 +561,7 @@ private:
 	MatrixType m_pcaBasisMatrix;
 	VectorType m_pcaVariance;
 	float m_noiseVariance;
-  double m_totalDataVariance;
+
 
 	// caching
 	mutable bool m_cachedValuesValid;
@@ -585,6 +570,7 @@ private:
 	mutable MatrixType m_MInverseMatrix;
 
 	ModelInfo m_modelInfo;
+
 };
 
 } // namespace statismo

@@ -48,13 +48,12 @@
 namespace statismo {
 
 template <typename Representer>
-StatisticalModel<Representer>::StatisticalModel(const Representer* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance, double totalDataVariance)
+StatisticalModel<Representer>::StatisticalModel(const Representer* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
 : m_representer(representer->Clone()),
   m_mean(m),
   m_pcaVariance(pcaVariance),
   m_noiseVariance(noiseVariance),
-  m_cachedValuesValid(false),
-  m_totalDataVariance(totalDataVariance)
+  m_cachedValuesValid(false)
   {
 	VectorType D = pcaVariance.array().sqrt();
 	m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
@@ -67,7 +66,7 @@ StatisticalModel<Representer>::~StatisticalModel()
 {
 	if (m_representer != 0) {
 		// not all representers can implement a const correct version of delete.
-		// We therefore simply const cast it. This is safe here.
+		// We therefore simply const cast it. This is save here.
 		const_cast<Representer*>(m_representer)->Delete();
 	}
 }
@@ -498,7 +497,7 @@ StatisticalModel<Representer>::GetJacobian(const PointType& pt) const {
 
 template <typename Representer>
 StatisticalModel<Representer>*
-StatisticalModel<Representer>::Load(const std::string& filename) {
+StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNumberOfPCAComponents) {
 
 	using namespace H5;
 
@@ -515,7 +514,7 @@ StatisticalModel<Representer>::Load(const std::string& filename) {
 
 	Group modelRoot = file.openGroup("/");
 	
-	newModel =  Load(modelRoot);
+	newModel =  Load(modelRoot, maxNumberOfPCAComponents);
 
 	modelRoot.close();
 	file.close();
@@ -526,11 +525,17 @@ StatisticalModel<Representer>::Load(const std::string& filename) {
 
 template <typename Representer>
 StatisticalModel<Representer>*
-StatisticalModel<Representer>::Load(const H5::Group& modelRoot) {
+StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
 
 	using namespace H5;
 
 	StatisticalModel* newModel = 0;
+
+	if (maxNumberOfPCAComponents != std::numeric_limits<unsigned>::max()) {
+		std::cout << "Warning! Loading a subset of the PCA Components can \
+				lead to inconsistencies in the model's history, when the model is saved or processed by other model builders." << std::endl;
+	}
+
 
 	try {
 		Group representerGroup = modelRoot.openGroup("./representer");
@@ -543,11 +548,10 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot) {
 		representerGroup.close();
 
 		Group modelGroup = modelRoot.openGroup("./model");
-		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", newModel->m_pcaBasisMatrix);
+		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
 		HDF5Utils::readVector(modelGroup, "./mean", newModel->m_mean);
-		HDF5Utils::readVector(modelGroup, "./pcaVariance", newModel->m_pcaVariance);
+		HDF5Utils::readVector(modelGroup, "./pcaVariance", maxNumberOfPCAComponents, newModel->m_pcaVariance);
 		newModel->m_noiseVariance = HDF5Utils::readFloat(modelGroup, "./noiseVariance");
-		newModel->m_totalDataVariance = HDF5Utils::readFloat(modelGroup, "./totalDataVariance");
 
 		modelGroup.close();
 		newModel->m_modelInfo.Load(modelRoot);
@@ -563,25 +567,6 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot) {
 	newModel->m_cachedValuesValid = false;
 
 	return newModel;
-}
-
-template <typename Representer>
-StatisticalModel<Representer>*
-StatisticalModel<Representer>::BuildReducedVarianceModel( double pcvar ) {
-
-  //current model variance
-  double currentModelVariance = m_pcaVariance.sum();
-  //and count the number of modes required for the model
-  double cumulatedVariance = m_pcaVariance(0);
-  unsigned numComponentsToReachPrescribedVariance = 1;
-  while ( cumulatedVariance/currentModelVariance < pcvar ) {
-    numComponentsToReachPrescribedVariance++;
-    if (numComponentsToReachPrescribedVariance==m_pcaVariance.size()) break;
-    cumulatedVariance += m_pcaVariance(numComponentsToReachPrescribedVariance-1);
-  }
-  
-  StatisticalModel* model = this->Create(m_representer, m_mean, m_pcaBasisMatrix.leftCols(numComponentsToReachPrescribedVariance), m_pcaVariance.topRows(numComponentsToReachPrescribedVariance), m_noiseVariance, m_totalDataVariance);
-	return model;
 }
 
 template <typename Representer>
@@ -613,7 +598,7 @@ StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
 
 	 try {
 		// create the group structure
-		HDF5Utils::writeString(modelRoot, "./statismo-version", STATISMO_VERSION);
+
 		Group representerGroup = modelRoot.createGroup("./representer");
 		HDF5Utils::writeStringAttribute(representerGroup, "name", Representer::GetName());
 
@@ -625,7 +610,6 @@ StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
 		HDF5Utils::writeVector(modelGroup, "./pcaVariance", m_pcaVariance);
 		HDF5Utils::writeVector(modelGroup, "./mean", m_mean);
 		HDF5Utils::writeFloat(modelGroup, "./noiseVariance", m_noiseVariance);
-		HDF5Utils::writeFloat(modelGroup, "./totalDataVariance", m_totalDataVariance);
 		modelGroup.close();
 
 		m_modelInfo.Save(modelRoot);
