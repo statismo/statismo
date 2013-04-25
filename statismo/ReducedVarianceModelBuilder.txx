@@ -65,12 +65,13 @@ ReducedVarianceModelBuilder<Representer>::BuildNewModelFromModel(
 	  double modelVariance = pcaVariance.sum();
 
 	  //count the number of modes required for the model
-	  double cumulatedVariance = pcaVariance(0);
-	  unsigned numComponentsToReachPrescribedVariance = 1;
-	  while ( cumulatedVariance / modelVariance < totalVariance ) {
-	    numComponentsToReachPrescribedVariance++;
-	    if (numComponentsToReachPrescribedVariance==pcaVariance.size()) break;
-	    cumulatedVariance += pcaVariance(numComponentsToReachPrescribedVariance-1);
+	  double cumulatedVariance = 0;
+	  unsigned numComponentsToReachPrescribedVariance = 0;
+	  for (unsigned i = 0; i < pcaVariance.size(); i++) {
+		  cumulatedVariance += pcaVariance(i);
+		  if (cumulatedVariance / modelVariance >= totalVariance)
+			  break;
+		  numComponentsToReachPrescribedVariance++;
 	  }
 
 	  StatisticalModelType* reducedModel = StatisticalModelType::Create(
@@ -92,7 +93,7 @@ ReducedVarianceModelBuilder<Representer>::BuildNewModelFromModel(
 	BuilderInfo builderInfo("ReducedVarianceModelBuilder", di, bi);
 	builderInfoList.push_back(builderInfo);
 
-	ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().leftCols(numComponentsToReachPrescribedVariance), builderInfoList);
+	ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsToReachPrescribedVariance), builderInfoList);
 	reducedModel->SetModelInfo(info);
 
 	return reducedModel;
