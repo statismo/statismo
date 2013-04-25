@@ -59,14 +59,12 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModel(
 		const SampleDataStructureListType& sampleDataList,
 		const PointValueListType& pointValues,
 		double pointValuesNoiseVariance,
-		double noiseVariance,
-		double modelVarianceRetained
-		) const
+		double noiseVariance) const
 {
 	typedef PCAModelBuilder<Representer> PCAModelBuilderType;
 	PCAModelBuilderType* modelBuilder = PCAModelBuilderType::Create();
 	StatisticalModelType* model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
-	StatisticalModelType* partiallyFixedModel = BuildNewModelFromModel(model, pointValues, pointValuesNoiseVariance, noiseVariance, modelVarianceRetained);
+	StatisticalModelType* partiallyFixedModel = BuildNewModelFromModel(model, pointValues, pointValuesNoiseVariance, noiseVariance);
 	delete modelBuilder;
 	delete model;
 	return partiallyFixedModel;
@@ -79,10 +77,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 		const StatisticalModelType* inputModel,
 		const PointValueListType& pointValues,
 		double pointValuesNoiseVariance,
-		double modelVarianceRetained,
-		bool computeScores) const
-{
-	double totalDataVariance = inputModel->GetTotalDataVariance();
+		bool computeScores) const {
 
 	const Representer* representer = inputModel->GetRepresenter();
 
@@ -167,26 +162,13 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 	typedef Eigen::JacobiSVD<MatrixTypeDoublePrecision> SVDType;
 	MatrixTypeDoublePrecision innerMatrix = pcaSdev.asDiagonal() * Minv * pointValuesNoiseVariance * pcaSdev.asDiagonal();
 	SVDType svd(innerMatrix, Eigen::ComputeThinU);
-	VectorType singularValues = svd.singularValues().cast<ScalarType>();
 
-  // keep only the necessary number of modes, wrt modelVarianceRetained...
-  double totalRemainingVariance = singularValues.sum(); //
-  //and count the number of modes required for the model
-  double cumulatedVariance = singularValues(0);
-  unsigned numComponentsToReachPrescribedVariance = 1;
-  while ( cumulatedVariance/totalRemainingVariance < modelVarianceRetained ) {
-    numComponentsToReachPrescribedVariance++;
-    if (numComponentsToReachPrescribedVariance==singularValues.size()) break;
-    cumulatedVariance += singularValues(numComponentsToReachPrescribedVariance-1);
-  }
 
-  unsigned numComponentsToKeep = std::min<unsigned>( numComponentsToReachPrescribedVariance, singularValues.size() );
+	VectorType newPCAVariance = svd.singularValues().cast<ScalarType>();
 
-	VectorType newPCAVariance = singularValues.topRows(numComponentsToKeep);
-	MatrixType newPCABasisMatrix = (inputModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).topLeftCorner(pcaBasisMatrix.cols(), numComponentsToKeep);
+	MatrixType newPCABasisMatrix = pcaBasisMatrix * svd.matrixU().cast<ScalarType>();
 
-  //generate the statistical model
-	StatisticalModelType* partiallyFixedModel = StatisticalModelType::Create(representer,newMean, newPCABasisMatrix, newPCAVariance, noiseVariance, totalDataVariance);
+	StatisticalModelType* partiallyFixedModel = StatisticalModelType::Create(representer,newMean, newPCABasisMatrix, newPCAVariance, noiseVariance);
 
 	// Write the parameters used to build the models into the builderInfo
 
@@ -217,6 +199,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 		di.push_back(BuilderInfo::KeyValuePair(keySStream.str(), valueSStream.str()));
 		pt_no++;
 	}
+
 
 	BuilderInfo builderInfo("PartiallyFixedModelBuilder", di, bi);
 	builderInfoList.push_back(builderInfo);

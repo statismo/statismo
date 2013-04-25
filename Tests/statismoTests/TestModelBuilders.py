@@ -234,6 +234,16 @@ class Test(unittest.TestCase):
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[1], fixedpt[1], 1)
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[2], fixedpt[2], 1)
 
+    def testReducedVarianceModelBuilderCorrectlyReducesTotalVariance(self):
+        modelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
+ 
+        model = modelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), 0.)
+        reducedVarianceModelBuilder = statismo.ReducedVarianceModelBuilder_vtkPD.Create()
+
+        for totalVariance in [1.0, 0.8, 0.6, 0.4, 0.2, 0]:
+            reducedModel = reducedVarianceModelBuilder.BuildNewModelFromModel(model, totalVariance)
+            self.assertTrue(reducedModel.GetPCAVarianceVector().sum() <= totalVariance * model.GetPCAVarianceVector().sum())
+
 suite = unittest.TestLoader().loadTestsFromTestCase(Test)
             
 if __name__ == "__main__":

@@ -140,7 +140,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 	typedef PCAModelBuilder<Representer> PCAModelBuilderType;
 	PCAModelBuilderType* modelBuilder = PCAModelBuilderType::Create();
 	StatisticalModelType* pcaModel = modelBuilder->BuildNewModel(acceptedSamples, noiseVariance);
-	double totalDataVariance = pcaModel->GetTotalDataVariance();
+
 	unsigned nPCAComponents = pcaModel->GetNumberOfPrincipalComponents();
 	
 	if ( X.cols() == 0 || X.rows() == 0)
@@ -214,7 +214,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
   	VectorType newPCAVariance = singularValues.topRows(numComponentsToKeep);
   	MatrixType newPCABasisMatrix = (pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).topLeftCorner(X.cols(), numComponentsToKeep);
 
-		StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(), condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance, totalDataVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(), condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance);
 
 		// add builder info and data info to the info list
 		MatrixType scores(0,0);
