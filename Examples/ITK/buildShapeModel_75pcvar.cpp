@@ -120,7 +120,7 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
     std::cout<<"number of modes in the direct model: " <<model->GetNumberOfPrincipalComponents()
     		 <<", and in the reduced model: "<< reducedModel->GetNumberOfPrincipalComponents() << std::endl;
 
-    model->Save(modelname);
+    reducedModel->Save(modelname);
 
 
 
