@@ -93,6 +93,7 @@ public:
 			return *this;
 		}
 		this->m_builderInfo = rhs.m_builderInfo;
+		this->m_scores = rhs.m_scores;
 		return *this;
 	}
 
