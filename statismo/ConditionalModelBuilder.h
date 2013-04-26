@@ -84,7 +84,7 @@ public:
 	typedef DataManagerWithSurrogates<Representer> DataManagerType;
 	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 	typedef typename DataManagerType::SampleDataStructureWithSurrogatesType SampleDataStructureWithSurrogatesType;
-	typedef typename DataManagerType::SurrogateTypeVectorType SurrogateTypeVectorType;
+	typedef typename DataManagerType::SurrogateTypeInfoType SurrogateTypeInfoType;
 
 	/**
 	 * Factory method to create a new ConditionalModelBuilder
@@ -110,7 +110,7 @@ public:
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
 	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleSet,
-										const SurrogateTypeVectorType& surrogateTypes,
+										const SurrogateTypeInfoType& surrogateTypesInfo,
 										const CondVariableValueVectorType& conditioningInfo,
 										float noiseVariance,
 										double modelVarianceRetained = 1) const;
@@ -118,7 +118,7 @@ public:
 private:
 
 	unsigned PrepareData(const SampleDataStructureListType& SampleDataStructureList,
-						 const SurrogateTypeVectorType& surrogateTypes,
+						 const SurrogateTypeInfoType& surrogateTypesInfo,
 						 const CondVariableValueVectorType& conditioningInfo,
 						 SampleDataStructureListType* acceptedSamples,
 						 MatrixType* surrogateMatrix,

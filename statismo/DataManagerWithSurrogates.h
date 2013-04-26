@@ -65,6 +65,12 @@ public:
 
 	typedef typename SampleDataStructureWithSurrogatesType::SurrogateTypeVectorType SurrogateTypeVectorType;
 
+	struct SurrogateTypeInfoType {
+	  SurrogateTypeVectorType types;
+	  std::string typeFilename;
+	};
+
+
 	/**
 	 * Destructor
 	 */
@@ -93,8 +99,13 @@ public:
 	/**
 	 * Get a vector indicating the types of surrogates variables (Categorical vs Continuous)
 	 */
-	SurrogateTypeVectorType GetSurrogateTypes() const {return m_surrogateTypes;}
+	SurrogateTypeVectorType GetSurrogateTypes() const {return m_typeInfo.types;}
 
+  /** Returns the source filename defining the surrogate types */
+	std::string GetSurrogateTypeFilename() const {return m_typeInfo.typeFilename;}
+
+  /** Get a structure containing the type info: vector of types, and source filename */
+	SurrogateTypeInfoType GetSurrogateTypeInfo() const {return m_typeInfo;}
 
 protected:
 
@@ -112,7 +123,7 @@ protected:
 	DataManagerWithSurrogates(const DataManagerWithSurrogates& orig);
 	DataManagerWithSurrogates& operator=(const DataManagerWithSurrogates& rhs);
 
-	SurrogateTypeVectorType m_surrogateTypes;
+	SurrogateTypeInfoType m_typeInfo;
 };
 
 }

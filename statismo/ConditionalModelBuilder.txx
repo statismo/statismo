@@ -53,7 +53,7 @@ namespace statismo {
 template <typename Representer>
 unsigned
 ConditionalModelBuilder<Representer>::PrepareData(const SampleDataStructureListType& sampleDataList,
-                                                  const SurrogateTypeVectorType& surrogateTypes,
+                                                  const SurrogateTypeInfoType& surrogateTypesInfo,
 												  const CondVariableValueVectorType& conditioningInfo,
 												  SampleDataStructureListType *acceptedSamples,
 												  MatrixType *surrogateMatrix,
@@ -68,7 +68,7 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataStructureListT
 	//first: identify the continuous and categorical variables, which are used for conditioning and which are not
 	for (unsigned i=0 ; i<conditioningInfo.size() ; i++) {
 		if (conditioningInfo[i].first) { //only variables that are used for conditioning are of interest here
-			if (surrogateTypes[i] == SampleDataStructureWithSurrogatesType::Continuous) {
+			if (surrogateTypesInfo.types[i] == SampleDataStructureWithSurrogatesType::Continuous) {
 				nbContinuousSurrogatesInUse++;
 				indicesContinuousSurrogatesInUse.push_back(i);
 			}
@@ -123,7 +123,7 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataStructureListT
 template <typename Representer>
 typename ConditionalModelBuilder<Representer>::StatisticalModelType*
 ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList,
-													const SurrogateTypeVectorType& surrogateTypes,
+													const SurrogateTypeInfoType& surrogateTypesInfo,
 													const CondVariableValueVectorType& conditioningInfo,
 													float noiseVariance,										
 													double modelVarianceRetained) const
@@ -131,7 +131,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 	SampleDataStructureListType acceptedSamples;
 	MatrixType X;
 	VectorType x0;
-	unsigned nSamples = PrepareData(sampleDataList, surrogateTypes, conditioningInfo, &acceptedSamples, &X, &x0);
+	unsigned nSamples = PrepareData(sampleDataList, surrogateTypesInfo, conditioningInfo, &acceptedSamples, &X, &x0);
 	assert(nSamples == acceptedSamples.size());
 
 	unsigned nCondVariables = X.rows();
@@ -246,12 +246,9 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 	    di.push_back(BuilderInfo::KeyValuePair(os.str().c_str(),sampleData->GetSurrogateFilename()));
 	  }
 
-	  //TODO: add info about surrogate types !!!
-	  //currently, we don't keep a file for that...
-    //std::ostringstream os;
-    //os << "surrogates_types";
-	  //dataInfo.push_back(BuilderInfo::KeyValuePair(os.str().c_str(),(*it)->GetSurrogateFilename()));
-	  //GetSurrogateTypes()
+    std::ostringstream os;
+    os << "surrogates_types";
+	  di.push_back(BuilderInfo::KeyValuePair(os.str().c_str(),surrogateTypesInfo.typeFilename));
 
 
 		BuilderInfo builderInfo("ConditionalModelBuilder", di, bi);
