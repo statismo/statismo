@@ -89,6 +89,7 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataStructureListT
 		if (sampleData == 0)  {
 			// this is a normal sample without surrogate information.
 			// we simply discard it
+		  std::cout<<"WARNING: ConditionalModelBuilder, sample data "<< (*it)->GetDatasetURI()<<" has no surrogate data associated, and is ignored"<<std::endl;
 			continue;
 		}
 
@@ -127,7 +128,6 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 													float noiseVariance,										
 													double modelVarianceRetained) const
 {
-
 	SampleDataStructureListType acceptedSamples;
 	MatrixType X;
 	VectorType x0;
@@ -220,7 +220,6 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 		MatrixType scores(0,0);
 		BuilderInfo::ParameterInfoList bi;
 
-		bi.push_back(BuilderInfo::KeyValuePair("BuilderName ", "ConditionalModelBuilder"));
 		bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
 		
 		//generate a matrix ; first column = boolean (yes/no, this variable is used) ; second: conditioning value.
@@ -230,10 +229,29 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 			conditioningInfoMatrix(i,1) = conditioningInfo[i].second;
 		}
 		bi.push_back(BuilderInfo::KeyValuePair("ConditioningInfo ", Utils::toString(conditioningInfoMatrix)));
-		//Is this all that is necessary? do something special when loading?
-		//bi.push_back(ModelInfo::KeyValuePair("WARNING ", "The conditional model builder does not save all of its parameters yet"));
 
 		typename BuilderInfo::DataInfoList di;
+
+		unsigned i = 0;
+	  for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin();
+	      it != sampleDataList.end();
+	      ++it, i++)
+	  {
+	    const SampleDataStructureWithSurrogatesType* sampleData = dynamic_cast<const SampleDataStructureWithSurrogatesType*>(*it);
+	    std::ostringstream os;
+      os << "URI_" << i;
+      di.push_back(BuilderInfo::KeyValuePair(os.str().c_str(),sampleData->GetDatasetURI()));
+
+	    os << "_surrogates";
+	    di.push_back(BuilderInfo::KeyValuePair(os.str().c_str(),sampleData->GetSurrogateFilename()));
+	  }
+
+	  //TODO: add info about surrogate types !!!
+	  //currently, we don't keep a file for that...
+    //std::ostringstream os;
+    //os << "surrogates_types";
+	  //dataInfo.push_back(BuilderInfo::KeyValuePair(os.str().c_str(),(*it)->GetSurrogateFilename()));
+	  //GetSurrogateTypes()
 
 
 		BuilderInfo builderInfo("ConditionalModelBuilder", di, bi);
