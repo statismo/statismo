@@ -69,9 +69,9 @@ ReducedVarianceModelBuilder<Representer>::BuildNewModelFromModel(
 	  unsigned numComponentsToReachPrescribedVariance = 0;
 	  for (unsigned i = 0; i < pcaVariance.size(); i++) {
 		  cumulatedVariance += pcaVariance(i);
+		  numComponentsToReachPrescribedVariance++;
 		  if (cumulatedVariance / modelVariance >= totalVariance)
 			  break;
-		  numComponentsToReachPrescribedVariance++;
 	  }
 
 	  StatisticalModelType* reducedModel = StatisticalModelType::Create(
