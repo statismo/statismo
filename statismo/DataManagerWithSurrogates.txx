@@ -59,9 +59,11 @@ void
 DataManagerWithSurrogates<Representer>::LoadSurrogateTypes(const std::string& filename) {
 	VectorType tmpVector;
 	tmpVector = Utils::ReadVectorFromTxtFile(filename.c_str());
+	m_typeInfo.typeFilename = filename;
+	m_typeInfo.types.clear();
 	for (unsigned i=0 ; i<tmpVector.size() ; i++) {
-		if (tmpVector(i)==0) m_surrogateTypes.push_back(SampleDataStructureWithSurrogatesType::Categorical);
-		else m_surrogateTypes.push_back(SampleDataStructureWithSurrogatesType::Continuous);
+		if (tmpVector(i)==0) m_typeInfo.types.push_back(SampleDataStructureWithSurrogatesType::Categorical);
+		else m_typeInfo.types.push_back(SampleDataStructureWithSurrogatesType::Continuous);
 	}
 }
 
@@ -79,7 +81,7 @@ DataManagerWithSurrogates<Representer>::AddDatasetWithSurrogates(typename Repres
 
 	const VectorType& surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
 
-	if (surrogateVector.size() != m_surrogateTypes.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
+	if (surrogateVector.size() != m_typeInfo.types.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
 
 	DatasetPointerType sample = this->m_representer->DatasetToSample(ds, 0);
 
