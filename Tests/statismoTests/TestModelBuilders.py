@@ -242,7 +242,13 @@ class Test(unittest.TestCase):
 
         for totalVariance in [1.0, 0.8, 0.6, 0.4, 0.2, 0]:
             reducedModel = reducedVarianceModelBuilder.BuildNewModelFromModel(model, totalVariance)
-            self.assertTrue(reducedModel.GetPCAVarianceVector().sum() <= totalVariance * model.GetPCAVarianceVector().sum())
+
+            # we keep at least the required percentage of total variance
+            self.assertTrue(reducedModel.GetPCAVarianceVector().sum() >= totalVariance * model.GetPCAVarianceVector().sum())
+
+        # check that there is a reduction (though we cannot say how much, as the specified variance is a lower bound)
+        reducedModel05 = reducedVarianceModelBuilder.BuildNewModelFromModel(model, 0.5)
+        self.assertTrue(reducedModel05.GetPCAVarianceVector().sum() <= model.GetPCAVarianceVector().sum())        
 
 suite = unittest.TestLoader().loadTestsFromTestCase(Test)
             
