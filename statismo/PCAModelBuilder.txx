@@ -47,15 +47,15 @@ namespace statismo {
 
 
 
-template <typename Representer>
-PCAModelBuilder<Representer>::PCAModelBuilder()
+template <typename T>
+PCAModelBuilder<T>::PCAModelBuilder()
 : Superclass()
   {}
 
 
-template <typename Representer>
-typename PCAModelBuilder<Representer>::StatisticalModelType*
-PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList, double noiseVariance, bool computeScores) const
+template <typename T>
+typename PCAModelBuilder<T>::StatisticalModelType*
+PCAModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sampleDataList, double noiseVariance, bool computeScores) const
  {
 
 	unsigned n = sampleDataList.size();
@@ -64,7 +64,7 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& s
 	}
 
 	unsigned p = sampleDataList.front()->GetSampleVector().rows();
-	const Representer* representer = sampleDataList.front()->GetRepresenter();
+	const Representer<T>* representer = sampleDataList.front()->GetRepresenter();
 
 	// Build the sample matrix X
 	MatrixType X(n, p);
@@ -116,9 +116,9 @@ PCAModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& s
 }
 
 
-template <typename Representer>
-typename PCAModelBuilder<Representer>::StatisticalModelType*
-PCAModelBuilder<Representer>::BuildNewModelInternal(const Representer* representer, const MatrixType& X, double noiseVariance) const
+template <typename T>
+typename PCAModelBuilder<T>::StatisticalModelType*
+PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const
 {
 
 	typedef Eigen::JacobiSVD<MatrixType> SVDType;

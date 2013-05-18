@@ -107,32 +107,31 @@ private:
  * \sa Representer
  * \sa SampleDataStructure
  */
-template <typename Representer>
+template <typename T>
 class DataManager {
-
-	typedef typename Representer::DatasetPointerType DatasetPointerType;
-	typedef typename Representer::DatasetConstPointerType DatasetConstPointerType;
+	typedef  Representer<T> RepresenterType;
+	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
+	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
 
 public:
-	typedef Representer RepresenterType;
 
-	typedef SampleDataStructure<Representer> SampleDataStructureType;
-	typedef SampleDataStructureWithSurrogates<Representer> SampleDataStructureWithSurrogatesType;
+	typedef SampleDataStructure<RepresenterType> SampleDataStructureType;
+	typedef SampleDataStructureWithSurrogates<RepresenterType> SampleDataStructureWithSurrogatesType;
 	typedef std::list<const SampleDataStructureType*> SampleDataStructureListType;
-	typedef CrossValidationFold<Representer> CrossValidationFoldType;
+	typedef CrossValidationFold<RepresenterType> CrossValidationFoldType;
 	typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
 
 	/**
 	 * Factory method that creates a new instance of a DataManager class
 	 *
 	 */
-	static DataManager<Representer>* Create(const Representer* representer) { return new DataManager<Representer>(representer); }
+	static DataManager<T>* Create(const RepresenterType* representer) { return new DataManager<T>(representer); }
 
 	/**
 	 * Create a new dataManager, with the data stored in the given hdf5 file
 	 */
-	static DataManager<Representer>* Load(const std::string& filename);
+	static DataManager<T>* Load(Representer<T>* representer, const std::string& filename);
 
 
 	/**
@@ -195,12 +194,12 @@ public:
 
 
 protected:
-	DataManager(const Representer* representer);
+	DataManager(const RepresenterType* representer);
 
-	DataManager(const DataManager& orig);
-	DataManager& operator=(const DataManager& rhs);
+	DataManager(const DataManager<T>& orig);
+	DataManager& operator=(const DataManager<T>& rhs);
 
-	Representer* m_representer; // TODO make this a shared pointer
+	RepresenterType* m_representer; // TODO make this a shared pointer
 
 	// members
 	SampleDataStructureListType m_SampleDataStructureList;

@@ -39,11 +39,15 @@
 #ifndef TRIVIALVECTORIALREPRESENTER_H
 #define TRIVIALVECTORIALREPRESENTER_H
 
+#include "statismo/Representer.h"
 #include "statismo/CommonTypes.h"
 #include "statismo/Domain.h"
 #include "statismo/HDF5Utils.h"
 #include <H5Cpp.h>
 #include <memory>
+
+
+namespace statismo {
 
 // A pointId is actually just an unsigned. However, we need to create a distinct type, to disambiguate some of
 // the methods.
@@ -55,34 +59,46 @@ struct PointIdType {
 
 };
 
-/**
- * \brief A trivial representer, that does no representation at all, but works directly with vectorial data
- *
- * \warning This representer is mainly for debugging purposes and not intended to be used for real projets
- */
-class TrivialVectorialRepresenter  {
-public:
 
-
-	// For simplicity, we don't use pointers, but copy the objects (as efficiency is not the goal of this representer).
+template <>
+struct RepresenterTraits<statismo::VectorType> {
 	typedef statismo::VectorType DatasetPointerType;
 	typedef statismo::VectorType DatasetConstPointerType;
 
 	typedef PointIdType PointType;
 	typedef statismo::ScalarType ValueType;
 
+	static void DeleteDataset(DatasetPointerType d) {};
+    ///@}
+
+
+};
+
+
+
+
+/**
+ * \brief A trivial representer, that does no representation at all, but works directly with vectorial data
+ *
+ * \warning This representer is mainly for debugging purposes and not intended to be used for real projets
+ */
+class TrivialVectorialRepresenter : public Representer<statismo::VectorType> {
+public:
+
+	typedef statismo::ScalarType ValueType;
 	typedef statismo::Domain<PointType> DomainType;
 
-	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
-
+	static TrivialVectorialRepresenter* Create() {
+		return new TrivialVectorialRepresenter();
+	}
 
 	static TrivialVectorialRepresenter* Create(unsigned numberOfPoints) {
 		return new TrivialVectorialRepresenter(numberOfPoints);
 	}
 
-	static TrivialVectorialRepresenter* Load(const H5::CommonFG& fg) {
+	void Load(const H5::CommonFG& fg) {
 		unsigned numPoints = static_cast<unsigned>(statismo::HDF5Utils::readInt(fg, "numberOfPoints"));
-		return TrivialVectorialRepresenter::Create(numPoints);
+		initializeObject(numPoints);
 	}
 
 	TrivialVectorialRepresenter* Clone() const {return TrivialVectorialRepresenter::Create(m_domain.GetNumberOfPoints());}
@@ -91,39 +107,44 @@ public:
 	virtual ~TrivialVectorialRepresenter() {}
 
 
-	static std::string GetName() { return "TrivialVectorialRepresenter"; }
-	static unsigned GetDimensions() { return 1; }
+	std::string GetName() const { return "TrivialVectorialRepresenter"; }
+	 unsigned GetDimensions() const { return 1; }
 
 	const DomainType& GetDomain() const { return m_domain; }
 
-	DatasetPointerType DatasetToSample(DatasetConstPointerType ds, DatasetInfo* notUsed) const { return ds; }
-	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const { return sample; }
+	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const { return ds; }
+	VectorType SampleToSampleVector(DatasetConstPointerType sample) const { return sample; }
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const { return sample; }
 
-	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const {
-		statismo::VectorType vec = statismo::VectorType::Zero(1);
+	VectorType PointSampleToPointSampleVector(const ValueType& v) const {
+		VectorType vec = VectorType::Zero(1);
 		vec(0) = v;
 		return vec;
 
 	}
 
 	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const {return  sample[ptid]; }
-	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const {return pointSample(0); }
+	ValueType PointSampleVectorToPointSample(const VectorType& pointSample) const {return pointSample(0); }
 
 
 	void Save(const H5::CommonFG& fg) const {
-		statismo::HDF5Utils::writeInt(fg, "numberOfPoints", static_cast<int>(m_domain.GetNumberOfPoints()));
+		HDF5Utils::writeInt(fg, "numberOfPoints", static_cast<int>(m_domain.GetNumberOfPoints()));
 	}
 
 	unsigned GetPointIdForPoint(const PointType& point) const {return point.ptId; }
 
-    
-    static void DeleteDataset(DatasetPointerType d) {}
+
 
     static unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) { return ptId; }
 
 private:
+    TrivialVectorialRepresenter() {}
+
     TrivialVectorialRepresenter(unsigned numberOfPoints) {
+    	initializeObject(numberOfPoints);
+	}
+
+    void initializeObject(unsigned numberOfPoints) {
 
     	// the domain for vectors correspond to the valid indices.
 		DomainType::DomainPointsListType domainPoints;
@@ -139,5 +160,6 @@ private:
     TrivialVectorialRepresenter& operator=(const TrivialVectorialRepresenter& rhs);
 };
 
+}
 
 #endif

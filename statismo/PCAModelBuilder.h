@@ -55,13 +55,13 @@ namespace statismo {
  *
  * This class implements the classical PCA based approach to Statistical Models.
  */
-template <typename Representer>
-class PCAModelBuilder : public ModelBuilder<Representer> {
+template <typename T>
+class PCAModelBuilder : public ModelBuilder<T> {
 
 
 public:
 
-	typedef ModelBuilder<Representer> Superclass;
+	typedef ModelBuilder<T> Superclass;
 	typedef typename Superclass::DataManagerType DataManagerType;
 	typedef typename Superclass::StatisticalModelType StatisticalModelType;
 	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
@@ -104,7 +104,7 @@ private:
 	PCAModelBuilder(const PCAModelBuilder& orig);
 	PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
 
-	StatisticalModelType* BuildNewModelInternal(const Representer* representer, const MatrixType& X, double noiseVariance) const;
+	StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const;
 
 
 };
