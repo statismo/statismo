@@ -50,9 +50,9 @@ namespace statismo {
 //
 
 
-template <typename Representer>
+template <typename T>
 unsigned
-ConditionalModelBuilder<Representer>::PrepareData(const SampleDataStructureListType& sampleDataList,
+ConditionalModelBuilder<T>::PrepareData(const SampleDataStructureListType& sampleDataList,
                                                   const SurrogateTypeInfoType& surrogateTypesInfo,
 												  const CondVariableValueVectorType& conditioningInfo,
 												  SampleDataStructureListType *acceptedSamples,
@@ -120,9 +120,9 @@ ConditionalModelBuilder<Representer>::PrepareData(const SampleDataStructureListT
 	return nbAcceptedSamples;
 }
 
-template <typename Representer>
-typename ConditionalModelBuilder<Representer>::StatisticalModelType*
-ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureListType& sampleDataList,
+template <typename T>
+typename ConditionalModelBuilder<T>::StatisticalModelType*
+ConditionalModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sampleDataList,
 													const SurrogateTypeInfoType& surrogateTypesInfo,
 													const CondVariableValueVectorType& conditioningInfo,
 													float noiseVariance,										
@@ -137,7 +137,7 @@ ConditionalModelBuilder<Representer>::BuildNewModel(const SampleDataStructureLis
 	unsigned nCondVariables = X.rows();
 
 	// build a normal PCA model
-	typedef PCAModelBuilder<Representer> PCAModelBuilderType;
+	typedef PCAModelBuilder<T> PCAModelBuilderType;
 	PCAModelBuilderType* modelBuilder = PCAModelBuilderType::Create();
 	StatisticalModelType* pcaModel = modelBuilder->BuildNewModel(acceptedSamples, noiseVariance);
 

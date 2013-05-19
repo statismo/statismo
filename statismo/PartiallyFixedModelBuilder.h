@@ -64,15 +64,16 @@ namespace statismo {
  *
  * \todo Add method that allows for the use of the pointId in the constraint.
  */
-template <typename Representer>
-class PartiallyFixedModelBuilder : public ModelBuilder<Representer> {
+template <typename T>
+class PartiallyFixedModelBuilder : public ModelBuilder<T> {
 public:
 
-	typedef ModelBuilder<Representer> Superclass;
+	typedef Representer<T> RepresenterType;
+	typedef ModelBuilder<T> Superclass;
 	typedef typename Superclass::DataManagerType 				DataManagerType;
 	typedef typename Superclass::StatisticalModelType 	StatisticalModelType;
-	typedef typename Representer::ValueType ValueType;
-	typedef typename Representer::PointType PointType;
+	typedef typename RepresenterType::ValueType ValueType;
+	typedef typename RepresenterType::PointType PointType;
 	typedef typename StatisticalModelType::PointValueListType PointValueListType;
 	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 

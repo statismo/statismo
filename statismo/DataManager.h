@@ -46,7 +46,7 @@
 #include "HDF5Utils.h"
 #include "ModelInfo.h"
 #include "SampleDataStructure.h"
-
+#include "Representer.h"
 #include <list>
 
 namespace statismo {
@@ -56,10 +56,10 @@ namespace statismo {
 /**
  * \brief Holds training and test data used for Crossvalidation
  */
-template <typename Representer>
+template <typename T>
 class CrossValidationFold {
 public:
-	typedef SampleDataStructure<Representer> SampleDataStructureType;
+	typedef SampleDataStructure<T> SampleDataStructureType;
 	typedef std::list<const SampleDataStructureType*> SampleDataStructureListType;
 
 	/***
@@ -116,10 +116,10 @@ class DataManager {
 
 public:
 
-	typedef SampleDataStructure<RepresenterType> SampleDataStructureType;
-	typedef SampleDataStructureWithSurrogates<RepresenterType> SampleDataStructureWithSurrogatesType;
+	typedef SampleDataStructure<T> SampleDataStructureType;
+	typedef SampleDataStructureWithSurrogates<T> SampleDataStructureWithSurrogatesType;
 	typedef std::list<const SampleDataStructureType*> SampleDataStructureListType;
-	typedef CrossValidationFold<RepresenterType> CrossValidationFoldType;
+	typedef CrossValidationFold<T> CrossValidationFoldType;
 	typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
 
 	/**

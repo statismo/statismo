@@ -49,22 +49,15 @@ using statismo::VectorType;
 using statismo::HDF5Utils;
 using statismo::StatisticalModelException;
 
+namespace statismo {
+
 inline
 vtkPolyDataRepresenter::vtkPolyDataRepresenter(DatasetConstPointerType reference, AlignmentType alignment)
   :
         m_alignment(alignment),
         m_pdTransform(vtkTransformPolyDataFilter::New())
 {
-	   m_reference = vtkPolyData::New();
-	   m_reference->DeepCopy(const_cast<DatasetPointerType>(reference));
-
-	   // set the domain
-	   DomainType::DomainPointsListType ptList;
-	   for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
-		   double* d = m_reference->GetPoint(i);
-		   ptList.push_back(vtkPoint(d));
-	   }
-	   m_domain = DomainType(ptList);
+	SetReference(reference);
 }
 
 inline
@@ -80,6 +73,21 @@ vtkPolyDataRepresenter::~vtkPolyDataRepresenter() {
 }
 
 inline
+void vtkPolyDataRepresenter::SetReference(const vtkPolyData* reference) {
+	m_reference = vtkPolyData::New();
+	   m_reference->DeepCopy(const_cast<DatasetPointerType>(reference));
+
+	   // set the domain
+	   DomainType::DomainPointsListType ptList;
+	   for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
+		   double* d = m_reference->GetPoint(i);
+		   ptList.push_back(vtkPoint(d));
+	   }
+	   m_domain = DomainType(ptList);
+
+}
+
+inline
 vtkPolyDataRepresenter*
 vtkPolyDataRepresenter::Clone() const
 {
@@ -88,18 +96,17 @@ vtkPolyDataRepresenter::Clone() const
 }
 
 inline
-vtkPolyDataRepresenter*
+void
 vtkPolyDataRepresenter::Load(const H5::CommonFG& fg) {
 
 
 	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
 	HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
-	DatasetConstPointerType ref = ReadDataset(tmpfilename.c_str());
+	SetReference(ReadDataset(tmpfilename.c_str()));
 	std::remove(tmpfilename.c_str());
 
-	int alignment = static_cast<AlignmentType>(HDF5Utils::readInt(fg, "./alignment"));
-	return vtkPolyDataRepresenter::Create(ref, AlignmentType(alignment));
+	m_alignment = static_cast<AlignmentType>(HDF5Utils::readInt(fg, "./alignment"));
 
 }
 
@@ -123,7 +130,7 @@ vtkPolyDataRepresenter::Save(const H5::CommonFG& fg) const {
 
 inline
 vtkPolyDataRepresenter::DatasetPointerType
-vtkPolyDataRepresenter::DatasetToSample(DatasetConstPointerType _pd, DatasetInfo* notUsed) const
+vtkPolyDataRepresenter::DatasetToSample(DatasetConstPointerType _pd) const
 {
 	assert(m_reference != 0);
 
@@ -283,9 +290,7 @@ void vtkPolyDataRepresenter::WriteDataset(const std::string& filename,DatasetCon
 }
 
 
-inline
-void vtkPolyDataRepresenter::DeleteDataset(DatasetPointerType d) {
-    d->Delete();
-}
+
+} // namespace statismo
 
 #endif // __VTKPOLYDATAREPRESENTER_CPP

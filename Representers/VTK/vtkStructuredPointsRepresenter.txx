@@ -48,27 +48,16 @@ using statismo::VectorType;
 using statismo::HDF5Utils;
 using statismo::StatisticalModelException;
 
+namespace statismo {
 
-
-template <class TPrecision, unsigned Dimensions>
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::vtkStructuredPointsRepresenter(DatasetConstPointerType reference)
+vtkStructuredPointsRepresenter::vtkStructuredPointsRepresenter(DatasetConstPointerType reference)
   : m_reference(vtkStructuredPoints::New())
 {
-	m_reference->DeepCopy(const_cast<vtkStructuredPoints*>(reference));
-	// set the domain
-   DomainType::DomainPointsListType ptList;
-   for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
-	   double* d = m_reference->GetPoint(i);
-	   ptList.push_back(vtkPoint(d));
-   }
-
-   m_domain = DomainType(ptList);
+	SetReference(reference);
 }
 
 
-
-template <class TPrecision, unsigned Dimensions>
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::~vtkStructuredPointsRepresenter() {
+vtkStructuredPointsRepresenter::~vtkStructuredPointsRepresenter() {
 
 	if (m_reference != 0) {
 		m_reference->Delete();
@@ -76,17 +65,15 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::~vtkStructuredPointsRepr
 	}
 }
 
-template <class TPrecision, unsigned Dimensions>
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>*
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::Clone() const
+vtkStructuredPointsRepresenter*
+vtkStructuredPointsRepresenter::Clone() const
 {
 	// this works since Create deep copies the reference
 	return Create(m_reference);
 }
 
-template <class TPrecision, unsigned Dimensions>
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>*
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::Load(const H5::CommonFG& fg) {
+void
+vtkStructuredPointsRepresenter::Load(const H5::CommonFG& fg) {
 
 	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
@@ -95,14 +82,12 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::Load(const H5::CommonFG&
 
 	std::remove(tmpfilename.c_str());
 
-	return Create(reference);
+	SetReference(reference);
 }
 
 
-
-template <class TPrecision, unsigned Dimensions>
-typename vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetPointerType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetToSample(DatasetConstPointerType dataset, DatasetInfo* notUsed) const
+typename vtkStructuredPointsRepresenter::DatasetPointerType
+vtkStructuredPointsRepresenter::DatasetToSample(DatasetConstPointerType dataset) const
 {
 	// for this representer, a dataset is always the same as a sample
 	vtkStructuredPoints* clone = vtkStructuredPoints::New();
@@ -117,9 +102,8 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetToSample(DatasetC
 	return clone;
 }
 
-template <class TPrecision, unsigned Dimensions>
 VectorType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleToSampleVector(DatasetConstPointerType _sp) const
+vtkStructuredPointsRepresenter::SampleToSampleVector(DatasetConstPointerType _sp) const
 {
 
 	vtkStructuredPoints* reference = const_cast<vtkStructuredPoints*>(this->m_reference);
@@ -129,15 +113,15 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleToSampleVector(Dat
 		throw StatisticalModelException("The sample does not have the correct number of points");
 	}
 
-	VectorType sample = VectorType::Zero(m_reference->GetNumberOfPoints() * Dimensions);
+	VectorType sample = VectorType::Zero(m_reference->GetNumberOfPoints() * GetDimensions());
 
 	vtkDataArray* scalars = sp->GetPointData()->GetScalars();
 	// TODO make this more efficient using SetVoidArray of vtk
 	for (unsigned i = 0 ; i < m_reference->GetNumberOfPoints(); i++) {
 
-		double val[Dimensions];
+		double val[GetDimensions()];
 		scalars->GetTuple(i, val);
-		for (unsigned d = 0; d < Dimensions; d++) {
+		for (unsigned d = 0; d < GetDimensions(); d++) {
 			unsigned idx = MapPointIdToInternalIdx(i, d);
 			sample(idx) = val[d];
 		}
@@ -147,9 +131,8 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleToSampleVector(Dat
 
 
 
-template <class TPrecision, unsigned Dimensions>
-typename vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetPointerType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleVectorToSample(const VectorType& sample) const
+typename vtkStructuredPointsRepresenter::DatasetPointerType
+vtkStructuredPointsRepresenter::SampleVectorToSample(const VectorType& sample) const
 {
 	vtkStructuredPoints* sp = vtkStructuredPoints::New();
 	vtkStructuredPoints* reference = const_cast<vtkStructuredPoints*>(m_reference);
@@ -157,8 +140,8 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleVectorToSample(con
 
 	vtkDataArray* scalars = sp->GetPointData()->GetScalars();
 	for (unsigned i = 0; i < GetNumberOfPoints(); i++) {
-		double val[Dimensions];
-		for (unsigned d = 0; d < Dimensions; d++) {
+		double val[GetDimensions()];
+		for (unsigned d = 0; d < GetDimensions(); d++) {
 			unsigned idx = MapPointIdToInternalIdx(i, d);
 			val[d] = sample(idx);
 		}
@@ -169,45 +152,42 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::SampleVectorToSample(con
 }
 
 
-template <class TPrecision, unsigned Dimensions>
-typename vtkStructuredPointsRepresenter<TPrecision, Dimensions>::ValueType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleFromSample(DatasetConstPointerType sample_, unsigned ptid) const {
+typename vtkStructuredPointsRepresenter::ValueType
+vtkStructuredPointsRepresenter::PointSampleFromSample(DatasetConstPointerType sample_, unsigned ptid) const {
 	DatasetPointerType sample = const_cast<DatasetPointerType>(sample_);
 	if (ptid >= sample->GetNumberOfPoints()) {
 		throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
 	}
 
-	double doubleVal[Dimensions];
+	double doubleVal[GetDimensions()];
 	sample->GetPointData()->GetScalars()->GetTuple(ptid, doubleVal);
-	ValueType val;
+	ValueType val(GetDimensions());
 
 	// vtk returns double. We need to convert it to whatever precision we are using in NDPixel
-	for (unsigned i = 0; i < Dimensions; i++) {
-		val[i] = static_cast<TPrecision>(doubleVal[i]);
+	for (unsigned i = 0; i < GetDimensions(); i++) {
+		val[i] = static_cast<double>(doubleVal[i]);
 	}
 	return val;
 }
 
 
-template <class TPrecision, unsigned Dimensions>
 statismo::VectorType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleToPointSampleVector(const ValueType& v) const
+vtkStructuredPointsRepresenter::PointSampleToPointSampleVector(const ValueType& v) const
 {
-	VectorType vec(Dimensions);
-	for (unsigned i = 0; i < Dimensions; i++) {
+	VectorType vec(GetDimensions());
+	for (unsigned i = 0; i < GetDimensions(); i++) {
 		vec[i] = const_cast<ValueType&>(v)[i];
 		vec[i] = v[i];
 	}
 	return vec;
 }
 
-template <class TPrecision, unsigned Dimensions>
-typename vtkStructuredPointsRepresenter<TPrecision, Dimensions>::ValueType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleVectorToPointSample(const VectorType& pointSample) const
+typename vtkStructuredPointsRepresenter::ValueType
+vtkStructuredPointsRepresenter::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
-	ValueType value;
+	ValueType value(GetDimensions());
 
-	for (unsigned i = 0; i < Dimensions; i++)
+	for (unsigned i = 0; i < GetDimensions(); i++)
 		value[i] = pointSample[i];
 
 	return value;
@@ -216,9 +196,8 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointSampleVectorToPoint
 
 
 
-template <class TPrecision, unsigned Dimensions>
 void
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::Save(const H5::CommonFG& fg) const {
+vtkStructuredPointsRepresenter::Save(const H5::CommonFG& fg) const {
 	using namespace H5;
 
 	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
@@ -231,17 +210,14 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::Save(const H5::CommonFG&
 
 }
 
-template <class TPrecision, unsigned Dimensions>
 unsigned
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::GetNumberOfPoints() const {
+vtkStructuredPointsRepresenter::GetNumberOfPoints() const {
 	return GetNumberOfPoints(this->m_reference);
 }
 
 
-
-template <class TPrecision, unsigned Dimensions>
-typename vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DatasetPointerType
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::ReadDataset(const std::string& filename) {
+typename vtkStructuredPointsRepresenter::DatasetPointerType
+vtkStructuredPointsRepresenter::ReadDataset(const std::string& filename) {
 
 	vtkStructuredPoints* sp = vtkStructuredPoints::New();
 
@@ -258,8 +234,7 @@ vtkStructuredPointsRepresenter<TPrecision, Dimensions>::ReadDataset(const std::s
     return sp;
 }
 
-template <class TPrecision, unsigned Dimensions>
-void vtkStructuredPointsRepresenter<TPrecision, Dimensions>::WriteDataset(const std::string& filename, const vtkStructuredPoints* sp) {
+void vtkStructuredPointsRepresenter::WriteDataset(const std::string& filename, const vtkStructuredPoints* sp) {
     vtkStructuredPointsWriter* writer = vtkStructuredPointsWriter::New();
     writer->SetFileName(filename.c_str());
     writer->SetInput(const_cast<vtkStructuredPoints*>(sp));
@@ -271,20 +246,27 @@ void vtkStructuredPointsRepresenter<TPrecision, Dimensions>::WriteDataset(const 
     writer->Delete();
 }
 
-template <class TPrecision, unsigned Dimensions>
 unsigned
-vtkStructuredPointsRepresenter<TPrecision, Dimensions>::GetPointIdForPoint(const PointType& pt) const {
+vtkStructuredPointsRepresenter::GetPointIdForPoint(const PointType& pt) const {
 	assert (m_reference != 0);
     return this->m_reference->FindPoint(const_cast<double*>(pt.data()));
 }
 
 
-template <class TPrecision, unsigned Dimensions>
-void vtkStructuredPointsRepresenter<TPrecision, Dimensions>::DeleteDataset(vtkStructuredPoints* d) {
-	d->Delete();
-}
-
-template <class TPrecision, unsigned Dimensions>
-unsigned vtkStructuredPointsRepresenter<TPrecision, Dimensions>::GetNumberOfPoints(vtkStructuredPoints* reference) {
+unsigned vtkStructuredPointsRepresenter::GetNumberOfPoints(vtkStructuredPoints* reference) const {
     return reference->GetNumberOfPoints();
 }
+
+
+void vtkStructuredPointsRepresenter::SetReference(const vtkStructuredPoints* reference) {
+	m_reference->DeepCopy(const_cast<vtkStructuredPoints*>(reference));
+	// set the domain
+   DomainType::DomainPointsListType ptList;
+   for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
+	   double* d = m_reference->GetPoint(i);
+	   ptList.push_back(vtkPoint(d));
+   }
+	m_domain = DomainType(ptList);
+}
+
+} // namespace statismo

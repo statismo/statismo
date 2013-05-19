@@ -71,13 +71,14 @@ int main(int argc, char** argv) {
 	// All the statismo classes have to be parameterized with the RepresenterType.
 	// For building a shape model with vtk, we use the vtkPolyDataRepresenter.
 	typedef vtkPolyDataRepresenter RepresenterType;
-	typedef StatisticalModel<RepresenterType> StatisticalModelType;
-	typedef PartiallyFixedModelBuilder<RepresenterType> PartiallyFixedModelBuilderType;
+	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
+	typedef PartiallyFixedModelBuilder<vtkPolyData> PartiallyFixedModelBuilderType;
 	typedef StatisticalModelType::DomainType DomainType;
 
 	try {
 		// load the model
-		auto_ptr<StatisticalModelType> inputModel(StatisticalModelType::Load(inputModelName));
+		RepresenterType* representer = RepresenterType::Create();
+		auto_ptr<StatisticalModelType> inputModel(StatisticalModelType::Load(representer, inputModelName));
 
 
 		auto_ptr<PartiallyFixedModelBuilderType> pfmb(PartiallyFixedModelBuilderType::Create());

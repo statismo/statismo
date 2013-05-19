@@ -43,6 +43,7 @@
 #include "DataManager.h"
 #include "CommonTypes.h"
 #include "ModelInfo.h"
+#include "Representer.h"
 #include <vector>
 #include <limits>
 

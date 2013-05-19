@@ -89,6 +89,8 @@ public:
 	typedef typename RepresenterTraits<T>::ValueType ValueType;
 
 
+	typedef Domain<PointType> DomainType;
+
 	/// Returns a name that identifies the representer
 	virtual  std::string GetName() const = 0;
 
@@ -186,7 +188,7 @@ public:
 	 * In this case, this method would return for inputs ptId, componentId
 	 * the value ptId * 3 + componentId
 	 */
-	unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) {
+	unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) const {
 		return ptId * GetDimensions() + componentInd;
 	}
 

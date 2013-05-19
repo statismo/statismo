@@ -188,7 +188,7 @@ template <typename T>
 typename StatisticalModel<T>::RepresenterValueType
 StatisticalModel<T>::DrawSampleAtPoint(const VectorType& coefficients, const unsigned ptId, bool addNoise) const {
 
-	unsigned dim = RepresenterType::GetDimensions();
+	unsigned dim = m_representer->GetDimensions();
 
 	VectorType v(dim);
 	VectorType epsilon = VectorType::Zero(dim);
@@ -256,7 +256,7 @@ StatisticalModel<T>::GetCovarianceMatrix() const
 template <typename T>
 VectorType
 StatisticalModel<T>::ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const {
-	DatasetPointerType sample = m_representer->DatasetToSample(dataset, 0);
+	DatasetPointerType sample = m_representer->DatasetToSample(dataset);
 	VectorType v = ComputeCoefficientsForSample(sample);
 	RepresenterType::DeleteDataset(sample);
 	return v;
@@ -514,7 +514,7 @@ StatisticalModel<T>::Load(Representer<T>* representer, const std::string& filena
 
 	Group modelRoot = file.openGroup("/");
 	
-	newModel =  Load(modelRoot, maxNumberOfPCAComponents);
+	newModel =  Load(representer, modelRoot, maxNumberOfPCAComponents);
 
 	modelRoot.close();
 	file.close();
@@ -545,7 +545,7 @@ StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoo
 		}
 
 		representer->Load(representerGroup);
-		newModel = new StatisticalModel(representer->Load(representer));
+		newModel = new StatisticalModel(representer);
 		representerGroup.close();
 
 		Group modelGroup = modelRoot.openGroup("./model");

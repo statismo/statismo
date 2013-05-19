@@ -46,17 +46,17 @@ namespace statismo {
 ////////////////////////////////////////////////
 
 
-template <typename Representer>
-DataManagerWithSurrogates<Representer>::DataManagerWithSurrogates(const Representer* representer, const std::string& filename)
-: DataManager<Representer>(representer)
+template <typename T>
+DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType* representer, const std::string& filename)
+: DataManager<T>(representer)
 {
 	LoadSurrogateTypes(filename);
 }
 
 
-template <typename Representer>
+template <typename T>
 void
-DataManagerWithSurrogates<Representer>::LoadSurrogateTypes(const std::string& filename) {
+DataManagerWithSurrogates<T>::LoadSurrogateTypes(const std::string& filename) {
 	VectorType tmpVector;
 	tmpVector = Utils::ReadVectorFromTxtFile(filename.c_str());
 	m_typeInfo.typeFilename = filename;
@@ -69,9 +69,9 @@ DataManagerWithSurrogates<Representer>::LoadSurrogateTypes(const std::string& fi
 
 
 
-template <typename Representer>
+template <typename T>
 void
-DataManagerWithSurrogates<Representer>::AddDatasetWithSurrogates(typename RepresenterType::DatasetConstPointerType ds,
+DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType ds,
 																 const std::string& datasetURI,
 																 const std::string& surrogateFilename)
 {
@@ -83,14 +83,14 @@ DataManagerWithSurrogates<Representer>::AddDatasetWithSurrogates(typename Repres
 
 	if (surrogateVector.size() != m_typeInfo.types.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
 
-	DatasetPointerType sample = this->m_representer->DatasetToSample(ds, 0);
+	DatasetPointerType sample = this->m_representer->DatasetToSample(ds);
 
 	this->m_SampleDataStructureList.push_back(SampleDataStructureWithSurrogatesType::Create(this->m_representer,
 																			datasetURI,
 																		this->m_representer->SampleToSampleVector(sample),
 																	   surrogateFilename,
 																	   surrogateVector));
-	Representer::DeleteDataset(sample);
+	this->m_representer->DeleteDataset(sample);
 }
 
 

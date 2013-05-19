@@ -85,6 +85,14 @@ int main(int argc, char* argv[]) {
 		}
 
 		model->Save("test.h5");
+
+		RepresenterType* newRepresenter = RepresenterType::Create();
+		std::auto_ptr<StatisticalModelType> loadedModel(StatisticalModelType::Load(newRepresenter, "test.h5"));
+
+		if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents()) {
+			return EXIT_FAILURE;
+		}
+
     }
     catch (statismo::StatisticalModelException& e) {
     	std::cout << e.what() << std::endl;
