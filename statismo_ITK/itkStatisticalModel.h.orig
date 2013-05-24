@@ -46,7 +46,6 @@
 
 #include "statismoITKConfig.h"
 #include "statismo/StatisticalModel.h"
-#include "statismo/ModelInfo.h"
 
 #include <boost/tr1/functional.hpp>
 
@@ -73,9 +72,6 @@ public:
 
 	// statismo stuff
 	typedef statismo::StatisticalModel<Representer> ImplType;
-	
-	typedef typename statismo::DataManager<Representer>::SampleDataStructureType     SampleDataStructureType;
-	
 	typedef vnl_matrix<statismo::ScalarType> MatrixType;
 	typedef vnl_vector<statismo::ScalarType> VectorType;
 
@@ -122,10 +118,13 @@ public:
 
 	typedef typename statismo::StatisticalModel<Representer>::DomainType DomainType;
 
-
 	void Load(const char* filename) {
+		return Load(filename, 100000);
+	}
+
+	void Load(const char* filename, unsigned maxNumberOfPCAComponents) {
 		try {
-			SetstatismoImplObj(ImplType::Load(filename));
+			SetstatismoImplObj(ImplType::Load(filename, maxNumberOfPCAComponents));
 		}
 		catch (statismo::StatisticalModelException& s) {
 			itkExceptionMacro(<< s.what());
@@ -133,16 +132,15 @@ public:
 	}
 
 
-	void Load(const H5::Group& modelRoot) {
+	void Load(const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
 		try {
-		  SetstatismoImplObj(ImplType::Load(modelRoot));
+		  SetstatismoImplObj(ImplType::Load(modelRoot, maxNumberOfPCAComponents));
 		}
 		catch (statismo::StatisticalModelException& s) {
 			itkExceptionMacro(<< s.what());
 		}
 	}
 
-  //TODO: wrap StatisticalModel* BuildReducedVarianceModel( double pcvar );
 
 	const Representer* GetRepresenter() const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::GetRepresenter, this->m_impl));
@@ -174,11 +172,6 @@ public:
 		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, addNoise));
 	}
 
-	DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const {
-		typedef DatasetPointerType (ImplType::*functype)(unsigned) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawPCABasisSample), this->m_impl, componentNumber));
-	}
-
 	ValueType DrawSampleAtPoint(const VectorType& coeffs, const PointType& pt, bool addNoise = false) const {
 		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, const PointType&, bool) const;
 		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), pt, addNoise));
@@ -194,14 +187,6 @@ public:
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataset, this->m_impl, ds)));
 	}
 
-	VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForSample, this->m_impl, ds)));
-	}
-
-	VectorType ComputeCoefficientsForDataSample(const SampleDataStructureType* sample) const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataSample, this->m_impl, sample)));
-	}
-	
 	double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfDataset, this->m_impl, ds));
 	}
@@ -259,10 +244,6 @@ public:
 
 	VectorType GetMeanVector() const {
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::GetMeanVector, this->m_impl)));
-	}
-
-	const statismo::ModelInfo& GetModelInfo() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetModelInfo, this->m_impl));
 	}
 
 private:

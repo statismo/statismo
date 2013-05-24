@@ -35,62 +35,78 @@
  *
  */
 
-#ifndef __MODELBUILDER_H_
-#define __MODELBUILDER_H_
+#ifndef __ReducedVarianceModelBuilder_H_
+#define __ReducedVarianceModelBuilder_H_
 
-
+#include "Config.h"
+#include "ModelInfo.h"
+#include "ModelBuilder.h"
 #include "DataManager.h"
 #include "StatisticalModel.h"
 #include "CommonTypes.h"
 #include <vector>
 #include <memory>
 
-
 namespace statismo {
 
+
 /**
- * \brief Common base class for all the model builder classes
+ * \brief Builds a new model which retains only the specified total variance
+ *
  */
 template <typename Representer>
-class ModelBuilder {
+class ReducedVarianceModelBuilder : public ModelBuilder<Representer> {
+
 
 public:
 
-	typedef StatisticalModel<Representer> StatisticalModelType;
-	typedef DataManager<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
+	typedef ModelBuilder<Representer> Superclass;
+	typedef typename Superclass::StatisticalModelType StatisticalModelType;
 
-	// Values below this tolerance are treated as 0.
-	static const double TOLERANCE;
+	/**
+	 * Factory method to create a new ReducedVarianceModelBuilder
+	 */
+	static ReducedVarianceModelBuilder* Create() { return new ReducedVarianceModelBuilder(); }
 
-
-protected:
-
-	MatrixType ComputeScores(const MatrixType& X, const StatisticalModelType* model) const {
-
-		MatrixType scores(model->GetNumberOfPrincipalComponents(), X.rows());
-		for (unsigned i = 0; i < scores.cols(); i++) {
-			scores.col(i) = model->ComputeCoefficientsForSampleVector(X.row(i));
-		}
-		return scores;
-	}
+	/**
+	 * Destroy the object.
+	 * The same effect can be achieved by deleting the object in the usual
+	 * way using the c++ delete keyword.
+	 */
+	void Delete() { delete this; }
 
 
-	ModelBuilder() {}
+	/**
+	 * The desctructor
+	 */
+	virtual ~ReducedVarianceModelBuilder() {}
 
-	ModelInfo CollectModelInfo() const;
+	/**
+	 * Build a new model from the given model, which retains only the specified variance
+	 *
+	 * \param model A statistical model.
+	 * \param totalVariance, The fraction of the variance to be retained
+	 * \param computeScores Determines whether the scores are computed and stored in the model.
+	 * \return a new statistical model
+	 *
+	 * \warning The returned model needs to be explicitly deleted by the user of this method.
+	 */
+	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const;
+
 
 private:
-	// private - to prevent use	
-	ModelBuilder(const ModelBuilder& orig);				
-	ModelBuilder& operator=(const ModelBuilder& rhs);
+	// to prevent use
+	ReducedVarianceModelBuilder();
+	ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder& orig);
+	ReducedVarianceModelBuilder& operator=(const ReducedVarianceModelBuilder& rhs);
+
 
 };
 
-template <class Representer>
-const double ModelBuilder<Representer>::TOLERANCE = 1e-5;
+
 
 } // namespace statismo
 
+#include "ReducedVarianceModelBuilder.txx"
 
-#endif /* __MODELBUILDER_H_ */
+#endif /* __ReducedVarianceModelBuilder_H_ */

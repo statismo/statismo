@@ -36,49 +36,37 @@
  */
 
 
-#ifndef ITKMODELBUILDER_H_
-#define ITKMODELBUILDER_H_
+#ifndef ITK_PARTIALLY_FIXED_MODELBUILDER_H_
+#define ITK_PARTIALLY_FIXED_MODELBUILDER_H_
 
 #include "itkObject.h"
-#include "itkObjectFactory.h"
-
 #include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
-#include "statismo/PCAModelBuilder.h"
+#include "statismo/ReducedVarianceModelBuilder.h"
+
 
 namespace itk
 {
 
 /**
- * \brief ITK Wrapper for the statismo::PCAModelBuilder class.
- * \see statismo::PCAModelBuilder for detailed documentation.
+ * \brief ITK Wrapper for the statismo::ReducedVarianceModelBuilder class.
+ * \see statismo::ReducedVariance for detailed documentation.
  */
 template <class Representer>
-class PCAModelBuilder : public Object {
+class ReducedVarianceModelBuilder : public Object {
 public:
 
-	typedef PCAModelBuilder            Self;
+	typedef ReducedVarianceModelBuilder            Self;
 	typedef Object	Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
 	itkNewMacro( Self );
-	itkTypeMacro( PCAModelBuilder, Object );
+	itkTypeMacro( ReducedVarianceModelBuilder, Object );
 
+	typedef statismo::ReducedVarianceModelBuilder<Representer> ImplType;
 
-	typedef statismo::PCAModelBuilder<Representer> ImplType;
-	typedef statismo::DataManager<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
-
-	PCAModelBuilder() : m_impl(ImplType::Create()){}
-
-	virtual ~PCAModelBuilder() {
-		if (m_impl) {
-			delete m_impl;
-			m_impl = 0;
-		}
-	}
 
 	template <class F>
 	typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {
@@ -91,18 +79,29 @@ public:
 	}
 
 
+	ReducedVarianceModelBuilder() : m_impl(ImplType::Create()) {}
 
-	typename StatisticalModel<Representer>::Pointer BuildNewModel(SampleDataStructureListType SampleDataStructureList, float noiseVariance, bool computeScores = true) {
-		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, noiseVariance, computeScores));
+	virtual ~ReducedVarianceModelBuilder() {
+		if (m_impl) {
+			delete m_impl;
+			m_impl = 0;
+		}
+	}
+
+
+
+	typename StatisticalModel<Representer>::Pointer BuildNewModelFromModel(const StatisticalModel<Representer>* model, double totalVariance, bool computeScores=true) {
+		statismo::StatisticalModel<Representer>* model_statismo = model->GetstatismoImplObj();
+		statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelFromModel, this->m_impl, model_statismo, totalVariance, computeScores));
 		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
-		model_itk->SetstatismoImplObj(model_statismo);
+		model_itk->SetstatismoImplObj(new_model_statismo);
 		return model_itk;
 	}
 
 
 private:
-	PCAModelBuilder(const PCAModelBuilder& orig);
-	PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
+	ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder& orig);
+	ReducedVarianceModelBuilder& operator=(const ReducedVarianceModelBuilder& rhs);
 
 	ImplType* m_impl;
 };
@@ -110,4 +109,4 @@ private:
 
 }
 
-#endif /* ITKMODELBUILDER_H_ */
+#endif /* ITK_PARTIALLY_FIXED_MODEL_BUILDER */

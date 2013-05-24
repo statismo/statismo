@@ -59,6 +59,7 @@
 #include "statismo/DataManagerWithSurrogates.h"
 #include "statismo/StatisticalModel.h"
 #include "statismo/PartiallyFixedModelBuilder.h"
+#include "statismo/ReducedVarianceModelBuilder.h"
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/Exceptions.h"
 #include <list>
@@ -91,71 +92,69 @@ public:
 
 namespace statismo { 
 template <typename Representer>
-struct SampleData {
+struct SampleDataStructure {
 	typedef typename Representer::DatasetPointerType DatasetPointerType;
 	
 	std::string GetDatasetURI() const;
-	%newobject GetAsNewSample;
-	const DatasetPointerType GetAsNewSample() const;
+	%newobject GetSample;
+	const DatasetPointerType GetSample() const;
 
 	const  statismo::VectorType& GetSampleVector() const;
-	virtual ~SampleData();
+	virtual ~SampleDataStructure();
 private:
-	SampleData(const Representer* representer, const std::string& filename, const VectorType& sampleVector);
+	SampleDataStructure(const Representer* representer, const std::string& filename, const VectorType& sampleVector);
 };
 
 template <typename Representer>
-struct SampleDataWithSurrogates : public SampleData<Representer> { 
+struct SampleDataStructureWithSurrogates : public SampleDataStructure<Representer> { 
 	const VectorType& GetSurrogateVector() const;
 	const std::string& GetSurrogateFilename() const;
 };
 }
 
-%template(SampleData_tvr) statismo::SampleData<TrivialVectorialRepresenter>;
-%template(SampleData_vtkPD) statismo::SampleData<vtkPolyDataRepresenter>;
-%template(SampleData_vtkUG) statismo::SampleData<vtkUnstructuredGridRepresenter>;
-%template(SampleData_vtkSPF3) statismo::SampleData<vtkStructuredPointsRepresenter<float, 3> >;
-%template(SampleData_vtkSPSS1) statismo::SampleData<vtkStructuredPointsRepresenter<signed short, 1> >;
-%template(SampleDataWithSurrogates_tvr) statismo::SampleDataWithSurrogates<TrivialVectorialRepresenter>;
-%template(SampleDataWithSurrogates_vtkPD) statismo::SampleDataWithSurrogates<vtkPolyDataRepresenter>;
-%template(SampleDataWithSurrogates_vtkUG) statismo::SampleDataWithSurrogates<vtkUnstructuredGridRepresenter>;
-%template(SampleDataWithSurrogates_vtkSPF3) statismo::SampleDataWithSurrogates<vtkStructuredPointsRepresenter<float, 3> >;
-%template(SampleDataWithSurrogates_vtkSPSS1) statismo::SampleDataWithSurrogates<vtkStructuredPointsRepresenter<signed short, 1> >;
+%template(SampleDataStructure_tvr) statismo::SampleDataStructure<TrivialVectorialRepresenter>;
+%template(SampleDataStructure_vtkPD) statismo::SampleDataStructure<vtkPolyDataRepresenter>;
+%template(SampleDataStructure_vtkUG) statismo::SampleDataStructure<vtkUnstructuredGridRepresenter>;
+%template(SampleDataStructure_vtkSPF3) statismo::SampleDataStructure<vtkStructuredPointsRepresenter<float, 3> >;
+%template(SampleDataStructure_vtkSPSS1) statismo::SampleDataStructure<vtkStructuredPointsRepresenter<signed short, 1> >;
+%template(SampleDataStructureWithSurrogates_tvr) statismo::SampleDataStructureWithSurrogates<TrivialVectorialRepresenter>;
+%template(SampleDataStructureWithSurrogates_vtkPD) statismo::SampleDataStructureWithSurrogates<vtkPolyDataRepresenter>;
+%template(SampleDataStructureWithSurrogates_vtkUG) statismo::SampleDataStructureWithSurrogates<vtkUnstructuredGridRepresenter>;
+%template(SampleDataStructureWithSurrogates_vtkSPF3) statismo::SampleDataStructureWithSurrogates<vtkStructuredPointsRepresenter<float, 3> >;
+%template(SampleDataStructureWithSurrogates_vtkSPSS1) statismo::SampleDataStructureWithSurrogates<vtkStructuredPointsRepresenter<signed short, 1> >;
 
 
+%traits_swigtype(statismo::SampleDataStructure<vtkPolyDataRepresenter>); // workaround for a swig bug with const ptr
+%fragment(SWIG_Traits_frag(statismo::SampleDataStructure<vtkPolyDataRepresenter>));  // workaround for a swig bug with const ptr
+%template(SampleDataStructureList_vtkPD) std::list<const statismo::SampleDataStructure<vtkPolyDataRepresenter> *>;
+
+%traits_swigtype(statismo::SampleDataStructure<vtkUnstructuredGridRepresenter>); // workaround for a swig bug with const ptr
+%fragment(SWIG_Traits_frag(statismo::SampleDataStructure<vtkUnstructuredGridRepresenter>));  // workaround for a swig bug with const ptr
+%template(SampleDataStructureList_vtkUG) std::list<const statismo::SampleDataStructure<vtkUnstructuredGridRepresenter> *>;
+
+%traits_swigtype(statismo::SampleDataStructure<vtkStructuredPointsRepresenter<float, 3> >);  // workaround for a swig bug with const ptr
+%fragment(SWIG_Traits_frag(statismo::SampleDataStructure<vtkStructuredPointsRepresenter<float, 3> >));  // workaround for a swig bug with const ptr
+%template(SampleDataStructureList_vtkSPF3) std::list<const statismo::SampleDataStructure<vtkStructuredPointsRepresenter<float, 3> >* > ;
+
+%traits_swigtype(statismo::SampleDataStructure<vtkStructuredPointsRepresenter<signed short, 1> >);  // workaround for a swig bug with const ptr
+%fragment(SWIG_Traits_frag(statismo::SampleDataStructure<vtkStructuredPointsRepresenter<signed short, 1> >));  // workaround for a swig bug with const ptr
+%template(SampleDataStructureList_vtkSPSS1) std::list<const statismo::SampleDataStructure<vtkStructuredPointsRepresenter<signed short, 1> >* > ;
 
 
-
-%traits_swigtype(statismo::SampleData<vtkPolyDataRepresenter>); // workaround for a swig bug with const ptr
-%fragment(SWIG_Traits_frag(statismo::SampleData<vtkPolyDataRepresenter>));  // workaround for a swig bug with const ptr
-%template(SampleDataList_vtkPD) std::list<const statismo::SampleData<vtkPolyDataRepresenter> *>;
-
-%traits_swigtype(statismo::SampleData<vtkUnstructuredGridRepresenter>); // workaround for a swig bug with const ptr
-%fragment(SWIG_Traits_frag(statismo::SampleData<vtkUnstructuredGridRepresenter>));  // workaround for a swig bug with const ptr
-%template(SampleDataList_vtkUG) std::list<const statismo::SampleData<vtkUnstructuredGridRepresenter> *>;
-
-%traits_swigtype(statismo::SampleData<vtkStructuredPointsRepresenter<float, 3> >);  // workaround for a swig bug with const ptr
-%fragment(SWIG_Traits_frag(statismo::SampleData<vtkStructuredPointsRepresenter<float, 3> >));  // workaround for a swig bug with const ptr
-%template(SampleDataList_vtkSPF3) std::list<const statismo::SampleData<vtkStructuredPointsRepresenter<float, 3> >* > ;
-
-%traits_swigtype(statismo::SampleData<vtkStructuredPointsRepresenter<signed short, 1> >);  // workaround for a swig bug with const ptr
-%fragment(SWIG_Traits_frag(statismo::SampleData<vtkStructuredPointsRepresenter<signed short, 1> >));  // workaround for a swig bug with const ptr
-%template(SampleDataList_vtkSPSS1) std::list<const statismo::SampleData<vtkStructuredPointsRepresenter<signed short, 1> >* > ;
-
-%traits_swigtype(statismo::SampleData<TrivialVectorialRepresenter>);  // workaround for a swig bug with const ptr
-%fragment(SWIG_Traits_frag(statismo::SampleData<TrivialVectorialRepresenter>));  // workaround for a swig bug with const ptr
-%template(SampleDataList_tvr) std::list<const statismo::SampleData<TrivialVectorialRepresenter>* > ;
+%traits_swigtype(statismo::SampleDataStructure<TrivialVectorialRepresenter>);  // workaround for a swig bug with const ptr
+%fragment(SWIG_Traits_frag(statismo::SampleDataStructure<TrivialVectorialRepresenter>));  // workaround for a swig bug with const ptr
+%template(SampleDataStructureList_tvr) std::list<const statismo::SampleDataStructure<TrivialVectorialRepresenter>* > ;
 
 
 template <typename Representer>
 class CrossValidationFold {
 public:
-	typedef SampleData<Representer> SampleDataType;
-	typedef std::list<const SampleDataType*> SampleDataListType;
+	typedef SampleDataStructure<Representer> SampleDataStructureType;
+	typedef std::list<const SampleDataStructureType*> SampleDataStructureListType;
 
 	CrossValidationFold();
-	SampleDataListType GetTrainingData() const;
-	SampleDataListType GetTestingData() const;
+	SampleDataStructureListType GetTrainingData() const;
+	SampleDataStructureListType GetTestingData() const;
 
 };
 %template(CrossValidationFold_tvr) statismo::CrossValidationFold<TrivialVectorialRepresenter>;
@@ -180,8 +179,8 @@ template <typename Representer>
 class DataManager {
 public:
 
-	typedef SampleData<Representer> SampleDataType;
-	typedef std::list<const SampleDataType *> SampleDataListType;
+	typedef SampleDataStructure<Representer> SampleDataStructureType;
+	typedef std::list<const SampleDataStructureType *> SampleDataStructureListType;
 
 	typedef CrossValidationFold<Representer> CrossValidationFoldType;
 	typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
@@ -201,7 +200,7 @@ public:
 	
 	/** cross validation functionality */
 	CrossValidationFoldListType GetCrossValidationFolds(unsigned nFolds, bool randomize = true) const;
-	SampleDataListType GetSampleData() const;
+	SampleDataStructureListType GetSampleDataStructure() const;
 	
 private:
 	DataManager();
@@ -256,22 +255,29 @@ private:
 //////////////////////////////////////////////////////
 
 namespace statismo { 
-class ModelInfo {
+
+class BuilderInfo {
 public:
 	typedef std::pair<std::string, std::string> KeyValuePair;
 	typedef std::list<KeyValuePair> KeyValueList;
 			
-	ModelInfo(const statismo::MatrixType& scores, const KeyValueList& di, const KeyValueList& bi);	
-	const statismo::MatrixType& GetScoresMatrix() const;
-	virtual void Save(const H5::CommonFG& publicFg) const;
-	virtual void Load(const H5::CommonFG& publicFg);	
 	const KeyValueList& GetDataInfo() const;
-	const KeyValueList& GetBuilderInfo() const;	
+	const KeyValueList& GetParameterInfo() const;	
+};
+
+class ModelInfo {
+public:
+	typedef std::vector<BuilderInfo> BuilderInfoList;
+	const statismo::MatrixType& GetScoresMatrix() const;
+
+	virtual void Save(const H5::CommonFG& publicFg) const;
+	virtual void Load(const H5::CommonFG& publicFg);			
+	BuilderInfoList GetBuilderInfoList() const ;
 };
 }
 %template (KeyValuePair) std::pair<std::string, std::string>; 
 %template(KeyValueList) std::list<std::pair<std::string, std::string> >;
-
+%template(BuilderInfoList) std::vector<statismo::BuilderInfo>;
 
 /////////////////////////////////////////////////////////////////
 // Domain
@@ -346,9 +352,7 @@ public:
    statismo::VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const;
    statismo::VectorType ComputeCoefficientsForSampleVector(const statismo::VectorType& sample) const;
 	 statismo::VectorType ComputeCoefficientsForPointValues(const PointValueListType&  pointValues) const;
-
-	 //%rename("ComputeCoefficientsForPointIdValues") ComputeCoefficientsForPointValues(const PointIdValueListType&  pointValues) const;
-	 statismo::VectorType ComputeCoefficientsForPointValues(const PointIdValueListType&  pointValues) const;
+	 statismo::VectorType ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointValues) const;
 	 double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const;
 	 double ComputeProbabilityOfDataset(DatasetConstPointerType ds) const;
 	 
@@ -391,12 +395,12 @@ public:
 
 	typedef ModelBuilder<Representer> Superclass;
 	typedef typename DataManager<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;	
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;	
 
 	%newobject Create;
 	static PCAModelBuilder* Create();
 	
-	 StatisticalModel<Representer>* BuildNewModel(const SampleDataListType& sampleList, double noiseVariance, bool computeScores=true) const;	 
+	 StatisticalModel<Representer>* BuildNewModel(const SampleDataStructureListType& sampleList, double noiseVariance, bool computeScores=true) const;	 
 private:
 	PCAModelBuilder();
 
@@ -425,7 +429,7 @@ class PartiallyFixedModelBuilder {
 	typedef ModelBuilder<Representer> Superclass;
 public:
 	typedef  DataManager<Representer> 				DataManagerType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;		
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;		
 	typedef  StatisticalModel<Representer> 	StatisticalModelType;	
 	typedef typename StatisticalModelType::PointValueType PointValueType;
 	typedef  typename StatisticalModelType::PointValueListType PointValueListType;
@@ -435,7 +439,7 @@ public:
 	virtual ~PartiallyFixedModelBuilder();
 
 	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model,	const PointValueListType& pointValues,  double pointValuesNoiseVariance, bool computeScores=true) const;
-	StatisticalModelType* BuildNewModel(const SampleDataListType& sampleList, const PointValueListType& pointValues,  double pointValuesNoiseVariance,	double noiseVariance) const;
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleList, const PointValueListType& pointValues,  double pointValuesNoiseVariance,	double noiseVariance) const;
 
 	private:
 		PartiallyFixedModelBuilder();
@@ -448,4 +452,32 @@ public:
 %template(PartiallyFixedModelBuilder_vtkSPF3) statismo::PartiallyFixedModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
 %template(PartiallyFixedModelBuilder_vtkSPSS1) statismo::PartiallyFixedModelBuilder<vtkStructuredPointsRepresenter<signed short, 1> >;
 
+
+//////////////////////////////////////////////////////
+// ReducedVarianceModelBuilder
+//////////////////////////////////////////////////////
+
+namespace statismo { 
+%newobject *::BuildNewModelFromModel;
+
+template <typename Representer>
+class ReducedVarianceModelBuilder {
+	typedef ModelBuilder<Representer> Superclass;
+public:		
+	typedef  StatisticalModel<Representer> 	StatisticalModelType;	
+	
+	%newobject Create;
+	static ReducedVarianceModelBuilder* Create();
+	virtual ~ReducedVarianceModelBuilder();
+
+	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model,	double totalVariance, bool computeScores=true) const;
+
+	private:
+		ReducedVarianceModelBuilder();
+};
+}
+
+%template(ReducedVarianceModelBuilder_tvr) statismo::ReducedVarianceModelBuilder<TrivialVectorialRepresenter>;
+%template(ReducedVarianceModelBuilder_vtkPD) statismo::ReducedVarianceModelBuilder<vtkPolyDataRepresenter>;
+%template(ReducedVarianceModelBuilder_vtkSPF3) statismo::ReducedVarianceModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
 

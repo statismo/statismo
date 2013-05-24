@@ -37,31 +37,30 @@
 
 
 #include "itkVectorImageRepresenter.h"
-#include "itkImageRepresenter.h"
+#include "itkMeshRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkPCAModelBuilder.h"
+#include "statismo_ITK/itkReducedVarianceModelBuilder.h"
 #include "statismo_ITK/itkDataManager.h"
-#include "itkImageFileReader.h"
 #include "itkDirectory.h"
+#include "itkMesh.h"
+#include "itkMeshFileWriter.h"
+#include "itkMeshFileReader.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>
 
 /*
- * This example shows the ITK Wrapping of statismo can be used to build a deformation model.
+ * This example shows the ITK Wrapping of statismo can be used to build a shape model.
  */
 
+const unsigned Dimensions = 3;
+typedef itk::Mesh<float, Dimensions  > MeshType;
 
-typedef itk::Image<float, 3> ImageType3D;
-typedef itk::Image< itk::Vector<float, ImageType3D::ImageDimension> , ImageType3D::ImageDimension > VectorImageType3D;
-typedef itk::VectorImageRepresenter<float, 3, 3> RepresenterType3D;
-
-typedef itk::Image<float, 2> ImageType2D;
-typedef itk::Image< itk::Vector<float, ImageType2D::ImageDimension> , ImageType2D::ImageDimension > VectorImageType2D;
-
-typedef itk::VectorImageRepresenter<float, 2, 2> RepresenterType2D;
+typedef itk::MeshRepresenter<float, Dimensions> RepresenterType;
 
 
+/*function... might want it in some class?*/
 int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*")
 {
 	itk::Directory::Pointer directory = itk::Directory::New();
@@ -78,71 +77,67 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
 
 
 
-template <class RepresenterType, class ImageType>
-void itkExample(const char* dir, const char* modelname) {
 
+void buildShapeModel(const char* referenceFilename, const char* dir, const char* modelname) {
 
 
 	typedef itk::PCAModelBuilder<RepresenterType> ModelBuilderType;
+	typedef itk::ReducedVarianceModelBuilder<RepresenterType> ReducedVarianceModelBuilderType;
 	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
     typedef itk::DataManager<RepresenterType> DataManagerType;
-	typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
 
+    typedef itk::MeshFileReader<MeshType> MeshReaderType;
+
+    RepresenterType::Pointer representer = RepresenterType::New();
+
+    MeshReaderType::Pointer refReader = MeshReaderType::New();
+    refReader->SetFileName(referenceFilename);
+    refReader->Update();
+    representer->SetReference(refReader->GetOutput());
 
     StringVectorType filenames;
     getdir(dir, filenames, ".vtk");
 
-    // we take an arbitrary dataset as the reference, as they have all the same resolution anyway
-    std::string referenceFilename = (std::string(dir) + "/" + filenames[0]);
-	typename ImageFileReaderType::Pointer refReader = ImageFileReaderType::New();
-	refReader->SetFileName(referenceFilename);
-	refReader->Update();
-
-    typename RepresenterType::Pointer representer = RepresenterType::New();
-    representer->SetReference(refReader->GetOutput());
-
-
-    typename DataManagerType::Pointer dataManager = DataManagerType::New();
+    DataManagerType::Pointer dataManager = DataManagerType::New();
     dataManager->SetRepresenter(representer);
 
     for (StringVectorType::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
-
         std::string fullpath = (std::string(dir) + "/") + *it;
-    	typename ImageFileReaderType::Pointer reader = ImageFileReaderType::New();
-    	reader->SetFileName(fullpath);
-    	reader->Update();
-    	typename ImageType::Pointer df = reader->GetOutput();
 
-        dataManager->AddDataset(df, fullpath.c_str());
+        MeshReaderType::Pointer reader = MeshReaderType::New();
+        reader->SetFileName(fullpath.c_str());
+        reader->Update();
+        MeshType::Pointer mesh = reader->GetOutput();
+        dataManager->AddDataset(mesh, fullpath.c_str());
     }
 
-    typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
-    model->Save(modelname);
+    ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
+    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
+    ReducedVarianceModelBuilderType::Pointer reducedVarianceModelBuilder = ReducedVarianceModelBuilderType::New();
+    StatisticalModelType::Pointer reducedModel = reducedVarianceModelBuilder->BuildNewModelFromModel(model, 0.75);
+
+    std::cout<<"number of modes in the direct model: " <<model->GetNumberOfPrincipalComponents()
+    		 <<", and in the reduced model: "<< reducedModel->GetNumberOfPrincipalComponents() << std::endl;
+
+    reducedModel->Save(modelname);
+
+
 
 }
 
 int main(int argc, char* argv[]) {
 
 	if (argc < 4) {
-		std::cout << "usage " << argv[0] << " dimension deformationFieldDir modelname" << std::endl;
+		std::cout << "usage " << argv[0] << " referenceShape shapeDir modelname" << std::endl;
 		exit(-1);
 	}
 
-	unsigned int dimension = atoi(argv[1]);
+	const char* reference = argv[1];
 	const char* dir = argv[2];
 	const char* modelname = argv[3];
-
-	if (dimension==2){
-	  itkExample<RepresenterType2D, VectorImageType2D>(dir, modelname);
-	}
-	else if (dimension==3){
-	  itkExample<RepresenterType3D, VectorImageType3D>(dir, modelname);
-	}
-	else{
-	  assert(0);
-	}
+    
+	buildShapeModel(reference, dir, modelname);
 
 	std::cout << "Model building is completed successfully." << std::endl;
 }

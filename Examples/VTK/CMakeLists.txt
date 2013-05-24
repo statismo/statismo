@@ -36,6 +36,8 @@ add_executable (vtkBasicSamplingExample BasicSamplingExample.cxx)
 ADD_DEPENDENCIES(vtkBasicSamplingExample HDF5)
 target_link_libraries (vtkBasicSamplingExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
+ 
+
 add_executable (vtkCrossValidationExample CrossValidationExample.cxx) 
 ADD_DEPENDENCIES(vtkCrossValidationExample HDF5)
 target_link_libraries (vtkCrossValidationExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
@@ -43,6 +45,12 @@ target_link_libraries (vtkCrossValidationExample ${VTK_LIBRARIES} ${HDF5_LIBRARI
 add_executable (vtkBuildIntensityModelExample BuildIntensityModelExample.cxx) 
 add_DEPENDENCIES(vtkBuildIntensityModelExample HDF5)
 target_link_libraries (vtkBuildIntensityModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+
+
+add_executable (vtkReduceModelVarianceExample ReduceModelVarianceExample.cxx) 
+add_DEPENDENCIES(vtkReduceModelVarianceExample HDF5)
+target_link_libraries (vtkReduceModelVarianceExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+
 
 add_executable (vtkBuildPartiallyFixedModelExample BuildPartiallyFixedModelExample.cxx) 
 add_DEPENDENCIES(vtkBuildPartiallyFixedModelExample HDF5)

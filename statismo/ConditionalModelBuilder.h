@@ -1,7 +1,7 @@
 /*
  * ConditionalModelBuilder.h
  *
- * Created byRemi Blanc,
+ * Created by Remi Blanc,
  *
  * Copyright (c) 2011 ETH Zurich
  * All rights reserved.
@@ -82,9 +82,9 @@ public:
 	typedef std::vector<CondVariableValuePair> CondVariableValueVectorType; //replace list by vector, to gain direct access
 
 	typedef DataManagerWithSurrogates<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataListType SampleDataListType;
-	typedef typename DataManagerType::SampleDataWithSurrogatesType SampleDataWithSurrogatesType;
-	typedef typename DataManagerType::SurrogateTypeVectorType SurrogateTypeVectorType;
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
+	typedef typename DataManagerType::SampleDataStructureWithSurrogatesType SampleDataStructureWithSurrogatesType;
+	typedef typename DataManagerType::SurrogateTypeInfoType SurrogateTypeInfoType;
 
 	/**
 	 * Factory method to create a new ConditionalModelBuilder
@@ -109,17 +109,18 @@ public:
 	 *
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataListType& sampleSet,
-										const SurrogateTypeVectorType& surrogateTypes,
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleSet,
+										const SurrogateTypeInfoType& surrogateTypesInfo,
 										const CondVariableValueVectorType& conditioningInfo,
-										float noiseVariance) const;
+										float noiseVariance,
+										double modelVarianceRetained = 1) const;
 
 private:
 
-	unsigned PrepareData(const SampleDataListType& sampleDataList,
-						 const SurrogateTypeVectorType& surrogateTypes,
+	unsigned PrepareData(const SampleDataStructureListType& SampleDataStructureList,
+						 const SurrogateTypeInfoType& surrogateTypesInfo,
 						 const CondVariableValueVectorType& conditioningInfo,
-						 SampleDataListType* acceptedSamples,
+						 SampleDataStructureListType* acceptedSamples,
 						 MatrixType* surrogateMatrix,
 						 VectorType* conditions) const;
 

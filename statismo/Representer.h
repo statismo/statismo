@@ -43,15 +43,17 @@
  * \brief Provides the interface between statismo and the dataset type the application uses.
  *
  * A Representer is a type that provides the connection between the statismo library
- * and the application. It serves two purposes:
- * - Provides an adapter to the datatype that it represents (i.e. defines methods to create, delete, load datasets, etc)
- * - Implements methods that convert the datasets into a vector representation and back.
+ * and the application. It distinguishes three different representations of the data, and provides methods for conversion between those representations:
+ * - a Dataset, typically as read from a file on the disk
+ * - a Sample, which is a geometric (generally a rigid or affine) transform of the dataset
+ * - a SampleVector, which is an internal representation (vector) useful from the statistical analysis.
  *
  * In the following the methods and types that have to be implemented to write a new
  * Representer for your application are given.
  *
  * \warning This class is never actually used, but serves only for documentation purposes.
  */
+ //RB: would it be possible to make all representers inherit from it, so as to strictly enforce the interface?
 class Representer {
 public:
 

@@ -41,7 +41,7 @@
 
 #include "itkVectorImageRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
-#include "statismo_ITK/itkStatisticalDeformationModelTransform.h"
+#include "statismo_ITK/itkInterpolatingStatisticalDeformationModelTransform.h"
 #include "itkMeanSquaresImageToImageMetric.h"
 #include "itkNormalizedCorrelationImageToImageMetric.h"
 #include "itkLBFGSOptimizer.h"
@@ -59,7 +59,7 @@ typedef itk::VectorImageRepresenter<float, Dimensions, Dimensions> RepresenterTy
 typedef itk::ImageFileReader<ImageType> ImageReaderType;
 //typedef itk::MeanSquaresImageToImageMetric<ImageType, ImageType> MetricType;
 typedef itk::NormalizedCorrelationImageToImageMetric<ImageType, ImageType> MetricType;
-typedef itk::StatisticalDeformationModelTransform<RepresenterType, double, Dimensions> TransformType;
+typedef itk::InterpolatingStatisticalDeformationModelTransform<RepresenterType, double, Dimensions> TransformType;
 typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
 typedef itk::ImageRegistrationMethod<ImageType, ImageType> RegistrationFilterType;
 

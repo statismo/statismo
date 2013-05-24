@@ -141,6 +141,19 @@ StatisticalModel<Representer>::DrawSample(const VectorType& coefficients, bool a
 
 
 template <typename Representer>
+typename StatisticalModel<Representer>::DatasetPointerType
+StatisticalModel<Representer>::DrawPCABasisSample(const unsigned pcaComponent) const {
+	if (pcaComponent >= this->GetNumberOfPrincipalComponents()) {
+		throw StatisticalModelException("Wrong pcaComponent index provided to DrawPCABasisSample!");
+	}
+
+
+	return m_representer->SampleVectorToSample( m_pcaBasisMatrix.col(pcaComponent));
+}
+
+
+
+template <typename Representer>
 VectorType
 StatisticalModel<Representer>::DrawSampleVector(const VectorType& coefficients, bool addNoise) const {
 
@@ -223,7 +236,8 @@ StatisticalModel<Representer>::GetCovarianceAtPoint(unsigned ptId1, unsigned ptI
 		for (unsigned j = 0; j < dim; j++) {
 			unsigned idxj = Representer::MapPointIdToInternalIdx(ptId2, j);
 			VectorType vj = m_pcaBasisMatrix.row(idxj);
-			cov(i,j) = vi.dot(vj) + m_noiseVariance;
+			cov(i,j) = vi.dot(vj);
+			if (i == j) cov(i,j) += m_noiseVariance;
 		}
 	}
 	return cov;
@@ -279,12 +293,12 @@ StatisticalModel<Representer>::ComputeCoefficientsForPointValues(const PointValu
 	{
 		ptIdValueList.push_back(PointIdValuePairType(m_representer->GetPointIdForPoint(it->first), it->second));
 	}
-	return ComputeCoefficientsForPointValues(ptIdValueList, pointValueNoiseVariance);
+	return ComputeCoefficientsForPointIDValues(ptIdValueList, pointValueNoiseVariance);
 }
 
 template <typename Representer>
 VectorType
-StatisticalModel<Representer>::ComputeCoefficientsForPointValues(const PointIdValueListType&  pointIdValueList, double pointValueNoiseVariance) const {
+StatisticalModel<Representer>::ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointIdValueList, double pointValueNoiseVariance) const {
 
 	unsigned dim = Representer::GetDimensions();
 
@@ -516,6 +530,12 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 	using namespace H5;
 
 	StatisticalModel* newModel = 0;
+
+	if (maxNumberOfPCAComponents != std::numeric_limits<unsigned>::max()) {
+		std::cout << "Warning! Loading a subset of the PCA Components can \
+				lead to inconsistencies in the model's history, when the model is saved or processed by other model builders." << std::endl;
+	}
+
 
 	try {
 		Group representerGroup = modelRoot.openGroup("./representer");

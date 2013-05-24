@@ -91,7 +91,7 @@ VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>*
 VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::Clone() const {
 	VectorImageLMAlignRepresenter* clone = new VectorImageLMAlignRepresenter();
 	clone->Register();
-	CloneBaseMembers(clone);
+	this->CloneBaseMembers(clone);
 	clone->m_alignmentList = m_alignmentList;
 	return clone;
 }

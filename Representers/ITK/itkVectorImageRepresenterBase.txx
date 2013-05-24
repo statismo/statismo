@@ -196,7 +196,19 @@ template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 void
 VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::LoadBaseMembers(VectorImageRepresenterBase* b, const H5::CommonFG& fg) {
 
-	std::string tmpfilename = statismo::Utils::CreateTmpName(".nrrd");
+	std::string representerVersion("");
+	if (statismo::HDF5Utils::existsObjectWithName(fg, "representer-version")) {
+		representerVersion = statismo::HDF5Utils::readString(fg, "representer-version");
+	}
+
+	std::string tmpfilename;
+	if (representerVersion == "") {
+		tmpfilename = statismo::Utils::CreateTmpName(".nrrd");
+	} else if (representerVersion == "0.2") {
+		tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+	} else {
+		throw statismo::StatisticalModelException(("invalid version of the representer found " +representerVersion).c_str() );
+	}
 
 	statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
 	b->m_reference = ReadDataset(tmpfilename.c_str());
@@ -209,7 +221,8 @@ void
 VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::Save(const H5::CommonFG& fg) const {
 	using namespace H5;
 
-	std::string tmpfilename = statismo::Utils::CreateTmpName(".nrrd");
+	statismo::HDF5Utils::writeString(fg, "representer-version", "0.2" );
+	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
 	WriteDataset(tmpfilename.c_str(), (DatasetConstPointerType)this->m_reference);
 

@@ -1,9 +1,9 @@
 /*
  * This file is part of the statismo library.
  *
- * Author: Marcel Luethi (marcel.luethi@unibas.ch)
+ * Author: Remi Blanc (rblanc33@gmail.com)
  *
- * Copyright (c) 2011 University of Basel
+ * Copyright (c) 2012 University of Lyon
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,31 +37,30 @@
 
 
 #include "itkVectorImageRepresenter.h"
-#include "itkImageRepresenter.h"
+#include "itkImageROIRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkPCAModelBuilder.h"
 #include "statismo_ITK/itkDataManager.h"
-#include "itkImageFileReader.h"
 #include "itkDirectory.h"
+#include "itkMesh.h"
+#include "itkMeshFileWriter.h"
+#include "itkMeshFileReader.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>
 
 /*
- * This example shows the ITK Wrapping of statismo can be used to build a deformation model.
+ * This example shows the ITK Wrapping of statismo can be used to build a intensity image model restricted to a ROI.
  */
 
-
-typedef itk::Image<float, 3> ImageType3D;
-typedef itk::Image< itk::Vector<float, ImageType3D::ImageDimension> , ImageType3D::ImageDimension > VectorImageType3D;
-typedef itk::VectorImageRepresenter<float, 3, 3> RepresenterType3D;
-
-typedef itk::Image<float, 2> ImageType2D;
-typedef itk::Image< itk::Vector<float, ImageType2D::ImageDimension> , ImageType2D::ImageDimension > VectorImageType2D;
-
-typedef itk::VectorImageRepresenter<float, 2, 2> RepresenterType2D;
+const unsigned Dimension = 2;
+typedef unsigned char PixelType;
+typedef itk::Image<PixelType, Dimension> ImageType;
+typedef itk::ImageROIRepresenter<PixelType, Dimension> RepresenterType;
+typedef itk::ImageFileReader< ImageType > ImageFileReaderType;
 
 
+/*function... might want it in some class?*/
 int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*")
 {
 	itk::Directory::Pointer directory = itk::Directory::New();
@@ -76,73 +75,76 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
     return 0;
 }
 
+/*
+ * Reads input images
+*/
+ 
+ImageType::Pointer ReadImageFromFile(const std::string& filename) {
+	ImageFileReaderType::Pointer reader = ImageFileReaderType::New();
+	reader->SetFileName(filename.c_str());
+	reader->Update();
+	return reader->GetOutput();
+}
 
 
-template <class RepresenterType, class ImageType>
-void itkExample(const char* dir, const char* modelname) {
 
+void buildImageIntensityModelOnROI(const char* referenceFilename, const char* maskFilename, const char* dir, const char* outputImageFilename) {
 
 
 	typedef itk::PCAModelBuilder<RepresenterType> ModelBuilderType;
 	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
     typedef itk::DataManager<RepresenterType> DataManagerType;
-	typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
 
+    RepresenterType::Pointer representer = RepresenterType::New();
+
+	typedef itk::ImageFileReader< ImageType > MaskReaderType;
+	MaskReaderType::Pointer maskReader = MaskReaderType::New();
+	maskReader->SetFileName( maskFilename );
+    maskReader->Update();
+
+	representer->SetReference( ReadImageFromFile(referenceFilename), maskReader->GetOutput() );
 
     StringVectorType filenames;
     getdir(dir, filenames, ".vtk");
 
-    // we take an arbitrary dataset as the reference, as they have all the same resolution anyway
-    std::string referenceFilename = (std::string(dir) + "/" + filenames[0]);
-	typename ImageFileReaderType::Pointer refReader = ImageFileReaderType::New();
-	refReader->SetFileName(referenceFilename);
-	refReader->Update();
-
-    typename RepresenterType::Pointer representer = RepresenterType::New();
-    representer->SetReference(refReader->GetOutput());
-
-
-    typename DataManagerType::Pointer dataManager = DataManagerType::New();
-    dataManager->SetRepresenter(representer);
+    DataManagerType::Pointer dataManager = DataManagerType::New();
+	dataManager->SetRepresenter(representer);
 
     for (StringVectorType::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
-
         std::string fullpath = (std::string(dir) + "/") + *it;
-    	typename ImageFileReaderType::Pointer reader = ImageFileReaderType::New();
-    	reader->SetFileName(fullpath);
-    	reader->Update();
-    	typename ImageType::Pointer df = reader->GetOutput();
 
-        dataManager->AddDataset(df, fullpath.c_str());
+        dataManager->AddDataset( ReadImageFromFile(fullpath), fullpath.c_str());
     }
 
-    typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
-    model->Save(modelname);
+	ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
+    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
+
+    std::cout<<"dimensionality of the data: "<<model->GetDomain().GetNumberOfPoints()<<", dimension of the images: "<<(*dataManager->GetSampleDataStructure().begin())->GetSample()->GetLargestPossibleRegion().GetNumberOfPixels()<<std::endl;
+
+    std::cout<<"writing the mean sample to a png file..."<<std::endl;
+    
+	typedef itk::ImageFileWriter< ImageType > ImageWriterType;
+	ImageWriterType::Pointer writer = ImageWriterType::New();
+	writer->SetFileName( outputImageFilename );
+	writer->SetInput(model->DrawSample());
+    writer->Update();
 
 }
 
 int main(int argc, char* argv[]) {
 
-	if (argc < 4) {
-		std::cout << "usage " << argv[0] << " dimension deformationFieldDir modelname" << std::endl;
+	if (argc < 5) {
+		std::cout << "usage " << argv[0] << " referenceShape ROIFilename shapeDir outputImage" << std::endl;
 		exit(-1);
 	}
 
-	unsigned int dimension = atoi(argv[1]);
-	const char* dir = argv[2];
-	const char* modelname = argv[3];
-
-	if (dimension==2){
-	  itkExample<RepresenterType2D, VectorImageType2D>(dir, modelname);
-	}
-	else if (dimension==3){
-	  itkExample<RepresenterType3D, VectorImageType3D>(dir, modelname);
-	}
-	else{
-	  assert(0);
-	}
+	const char* reference = argv[1];
+	const char* maskFilename = argv[2];
+	const char* dir = argv[3];
+	const char* outputImageFilename = argv[4];
+    
+	buildImageIntensityModelOnROI(reference, maskFilename, dir, outputImageFilename);
 
 	std::cout << "Model building is completed successfully." << std::endl;
 }

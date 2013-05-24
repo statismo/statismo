@@ -52,6 +52,7 @@
 
 /**
  * \brief Representer class for vtkStructuredPoints of arbitrary scalar type and dimension
+ * \sa Representer
  */
 
 
