@@ -188,6 +188,38 @@
 	  }
 	}
 	
+	
+  // convert vtkUnstructuredGrid To Corresponding type
+  %typemap (in) vtkUnstructuredGrid*
+  {
+      $1 =  static_cast<vtkUnstructuredGrid*>(vtkPythonGetPointerFromObject($input, "vtkUnstructuredGrid"));
+  }
+  %typemap (out) const vtkUnstructuredGrid*
+  {
+  PyImport_ImportModule("vtk");
+      $result =  vtkPythonGetObjectFromPointer((vtkUnstructuredGrid*) $1);
+  }
+
+  %typemap (out) vtkUnstructuredGrid*
+  {
+  PyImport_ImportModule("vtk");
+      $result =  vtkPythonGetObjectFromPointer((vtkUnstructuredGrid*) $1);
+  }
+  
+
+  
+  // the typecheck is needed to disambiguate char* from vtkUnstructuredGrid* in overloaded method
+  %typecheck(SWIG_TYPECHECK_POINTER) vtkUnstructuredGrid * {
+    vtkUnstructuredGrid *ptr;
+    if (dynamic_cast<vtkUnstructuredGrid*>(vtkPythonGetPointerFromObject($input, "vtkUnstructuredGrid")) == 0) {
+      $1 = 0;
+      PyErr_Clear();
+    } else {
+      $1 = 1;
+    }
+  }
+  
+  	
 
 	// convert vtkStructuredPoints To Corresponding type
 	%typemap (in) vtkStructuredPoints*
