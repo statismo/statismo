@@ -111,6 +111,7 @@ public:
 	 unsigned GetDimensions() const { return 1; }
 
 	const DomainType& GetDomain() const { return m_domain; }
+	DatasetConstPointerType GetReference() const { VectorType::Zero(m_domain.GetNumberOfPoints()); }
 
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const { return ds; }
 	VectorType SampleToSampleVector(DatasetConstPointerType sample) const { return sample; }

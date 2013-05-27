@@ -59,14 +59,14 @@ typedef itk::MeshFileReader<MeshType> MeshReaderType;
 typedef itk::EuclideanDistancePointMetric<MeshType, MeshType> MetricType;
 
 // As a transform, we use the StatisticalShapeModelTransform, that comes with statismo
-typedef itk::StatisticalShapeModelTransform<RepresenterType, double, Dimensions> TransformType;
+typedef itk::StatisticalShapeModelTransform<MeshType, double, Dimensions> TransformType;
 
 
 typedef itk::PointSetToPointSetRegistrationMethod<MeshType, MeshType> RegistrationFilterType;
 
 typedef  itk::LevenbergMarquardtOptimizer OptimizerType;
 
-typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
+typedef itk::StatisticalModel<MeshType> StatisticalModelType;
 
 
 
@@ -126,8 +126,9 @@ int main(int argc, char* argv[]) {
 	char* outputmeshname = argv[3];
 
 	// load the model
+	RepresenterType::Pointer representer = RepresenterType::New();
 	StatisticalModelType::Pointer model = StatisticalModelType::New();
-	model->Load(modelname);
+	model->Load(representer, modelname);
 	MeshType::Pointer fixedPointSet  = model->GetRepresenter()->GetReference();
 	std::cout << "model succesully loaded " << std::endl;
 

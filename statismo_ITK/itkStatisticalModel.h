@@ -47,7 +47,7 @@
 #include "statismoITKConfig.h"
 #include "statismo/StatisticalModel.h"
 #include "statismo/ModelInfo.h"
-
+#include "statismo/Representer.h"
 #include <boost/tr1/functional.hpp>
 
 namespace itk
@@ -58,7 +58,7 @@ namespace itk
  * \brief ITK Wrapper for the statismo::StatisticalModel class.
  * \see statismo::StatisticalModel for detailed documentation.
  */
-template <class Representer>
+template <class T>
 class StatisticalModel : public Object {
 public:
 
@@ -70,11 +70,13 @@ public:
 	itkNewMacro( Self );
 	itkTypeMacro( StatisticalModel, Object );
 
+	typedef statismo::Representer<T> RepresenterType;
+
 
 	// statismo stuff
-	typedef statismo::StatisticalModel<Representer> ImplType;
+	typedef statismo::StatisticalModel<T> ImplType;
 	
-	typedef typename statismo::DataManager<Representer>::SampleDataStructureType     SampleDataStructureType;
+	typedef typename statismo::DataManager<T>::SampleDataStructureType     SampleDataStructureType;
 	
 	typedef vnl_matrix<statismo::ScalarType> MatrixType;
 	typedef vnl_vector<statismo::ScalarType> VectorType;
@@ -111,21 +113,21 @@ public:
 	}
 
 
-	typedef typename Representer::DatasetPointerType DatasetPointerType;
-	typedef typename Representer::DatasetConstPointerType DatasetConstPointerType;
+	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
+	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
-	typedef typename Representer::ValueType ValueType;
-	typedef typename Representer::PointType PointType;
+	typedef typename RepresenterType::ValueType ValueType;
+	typedef typename RepresenterType::PointType PointType;
 
-	typedef typename statismo::StatisticalModel<Representer>::PointValuePairType PointValuePairType;
-	typedef typename statismo::StatisticalModel<Representer>::PointValueListType PointValueListType;
+	typedef typename statismo::StatisticalModel<T>::PointValuePairType PointValuePairType;
+	typedef typename statismo::StatisticalModel<T>::PointValueListType PointValueListType;
 
-	typedef typename statismo::StatisticalModel<Representer>::DomainType DomainType;
+	typedef typename statismo::StatisticalModel<T>::DomainType DomainType;
 
 
-	void Load(const char* filename) {
+	void Load(RepresenterType* representer, const char* filename) {
 		try {
-			SetstatismoImplObj(ImplType::Load(filename));
+			SetstatismoImplObj(ImplType::Load(representer, filename));
 		}
 		catch (statismo::StatisticalModelException& s) {
 			itkExceptionMacro(<< s.what());
@@ -133,7 +135,7 @@ public:
 	}
 
 
-	void Load(const H5::Group& modelRoot) {
+	void Load(RepresenterType* representer, const H5::Group& modelRoot) {
 		try {
 		  SetstatismoImplObj(ImplType::Load(modelRoot));
 		}
@@ -144,7 +146,7 @@ public:
 
   //TODO: wrap StatisticalModel* BuildReducedVarianceModel( double pcvar );
 
-	const Representer* GetRepresenter() const {
+	const RepresenterType* GetRepresenter() const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::GetRepresenter, this->m_impl));
 	}
 

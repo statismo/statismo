@@ -54,7 +54,7 @@ namespace itk
  * \brief ITK Wrapper for the statismo::DataManager class.
  * \see statismo::DataManager for detailed documentation.
  */
-template <class Representer>
+template <class T>
 class DataManager : public Object {
 public:
 
@@ -68,9 +68,10 @@ public:
 	itkTypeMacro( DataManager, Object );
 
 
-	typedef statismo::DataManager<Representer> ImplType;
-	typedef typename statismo::DataManager<Representer>::SampleDataStructureType     SampleDataStructureType;
-	typedef typename statismo::DataManager<Representer>::SampleDataStructureListType SampleDataStructureListType;
+	typedef statismo::DataManager<T> ImplType;
+	typedef typename statismo::DataManager<T>::SampleDataStructureType     SampleDataStructureType;
+	typedef typename statismo::DataManager<T>::SampleDataStructureListType SampleDataStructureListType;
+	typedef statismo::Representer<T> RepresenterType;
 
 	template <class F>
 	typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {
@@ -105,11 +106,11 @@ public:
   		m_impl = impl;
   	}
 
-	void SetRepresenter(const Representer* representer) {
+	void SetRepresenter(const RepresenterType* representer) {
 		SetstatismoImplObj(ImplType::Create(representer));
 	}
 
-	void AddDataset(typename Representer::DatasetType* ds, const char* filename) {
+	void AddDataset(typename RepresenterType::DatasetType* ds, const char* filename) {
 		callstatismoImpl(std::tr1::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
 	}
 
@@ -126,7 +127,7 @@ public:
 		callstatismoImpl(std::tr1::bind(&ImplType::Save, this->m_impl, filename));
 	}
 
-	typename statismo::DataManager<Representer>::SampleDataStructureListType GetSampleDataStructure() const {
+	typename statismo::DataManager<T>::SampleDataStructureListType GetSampleDataStructure() const {
 		return callstatismoImpl(std::tr1::bind(&ImplType::GetSampleDataStructure, this->m_impl));
 	}
 

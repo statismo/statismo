@@ -38,6 +38,7 @@
 #ifndef __itkStatisticalModelTransform_h
 #define __itkStatisticalModelTransform_h
 
+#include "statismo/Representer.h"
 #include <iostream>
 #include "itkTransform.h"
 #include "itkVectorImageRepresenter.h"
@@ -59,7 +60,7 @@ namespace itk
  *
  * \ingroup Transforms
  */
-template <class TRepresenter, class TScalarType,  unsigned int TDimension >
+template <class TDataset, class TScalarType,  unsigned int TDimension >
 class ITK_EXPORT StatisticalModelTransformBase :
 public itk::Transform< TScalarType , TDimension, TDimension>
 {
@@ -111,8 +112,8 @@ public:
 	typedef typename Superclass::OutputCovariantVectorType
 	OutputCovariantVectorType;
 
-	typedef TRepresenter RepresenterType;
-	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
+	typedef statismo::Representer<TDataset> RepresenterType;
+	typedef itk::StatisticalModel<TDataset> StatisticalModelType;
 
 
 	virtual void ComputeJacobianWithRespectToParameters(const InputPointType  &pt, JacobianType & jacobian) const;

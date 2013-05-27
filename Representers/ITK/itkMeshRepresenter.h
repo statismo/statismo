@@ -40,12 +40,32 @@
 #ifndef ITKMesh_REPRESENTER_H_
 #define ITKMesh_REPRESENTER_H_
 
+#include "statismo/Representer.h"
 #include "itkMesh.h"
 #include "itkObject.h"
 #include "itkMesh.h"
 #include "statismo_ITK/statismoITKConfig.h"
 #include "statismo/CommonTypes.h"
 #include <boost/unordered_map.hpp>
+
+namespace statismo {
+template <>
+struct RepresenterTraits<itk::Mesh<float, 3u> > {
+
+    typedef itk::Mesh<float, 3u> MeshType;
+
+	typedef MeshType::Pointer DatasetPointerType;
+	typedef MeshType::Pointer DatasetConstPointerType;
+
+	typedef typename MeshType::PointType PointType;
+	typedef typename MeshType::PointType ValueType;
+
+	static void DeleteDataset(DatasetPointerType d) {};
+    ///@}
+
+};
+
+}
 
 namespace itk {
 
@@ -59,13 +79,14 @@ int hash_value(const PointType& pt) {
 }
 
 
+
 /**
  * \ingroup Representers
  * \brief A representer for scalar valued itk Meshs
  * \sa Representer
  */
 template <class TPixel, unsigned MeshDimension>
-class MeshRepresenter : public Object {
+class MeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, MeshDimension> >, public Object {
 public:
 
 	/* Standard class typedefs. */
@@ -74,6 +95,13 @@ public:
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
+    typedef itk::Mesh<TPixel, MeshDimension> MeshType;
+	typedef typename statismo::Representer<MeshType > RepresenterBaseType;
+	typedef typename RepresenterBaseType::DomainType DomainType;
+	typedef typename RepresenterBaseType::PointType PointType;
+	typedef typename RepresenterBaseType::ValueType ValueType;
+	typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
+	typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
 
 	/** New macro for creation of through a Smart Pointer. */
 	itkSimpleNewMacro( Self );
@@ -81,24 +109,16 @@ public:
 	/** Run-time type information (and related methods). */
 	itkTypeMacro( MeshRepresenter, Object );
 
-	static MeshRepresenter* Load(const H5::CommonFG& fg);
+	void Load(const H5::CommonFG& fg);
 	MeshRepresenter* Clone() const;
 
-    typedef itk::Mesh<TPixel, MeshDimension> MeshType;
 
 	/// The type of the data set to be used
 	typedef MeshType DatasetType;
 
 	// Const correcness is difficult to enforce using smart pointers, as no conversion
 	// between nonconst and const pointer are possible. Thus we define both to be non-const
-	typedef typename MeshType::Pointer DatasetPointerType;
-	typedef typename MeshType::Pointer DatasetConstPointerType;
 	typedef typename MeshType::PointsContainer PointsContainerType;
-
-	typedef typename MeshType::PointType PointType;
-	typedef typename MeshType::PointType ValueType;
-
-	typedef statismo::Domain<PointType> DomainType;
 
 	// An unordered map is used to cache pointid for corresonding points
 	typedef boost::unordered_map<PointType, unsigned> PointCacheType;
@@ -109,26 +129,26 @@ public:
 	MeshRepresenter();
 	virtual ~MeshRepresenter();
 
-	static unsigned GetDimensions() { return MeshDimension; }
+	unsigned GetDimensions() const { return MeshDimension; }
 
-	static std::string GetName() { return "itkMeshRepresenter"; }
+	std::string GetName() const { return "itkMeshRepresenter"; }
 
 
 	const DomainType& GetDomain() const { return m_domain; }
 
 	/** Set the reference that is used to build the model */
-	void SetReference(DatasetPointerType ds);
+	void SetReference(DatasetConstPointerType ds);
 
 
 	/**
 	 * Create a sample from the dataset. No alignment or registration is done
 	 */
-	DatasetPointerType DatasetToSample(MeshType* ds, DatasetInfo* notUsed) const;
+	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 
 	/**
 	 * Converts a sample to its vectorial representation
 	 */
-	statismo::VectorType SampleToSampleVector(MeshType* sample) const;
+	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
 
 	/**
 	 * Converts the given sample Vector to a Sample (an itk::Mesh)
@@ -162,24 +182,18 @@ public:
 	/// \warning This works currently only for points that are defined on the reference
 	virtual unsigned GetPointIdForPoint(const PointType& point) const;
 
-	 /* Maps a (Pointid,component) tuple to a component of the internal matrix.
-	 * This is used to locate the place in the matrix to store the elements for a given point.
-	 * @params ptId The point id
-	 * @params the Component Index (range 0, Dimensionality)
-	 * @returns an index.
-	 */
-	static unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) {
-		return ptId * GetDimensions() + componentInd;
-	}
-
-    /// delete the dataset (does nothing, as ITK uses smart pointers)
-    static void DeleteDataset(DatasetPointerType ds) {}
 
     /// return the reference used in the representer
     DatasetConstPointerType GetReference() const { return m_reference; }
 
+    void Delete() const {
+    	this->UnRegister();
+    	// the delete of itk is non-const. We call it from the const version
+    	//const_cast<MeshRepresenter<TPixel, MeshDimension>*>(this) ->Delete();
+    }
+
 private:
-    typename MeshType::Pointer cloneMesh(const MeshType* mesh) const;
+    DatasetPointerType cloneMesh(const MeshType* mesh) const;
 
     static DatasetPointerType ReadDataset(const char* filename);
 

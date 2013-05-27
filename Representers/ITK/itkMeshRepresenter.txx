@@ -81,18 +81,14 @@ MeshRepresenter<TPixel, MeshDimension>::Clone() const {
 
 
 template <class TPixel, unsigned MeshDimension>
-MeshRepresenter<TPixel, MeshDimension>*
+void
 MeshRepresenter<TPixel, MeshDimension>::Load(const H5::CommonFG& fg) {
-
-	MeshRepresenter* newInstance = new MeshRepresenter();
-	newInstance->Register();
 
 	std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 	HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
 
-	newInstance->SetReference(ReadDataset(tmpfilename.c_str()));
+	SetReference(ReadDataset(tmpfilename.c_str()));
 	std::remove(tmpfilename.c_str());
-	return newInstance;
 }
 
 
@@ -100,7 +96,7 @@ MeshRepresenter<TPixel, MeshDimension>::Load(const H5::CommonFG& fg) {
 
 template <class TPixel, unsigned MeshDimension>
 void
-MeshRepresenter<TPixel, MeshDimension>::SetReference(DatasetPointerType reference) {
+MeshRepresenter<TPixel, MeshDimension>::SetReference(DatasetConstPointerType reference) {
 	m_reference = reference;
 
 	// We create a list of poitns for the domain.
@@ -108,8 +104,8 @@ MeshRepresenter<TPixel, MeshDimension>::SetReference(DatasetPointerType referenc
 	// we have to look up later.
 	typename DomainType::DomainPointsListType domainPointList;
 
-	typename PointsContainerType::Pointer points = m_reference->GetPoints();
-	typename PointsContainerType::Iterator pointIterator= points->Begin();
+	typename PointsContainerType::ConstPointer points = m_reference->GetPoints();
+	typename PointsContainerType::ConstIterator pointIterator= points->Begin();
 	unsigned id = 0;
 	while( pointIterator != points->End() ) {
 		domainPointList.push_back(pointIterator.Value());
@@ -125,7 +121,7 @@ MeshRepresenter<TPixel, MeshDimension>::SetReference(DatasetPointerType referenc
 
 template <class TPixel, unsigned MeshDimension>
 typename MeshRepresenter<TPixel, MeshDimension>::DatasetPointerType
-MeshRepresenter<TPixel, MeshDimension>::DatasetToSample(MeshType* ds, DatasetInfo* notUsed) const
+MeshRepresenter<TPixel, MeshDimension>::DatasetToSample(DatasetConstPointerType ds) const
 {
 	// we don't do any alignment, but simply return a clone of the dataset
 	return cloneMesh(ds);
@@ -133,17 +129,17 @@ MeshRepresenter<TPixel, MeshDimension>::DatasetToSample(MeshType* ds, DatasetInf
 
 template <class TPixel, unsigned MeshDimension>
 VectorType
-MeshRepresenter<TPixel, MeshDimension>::SampleToSampleVector(MeshType* mesh) const
+MeshRepresenter<TPixel, MeshDimension>::SampleToSampleVector(DatasetConstPointerType mesh) const
 {
 	VectorType sample(GetNumberOfPoints() * GetDimensions());
 
-	typename PointsContainerType::Pointer points = mesh->GetPoints();
+	typename PointsContainerType::ConstPointer points = mesh->GetPoints();
 
-	typename PointsContainerType::Iterator pointIterator= points->Begin();
+	typename PointsContainerType::ConstIterator pointIterator= points->Begin();
 	unsigned id = 0;
 	while( pointIterator != points->End() ) {
 		for (unsigned d = 0; d < GetDimensions(); d++) {
-			unsigned idx = MapPointIdToInternalIdx(id, d);
+			unsigned idx = this->MapPointIdToInternalIdx(id, d);
 			sample[idx] = pointIterator.Value()[d];
 		}
 		++pointIterator;
@@ -262,7 +258,8 @@ MeshRepresenter<TPixel, MeshDimension>::ReadDataset(const char* filename) {
         throw StatisticalModelException((std::string("Could not read file ") + filename).c_str());
     }
 
-    return reader->GetOutput();
+    typename MeshType::Pointer mesh = reader->GetOutput();
+    return mesh;
 }
 
 template <class TPixel, unsigned MeshDimension>

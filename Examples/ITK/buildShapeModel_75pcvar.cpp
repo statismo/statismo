@@ -81,11 +81,11 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
 void buildShapeModel(const char* referenceFilename, const char* dir, const char* modelname) {
 
 
-	typedef itk::PCAModelBuilder<RepresenterType> ModelBuilderType;
-	typedef itk::ReducedVarianceModelBuilder<RepresenterType> ReducedVarianceModelBuilderType;
-	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
+	typedef itk::PCAModelBuilder<MeshType> ModelBuilderType;
+	typedef itk::ReducedVarianceModelBuilder<MeshType> ReducedVarianceModelBuilderType;
+	typedef itk::StatisticalModel<MeshType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
-    typedef itk::DataManager<RepresenterType> DataManagerType;
+    typedef itk::DataManager<MeshType> DataManagerType;
 
     typedef itk::MeshFileReader<MeshType> MeshReaderType;
 

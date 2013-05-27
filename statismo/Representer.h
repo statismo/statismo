@@ -88,6 +88,7 @@ public:
 	/// (for a image, this could for example be a scalar value or an RGB value)
 	typedef typename RepresenterTraits<T>::ValueType ValueType;
 
+	typedef  T DatasetType;
 
 	typedef Domain<PointType> DomainType;
 
@@ -140,6 +141,7 @@ public:
 	 */
 	virtual const statismo::Domain<PointType>& GetDomain() const = 0;
 
+	virtual DatasetConstPointerType GetReference() const = 0;
 
 	/**
 	 * Takes the given dataset and converts it to a sample, as it is internally used by statismo.

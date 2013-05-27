@@ -480,13 +480,13 @@ template <typename T>
 MatrixType
 StatisticalModel<T>::GetJacobian(const PointType& pt) const {
 
-	unsigned Dimensions = RepresenterType::GetDimensions();
+	unsigned Dimensions = m_representer->GetDimensions();
 	MatrixType J = MatrixType::Zero(Dimensions, GetNumberOfPrincipalComponents());
     
 	unsigned ptId = m_representer->GetPointIdForPoint(pt);
 
 	for(unsigned i = 0; i < Dimensions; i++) {
-        unsigned idx = RepresenterType::MapPointIdToInternalIdx(ptId, i);
+        unsigned idx = m_representer->MapPointIdToInternalIdx(ptId, i);
 		for(unsigned j = 0; j < GetNumberOfPrincipalComponents(); j++) {
 				 J(i,j) += m_pcaBasisMatrix(idx,j) ;
         }

@@ -46,6 +46,8 @@
 #include "statismo/CommonTypes.h"
 
 
+
+
 namespace itk {
 /**
  * \ingroup Representers
@@ -84,27 +86,27 @@ public:
 
 	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
 
-	static VectorImageRepresenter* Load(const H5::CommonFG& fg);
+	void Load(const H5::CommonFG& fg);
 	virtual VectorImageRepresenter* Clone() const;
 
-	void Delete() { this->UnRegister(); }
+	void Delete() const { this->UnRegister(); }
 
 	VectorImageRepresenter();
 	virtual ~VectorImageRepresenter();
 
-	static unsigned GetDimensions() { return Superclass::Dimensions; }
-	static std::string GetName() { return "itkVectorImageRepresenter"; }
+	std::string GetName() const { return "itkVectorImageRepresenter"; }
 
 	/**
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
 	 * Alignment.
 	 */
-	DatasetPointerType DatasetToSample(DatasetType* ds, DatasetInfo* notUsed = 0) const;
+	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 	statismo::VectorType SampleToSampleVector(DatasetType* sample) const;
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
 	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
 	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
+
 
 
 };
