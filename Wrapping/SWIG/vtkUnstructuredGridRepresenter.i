@@ -2,6 +2,7 @@
  * This file is part of the statismo library.
  *
  * Author: Marcel Luethi (marcel.luethi@unibas.ch)
+ *         Thomas Albrecht (thomas.albrecht@unibas.ch)
  *
  * Copyright (c) 2011 University of Basel
  * All rights reserved.
@@ -36,43 +37,47 @@
  */
  
 %{
-#include "vtkStructuredPointsRepresenter.h"
+#include "vtkUnstructuredGridRepresenter.h"
 %}
 
 
-template <class TPixel, unsigned Dimensions>
-class vtkNDPixel {
+/*class vtkPoint {
 public:
-	vtkNDPixel(TPixel* x);
-};
-%template(vtkNDPixel_F3) vtkNDPixel<float, 3>;
-%template(vtkNDPixel_SS1) vtkNDPixel<signed short, 1>;
+	vtkPoint(double x, double y, double z);
+};*/	
 
 
 
-template <class TPixel, unsigned TDimensions>
-class vtkStructuredPointsRepresenter {
-public: 
 
-	typedef vtkStructuredPoints DatasetType;
-	typedef vtkStructuredPoints* DatasetPointerType;
-	typedef const vtkStructuredPoints* DatasetConstPointerType;
+class vtkUnstructuredGridRepresenter {
+public:
+typedef vtkPoint PointType;
+typedef vtkPoint ValueType;
+typedef vtkUnstructuredGrid* DatasetPointerType;
+typedef const vtkUnstructuredGrid* DatasetConstPointerType;
 
-	typedef vtkNDPixel<TPixel, TDimensions> ValueType; 
+typedef statismo::Domain<PointType> DomainType;
 
-%newobject Create;
-static vtkStructuredPointsRepresenter* Create(const vtkStructuredPoints* reference);
- static unsigned GetDimensions();
- const vtkStructuredPoints* GetReference() const;
- unsigned GetNumberOfPoints() const ;
- unsigned GetPointIdForPoint(const vtkPoint& pt) const;
+ enum AlignmentType {
+   NONE=999,
+   RIGID=VTK_LANDMARK_RIGIDBODY,
+   SIMILARITY=VTK_LANDMARK_SIMILARITY,
+   AFFINE=VTK_LANDMARK_AFFINE
+ };
+
+ %newobject Create; 
+ static vtkUnstructuredGridRepresenter* Create(const vtkUnstructuredGrid* reference, AlignmentType alignment);
+  static unsigned GetDimensions();
+  AlignmentType GetAlignment() const;
+  
+  const DomainType& GetDomain() const;
+  
+ const vtkUnstructuredGrid* GetReference() const;
+ unsigned GetNumberOfPoints();
+ unsigned GetPointIdForPoint(const vtkPoint& pt);
 
 private:
- vtkStructuredPointsRepresenter();
+ 
+ vtkUnstructuredGridRepresenter(AlignmentType alignment = RIGID);
 
 };
-
-
-%template(vtkStructuredPointsRepresenter_F3) vtkStructuredPointsRepresenter<float, 3>;
-%template(vtkStructuredPointsRepresenter_SS1) vtkStructuredPointsRepresenter<signed short, 1>;
-
