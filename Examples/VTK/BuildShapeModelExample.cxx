@@ -75,9 +75,9 @@ int main(int argc, char** argv) {
 	// All the statismo classes have to be parameterized with the RepresenterType.
 	// For building a shape model with vtk, we use the vtkPolyDataRepresenter.
 	typedef vtkPolyDataRepresenter RepresenterType;
-	typedef DataManager<RepresenterType> DataManagerType;
-	typedef PCAModelBuilder<RepresenterType> ModelBuilderType;
-	typedef StatisticalModel<RepresenterType> StatisticalModelType;
+	typedef DataManager<vtkPolyData> DataManagerType;
+	typedef PCAModelBuilder<vtkPolyData> ModelBuilderType;
+	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
 
 	try {
 

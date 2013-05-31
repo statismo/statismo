@@ -73,13 +73,14 @@ int main(int argc, char** argv) {
 	// All the statismo classes have to be parameterized with the RepresenterType.
 	// For building a shape model with vtk, we use the vtkPolyDataRepresenter.
 	typedef vtkPolyDataRepresenter RepresenterType;
-	typedef StatisticalModel<RepresenterType> StatisticalModelType;
+	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
 
 	try {
 
 		// To load a model, we call the static Load method, which returns (a pointer to) a
 		// new StatisticalModel object
-		auto_ptr<StatisticalModelType> model(StatisticalModelType::Load(modelname));
+		RepresenterType* representer = RepresenterType::Create();
+		auto_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, modelname));
 		std::cout << "loaded model with " << model->GetNumberOfPrincipalComponents() << " Principal Components" << std::endl;
 
 

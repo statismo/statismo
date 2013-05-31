@@ -39,6 +39,7 @@
 #ifndef VTKPOLYDATAREPRESENTER_H_
 #define VTKPOLYDATAREPRESENTER_H_
 
+#include "statismo/Representer.h"
 #include "vtkPolyData.h"
 #include "vtkLandmarkTransform.h"
 #include "vtkTransform.h"
@@ -66,21 +67,31 @@
  * See Representer for more details about representer classes
  * \sa Representer
  */
-class vtkPolyDataRepresenter  {
-public:
 
-	/// The type of the data set to be used
+namespace statismo {
+
+template <>
+struct RepresenterTraits<vtkPolyData> {
 	typedef vtkPolyData* DatasetPointerType;
 	typedef const vtkPolyData* DatasetConstPointerType;
 
 	typedef vtkPoint PointType;
 	typedef vtkPoint ValueType;
 
-	typedef statismo::Domain<PointType> DomainType;
+	static void DeleteDataset(DatasetPointerType d) {
+		d->Delete();
+	};
+    ///@}
 
-	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
+
+};
 
 
+
+class vtkPolyDataRepresenter  : public Representer<vtkPolyData>{
+public:
+
+	/// The type of the data set to be used
 
 	enum AlignmentType {
 	  NONE=999, // something that VTK does not define
@@ -89,11 +100,13 @@ public:
 	  AFFINE=VTK_LANDMARK_AFFINE
 	};
 
+	static vtkPolyDataRepresenter* Create() { return new vtkPolyDataRepresenter(); }
+
 	static vtkPolyDataRepresenter* Create(DatasetConstPointerType reference, AlignmentType alignment) {
 		return new vtkPolyDataRepresenter(reference, alignment);
 	}
 
-	static vtkPolyDataRepresenter* Load(const H5::CommonFG& fg);
+	void Load(const H5::CommonFG& fg);
 
 	vtkPolyDataRepresenter* Clone() const;
 	void Delete() const { delete this; }
@@ -101,8 +114,8 @@ public:
 	virtual ~vtkPolyDataRepresenter();
 
 
-	static std::string GetName() { return "vtkPolyDataRepresenter"; }
-	static unsigned GetDimensions() { return 3; }
+	std::string GetName() const { return "vtkPolyDataRepresenter"; }
+	unsigned GetDimensions() const { return 3; }
 
 	const DomainType& GetDomain() const { return m_domain; }
 
@@ -110,7 +123,7 @@ public:
 
 	DatasetConstPointerType GetReference() const { return m_reference; }
 
-	DatasetPointerType DatasetToSample(DatasetConstPointerType ds, DatasetInfo* notUsed) const;
+	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
@@ -123,27 +136,19 @@ public:
 	unsigned GetNumberOfPoints() const;
 	unsigned GetPointIdForPoint(const PointType& point) const;
 
-    
-    static void DeleteDataset(DatasetPointerType d) ;
-
-	 /* Maps a (Pointid,component) tuple to a component of the internal matrix.
-	 * This is used to locate the place in the matrix to store the elements for a given point.
-	 * @params ptId The point id
-	 * @params the Component Index (range 0, Dimensionality)
-	 * @returns an index.
-	 */
-	static unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) {
-		return ptId * GetDimensions() + componentInd;
-	}
 
 
 
 private:
 
+	vtkPolyDataRepresenter() : m_reference(0), m_pdTransform(0), m_alignment(NONE) {}
+
 	vtkPolyDataRepresenter(const std::string& reference, AlignmentType alignment);
 	vtkPolyDataRepresenter(const DatasetConstPointerType reference, AlignmentType alignment);
 	vtkPolyDataRepresenter(const vtkPolyDataRepresenter& orig);
 	vtkPolyDataRepresenter& operator=(const vtkPolyDataRepresenter& rhs);
+
+	void SetReference(const vtkPolyData* reference);
 
 	static DatasetPointerType ReadDataset(const std::string& filename);
 	static void WriteDataset(const std::string& filename, DatasetConstPointerType pd) ;
@@ -155,6 +160,8 @@ private:
 	AlignmentType m_alignment;
 	DomainType m_domain;
 };
+
+} // namespace statismo
 
 #include "vtkPolyDataRepresenter.cpp"
 

@@ -75,9 +75,9 @@ int main(int argc, char** argv) {
 
 	// All the statismo classes have to be parameterized with the RepresenterType.
 	typedef vtkPolyDataRepresenter RepresenterType;
-	typedef DataManager<RepresenterType> DataManagerType;
-	typedef StatisticalModel<RepresenterType> StatisticalModelType;
-	typedef PCAModelBuilder<RepresenterType> ModelBuilderType;
+	typedef DataManager<vtkPolyData> DataManagerType;
+	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
+	typedef PCAModelBuilder<vtkPolyData> ModelBuilderType;
 	typedef DataManagerType::CrossValidationFoldListType CVFoldListType;
 	typedef DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 

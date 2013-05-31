@@ -47,12 +47,6 @@ ADD_DEPENDENCIES(itkBuildShapeModel_75pcvar HDF5)
 target_link_libraries (itkBuildShapeModel_75pcvar ${ITK_LIBRARIES} )
 
 
-add_executable (itkBuildImageIntensityModelOnROI buildImageIntensityModelOnROI.cpp 
-	${SOURCE_FILES}
-	${INCLUDE_FILES}
-) 
-ADD_DEPENDENCIES(itkBuildImageIntensityModelOnROI HDF5)
-target_link_libraries (itkBuildImageIntensityModelOnROI ${ITK_LIBRARIES} )
 
 
 
@@ -63,5 +57,5 @@ add_executable (itkShapeModelFitting shapeModelFitting.cpp
 ADD_DEPENDENCIES(itkShapeModelFitting HDF5)
 target_link_libraries (itkShapeModelFitting  ${ITK_LIBRARIES})
 
-INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkBuildShapeModel_75pcvar itkShapeModelFitting itkBuildImageIntensityModelOnROI RUNTIME DESTINATION bin)
+INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkBuildShapeModel_75pcvar itkShapeModelFitting RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runITKExamples.sh DESTINATION  bin)

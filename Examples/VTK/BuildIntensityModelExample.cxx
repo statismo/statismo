@@ -77,10 +77,10 @@ int main(int argc, char** argv) {
 	// For building a intensity model with vtk, we use the vtkStructuredPointsRepresenter.
 	// Here, we work with unsigned character images. The second template parameter specifies
 	// the pixel dimension (1 means scalar image, whereas 3 is a 3D vector image).
-	typedef vtkStructuredPointsRepresenter<unsigned char, 1> RepresenterType;
-	typedef DataManager<RepresenterType> DataManagerType;
-	typedef PCAModelBuilder<RepresenterType> ModelBuilderType;
-	typedef StatisticalModel<RepresenterType> StatisticalModelType;
+	typedef vtkStructuredPointsRepresenter RepresenterType;
+	typedef DataManager<vtkStructuredPoints> DataManagerType;
+	typedef PCAModelBuilder<vtkStructuredPoints> ModelBuilderType;
+	typedef StatisticalModel<vtkStructuredPoints> StatisticalModelType;
 
 	try {
 

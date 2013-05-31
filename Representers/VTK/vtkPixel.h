@@ -51,21 +51,19 @@ using statismo::StatisticalModelException;
   * copy semantics, and hence requires such a wrapper.
  */
 
-template <class TPixel, unsigned TDimensions>
 class vtkNDPixel {
 public:
-	vtkNDPixel() { }
-	~vtkNDPixel() {}
+	vtkNDPixel(unsigned dimensions) : m_pixel(new double[dimensions]), m_dimensions(dimensions) { }
+	~vtkNDPixel() {delete[] m_pixel; }
 
-	vtkNDPixel(TPixel* x)  {
-		for (unsigned d = 0; d < TDimensions; d++)
+	vtkNDPixel(double* x, unsigned dimensions)  : m_pixel(new double[dimensions]), m_dimensions(dimensions) {
+		for (unsigned d = 0; d < dimensions; d++)
 			m_pixel[d] = x[d];
 
 	}
 
-
-	TPixel& operator[](unsigned i) {
-		if (i >= TDimensions) {
+	double& operator[](unsigned i) {
+		if (i >= m_dimensions) {
 			std::ostringstream os;
 			os << "Invalid index for vtkPixel (index = " << i << ")";
 			throw StatisticalModelException(os.str().c_str());
@@ -75,8 +73,8 @@ public:
 		}
 	}
 
-	const TPixel& operator[](unsigned i) const {
-		if (i >= TDimensions) {
+	const double& operator[](unsigned i) const {
+		if (i >= m_dimensions) {
 			std::ostringstream os;
 			os << "Invalid index for vtkPixel (index = " << i << ")";
 			throw StatisticalModelException(os.str().c_str());
@@ -89,7 +87,7 @@ public:
 
 	vtkNDPixel	& operator=(const vtkNDPixel& rhs) {
 		if (this != &rhs) {
-			for (unsigned d = 0; d < TDimensions; d++) {
+			for (unsigned d = 0; d < m_dimensions; d++) {
 				m_pixel[d] = rhs.m_pixel[d];
 			}
 
@@ -102,7 +100,8 @@ public:
 	}
 
 private:
-	TPixel m_pixel[TDimensions];
+	unsigned m_dimensions;
+	double* m_pixel;
 };
 
 

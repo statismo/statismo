@@ -49,13 +49,13 @@ namespace statismo {
 
 
 
-template <typename Representer>
-DataManager<Representer>::DataManager(const Representer* representer)
+template <typename T>
+DataManager<T>::DataManager(const RepresenterType* representer)
 : m_representer(representer->Clone())
 {}
 
-template <typename Representer>
-DataManager<Representer>::~DataManager()
+template <typename T>
+DataManager<T>::~DataManager()
 {
 	for (typename SampleDataStructureListType::iterator it = m_SampleDataStructureList.begin();
 		 it != m_SampleDataStructureList.end();
@@ -70,12 +70,12 @@ DataManager<Representer>::~DataManager()
 }
 
 
-template <typename Representer>
-DataManager<Representer>*
-DataManager<Representer>::Load(const std::string& filename) {
+template <typename T>
+DataManager<T>*
+DataManager<T>::Load(Representer<T>* representer, const std::string& filename) {
 	using namespace H5;
 
-	DataManager<Representer>* newDataManager = 0;
+	DataManager<T>* newDataManager = 0;
 
 
 	H5File file;
@@ -90,12 +90,12 @@ DataManager<Representer>::Load(const std::string& filename) {
 	try {
 		Group representerGroup = file.openGroup("/representer");
 		std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
-		if (rep_name != Representer::GetName()) {
+		if (rep_name != representer->GetName()) {
 			throw StatisticalModelException("A different representer was used to create the file. Cannot load hdf5 file.");
 		}
 
-		Representer* representer = RepresenterType::Load(representerGroup);
-		newDataManager = new DataManager<Representer>(representer);
+		representer->Load(representerGroup);
+		newDataManager = new DataManager<T>(representer);
 		representerGroup.close();
 
 		Group publicGroup = file.openGroup("/data");
@@ -123,9 +123,9 @@ DataManager<Representer>::Load(const std::string& filename) {
 	return newDataManager;
 }
 
-template <typename Representer>
+template <typename T>
 void
-DataManager<Representer>::Save(const std::string& filename) const {
+DataManager<T>::Save(const std::string& filename) const {
 	using namespace H5;
 
 	assert(m_representer != 0);
@@ -141,7 +141,7 @@ DataManager<Representer>::Save(const std::string& filename) const {
 
 	 try {
 		Group representerGroup = file.createGroup("/representer");
-		HDF5Utils::writeStringAttribute(representerGroup, "name", Representer::GetName());
+		HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
 
 		this->m_representer->Save(representerGroup);
 		representerGroup.close();
@@ -172,26 +172,26 @@ DataManager<Representer>::Save(const std::string& filename) const {
 }
 
 
-template <typename Representer>
+template <typename T>
 void
-DataManager<Representer>::AddDataset(DatasetConstPointerType dataset, const std::string& URI) {
-	DatasetPointerType sample = this->m_representer->DatasetToSample(dataset, 0);
+DataManager<T>::AddDataset(DatasetConstPointerType dataset, const std::string& URI) {
+	DatasetPointerType sample = this->m_representer->DatasetToSample(dataset);
 	m_SampleDataStructureList.push_back(SampleDataStructureType::Create(m_representer, URI , m_representer->SampleToSampleVector(sample)));
-	Representer::DeleteDataset(sample);
+	RepresenterType::DeleteDataset(sample);
 }
 
 
 
-template <typename Representer>
-typename DataManager<Representer>::SampleDataStructureListType
-DataManager<Representer>::GetSampleDataStructure() const
+template <typename T>
+typename DataManager<T>::SampleDataStructureListType
+DataManager<T>::GetSampleDataStructure() const
 {
 	return m_SampleDataStructureList;
 }
 
-template <typename Representer>
-typename DataManager<Representer>::CrossValidationFoldListType
-DataManager<Representer>::GetCrossValidationFolds(unsigned nFolds, bool randomize) const
+template <typename T>
+typename DataManager<T>::CrossValidationFoldListType
+DataManager<T>::GetCrossValidationFolds(unsigned nFolds, bool randomize) const
 {
 	if (nFolds <= 1 || nFolds > GetNumberOfSamples())  {
 		throw StatisticalModelException("Invalid number of folds specified in GetCrossValidationFolds");
@@ -239,9 +239,9 @@ DataManager<Representer>::GetCrossValidationFolds(unsigned nFolds, bool randomiz
 }
 
 
-template <typename Representer>
-typename DataManager<Representer>::CrossValidationFoldListType
-DataManager<Representer>::GetLeaveOneOutCrossValidationFolds() const {
+template <typename T>
+typename DataManager<T>::CrossValidationFoldListType
+DataManager<T>::GetLeaveOneOutCrossValidationFolds() const {
 CrossValidationFoldListType foldList;
 	for (unsigned currentFold = 0; currentFold < GetNumberOfSamples(); currentFold++)
 	{

@@ -48,20 +48,20 @@ namespace statismo {
 //
 //
 
-template <typename Representer>
-PartiallyFixedModelBuilder<Representer>::PartiallyFixedModelBuilder()
+template <typename T>
+PartiallyFixedModelBuilder<T>::PartiallyFixedModelBuilder()
 : Superclass()
 {}
 
-template <typename Representer>
-typename PartiallyFixedModelBuilder<Representer>::StatisticalModelType*
-PartiallyFixedModelBuilder<Representer>::BuildNewModel(
+template <typename T>
+typename PartiallyFixedModelBuilder<T>::StatisticalModelType*
+PartiallyFixedModelBuilder<T>::BuildNewModel(
 		const SampleDataStructureListType& sampleDataList,
 		const PointValueListType& pointValues,
 		double pointValuesNoiseVariance,
 		double noiseVariance) const
 {
-	typedef PCAModelBuilder<Representer> PCAModelBuilderType;
+	typedef PCAModelBuilder<T> PCAModelBuilderType;
 	PCAModelBuilderType* modelBuilder = PCAModelBuilderType::Create();
 	StatisticalModelType* model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
 	StatisticalModelType* partiallyFixedModel = BuildNewModelFromModel(model, pointValues, pointValuesNoiseVariance, noiseVariance);
@@ -71,15 +71,15 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModel(
 }
 
 
-template <typename Representer>
-typename PartiallyFixedModelBuilder<Representer>::StatisticalModelType*
-PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
+template <typename T>
+typename PartiallyFixedModelBuilder<T>::StatisticalModelType*
+PartiallyFixedModelBuilder<T>::BuildNewModelFromModel(
 		const StatisticalModelType* inputModel,
 		const PointValueListType& pointValues,
 		double pointValuesNoiseVariance,
 		bool computeScores) const {
 
-	const Representer* representer = inputModel->GetRepresenter();
+	const RepresenterType* representer = inputModel->GetRepresenter();
 
 	const MatrixType& pcaBasisMatrix =  inputModel->GetOrthonormalPCABasisMatrix();
 	const VectorType& meanVector = inputModel->GetMeanVector();
@@ -88,7 +88,7 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 	// if the model has zero noise, we assume a small amount of noise
 	double noiseVariance = std::max((double) inputModel->GetNoiseVariance(), (double) Superclass::TOLERANCE);
 
-	unsigned dim = Representer::GetDimensions();
+	unsigned dim = representer->GetDimensions();
 
 
 	// build the part matrices with , considering only the points that are fixed
@@ -102,8 +102,8 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 		VectorType val = representer->PointSampleToPointSampleVector(it->second);
 		unsigned pt_id = representer->GetPointIdForPoint(it->first);
 		for (unsigned d = 0; d < dim; d++) {
-			PCABasisPart.row(i * dim + d) = pcaBasisMatrix.row(Representer::MapPointIdToInternalIdx(pt_id, d));
-			muPart[i * dim + d] = meanVector[Representer::MapPointIdToInternalIdx(pt_id, d)];
+			PCABasisPart.row(i * dim + d) = pcaBasisMatrix.row(representer->MapPointIdToInternalIdx(pt_id, d));
+			muPart[i * dim + d] = meanVector[representer->MapPointIdToInternalIdx(pt_id, d)];
 			samplePart[i * dim + d] = val[d];
 		}
 		i++;
@@ -212,9 +212,9 @@ PartiallyFixedModelBuilder<Representer>::BuildNewModelFromModel(
 		// get the scores from the input model
 		for (unsigned i = 0; i < inputScores.cols(); i++) {
 			// reconstruct the sample from the input model and project it back into the model
-			typename Representer::DatasetPointerType ds = inputModel->DrawSample(inputScores.col(i));
+			typename RepresenterType::DatasetPointerType ds = inputModel->DrawSample(inputScores.col(i));
 			scores.col(i) = partiallyFixedModel->ComputeCoefficientsForDataset(ds);
-			Representer::DeleteDataset(ds);
+			representer->DeleteDataset(ds);
 		}
 	}
 	ModelInfo info(scores, builderInfoList);

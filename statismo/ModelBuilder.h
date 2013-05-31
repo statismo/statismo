@@ -51,13 +51,13 @@ namespace statismo {
 /**
  * \brief Common base class for all the model builder classes
  */
-template <typename Representer>
+template <typename T>
 class ModelBuilder {
 
 public:
-
-	typedef StatisticalModel<Representer> StatisticalModelType;
-	typedef DataManager<Representer> DataManagerType;
+	typedef Representer<T> RepresenterType;
+	typedef StatisticalModel<T> StatisticalModelType;
+	typedef DataManager<T> DataManagerType;
 	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
 	// Values below this tolerance are treated as 0.

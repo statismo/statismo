@@ -39,10 +39,53 @@
 #ifndef ITKVECTORIMAGE_REPRESENTER_BASE_H_
 #define ITKVECTORIMAGE_REPRESENTER_BASE_H_
 
+#include "statismo/Representer.h"
 #include "itkImage.h"
 #include "statismo_ITK/statismoITKConfig.h"
 #include "statismo/CommonTypes.h"
 #include "itkObject.h"
+
+
+
+namespace statismo {
+template <>
+struct RepresenterTraits<itk::Image<itk::Vector<float, 3u>, 3u> > {
+
+    typedef itk::Image<itk::Vector<float, 3u>, 3u>  VectorImageType;
+
+	typedef VectorImageType::Pointer DatasetPointerType;
+	typedef VectorImageType::Pointer DatasetConstPointerType;
+
+	typedef typename VectorImageType::PointType PointType;
+	typedef typename VectorImageType::PixelType ValueType;
+
+	static void DeleteDataset(DatasetPointerType d) {
+		// trick to delete pointers, which cannot be deleted directly,
+		// as destructor is private
+		VectorImageType::Pointer smartPointerD = d;;
+	};
+    ///@}
+
+};
+
+
+template <>
+struct RepresenterTraits<itk::Image<itk::Vector<float, 2u>, 2u> > {
+
+    typedef itk::Image<itk::Vector<float, 2u>, 2u>  VectorImageType;
+
+	typedef VectorImageType::Pointer DatasetPointerType;
+	typedef VectorImageType::Pointer DatasetConstPointerType;
+
+	typedef typename VectorImageType::PointType PointType;
+	typedef typename VectorImageType::PixelType ValueType;
+
+	static void DeleteDataset(DatasetPointerType d) {};
+    ///@}
+
+};
+
+}
 
 namespace itk {
 
@@ -53,7 +96,7 @@ namespace itk {
  */
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
-class VectorImageRepresenterBase : public Object  {
+class VectorImageRepresenterBase : public Object, public statismo::Representer<itk::Image<itk::Vector<TPixel, VectorDimension>, ImageDimension > >  {
 public:
 
 	/* Standard class typedefs. */
@@ -70,52 +113,35 @@ public:
     typedef itk::Image<itk::Vector<TPixel, VectorDimension>, ImageDimension> ImageType;
 
 	/// The type of the data set to be used
-	typedef ImageType DatasetType;
 
-	// Const correcness is difficult to enforce using smart pointers, as no conversion
-	// between nonconst and const pointer are possible. Thus we define both to be non-const
-	typedef typename ImageType::Pointer DatasetPointerType;
-	typedef typename ImageType::Pointer DatasetConstPointerType;
-
-
-	static const unsigned Dimensions = ImageType::ImageDimension;
-	typedef typename ImageType::PointType PointType;
-	typedef typename ImageType::PixelType ValueType;
-
-	typedef statismo::Domain<PointType> DomainType;
+	typedef typename statismo::Representer<ImageType > RepresenterBaseType;
+	typedef typename RepresenterBaseType::DomainType DomainType;
+	typedef typename RepresenterBaseType::PointType PointType;
+	typedef typename RepresenterBaseType::ValueType ValueType;
+	typedef typename RepresenterBaseType::DatasetType DatasetType;
+	typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
+	typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
 
 	void CloneBaseMembers(VectorImageRepresenterBase* clone) const;
-	static void LoadBaseMembers(VectorImageRepresenterBase* b, const H5::CommonFG& fg);
+	void LoadBaseMembers(const H5::CommonFG& fg);
 
 	/** Set the reference that is used to build the model */
 	virtual void SetReference(DatasetPointerType ds);
+	virtual DatasetConstPointerType GetReference() const { return m_reference; }
 
 	virtual const DomainType& GetDomain() const { return m_domain; }
 
 	virtual void Save(const H5::CommonFG& fg) const;
 	virtual unsigned GetNumberOfPoints() const;
 	virtual unsigned GetPointIdForPoint(const PointType& point) const;
-
-	 /* Maps a (Pointid,component) tuple to a component of the internal matrix.
-	 * This is used to locate the place in the matrix to store the elements for a given point.
-	 * @params ptId The point id
-	 * @params the Component Index (range 0, Dimensionality)
-	 * @returns an index.
-	 */
-	static unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) {
-		return ptId * Dimensions + componentInd;
-	}
-
-    static unsigned GetNumberOfPoints(DatasetConstPointerType ds);
             
-    static void DeleteDataset(DatasetPointerType ds) {}// do nothing, as we are working with smart pointers
-
+	virtual unsigned GetDimensions() const { 	return ImageType::ImageDimension; }
 
 	/**
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
 	 * Alignment.
 	 */
-	virtual statismo::VectorType SampleToSampleVector(DatasetType* ds) const;
+	virtual statismo::VectorType SampleToSampleVector(DatasetConstPointerType ds) const;
 	virtual DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
 	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;

@@ -41,7 +41,7 @@
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/DataManager.h"
 
-typedef TrivialVectorialRepresenter RepresenterType;
+typedef statismo::TrivialVectorialRepresenter RepresenterType;
 
 
 /**
@@ -54,9 +54,9 @@ typedef TrivialVectorialRepresenter RepresenterType;
  */
 int main(int argc, char* argv[]) {
 
-	typedef statismo::PCAModelBuilder<RepresenterType> ModelBuilderType;
-	typedef statismo::StatisticalModel<RepresenterType> StatisticalModelType;
-    typedef statismo::DataManager<RepresenterType> DataManagerType;
+	typedef statismo::PCAModelBuilder<statismo::VectorType> ModelBuilderType;
+	typedef statismo::StatisticalModel<statismo::VectorType> StatisticalModelType;
+    typedef statismo::DataManager<statismo::VectorType> DataManagerType;
 
 
     try {
@@ -76,6 +76,7 @@ int main(int argc, char* argv[]) {
 
 
 		std::auto_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
+		StatisticalModelType* statmodel = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0.01);
 		std::auto_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0.01));
 
 		// As we have added 3 linearly independent samples, we get 2 principal components.
@@ -84,6 +85,14 @@ int main(int argc, char* argv[]) {
 		}
 
 		model->Save("test.h5");
+
+		RepresenterType* newRepresenter = RepresenterType::Create();
+		std::auto_ptr<StatisticalModelType> loadedModel(StatisticalModelType::Load(newRepresenter, "test.h5"));
+
+		if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents()) {
+			return EXIT_FAILURE;
+		}
+
     }
     catch (statismo::StatisticalModelException& e) {
     	std::cout << e.what() << std::endl;

@@ -83,10 +83,10 @@ void itkExample(const char* dir, const char* modelname) {
 
 
 
-	typedef itk::PCAModelBuilder<RepresenterType> ModelBuilderType;
-	typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
+	typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
+	typedef itk::StatisticalModel<ImageType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
-    typedef itk::DataManager<RepresenterType> DataManagerType;
+    typedef itk::DataManager<ImageType> DataManagerType;
 	typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
 
 

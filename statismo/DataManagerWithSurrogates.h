@@ -52,16 +52,18 @@ namespace statismo {
  * This class does not support any missing data, so each dataset must come with a surrogate data file, all of which must contain the same number of entries as the type-file.
  * \sa DataManager
  */
-template <typename Representer>
-class DataManagerWithSurrogates : public DataManager<Representer> {
+template <typename T>
+class DataManagerWithSurrogates : public DataManager<T> {
 
-	typedef typename Representer::DatasetPointerType DatasetPointerType;
-	typedef typename Representer::DatasetConstPointerType DatasetConstPointerType;
+	typedef Representer<T> RepresenterType;
+
+	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
+	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
 
 public:
-	typedef Representer RepresenterType;
-	typedef SampleDataStructureWithSurrogates<Representer> SampleDataStructureWithSurrogatesType;
+
+	typedef SampleDataStructureWithSurrogates<T> SampleDataStructureWithSurrogatesType;
 
 	typedef typename SampleDataStructureWithSurrogatesType::SurrogateTypeVectorType SurrogateTypeVectorType;
 
@@ -81,8 +83,8 @@ public:
 	* Factory method that creates a new instance of a DataManager class
 	*
 	*/
-	static DataManagerWithSurrogates<Representer>* Create(const Representer* representer, const std::string& surrogTypeFilename) {
-		return new DataManagerWithSurrogates<Representer>(representer, surrogTypeFilename);
+	static DataManagerWithSurrogates<T>* Create(const RepresenterType* representer, const std::string& surrogTypeFilename) {
+		return new DataManagerWithSurrogates<T>(representer, surrogTypeFilename);
 	}
 
 
@@ -92,7 +94,7 @@ public:
 	 * \param datasetURI (An URI for the dataset. This info is only added to the metadata).
 	 * \param surrogateFilename
 	 */
-	void AddDatasetWithSurrogates(typename RepresenterType::DatasetConstPointerType ds,
+	void AddDatasetWithSurrogates(DatasetConstPointerType ds,
 			  	  	  	  	  	  const std::string& datasetURI,
 								  const std::string& surrogateFilename);
 
@@ -118,7 +120,7 @@ protected:
 
 
 	// private - to prevent use
-	DataManagerWithSurrogates(const Representer* r, const std::string& filename);
+	DataManagerWithSurrogates(const RepresenterType* r, const std::string& filename);
 
 	DataManagerWithSurrogates(const DataManagerWithSurrogates& orig);
 	DataManagerWithSurrogates& operator=(const DataManagerWithSurrogates& rhs);

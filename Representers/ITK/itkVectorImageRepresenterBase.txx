@@ -107,9 +107,9 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SetReferenc
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 VectorType
-VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SampleToSampleVector(ImageType* image) const
+VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SampleToSampleVector(DatasetConstPointerType image) const
 {
-	VectorType sample(GetNumberOfPoints() * Dimensions);
+	VectorType sample(GetNumberOfPoints() * this->GetDimensions());
 	itk::ImageRegionConstIterator<DatasetType> it(image, image->GetLargestPossibleRegion());
 
 	it.GoToBegin();
@@ -117,8 +117,8 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SampleToSam
 			it.IsAtEnd() == false;
 			++i)
 	{
-		for (unsigned j = 0; j < Dimensions; j++) {
-			unsigned idx = MapPointIdToInternalIdx(i, j);
+		for (unsigned j = 0; j < this->GetDimensions(); j++) {
+			unsigned idx = this->MapPointIdToInternalIdx(i, j);
 			sample[idx] = it.Value()[j];
 		}
 		++it;
@@ -143,12 +143,13 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SampleVecto
 	it.GoToBegin();
 	for (unsigned i  = 0;  !it.IsAtEnd(); ++it, i++) {
 		ValueType v;
-		for (unsigned d = 0; d < Dimensions; d++) {
-			unsigned idx = MapPointIdToInternalIdx(i, d);
+		for (unsigned d = 0; d < this->GetDimensions(); d++) {
+			unsigned idx = this->MapPointIdToInternalIdx(i, d);
 			v[d] = sample[idx];
 		}
 		it.Set(v);
 	}
+	clonedImage->Register();
 	return clonedImage;
 }
 
@@ -175,7 +176,7 @@ typename VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::Va
 VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
 	ValueType value;
-	for (unsigned i = 0; i < Dimensions; i++) {
+	for (unsigned i = 0; i < this->GetDimensions(); i++) {
 		value[i] = pointSample[i];
 	}
 	return value;
@@ -194,7 +195,7 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointSample
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 void
-VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::LoadBaseMembers(VectorImageRepresenterBase* b, const H5::CommonFG& fg) {
+VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::LoadBaseMembers(const H5::CommonFG& fg) {
 
 	std::string representerVersion("");
 	if (statismo::HDF5Utils::existsObjectWithName(fg, "representer-version")) {
@@ -211,7 +212,7 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::LoadBaseMem
 	}
 
 	statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
-	b->m_reference = ReadDataset(tmpfilename.c_str());
+	this->m_reference = ReadDataset(tmpfilename.c_str());
 
 	std::remove(tmpfilename.c_str());
 }
@@ -236,7 +237,7 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::Save(const 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 unsigned
 VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::GetNumberOfPoints() const {
-	return GetNumberOfPoints( (DatasetConstPointerType)this->m_reference);
+    return this->m_reference->GetLargestPossibleRegion().GetNumberOfPixels();
 }
 
 
@@ -251,7 +252,7 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::GetPointIdF
 	typename DatasetType::SizeType size = this->m_reference->GetLargestPossibleRegion().GetSize();
 	// in itk, idx 0 is by convention the fastest moving index
     unsigned int ptId=0;
-    for (unsigned int i=0;i<Dimensions;++i){
+    for (unsigned int i=0;i<this->GetDimensions();++i){
         unsigned int multiplier=1;
         for (int d=i-1;d>=0;--d){
             multiplier*=size[d];
@@ -276,8 +277,9 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::ReadDataset
     catch (itk::ImageFileReaderException& e) {
         throw StatisticalModelException((std::string("Could not read file ") + filename).c_str());
     }
-
-    return reader->GetOutput();
+    typename DatasetType::Pointer img = reader->GetOutput();
+    img->Register();
+    return img;
 }
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
@@ -294,10 +296,5 @@ void VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::WriteD
 
 }
 
-
-template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
-unsigned VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::GetNumberOfPoints(DatasetConstPointerType ds) {
-    return ds->GetLargestPossibleRegion().GetNumberOfPixels();
-}
 
 } // namespace itk

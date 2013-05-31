@@ -43,6 +43,7 @@
 #include "DataManager.h"
 #include "CommonTypes.h"
 #include "ModelInfo.h"
+#include "Representer.h"
 #include <vector>
 #include <limits>
 
@@ -94,15 +95,16 @@ public:
  * of given samples directly.
  *
  */
-template <typename Representer>
+template <typename T>
 class StatisticalModel {
 public:
-	typedef typename Representer::DatasetPointerType DatasetPointerType;
-	typedef typename Representer::DatasetConstPointerType DatasetConstPointerType;
+	typedef Representer<T> RepresenterType ;
+	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
+	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
 
-    typedef typename Representer::ValueType RepresenterValueType;
-	typedef typename Representer::PointType PointType;
+    typedef typename RepresenterType::ValueType RepresenterValueType;
+	typedef typename RepresenterType::PointType PointType;
 
 	typedef Domain<PointType> DomainType;
 
@@ -141,7 +143,7 @@ public:
 	 * \param pcaVariance The Variance for each principal Axis
 	 * \param noiseVariance The variance of the (N(0,noiseVariance)) noise on each point
 	 */
-	static StatisticalModel* Create(const Representer* representer,
+	static StatisticalModel* Create(const RepresenterType* representer,
 									const VectorType& m,
 									const MatrixType& orthonormalPCABasis,
 									const VectorType& pcaVariance,
@@ -157,7 +159,7 @@ public:
 	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
 	 * to create the model.
 	 */
-	static StatisticalModel* Load(const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+	static StatisticalModel* Load(Representer<T>* representer, const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
 	/**
 	 * Returns a new statistical model, which is stored in the given HDF5 Group 
@@ -166,7 +168,7 @@ public:
 	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
 	 * to create the model.
 	 */
-	static StatisticalModel* Load(const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+	static StatisticalModel* Load(Representer<T>* representer, const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
 
 	/**
@@ -526,7 +528,7 @@ public:
 	/**
 	 * Return an instance of the representer
 	 */
-	const Representer* GetRepresenter() const {
+	const RepresenterType* GetRepresenter() const {
 		return m_representer;
 	}
 
@@ -547,16 +549,16 @@ private:
 	 * Create an instance of the StatisticalModel
 	 * @param representer An instance of the representer, used to convert the samples to dataset of the represented type.
 	 */
-	StatisticalModel(const Representer* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
+	StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
 
 	/** Create an empty model. This is only used for the load method, which then sets all the parameters manually */
-	StatisticalModel(const Representer* representer) : m_representer(representer), m_noiseVariance(0), m_cachedValuesValid(0) {}
+	StatisticalModel(const RepresenterType* representer) : m_representer(representer), m_noiseVariance(0), m_cachedValuesValid(0) {}
 
 	// to prevent use
 	StatisticalModel(const StatisticalModel& rhs);
 	StatisticalModel& operator=(const StatisticalModel& rhs);
 
-	const Representer* m_representer;
+	const RepresenterType* m_representer;
 	VectorType m_mean;
 	MatrixType m_pcaBasisMatrix;
 	VectorType m_pcaVariance;

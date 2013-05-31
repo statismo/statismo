@@ -78,10 +78,10 @@ int main(int argc, char** argv) {
 	// For building a intensity model with vtk, we use the vtkStructuredPointsRepresenter.
 	// Here, we work with unsigned character images. The second template parameter specifies
 	// the pixel dimension (1 means scalar image, whereas 3 is a 3D vector image).
-	typedef vtkStructuredPointsRepresenter<unsigned char, 1> RepresenterType;
-	typedef DataManagerWithSurrogates<RepresenterType> DataManagerWithSurrogatesType;
-	typedef ConditionalModelBuilder<RepresenterType> ConditionalModelBuilderType;
-	typedef StatisticalModel<RepresenterType> StatisticalModelType;
+	typedef vtkStructuredPointsRepresenter RepresenterType;
+	typedef DataManagerWithSurrogates<vtkStructuredPoints> DataManagerWithSurrogatesType;
+	typedef ConditionalModelBuilder<vtkStructuredPoints> ConditionalModelBuilderType;
+	typedef StatisticalModel<vtkStructuredPoints> StatisticalModelType;
 
 	try {
 		vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand-0.vtk");
@@ -120,7 +120,7 @@ int main(int argc, char** argv) {
 		}
 
 		// Build up a list holding the conditioning information.
-		typedef ConditionalModelBuilder<RepresenterType> ConditionalModelBuilderType;
+		typedef ConditionalModelBuilder<vtkStructuredPoints> ConditionalModelBuilderType;
 		ConditionalModelBuilderType::CondVariableValueVectorType conditioningInfo;
 		conditioningInfo.push_back(ConditionalModelBuilderType::CondVariableValuePair(true, 1));
 		conditioningInfo.push_back(ConditionalModelBuilderType::CondVariableValuePair(false, 65));

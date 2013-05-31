@@ -80,24 +80,23 @@ VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::Clone() const {
 }
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
-VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>*
+void
 VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::Load(const H5::CommonFG& fg) {
-	VectorImageRepresenter* newInstance = new VectorImageRepresenter();
-	newInstance->Register();
 
-	Superclass::LoadBaseMembers(newInstance, fg);
-	return newInstance;
+	Superclass::LoadBaseMembers(fg);
 }
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 typename VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetPointerType
-VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetToSample(DatasetType* image, DatasetInfo* notUsed) const
+VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetToSample(DatasetConstPointerType image) const
 {
 	// we don't do any alignment for images, but simply return a copy of the image
 	typename itk::ImageDuplicator<DatasetType>::Pointer duplicator = itk::ImageDuplicator<DatasetType>::New();
 	duplicator->SetInputImage(image);
 	duplicator->Update();
-	return duplicator->GetOutput();
+	typename DatasetType::Pointer sample = duplicator->GetOutput();
+	return sample;
+
 
 }
 
@@ -105,7 +104,7 @@ template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 VectorType
 VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::SampleToSampleVector(DatasetType* image) const
 {
-	VectorType sample(this->GetNumberOfPoints() * GetDimensions());
+	VectorType sample(this->GetNumberOfPoints() * this->GetDimensions());
 	itk::ImageRegionConstIterator<DatasetType> it(image, image->GetLargestPossibleRegion());
 
 	it.GoToBegin();
@@ -113,7 +112,7 @@ VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::SampleToSampleV
 			it.IsAtEnd() == false;
 			++i)
 	{
-		for (unsigned j = 0; j < GetDimensions(); j++) {
+		for (unsigned j = 0; j < this->GetDimensions(); j++) {
 			unsigned idx = this->MapPointIdToInternalIdx(i, j);
 			sample[idx] = it.Value()[j];
 		}
@@ -128,7 +127,7 @@ template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 typename VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetPointerType
 VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::SampleVectorToSample(const VectorType& sample) const
 {
-	if (this->m_reference.GetPointer() == 0) {
+	if (this->m_reference.IsNull()) {
 		itkExceptionMacro(<< "Reference must be set before the representer can be used");
 	}
 	typedef itk::ImageDuplicator< DatasetType > DuplicatorType;
@@ -141,7 +140,7 @@ VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::SampleVectorToS
 	it.GoToBegin();
 	for (unsigned i  = 0;  !it.IsAtEnd(); ++it, i++) {
 		ValueType v;
-		for (unsigned d = 0; d < GetDimensions(); d++) {
+		for (unsigned d = 0; d < this->GetDimensions(); d++) {
 			unsigned idx = this->MapPointIdToInternalIdx(i, d);
 			v[d] = sample[idx];
 		}
@@ -156,7 +155,7 @@ typename VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::ValueT
 VectorImageRepresenter<TPixel, ImageDimension, VectorDimension>::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
 	ValueType value;
-	for (unsigned i = 0; i < GetDimensions(); i++) {
+	for (unsigned i = 0; i < this->GetDimensions(); i++) {
 		value[i] = pointSample[i];
 	}
 	return value;

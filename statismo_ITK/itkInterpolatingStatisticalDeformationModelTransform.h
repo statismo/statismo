@@ -38,6 +38,7 @@
 #ifndef __ItkInterpolatingStatisticalDeformationModelTransform
 #define __ItkInterpolatingStatisticalDeformationModelTransform
 
+#include "statismo/Representer.h"
 #include <iostream>
 #include "itkStatisticalModelTransformBase.h"
 #include "itkVectorLinearInterpolateImageFunction.h"
@@ -59,14 +60,15 @@ namespace itk
  * 
  * \ingroup Transforms
  */
-template <class TRepresenter, class TScalarType,  unsigned int TDimension >
+template <class TDataset, class TScalarType,  unsigned int TDimension >
 class ITK_EXPORT InterpolatingStatisticalDeformationModelTransform :
-public itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>
+public itk::StatisticalModelTransformBase< TDataset, TScalarType , TDimension>
 {
 public:
+
 	/* Standard class typedefs. */
 	typedef InterpolatingStatisticalDeformationModelTransform            Self;
-	typedef itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>	 Superclass;
+	typedef itk::StatisticalModelTransformBase< TDataset, TScalarType , TDimension>	 Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 

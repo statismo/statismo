@@ -59,14 +59,14 @@ typedef itk::VectorImageRepresenter<float, Dimensions, Dimensions> RepresenterTy
 typedef itk::ImageFileReader<ImageType> ImageReaderType;
 //typedef itk::MeanSquaresImageToImageMetric<ImageType, ImageType> MetricType;
 typedef itk::NormalizedCorrelationImageToImageMetric<ImageType, ImageType> MetricType;
-typedef itk::InterpolatingStatisticalDeformationModelTransform<RepresenterType, double, Dimensions> TransformType;
+typedef itk::InterpolatingStatisticalDeformationModelTransform<VectorImageType, double, Dimensions> TransformType;
 typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
 typedef itk::ImageRegistrationMethod<ImageType, ImageType> RegistrationFilterType;
 
 typedef  itk::LBFGSOptimizer OptimizerType;
 
 
-typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
+typedef itk::StatisticalModel<VectorImageType> StatisticalModelType;
 
 
 
@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
 
 	RepresenterType::Pointer representer = RepresenterType::New();
 	StatisticalModelType::Pointer model = StatisticalModelType::New();
-	model->Load(modelname);
+	model->Load(representer, modelname);
 
 	// do the fitting
 	TransformType::Pointer transform = TransformType::New();

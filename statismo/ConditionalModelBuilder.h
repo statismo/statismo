@@ -71,17 +71,17 @@ namespace statismo {
  * 
  * \sa DataManagerWithSurrogates
  */
-template <typename Representer>
-class ConditionalModelBuilder : public ModelBuilder<Representer> {
+template <typename T>
+class ConditionalModelBuilder : public ModelBuilder<T> {
 public:
 
-	typedef ModelBuilder<Representer> Superclass;
+	typedef ModelBuilder<T> Superclass;
 	typedef typename Superclass::StatisticalModelType StatisticalModelType;
 
 	typedef std::pair<bool, statismo::ScalarType> CondVariableValuePair;		//replace the first element by a bool (indicates whether the variable is in use)
 	typedef std::vector<CondVariableValuePair> CondVariableValueVectorType; //replace list by vector, to gain direct access
 
-	typedef DataManagerWithSurrogates<Representer> DataManagerType;
+	typedef DataManagerWithSurrogates<T> DataManagerType;
 	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 	typedef typename DataManagerType::SampleDataStructureWithSurrogatesType SampleDataStructureWithSurrogatesType;
 	typedef typename DataManagerType::SurrogateTypeInfoType SurrogateTypeInfoType;

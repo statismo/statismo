@@ -40,18 +40,18 @@
 
 namespace statismo {
 
-template <class Representer>
-SampleDataStructure<Representer>*
-SampleDataStructure<Representer>::Load(const Representer* representer, const H5::Group& dsGroup)
+template <class T>
+SampleDataStructure<T>*
+SampleDataStructure<T>::Load(const RepresenterType* representer, const H5::Group& dsGroup)
 {
 	VectorType dsVector;
 	std::string sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
 	SampleDataStructure* newSample = 0;
 	if (sampleType == "SampleDataStructure") {
-		newSample = new SampleDataStructure<Representer>(representer);
+		newSample = new SampleDataStructure<T>(representer);
 	}
 	else if (sampleType == "SampleDataStructureWithSurrogates") {
-		newSample = new SampleDataStructureWithSurrogates<Representer>(representer);
+		newSample = new SampleDataStructureWithSurrogates<T>(representer);
 	}
 	else {
 		throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") +sampleType).c_str());
@@ -60,10 +60,10 @@ SampleDataStructure<Representer>::Load(const Representer* representer, const H5:
 	return newSample;
 }
 
-template <class Representer>
+template <class T>
 void
-SampleDataStructure<Representer>::Save(const H5::Group& dsGroup) const {
-	if (dynamic_cast<const SampleDataStructureWithSurrogates<Representer>* >(this) != 0) {
+SampleDataStructure<T>::Save(const H5::Group& dsGroup) const {
+	if (dynamic_cast<const SampleDataStructureWithSurrogates<T>* >(this) != 0) {
 		HDF5Utils::writeString(dsGroup, "./sampletype", "SampleDataStructureWithSurrogates");
 	}
 	else {

@@ -47,8 +47,8 @@
 
 namespace statismo {
 
-template <typename Representer>
-StatisticalModel<Representer>::StatisticalModel(const Representer* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
+template <typename T>
+StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
 : m_representer(representer->Clone()),
   m_mean(m),
   m_pcaVariance(pcaVariance),
@@ -61,59 +61,59 @@ StatisticalModel<Representer>::StatisticalModel(const Representer* representer, 
   }
 
 
-template <typename Representer>
-StatisticalModel<Representer>::~StatisticalModel()
+template <typename T>
+StatisticalModel<T>::~StatisticalModel()
 {
 	if (m_representer != 0) {
 		// not all representers can implement a const correct version of delete.
 		// We therefore simply const cast it. This is save here.
-		const_cast<Representer*>(m_representer)->Delete();
+		const_cast<RepresenterType*>(m_representer)->Delete();
 	}
 }
 
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::DatasetPointerType
-StatisticalModel<Representer>::DatasetToSample(DatasetConstPointerType ds) const {
+template <typename T>
+typename StatisticalModel<T>::DatasetPointerType
+StatisticalModel<T>::DatasetToSample(DatasetConstPointerType ds) const {
 	return m_representer->DatasetToSample(ds, 0);
 }
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, const PointType& point) const {
+template <typename T>
+typename StatisticalModel<T>::RepresenterValueType
+StatisticalModel<T>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, const PointType& point) const {
 	unsigned ptid = this->m_representer->GetPointIdForPoint(point);
 	return EvaluateSampleAtPoint(sample, ptid);
 }
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, unsigned ptid) const {
+template <typename T>
+typename StatisticalModel<T>::RepresenterValueType
+StatisticalModel<T>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, unsigned ptid) const {
 	return this->m_representer->PointSampleFromSample(sample, ptid);
 }
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::DatasetPointerType
-StatisticalModel<Representer>::DrawMean() const {
+template <typename T>
+typename StatisticalModel<T>::DatasetPointerType
+StatisticalModel<T>::DrawMean() const {
 	VectorType coeffs = VectorType::Zero(this->GetNumberOfPrincipalComponents());
 	return DrawSample(coeffs, false);
 }
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::DrawMeanAtPoint(const PointType& point) const {
+template <typename T>
+typename StatisticalModel<T>::RepresenterValueType
+StatisticalModel<T>::DrawMeanAtPoint(const PointType& point) const {
 	VectorType coeffs = VectorType::Zero(this->GetNumberOfPrincipalComponents());
 	return DrawSampleAtPoint(coeffs, point);
 
 }
 
-template <typename Representer>
-typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::DrawMeanAtPoint(unsigned pointId) const {
+template <typename T>
+typename StatisticalModel<T>::RepresenterValueType
+StatisticalModel<T>::DrawMeanAtPoint(unsigned pointId) const {
 	VectorType coeffs = VectorType::Zero(this->GetNumberOfPrincipalComponents());
 	return DrawSampleAtPoint(coeffs, pointId, false);
 
@@ -122,9 +122,9 @@ StatisticalModel<Representer>::DrawMeanAtPoint(unsigned pointId) const {
 
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::DatasetPointerType
-StatisticalModel<Representer>::DrawSample(bool addNoise) const {
+template <typename T>
+typename StatisticalModel<T>::DatasetPointerType
+StatisticalModel<T>::DrawSample(bool addNoise) const {
 
 	// we create random coefficients and draw a random sample from the model
 	VectorType coeffs = Utils::generateNormalVector(GetNumberOfPrincipalComponents());
@@ -133,16 +133,16 @@ StatisticalModel<Representer>::DrawSample(bool addNoise) const {
 }
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::DatasetPointerType
-StatisticalModel<Representer>::DrawSample(const VectorType& coefficients, bool addNoise) const {
+template <typename T>
+typename StatisticalModel<T>::DatasetPointerType
+StatisticalModel<T>::DrawSample(const VectorType& coefficients, bool addNoise) const {
 	return m_representer->SampleVectorToSample(DrawSampleVector(coefficients, addNoise));
 }
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::DatasetPointerType
-StatisticalModel<Representer>::DrawPCABasisSample(const unsigned pcaComponent) const {
+template <typename T>
+typename StatisticalModel<T>::DatasetPointerType
+StatisticalModel<T>::DrawPCABasisSample(const unsigned pcaComponent) const {
 	if (pcaComponent >= this->GetNumberOfPrincipalComponents()) {
 		throw StatisticalModelException("Wrong pcaComponent index provided to DrawPCABasisSample!");
 	}
@@ -153,9 +153,9 @@ StatisticalModel<Representer>::DrawPCABasisSample(const unsigned pcaComponent) c
 
 
 
-template <typename Representer>
+template <typename T>
 VectorType
-StatisticalModel<Representer>::DrawSampleVector(const VectorType& coefficients, bool addNoise) const {
+StatisticalModel<T>::DrawSampleVector(const VectorType& coefficients, bool addNoise) const {
 
 	if (coefficients.size() != this->GetNumberOfPrincipalComponents()) {
 		throw StatisticalModelException("Incorrect number of coefficients provided !");
@@ -174,9 +174,9 @@ StatisticalModel<Representer>::DrawSampleVector(const VectorType& coefficients, 
 }
 
 
-template <typename Representer>
-typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients, const PointType& point, bool addNoise) const {
+template <typename T>
+typename StatisticalModel<T>::RepresenterValueType
+StatisticalModel<T>::DrawSampleAtPoint(const VectorType& coefficients, const PointType& point, bool addNoise) const {
 
 	unsigned ptId = this->m_representer->GetPointIdForPoint(point);
 
@@ -184,11 +184,11 @@ StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients,
 
 }
 
-template <typename Representer>
-typename StatisticalModel<Representer>::RepresenterValueType
-StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients, const unsigned ptId, bool addNoise) const {
+template <typename T>
+typename StatisticalModel<T>::RepresenterValueType
+StatisticalModel<T>::DrawSampleAtPoint(const VectorType& coefficients, const unsigned ptId, bool addNoise) const {
 
-	unsigned dim = Representer::GetDimensions();
+	unsigned dim = m_representer->GetDimensions();
 
 	VectorType v(dim);
 	VectorType epsilon = VectorType::Zero(dim);
@@ -196,7 +196,7 @@ StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients,
 		epsilon = Utils::generateNormalVector(dim) * sqrt(m_noiseVariance);
 	}
 	for (unsigned d = 0; d < dim; d++) {
-		unsigned idx =Representer::MapPointIdToInternalIdx(ptId, d);
+		unsigned idx =m_representer->MapPointIdToInternalIdx(ptId, d);
 
 		if (idx >= m_mean.rows()) {
 			std::ostringstream os;
@@ -213,9 +213,9 @@ StatisticalModel<Representer>::DrawSampleAtPoint(const VectorType& coefficients,
 
 
 
-template <typename Representer>
+template <typename T>
 MatrixType
-StatisticalModel<Representer>::GetCovarianceAtPoint(const PointType& pt1, const PointType& pt2) const
+StatisticalModel<T>::GetCovarianceAtPoint(const PointType& pt1, const PointType& pt2) const
 {
 	unsigned ptId1 = this->m_representer->GetPointIdForPoint(pt1);
 	unsigned ptId2 = this->m_representer->GetPointIdForPoint(pt2);
@@ -223,18 +223,18 @@ StatisticalModel<Representer>::GetCovarianceAtPoint(const PointType& pt1, const 
 	return GetCovarianceAtPoint(ptId1, ptId2);
 }
 
-template <typename Representer>
+template <typename T>
 MatrixType
-StatisticalModel<Representer>::GetCovarianceAtPoint(unsigned ptId1, unsigned ptId2) const
+StatisticalModel<T>::GetCovarianceAtPoint(unsigned ptId1, unsigned ptId2) const
 {
-	unsigned dim = Representer::GetDimensions();
+	unsigned dim = RepresenterType::GetDimensions();
 	MatrixType cov(dim, dim);
 
 	for (unsigned i = 0; i < dim; i++) {
-		unsigned idxi = Representer::MapPointIdToInternalIdx(ptId1, i);
+		unsigned idxi = RepresenterType::MapPointIdToInternalIdx(ptId1, i);
 		VectorType vi = m_pcaBasisMatrix.row(idxi);
 		for (unsigned j = 0; j < dim; j++) {
-			unsigned idxj = Representer::MapPointIdToInternalIdx(ptId2, j);
+			unsigned idxj = RepresenterType::MapPointIdToInternalIdx(ptId2, j);
 			VectorType vj = m_pcaBasisMatrix.row(idxj);
 			cov(i,j) = vi.dot(vj);
 			if (i == j) cov(i,j) += m_noiseVariance;
@@ -243,9 +243,9 @@ StatisticalModel<Representer>::GetCovarianceAtPoint(unsigned ptId1, unsigned ptI
 	return cov;
 }
 
-template <typename Representer>
+template <typename T>
 MatrixType
-StatisticalModel<Representer>::GetCovarianceMatrix() const
+StatisticalModel<T>::GetCovarianceMatrix() const
 {
 	MatrixType M = m_pcaBasisMatrix * m_pcaBasisMatrix.transpose();
 	M.diagonal() += m_noiseVariance * VectorType::Ones(m_pcaBasisMatrix.rows());
@@ -253,24 +253,24 @@ StatisticalModel<Representer>::GetCovarianceMatrix() const
 }
 
 
-template <typename Representer>
+template <typename T>
 VectorType
-StatisticalModel<Representer>::ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const {
-	DatasetPointerType sample = m_representer->DatasetToSample(dataset, 0);
+StatisticalModel<T>::ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const {
+	DatasetPointerType sample = m_representer->DatasetToSample(dataset);
 	VectorType v = ComputeCoefficientsForSample(sample);
-	Representer::DeleteDataset(sample);
+	RepresenterType::DeleteDataset(sample);
 	return v;
 }
 
-template <typename Representer>
+template <typename T>
 VectorType
-StatisticalModel<Representer>::ComputeCoefficientsForSample(DatasetConstPointerType sample) const {
+StatisticalModel<T>::ComputeCoefficientsForSample(DatasetConstPointerType sample) const {
 	return ComputeCoefficientsForSampleVector(m_representer->SampleToSampleVector(sample));
 }
 
-template <typename Representer>
+template <typename T>
 VectorType
-StatisticalModel<Representer>::ComputeCoefficientsForSampleVector(const VectorType& sample) const {
+StatisticalModel<T>::ComputeCoefficientsForSampleVector(const VectorType& sample) const {
 
 	CheckAndUpdateCachedParameters();
 
@@ -282,9 +282,9 @@ StatisticalModel<Representer>::ComputeCoefficientsForSampleVector(const VectorTy
 
 
 
-template <typename Representer>
+template <typename T>
 VectorType
-StatisticalModel<Representer>::ComputeCoefficientsForPointValues(const PointValueListType&  pointValueList, double pointValueNoiseVariance) const {
+StatisticalModel<T>::ComputeCoefficientsForPointValues(const PointValueListType&  pointValueList, double pointValueNoiseVariance) const {
 	PointIdValueListType ptIdValueList;
 
 	for (typename PointValueListType::const_iterator it  = pointValueList.begin();
@@ -296,11 +296,11 @@ StatisticalModel<Representer>::ComputeCoefficientsForPointValues(const PointValu
 	return ComputeCoefficientsForPointIDValues(ptIdValueList, pointValueNoiseVariance);
 }
 
-template <typename Representer>
+template <typename T>
 VectorType
-StatisticalModel<Representer>::ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointIdValueList, double pointValueNoiseVariance) const {
+StatisticalModel<T>::ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointIdValueList, double pointValueNoiseVariance) const {
 
-	unsigned dim = Representer::GetDimensions();
+	unsigned dim = RepresenterType::GetDimensions();
 
 	double noiseVariance = std::max(pointValueNoiseVariance, (double) m_noiseVariance);
 
@@ -314,8 +314,8 @@ StatisticalModel<Representer>::ComputeCoefficientsForPointIDValues(const PointId
 		VectorType val = this->m_representer->PointSampleToPointSampleVector(it->second);
 		unsigned pt_id = it->first;
 		for (unsigned d = 0; d < dim; d++) {
-			PCABasisPart.row(i * dim + d) = this->GetPCABasisMatrix().row(Representer::MapPointIdToInternalIdx(pt_id, d));
-			muPart[i * dim + d] = this->GetMeanVector()[Representer::MapPointIdToInternalIdx(pt_id, d)];
+			PCABasisPart.row(i * dim + d) = this->GetPCABasisMatrix().row(RepresenterType::MapPointIdToInternalIdx(pt_id, d));
+			muPart[i * dim + d] = this->GetMeanVector()[RepresenterType::MapPointIdToInternalIdx(pt_id, d)];
 			sample[i * dim + d] = val[d];
 		}
 		i++;
@@ -331,24 +331,24 @@ StatisticalModel<Representer>::ComputeCoefficientsForPointIDValues(const PointId
 
 
 
-template <typename Representer>
+template <typename T>
 double
-StatisticalModel<Representer>::ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
+StatisticalModel<T>::ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
 	VectorType alpha = ComputeCoefficientsForDataset(ds);
 	return log(pow(2 * PI, -0.5 * this->GetNumberOfPrincipalComponents())) - alpha.squaredNorm();
 }
 
-template <typename Representer>
+template <typename T>
 double
-StatisticalModel<Representer>::ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
+StatisticalModel<T>::ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
 	VectorType alpha = ComputeCoefficientsForDataset(ds);
 	return pow(2 * PI, - 0.5 * this->GetNumberOfPrincipalComponents()) * exp(- alpha.squaredNorm());
 }
 
 
-template <typename Representer>
+template <typename T>
 VectorType
-StatisticalModel<Representer>::RobustlyComputeCoefficientsForDataset(DatasetConstPointerType ds, unsigned nIterations, unsigned nu, double sigma2) const {
+StatisticalModel<T>::RobustlyComputeCoefficientsForDataset(DatasetConstPointerType ds, unsigned nIterations, unsigned nu, double sigma2) const {
 	throw NotImplementedException("StatisticalModel", "RobustlyComputeCoefficientsForDataset");
 	/*
 	unsigned dim = Representer::GetDimensions();
@@ -414,35 +414,35 @@ StatisticalModel<Representer>::RobustlyComputeCoefficientsForDataset(DatasetCons
 
 
 
-template <typename Representer>
+template <typename T>
 float
-StatisticalModel<Representer>::GetNoiseVariance() const {
+StatisticalModel<T>::GetNoiseVariance() const {
 	return m_noiseVariance;
 }
 
 
-template <typename Representer>
+template <typename T>
 const VectorType&
-StatisticalModel<Representer>::GetMeanVector() const {
+StatisticalModel<T>::GetMeanVector() const {
 	return m_mean;
 }
 
-template <typename Representer>
+template <typename T>
 const VectorType&
-StatisticalModel<Representer>::GetPCAVarianceVector() const {
+StatisticalModel<T>::GetPCAVarianceVector() const {
 	return m_pcaVariance;
 }
 
 
-template <typename Representer>
+template <typename T>
 const MatrixType&
-StatisticalModel<Representer>::GetPCABasisMatrix() const {
+StatisticalModel<T>::GetPCABasisMatrix() const {
 	return m_pcaBasisMatrix;
 }
 
-template <typename Representer>
+template <typename T>
 MatrixType
-StatisticalModel<Representer>::GetOrthonormalPCABasisMatrix() const {
+StatisticalModel<T>::GetOrthonormalPCABasisMatrix() const {
 	// we can recover the orthonormal matrix by undoing the scaling with the pcaVariance
 	// (c.f. the method SetParameters)
 
@@ -453,40 +453,40 @@ StatisticalModel<Representer>::GetOrthonormalPCABasisMatrix() const {
 
 
 
-template <typename Representer>
+template <typename T>
 void
-StatisticalModel<Representer>::SetModelInfo(const ModelInfo& modelInfo)
+StatisticalModel<T>::SetModelInfo(const ModelInfo& modelInfo)
 {
 	m_modelInfo = modelInfo;
 }
 
 
-template <typename Representer>
+template <typename T>
 const ModelInfo&
-StatisticalModel<Representer>::GetModelInfo() const
+StatisticalModel<T>::GetModelInfo() const
 {
 	return m_modelInfo;
 }
 
 
 
-template <typename Representer>
+template <typename T>
 unsigned int
-StatisticalModel<Representer>::GetNumberOfPrincipalComponents() const {
+StatisticalModel<T>::GetNumberOfPrincipalComponents() const {
 	return m_pcaBasisMatrix.cols();
 }
 
-template <typename Representer>
+template <typename T>
 MatrixType
-StatisticalModel<Representer>::GetJacobian(const PointType& pt) const {
+StatisticalModel<T>::GetJacobian(const PointType& pt) const {
 
-	unsigned Dimensions = Representer::GetDimensions();
+	unsigned Dimensions = m_representer->GetDimensions();
 	MatrixType J = MatrixType::Zero(Dimensions, GetNumberOfPrincipalComponents());
     
 	unsigned ptId = m_representer->GetPointIdForPoint(pt);
 
 	for(unsigned i = 0; i < Dimensions; i++) {
-        unsigned idx = Representer::MapPointIdToInternalIdx(ptId, i);
+        unsigned idx = m_representer->MapPointIdToInternalIdx(ptId, i);
 		for(unsigned j = 0; j < GetNumberOfPrincipalComponents(); j++) {
 				 J(i,j) += m_pcaBasisMatrix(idx,j) ;
         }
@@ -495,9 +495,9 @@ StatisticalModel<Representer>::GetJacobian(const PointType& pt) const {
 }
 
 
-template <typename Representer>
-StatisticalModel<Representer>*
-StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNumberOfPCAComponents) {
+template <typename T>
+StatisticalModel<T>*
+StatisticalModel<T>::Load(Representer<T>* representer, const std::string& filename, unsigned maxNumberOfPCAComponents) {
 
 	using namespace H5;
 
@@ -514,7 +514,7 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 
 	Group modelRoot = file.openGroup("/");
 	
-	newModel =  Load(modelRoot, maxNumberOfPCAComponents);
+	newModel =  Load(representer, modelRoot, maxNumberOfPCAComponents);
 
 	modelRoot.close();
 	file.close();
@@ -523,9 +523,9 @@ StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNum
 }
 
 
-template <typename Representer>
-StatisticalModel<Representer>*
-StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
+template <typename T>
+StatisticalModel<T>*
+StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
 
 	using namespace H5;
 
@@ -540,11 +540,12 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 	try {
 		Group representerGroup = modelRoot.openGroup("./representer");
 		std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
-		if (rep_name != Representer::GetName() && Representer::GetName() != "TrivialVectorialRepresenter") {
+		if (rep_name != representer->GetName() && representer->GetName() != "TrivialVectorialRepresenter") {
 			throw StatisticalModelException("A different representer was used to create the file. Cannot load hdf5 file.");
 		}
 
-		newModel = new StatisticalModel(Representer::Load(representerGroup));
+		representer->Load(representerGroup);
+		newModel = new StatisticalModel(representer);
 		representerGroup.close();
 
 		Group modelGroup = modelRoot.openGroup("./model");
@@ -569,9 +570,9 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 	return newModel;
 }
 
-template <typename Representer>
+template <typename T>
 void
-StatisticalModel<Representer>::Save(const std::string& filename) const {
+StatisticalModel<T>::Save(const std::string& filename) const {
 	using namespace H5;
 
 	H5File file;
@@ -591,16 +592,16 @@ StatisticalModel<Representer>::Save(const std::string& filename) const {
 	file.close();	
 }
 
-template <typename Representer>
+template <typename T>
 void
-StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
+StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
 	using namespace H5;
 
 	 try {
 		// create the group structure
 
 		Group representerGroup = modelRoot.createGroup("./representer");
-		HDF5Utils::writeStringAttribute(representerGroup, "name", Representer::GetName());
+		HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
 
 		this->m_representer->Save(representerGroup);
 		representerGroup.close();
@@ -621,9 +622,9 @@ StatisticalModel<Representer>::Save(const H5::Group& modelRoot) const {
 	}
 }
 
-template <typename Representer>
+template <typename T>
 void
-StatisticalModel<Representer>::CheckAndUpdateCachedParameters() const {
+StatisticalModel<T>::CheckAndUpdateCachedParameters() const {
 
 	if (m_cachedValuesValid == false) {
 		VectorType I = VectorType::Ones(m_pcaBasisMatrix.cols());
