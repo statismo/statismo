@@ -98,18 +98,17 @@ public:
 			std::cout << "representer defined empty domain" << std::endl;
 			return false;
 		}
-
 		if (domPoints.size() != domain.GetNumberOfPoints()) {
-			std::cout << "domPoints.size() != domain->GetNumberOfPoints" << std::endl;
+		  std::cout << "domPoints.size() != domain.GetNumberOfPoints() (" << domPoints.size() << " != " << domain.GetNumberOfPoints() << std::endl;
 			return false;
 		}
-
 		// if we convert a dataset to a samplevector, the resulting vector needs to have
 		// as many entries as there are points * dimensions
 		DatasetConstPointerType sample = m_representer->DatasetToSample(m_testDataset, 0);
 		VectorType sampleVector = m_representer->SampleToSampleVector(sample);
-		if (sampleVector.cols() != Representer::GetDimensions() * domain.GetNumberOfPoints()) {
+		if (sampleVector.rows() != Representer::GetDimensions() * domain.GetNumberOfPoints()) {
 			std::cout << "the dimension of the sampleVector does not agree with the number of points in the domain (#points * dimensionality)" << std::endl;
+			return false;
 		}
 
 
