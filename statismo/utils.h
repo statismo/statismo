@@ -127,7 +127,15 @@ public:
 		//  Gets the temp path env string (no guarantee it's a valid path).
 		dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
                            szTempFileName); // buffer for path
+        #ifdef UNICODE
+		  for each(char x in szTempFileName){
+			if (x!=0) {
+				tmpDirectoryName += x;
+			}
+		}
+        #else
 		tmpDirectoryName.assign(szTempFileName);
+        #endif
 		std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0) +extension;
 		return tmpfilename;
 		#else

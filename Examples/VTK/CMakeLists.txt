@@ -20,31 +20,32 @@ set(VTK_LIBRARIES
 FILE(GLOB INCLUDE_FILES *.h)
 FILE(GLOB SOURCE_FILES  *.txx *.cpp)
 
-
-include_directories(${STATISMO_ROOT_DIR}  ${STATISMO_ROOT_DIR}/3rdParty  ${STATISMO_INCLUDE_DIR} 
-					${VTK_INCLUDE_DIR}  ${STATISMO_ROOT_DIR}/Representers/VTK 
+include_directories(${VTK_INCLUDE_DIR})
+include_directories(BEFORE ${STATISMO_ROOT_DIR}  
+					${STATISMO_ROOT_DIR}/3rdParty  
+					${STATISMO_ROOT_DIR}/Representers/VTK 
 					${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})					
 
-link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} ${HDF5_LIBRARY_DIR})
+link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR})
  
 add_executable (vtkBuildShapeModelExample BuildShapeModelExample.cxx) 
 ADD_DEPENDENCIES(vtkBuildShapeModelExample HDF5)
-target_link_libraries (vtkBuildShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+target_link_libraries (vtkBuildShapeModelExample ${HDF5_LIBRARIES} ${VTK_LIBRARIES})
 
 
 add_executable (vtkBasicSamplingExample BasicSamplingExample.cxx) 
 ADD_DEPENDENCIES(vtkBasicSamplingExample HDF5)
-target_link_libraries (vtkBasicSamplingExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+target_link_libraries (vtkBasicSamplingExample ${HDF5_LIBRARIES} ${VTK_LIBRARIES})
 
  
 
 add_executable (vtkCrossValidationExample CrossValidationExample.cxx) 
 ADD_DEPENDENCIES(vtkCrossValidationExample HDF5)
-target_link_libraries (vtkCrossValidationExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+target_link_libraries (vtkCrossValidationExample ${HDF5_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable (vtkBuildIntensityModelExample BuildIntensityModelExample.cxx) 
 add_DEPENDENCIES(vtkBuildIntensityModelExample HDF5)
-target_link_libraries (vtkBuildIntensityModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+target_link_libraries (vtkBuildIntensityModelExample ${HDF5_LIBRARIES} ${VTK_LIBRARIES})
 
 
 add_executable (vtkReduceModelVarianceExample ReduceModelVarianceExample.cxx) 
@@ -54,12 +55,11 @@ target_link_libraries (vtkReduceModelVarianceExample ${VTK_LIBRARIES} ${HDF5_LIB
 
 add_executable (vtkBuildPartiallyFixedModelExample BuildPartiallyFixedModelExample.cxx) 
 add_DEPENDENCIES(vtkBuildPartiallyFixedModelExample HDF5)
-target_link_libraries (vtkBuildPartiallyFixedModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
-
+target_link_libraries (vtkBuildPartiallyFixedModelExample ${HDF5_LIBRARIES} ${VTK_LIBRARIES})
 
 add_executable (vtkBuildConditionalModelExample BuildConditionalModelExample.cxx) 
 add_DEPENDENCIES(vtkBuildConditionalModelExample HDF5)
-target_link_libraries (vtkBuildConditionalModelExample  ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+target_link_libraries (vtkBuildConditionalModelExample  ${HDF5_LIBRARIES} ${VTK_LIBRARIES})
 
 INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPartiallyFixedModelExample vtkBuildConditionalModelExample RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runVTKExamples.sh DESTINATION  bin)
