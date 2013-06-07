@@ -59,6 +59,7 @@
 #include "statismo/DataManagerWithSurrogates.h"
 #include "statismo/StatisticalModel.h"
 #include "statismo/PartiallyFixedModelBuilder.h"
+#include "statismo/PosteriorModelBuilder.h"
 #include "statismo/ReducedVarianceModelBuilder.h"
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/Exceptions.h"
@@ -451,6 +452,43 @@ public:
 %template(PartiallyFixedModelBuilder_vtkUG) statismo::PartiallyFixedModelBuilder<vtkUnstructuredGridRepresenter>;
 %template(PartiallyFixedModelBuilder_vtkSPF3) statismo::PartiallyFixedModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
 %template(PartiallyFixedModelBuilder_vtkSPSS1) statismo::PartiallyFixedModelBuilder<vtkStructuredPointsRepresenter<signed short, 1> >;
+
+//////////////////////////////////////////////////////
+// PosteriorModelBuilder
+//////////////////////////////////////////////////////
+
+
+namespace statismo { 
+%newobject *::BuildNewModelFromModel;
+%newobject *::BuildNewModel;
+
+template <typename Representer>
+class PosteriorModelBuilder {
+	typedef ModelBuilder<Representer> Superclass;
+public:
+	typedef  DataManager<Representer> 				DataManagerType;
+	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;		
+	typedef  StatisticalModel<Representer> 	StatisticalModelType;	
+	typedef typename StatisticalModelType::PointValueType PointValueType;
+	typedef  typename StatisticalModelType::PointValueListType PointValueListType;
+	
+	%newobject Create;
+	static PosteriorModelBuilder* Create();
+	virtual ~PosteriorModelBuilder();
+
+	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model,	const PointValueListType& pointValues,  double pointValuesNoiseVariance, bool computeScores=true) const;
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleList, const PointValueListType& pointValues,  double pointValuesNoiseVariance,	double noiseVariance) const;
+
+	private:
+		PosteriorModelBuilder();
+};
+}
+
+%template(PosteriorModelBuilder_tvr) statismo::PosteriorModelBuilder<TrivialVectorialRepresenter>;
+%template(PosteriorModelBuilder_vtkPD) statismo::PosteriorModelBuilder<vtkPolyDataRepresenter>;
+%template(PosteriorModelBuilder_vtkUG) statismo::PosteriorModelBuilder<vtkUnstructuredGridRepresenter>;
+%template(PosteriorModelBuilder_vtkSPF3) statismo::PosteriorModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
+%template(PosteriorModelBuilder_vtkSPSS1) statismo::PosteriorModelBuilder<vtkStructuredPointsRepresenter<signed short, 1> >;
 
 
 //////////////////////////////////////////////////////
