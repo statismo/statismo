@@ -103,12 +103,16 @@ typedef itk::PointsLocator<int, 3, double, MeshType::PointsContainer > PointsLoc
 
 class ConfigParameters {
 public:
-	// Some configuration parameters
-	static const short maxNumberOfIterations = 10000; // the maximum number of iterations to use in the optimization
-	static const double translationScale = 1; // dynamic range of translations
-	static const double rotationScale = 0.1; // dynamic range of rotations
-	static const double smScale = 3; // dynamic range of statistical model parameters
+// Some configuration parameters
+static const short maxNumberOfIterations = 10000; // the maximum number of iterations to use in the optimization
+static const double translationScale; // dynamic range of translations
+static const double rotationScale; // dynamic range of rotations
+static const double smScale; // dynamic range of statistical model parameters
 };
+double const ConfigParameters::translationScale = 1;
+double const ConfigParameters::rotationScale = 0.1;
+double const ConfigParameters::smScale = 3;
+
 
 class Utils {
 public:
