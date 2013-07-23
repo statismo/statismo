@@ -234,6 +234,108 @@ class Test(unittest.TestCase):
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[1], fixedpt[1], 1)
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[2], fixedpt[2], 1)
 
+
+    def testCheckPosteriorModelMean(self):
+        # if we fix many points to correspond to one of the samples, and build a 
+        # Posterior model, its mean should correspond to the sample
+        nPointsFixed = 100
+        nPointsTest = 1000        
+        
+        sample = self.dataManager.GetSampleDataStructure()[0].GetSample()        
+
+        pvList = statismo.PointValueList_vtkPD()        
+
+        reference = self.representer.GetReference()
+        domainPoints = self.representer.GetDomain().GetDomainPoints()
+        
+        for pt_id in xrange(0, len(domainPoints), len(domainPoints) / nPointsFixed):
+            fixed_pt = domainPoints[pt_id]
+            value = statismo.vtkPoint(*getPDPointWithId(sample, pt_id))
+            pointValue = statismo.PointValuePair_vtkPD(fixed_pt, value)
+            pvList.append(pointValue)
+
+        pfmodelbuilder = statismo.PosteriorModelBuilder_vtkPD.Create()
+        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.1, 0.1)
+
+        
+        partial_mean = pf_model.DrawMean()
+
+        # now the sample that we used to fix the point should be similar to the mean. We test it by  
+        for pt_id in xrange(0, sample.GetNumberOfPoints(), sample.GetNumberOfPoints() / nPointsTest):
+            mean_pt = getPDPointWithId(partial_mean, pt_id)
+            sample_pt = getPDPointWithId(sample, pt_id)
+            self.assertAlmostEqual(mean_pt[0], sample_pt[0], 0) 
+            self.assertAlmostEqual(mean_pt[1], sample_pt[1], 0)
+            self.assertAlmostEqual(mean_pt[2], sample_pt[2], 0)
+ 
+        
+    def testCheckPosteriorModelWithoutConstraints(self):
+        # if we fix no point, it should be the same as building a normal pca model                
+
+        pvList = statismo.PointValueList_vtkPD()        
+            
+        pfmodelbuilder = statismo.PosteriorModelBuilder_vtkPD.Create()
+        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.1, 0.1)
+
+        pcamodelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
+        pca_model = pcamodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), 0.1)
+        
+        sample  =  self.dataManager.GetSampleDataStructure()[0].GetSample()
+        coeffs_pf_model = pf_model.ComputeCoefficientsForDataset(sample)
+        coeffs_pca_model =   pca_model.ComputeCoefficientsForDataset(sample)
+        for i in xrange(0, len(coeffs_pf_model)):
+            # the sign is allowed to change
+            self.assertAlmostEqual(abs(coeffs_pf_model[i]), abs(coeffs_pca_model[i]), 1)
+                
+    def testCheckPosteriorModelVariancePlausibility(self):         
+        # checks whether with every added point, the variance is decreasing
+                       
+        reference = self.representer.GetReference()
+        sample  =  self.dataManager.GetSampleDataStructure()[0].GetSample()
+        num_points = sample.GetNumberOfPoints()
+        pvList = statismo.PointValueList_vtkPD()
+        
+        pfmodelbuilder = statismo.PosteriorModelBuilder_vtkPD.Create()
+        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.1, 0.1)
+        total_var = pf_model.GetPCAVarianceVector().sum() 
+        for pt_id in xrange(0, num_points, num_points / 10):
+            ref_pt = statismo.vtkPoint(*getPDPointWithId(reference, pt_id))
+            pt = statismo.vtkPoint(*getPDPointWithId(sample, pt_id))
+            pvList.append(statismo.PointValuePair_vtkPD(ref_pt, pt))
+            pfmodelbuilder = statismo.PosteriorModelBuilder_vtkPD.Create()
+            pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.1, 0.1)
+            total_sdev_prev = total_var
+            total_var = pf_model.GetPCAVarianceVector().sum() 
+            self.assertTrue(total_var < total_sdev_prev)
+
+
+    def testPosteriorModelPointStaysPut(self):         
+        #Checks if a point that is fixed really stays where it was constrained to stay
+                       
+        reference = self.representer.GetReference()
+        sample  =  self.dataManager.GetSampleDataStructure()[0].GetSample()
+        pvList = statismo.PointValueList_vtkPD()
+                
+        ref_pt = getPDPointWithId(reference, 0)
+        fixedpt = getPDPointWithId(sample, 0)
+        pvList.append(statismo.PointValuePair_vtkPD(statismo.vtkPoint(*ref_pt),  statismo.vtkPoint(*fixedpt)))
+        pfmodelbuilder = statismo.PosteriorModelBuilder_vtkPD.Create()
+        pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvList, 0.01, 0.01)
+        
+        # check for some samples if the points stay put
+        coeffs1 = zeros(pf_model.GetNumberOfPrincipalComponents())        
+        coeffs1[1] = 3
+        coeffs2 = zeros(pf_model.GetNumberOfPrincipalComponents())
+        coeffs2[0] = -3        
+        
+        for coeffs in [coeffs1, coeffs2]:
+            PosteriorSample = pf_model.DrawSample(coeffs)
+            self.assertAlmostEqual(PosteriorSample.GetPoints().GetPoint(0)[0], fixedpt[0], 1)
+            self.assertAlmostEqual(PosteriorSample.GetPoints().GetPoint(0)[1], fixedpt[1], 1)
+            self.assertAlmostEqual(PosteriorSample.GetPoints().GetPoint(0)[2], fixedpt[2], 1)
+
+
+
     def testReducedVarianceModelBuilderCorrectlyReducesTotalVariance(self):
         modelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
  
