@@ -37,7 +37,7 @@
 import unittest
 from os import listdir
 from os.path import join
-from scipy import zeros, randn, log, isnan, any, sqrt
+from scipy import zeros, randn, log, isnan, any, sqrt, identity
 
 import statismo
 
@@ -233,8 +233,8 @@ class Test(unittest.TestCase):
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[0], fixedpt[0], 1)
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[1], fixedpt[1], 1)
             self.assertAlmostEqual(partiallyFixedSample.GetPoints().GetPoint(0)[2], fixedpt[2], 1)
-
-
+            
+            
     def testCheckPosteriorModelMean(self):
         # if we fix many points to correspond to one of the samples, and build a 
         # Posterior model, its mean should correspond to the sample
@@ -332,7 +332,57 @@ class Test(unittest.TestCase):
             PosteriorSample = pf_model.DrawSample(coeffs)
             self.assertAlmostEqual(PosteriorSample.GetPoints().GetPoint(0)[0], fixedpt[0], 1)
             self.assertAlmostEqual(PosteriorSample.GetPoints().GetPoint(0)[1], fixedpt[1], 1)
-            self.assertAlmostEqual(PosteriorSample.GetPoints().GetPoint(0)[2], fixedpt[2], 1)
+            self.assertAlmostEqual(PosteriorSample.GetPoints().GetPoint(0)[2], fixedpt[2], 1)            
+            
+
+# Never got this to work, but I don't want to delete it just yet.
+
+#     def testCheckPosteriorModelMean(self):
+#         # if we fix many points to correspond to one of the samples, and build a 
+#         # Posterior model, its mean should correspond to the sample
+#         nPointsFixed = 100
+#         nPointsTest = 1000        
+#         
+#         sample = self.dataManager.GetSampleDataStructure()[0].GetSample()        
+# 
+#         pvcList = statismo.PointValueWithCovarianceList_vtkPD(nPointsFixed)        
+#         matrixMatrixList = statismo.MatrixMatrixPair
+# 
+#         reference = self.representer.GetReference()
+#         domainPoints = self.representer.GetDomain().GetDomainPoints()
+#         
+#         pointCovarianceMatrix = 0.1 * identity(3)
+#         
+#         i = 0
+#         for pt_id in xrange(0, len(domainPoints), len(domainPoints) / nPointsFixed):
+#             fixed_pt = domainPoints[pt_id]
+#             value = statismo.vtkPoint(*getPDPointWithId(sample, pt_id))
+#             pointValue = statismo.PointValuePair_vtkPD(fixed_pt, value)
+#             
+#             pointValueWithCovariance = statismo.PointValueWithCovariancePair_vtkPD()
+#             
+#             pointValueWithCovariance.first = pointValue
+#             pointValueWithCovariance.second = pointCovarianceMatrix
+# 
+# 
+#             pvcList.append(pointValueWithCovariance)
+# 
+# 
+#         pfmodelbuilder = statismo.PosteriorModelBuilder_vtkPD.Create()
+#         pf_model = pfmodelbuilder.BuildNewModel(self.dataManager.GetSampleDataStructure(), pvcList, 0.1)
+# 
+#         
+#         partial_mean = pf_model.DrawMean()
+# 
+#         # now the sample that we used to fix the point should be similar to the mean. We test it by  
+#         for pt_id in xrange(0, sample.GetNumberOfPoints(), sample.GetNumberOfPoints() / nPointsTest):
+#             mean_pt = getPDPointWithId(partial_mean, pt_id)
+#             sample_pt = getPDPointWithId(sample, pt_id)
+#             self.assertAlmostEqual(mean_pt[0], sample_pt[0], 0) 
+#             self.assertAlmostEqual(mean_pt[1], sample_pt[1], 0)
+#             self.assertAlmostEqual(mean_pt[2], sample_pt[2], 0)
+ 
+        
 
 
 

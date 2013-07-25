@@ -46,6 +46,7 @@
 #include "CommonTypes.h"
 
 #include <vector>
+#include <list>
 
 namespace statismo {
 
@@ -81,7 +82,8 @@ public:
 	typedef MatrixType PointCovarianceMatrixType;
 
 	typedef typename StatisticalModelType::PointValuePairType PointValuePairType;
-	typedef std::pair<PointValuePairType, PointCovarianceMatrixType> PointValueWithCovarianceListType;
+	typedef typename std::pair<PointValuePairType, PointCovarianceMatrixType> PointValueWithCovariancePairType;
+	typedef typename std::list<PointValueWithCovariancePairType> PointValueWithCovarianceListType;
 
 	//typedef std::pair<PointType, RepresenterValueType> PointValuePairType;
 	//typedef std::pair<unsigned, RepresenterValueType> PointIdValuePairType;
@@ -100,7 +102,6 @@ public:
 	 * way using the c++ delete keyword.
 	 */
 	void Delete() {delete this; }
-
 
 	/**
 	 * destructor
@@ -124,6 +125,12 @@ public:
 
 
 
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& SampleDataStructureList,
+										const PointValueWithCovarianceListType& pointValuesWithCovariance,
+										double noiseVariance) const;
+
+
+
 	/**
 	 * Builds a new StatisticalModel given a StatisticalModel and the given constraints.
 	 * If we interpret the given model as a prior distribution over the modeled objects,
@@ -139,6 +146,15 @@ public:
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
 	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, const PointValueListType& pointValues, double pointValueNoiseVariance, bool computeScores=true) const;
+
+
+	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model,
+			const PointValueWithCovarianceListType& pointValuesWithCovariance,
+			bool computeScores=true) const;
+
+
+	PointValueWithCovarianceListType TrivialPointValueWithCovarianceListWithUniformNoise(const PointValueListType& pointValues, double pointValueNoiseVariance) const;
+
 
 protected:
 	

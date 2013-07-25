@@ -53,6 +53,7 @@ PosteriorModelBuilder<Representer>::PosteriorModelBuilder()
 : Superclass()
 {}
 
+
 template <typename Representer>
 typename PosteriorModelBuilder<Representer>::StatisticalModelType*
 PosteriorModelBuilder<Representer>::BuildNewModel(
@@ -61,10 +62,51 @@ PosteriorModelBuilder<Representer>::BuildNewModel(
 		double pointValuesNoiseVariance,
 		double noiseVariance) const
 {
+	return BuildNewModel(sampleDataList, TrivialPointValueWithCovarianceListWithUniformNoise(pointValues, pointValuesNoiseVariance), noiseVariance);
+}
+
+
+template <typename Representer>
+typename PosteriorModelBuilder<Representer>::StatisticalModelType*
+PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
+		const StatisticalModelType* inputModel,
+		const PointValueListType& pointValues,
+		double pointValuesNoiseVariance,
+		bool computeScores) const {
+
+	return BuildNewModelFromModel(inputModel, TrivialPointValueWithCovarianceListWithUniformNoise(pointValues,pointValuesNoiseVariance), computeScores);
+
+}
+
+template <typename Representer>
+typename PosteriorModelBuilder<Representer>::PointValueWithCovarianceListType
+PosteriorModelBuilder<Representer>::TrivialPointValueWithCovarianceListWithUniformNoise(
+		const PointValueListType& pointValues, double pointValueNoiseVariance) const {
+
+	const MatrixType pointCovarianceMatrix = (1.0 / pointValueNoiseVariance) * MatrixType::Identity(3,3);
+	PointValueWithCovarianceListType pvcList;//(pointValues.size());
+
+
+	for (typename PointValueListType::const_iterator it = pointValues.begin(); it != pointValues.end(); ++it) {
+		pvcList.push_back(PointValueWithCovariancePairType(*it,pointCovarianceMatrix));
+	}
+
+	return pvcList;
+
+}
+
+
+template <typename Representer>
+typename PosteriorModelBuilder<Representer>::StatisticalModelType*
+PosteriorModelBuilder<Representer>::BuildNewModel(
+		const SampleDataStructureListType& sampleDataList,
+		const PointValueWithCovarianceListType& pointValuesWithCovariance,
+		double noiseVariance) const
+{
 	typedef PCAModelBuilder<Representer> PCAModelBuilderType;
 	PCAModelBuilderType* modelBuilder = PCAModelBuilderType::Create();
 	StatisticalModelType* model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
-	StatisticalModelType* PosteriorModel = BuildNewModelFromModel(model, pointValues, pointValuesNoiseVariance, noiseVariance);
+	StatisticalModelType* PosteriorModel = BuildNewModelFromModel(model, pointValuesWithCovariance, noiseVariance);
 	delete modelBuilder;
 	delete model;
 	return PosteriorModel;
@@ -75,8 +117,7 @@ template <typename Representer>
 typename PosteriorModelBuilder<Representer>::StatisticalModelType*
 PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 		const StatisticalModelType* inputModel,
-		const PointValueListType& pointValues,
-		double sigma2,
+		const PointValueWithCovarianceListType& pointValuesWithCovariance,
 		bool computeScores) const {
 
 	const Representer* representer = inputModel->GetRepresenter();
@@ -99,19 +140,19 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 	// build the part matrices with , considering only the points that are fixed
 	//
 	unsigned numPrincipalComponents = inputModel->GetNumberOfPrincipalComponents();
-	MatrixType Q_g(pointValues.size()* dim, numPrincipalComponents);
-	VectorType mu_g(pointValues.size() * dim);
-	VectorType s_g(pointValues.size() * dim);
+	MatrixType Q_g(pointValuesWithCovariance.size()* dim, numPrincipalComponents);
+	VectorType mu_g(pointValuesWithCovariance.size() * dim);
+	VectorType s_g(pointValuesWithCovariance.size() * dim);
 
-	MatrixType LQ_g(pointValues.size()* dim, numPrincipalComponents);
+	MatrixType LQ_g(pointValuesWithCovariance.size()* dim, numPrincipalComponents);
 
 
 	unsigned i = 0;
-	for (typename PointValueListType::const_iterator it = pointValues.begin(); it != pointValues.end(); ++it) {
-		VectorType val = representer->PointSampleToPointSampleVector(it->second); //(it->first->second);
-		unsigned pt_id = representer->GetPointIdForPoint(it->first); //;(it->first->first);
+	for (typename PointValueWithCovarianceListType::const_iterator it = pointValuesWithCovariance.begin(); it != pointValuesWithCovariance.end(); ++it) {
+		VectorType val = representer->PointSampleToPointSampleVector(it->first.second);
+		unsigned pt_id = representer->GetPointIdForPoint(it->first.first);
 
-		const MatrixType pointCovarianceMatrix = (1.0 / sigma2) * MatrixType::Identity(3,3);//it->second;
+		const MatrixType pointCovarianceMatrix = it->second;
 
 		// Get the three rows pertaining to this point:
 		const MatrixType Qrows_for_pt_id = Q.block(pt_id * dim, 0, dim, numPrincipalComponents);
@@ -172,16 +213,16 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 
 	BuilderInfo::ParameterInfoList bi;
 	bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(rho2)));
-	bi.push_back(BuilderInfo::KeyValuePair("FixedPointsVariance ", Utils::toString(sigma2)));
+	bi.push_back(BuilderInfo::KeyValuePair("FixedPointsVariance ", Utils::toString(0.2)));
 //
 	BuilderInfo::DataInfoList di;
 
 	unsigned pt_no = 0;
-	for (typename PointValueListType::const_iterator it = pointValues.begin(); it != pointValues.end(); ++it) {
-		VectorType val = representer->PointSampleToPointSampleVector(it->second);
+	for (typename PointValueWithCovarianceListType::const_iterator it = pointValuesWithCovariance.begin(); it != pointValuesWithCovariance.end(); ++it) {
+		VectorType val = representer->PointSampleToPointSampleVector(it->first.second);
 
 		// TODO we looked up the PointId for the same point before. Having it here again is inefficient.
-		unsigned pt_id = representer->GetPointIdForPoint(it->first);
+		unsigned pt_id = representer->GetPointIdForPoint(it->first.first);
 		std::ostringstream keySStream;
 		keySStream << "Point constraint " << pt_no;
 		std::ostringstream valueSStream;
