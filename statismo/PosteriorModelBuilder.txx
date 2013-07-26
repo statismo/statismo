@@ -83,7 +83,7 @@ typename PosteriorModelBuilder<Representer>::PointValueWithCovarianceListType
 PosteriorModelBuilder<Representer>::TrivialPointValueWithCovarianceListWithUniformNoise(
 		const PointValueListType& pointValues, double pointValueNoiseVariance) const {
 
-	const MatrixType pointCovarianceMatrix = (1.0 / pointValueNoiseVariance) * MatrixType::Identity(3,3);
+	const MatrixType pointCovarianceMatrix = pointValueNoiseVariance * MatrixType::Identity(3,3);
 	PointValueWithCovarianceListType pvcList;//(pointValues.size());
 
 
@@ -152,7 +152,8 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 		VectorType val = representer->PointSampleToPointSampleVector(it->first.second);
 		unsigned pt_id = representer->GetPointIdForPoint(it->first.first);
 
-		const MatrixType pointCovarianceMatrix = it->second;
+		// In the formulas, we actually need the precision matrix, which is the inverse of the covariance.
+		const MatrixType pointPrecisionMatrix = it->second.inverse();
 
 		// Get the three rows pertaining to this point:
 		const MatrixType Qrows_for_pt_id = Q.block(pt_id * dim, 0, dim, numPrincipalComponents);
@@ -160,7 +161,7 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 		mu_g.block(i * dim, 0, dim, 1) = mu.block(pt_id * dim, 0, dim, 1);
 		s_g.block(i * dim, 0, dim, 1) = val;
 
-		LQ_g.block(i * dim, 0, dim, numPrincipalComponents) = pointCovarianceMatrix * Qrows_for_pt_id;
+		LQ_g.block(i * dim, 0, dim, numPrincipalComponents) = pointPrecisionMatrix * Qrows_for_pt_id;
 
 
 		i++;

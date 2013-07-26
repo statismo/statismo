@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 	dataManager->AddDataset(testDataset2, "dataset2");
 
 	double pointValueNoiseVariance = 0.1;
-	const MatrixType pointCovarianceMatrix = (1.0 / pointValueNoiseVariance) * MatrixType::Identity(3,3);
+	const MatrixType pointCovarianceMatrix = pointValueNoiseVariance * MatrixType::Identity(3,3);
 	PointValueWithCovarianceListType pvcList;//(pointValues.size());
 
 	RepresenterType::DatasetPointerType testSample = dataManager->GetSampleDataStructure().back()->GetSample();
