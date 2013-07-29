@@ -12,6 +12,7 @@
 #include "statismo/CommonTypes.h"
 #include "statismo/Domain.h"
 
+#include <Eigen/Geometry>
 #include "vtkMath.h"
 
 double distanceBetweenPoints(const vtkPoint& p1, const vtkPoint& p2) {
@@ -106,10 +107,75 @@ int main(int argc, char** argv) {
 		PointType testPoint = testSample->GetPoint(pt_id);
 
 		double distance2 = vtkMath::Distance2BetweenPoints(posteriorMeanPoint.data(),testPoint.data());
-		std::cout << distance2 << std::endl;
-
 		if(distance2 > tolerance * tolerance) testsOk = false;
 
+	}
+
+
+	vtkPolyData* onePointPD = vtkPolyData::New();
+	vtkPoints* onePoint = vtkPoints::New();
+	onePoint->Allocate(1);
+	onePoint->InsertNextPoint(0,0,0);
+	onePointPD->SetPoints(onePoint);
+	RepresenterType* onePointRepresenter = RepresenterType::Create(onePointPD, vtkPolyDataRepresenter::NONE);
+	VectorType onePointMean(3); onePointMean << 0, 0, 0;
+	VectorType onePointVar(3);  onePointVar  << 1, 1, 1;
+	MatrixType onePointPCABasis = MatrixType::Identity(3,3);
+
+	StatisticalModelType* onePointModel = StatisticalModelType::Create(onePointRepresenter,
+																																		onePointMean,
+																																		onePointPCABasis,
+																																		onePointVar,
+																																		0.0);
+
+
+	Eigen::Matrix3f rotMatrix;
+	rotMatrix = Eigen::AngleAxisf(40,Eigen::Vector3f(0,0,1));
+
+	VectorType covTestVector(3);  covTestVector  <<  1,0,0;
+	VectorType covTestVector1(3); covTestVector1 <<  0,2,0;
+	VectorType covTestVector2(3); covTestVector2 <<  0,0,3;
+
+	MatrixType testMatrix(3,3);
+	testMatrix.col(0) = covTestVector;
+	testMatrix.col(1) = covTestVector1;
+	testMatrix.col(2) = covTestVector2;
+
+	testMatrix = rotMatrix * testMatrix;
+
+	VectorType testValuePoint(3); testValuePoint << 1,1,1;
+	testValuePoint = rotMatrix * testValuePoint;
+	vtkPoint tvPoint(testValuePoint(0), testValuePoint(1),testValuePoint(2));
+
+	MatrixType testCovMatrix = testMatrix * testMatrix.transpose();
+	PointValuePairType pvPair(vtkPoint(0,0,0),tvPoint);
+	PointValueWithCovariancePairType pvcPair(pvPair, testCovMatrix);
+	PointValueWithCovarianceListType onePointPvcList;
+	onePointPvcList.push_back(pvcPair);
+
+	PosteriorModelBuilderType* onePointPosteriorModelBuilder = PosteriorModelBuilderType::Create();
+	StatisticalModelType* onePointPosteriorModel
+		= onePointPosteriorModelBuilder->BuildNewModelFromModel(onePointModel, onePointPvcList);
+
+	VectorType posteriorModelMean = rotMatrix.inverse() * onePointPosteriorModel->GetMeanVector();
+	VectorType knownSolution(3); knownSolution << 0.5, 0.2, 0.1;
+
+	if ((posteriorModelMean - knownSolution).norm() > 0.00001) {
+		std::cout << "One point model test failed: Mean not correct." << std::endl;
+		testsOk = false;
+	}
+
+	VectorType posteriorModelVariance = onePointPosteriorModel->GetPCAVarianceVector();
+	VectorType knownVariance(3); knownVariance << 0.9, 0.8, 0.5;
+	if ((posteriorModelVariance - knownVariance).norm() > 0.00001) {
+		std::cout << "One point model test failed: Variance not correct." << std::endl;
+		testsOk = false;
+	}
+
+	MatrixType rotatedOrthoPCAMatrix = rotMatrix.inverse() * onePointPosteriorModel->GetOrthonormalPCABasisMatrix();
+	if ((rotatedOrthoPCAMatrix * rotatedOrthoPCAMatrix.transpose() - MatrixType::Identity(3,3)).norm() > 0.00001) {
+		std::cout << "One point model test failed: PCA basis not correct." << std::endl;
+		testsOk = false;
 	}
 
 
