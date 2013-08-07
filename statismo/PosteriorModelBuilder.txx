@@ -146,7 +146,6 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 
 	MatrixType LQ_g(pointValuesWithCovariance.size()* dim, numPrincipalComponents);
 
-
 	unsigned i = 0;
 	for (typename PointValueWithCovarianceListType::const_iterator it = pointValuesWithCovariance.begin(); it != pointValuesWithCovariance.end(); ++it) {
 		VectorType val = representer->PointSampleToPointSampleVector(it->first.second);
@@ -162,8 +161,6 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 		s_g.block(i * dim, 0, dim, 1) = val;
 
 		LQ_g.block(i * dim, 0, dim, numPrincipalComponents) = pointPrecisionMatrix * Qrows_for_pt_id;
-
-
 		i++;
 	}
 
@@ -203,7 +200,7 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 	// SVD of the inner matrix 
 	VectorType D_c = svd.singularValues().cast<ScalarType>();
 
-	// Todo: Maybe it is possible to dot this with Q, so that we don"t need to get U as well.
+	// Todo: Maybe it is possible to do this with Q, so that we don"t need to get U as well.
 	MatrixType U_c = inputModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>();
 
 	StatisticalModelType* PosteriorModel = StatisticalModelType::Create(representer,mu_c, U_c, D_c, rho2);

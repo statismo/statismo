@@ -15,12 +15,6 @@
 #include <Eigen/Geometry>
 #include "vtkMath.h"
 
-double distanceBetweenPoints(const vtkPoint& p1, const vtkPoint& p2) {
-
-
-
-}
-
 typedef GenericRepresenterTest<vtkPolyDataRepresenter> RepresenterTestType;
 
 vtkPolyData* loadPolyData(const std::string& filename) {
