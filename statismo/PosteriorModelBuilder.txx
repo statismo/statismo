@@ -156,6 +156,7 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 
 		// Get the three rows pertaining to this point:
 		const MatrixType Qrows_for_pt_id = Q.block(pt_id * dim, 0, dim, numPrincipalComponents);
+
 		Q_g.block(i * dim, 0, dim, numPrincipalComponents) = Qrows_for_pt_id;
 		mu_g.block(i * dim, 0, dim, 1) = mu.block(pt_id * dim, 0, dim, 1);
 		s_g.block(i * dim, 0, dim, 1) = val;
@@ -165,13 +166,11 @@ PosteriorModelBuilder<Representer>::BuildNewModelFromModel(
 	}
 
 	VectorType D2 = inputModel->GetPCAVarianceVector().array();
-	VectorType D = D2.array().sqrt();
 
 	const MatrixType& Q_gT = Q_g.transpose();
 
 	MatrixType M = Q_gT * LQ_g;
 	M.diagonal() += VectorType::Ones(Q_g.cols());
-
 
 	MatrixTypeDoublePrecision Minv = M.cast<double>().inverse();
 

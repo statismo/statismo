@@ -12,7 +12,7 @@
 #include "statismo/CommonTypes.h"
 #include "statismo/Domain.h"
 
-#include <Eigen/Geometry>
+#include <Eigen/QR>
 #include "vtkMath.h"
 #include "vtkPolyData.h"
 #include "vtkPointData.h"
@@ -77,21 +77,26 @@ int main(int argc, char** argv) {
   unsigned idOfFiducial = representer->GetPointIdForPoint(middleFiducial);
   double normalOfFiducial[3];
   reference->GetPointData()->GetNormals()->GetTuple(idOfFiducial,normalOfFiducial);
-  double perpendicular1[3];
-  double perpendicular2[3];
-  vtkMath::Perpendiculars(normalOfFiducial,perpendicular1,perpendicular2, 0);
+
 
   Eigen::Map<VectorTypeDoublePrecision> normalVector(normalOfFiducial,3);
-  Eigen::Map<VectorTypeDoublePrecision> perpVector1(perpendicular1,3);
-  Eigen::Map<VectorTypeDoublePrecision> perpVector2(perpendicular2,3);
 
 
-  MatrixType fiducialTestMatrix(3,3);
-  fiducialTestMatrix.col(0) = .1  * normalVector.cast<float>();
-  fiducialTestMatrix.col(1) = 10 * perpVector1.cast<float>();
-  fiducialTestMatrix.col(2) = 10 * perpVector2.cast<float>();
 
-	MatrixType fiducialCovMatrix = fiducialTestMatrix * fiducialTestMatrix.transpose();
+	// The QR decomposition makes a matrix of the normal vector, together with two
+	// tangential vectors.
+	typedef Eigen::HouseholderQR<statismo::MatrixType> QRType;
+	QRType QR(3,3);
+	QR.compute(normalVector.cast<float>());
+	statismo::MatrixType normalMatrix = QR.householderQ();
+
+
+
+  statismo::VectorType anisotropicNoiseVariances(3); anisotropicNoiseVariances << .01, 100, 100;
+
+
+	MatrixType fiducialCovMatrix = normalMatrix *
+			anisotropicNoiseVariances.asDiagonal() * normalMatrix.transpose();
 
 	//std::cout << fiducialCovMatrix << std::endl;
 	//std::cout << idOfFiducial << std::endl;
@@ -126,7 +131,7 @@ int main(int argc, char** argv) {
 	bool testsOk = true;
 	if(abs(probability) > 203) {
 		testsOk = false;
-		std::cout << "The probability within the original model of the posterior mean is too small." << std::cout;
+		std::cout << "The probability within the original model of the posterior mean is too small." << std::endl;
 		std::cout << "This means that the anisotropic noise model does not work." << std::endl;
 	}
 
