@@ -46,48 +46,7 @@
 #include <H5Cpp.h>
 #include "itkPixelConversionTraits.h"
 
-namespace statismo {
-template<>
-struct RepresenterTraits<itk::Image<itk::Vector<float, 3u>, 3u> > {
-
-	typedef itk::Image<itk::Vector<float, 3u>, 3u> VectorImageType;
-
-	typedef VectorImageType::Pointer DatasetPointerType;
-	typedef VectorImageType::Pointer DatasetConstPointerType;
-
-	typedef typename VectorImageType::PointType PointType;
-	typedef typename VectorImageType::PixelType ValueType;
-
-	static void DeleteDataset(DatasetPointerType d) {
-		// trick to delete pointers, which cannot be deleted directly,
-		// as destructor is private
-		VectorImageType::Pointer smartPointerD = d;
-		;
-	}
-	;
-	///@}
-
-};
-
-template<>
-struct RepresenterTraits<itk::Image<itk::Vector<float, 2u>, 2u> > {
-
-	typedef itk::Image<itk::Vector<float, 2u>, 2u> VectorImageType;
-
-	typedef VectorImageType::Pointer DatasetPointerType;
-	typedef VectorImageType::Pointer DatasetConstPointerType;
-
-	typedef typename VectorImageType::PointType PointType;
-	typedef typename VectorImageType::PixelType ValueType;
-
-	static void DeleteDataset(DatasetPointerType d) {
-	}
-	;
-	///@}
-
-};
-
-}
+#include "itkStandardImageRepresenterTraits.h"
 
 namespace itk {
 
