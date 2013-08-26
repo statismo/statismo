@@ -572,7 +572,7 @@ private:
 	mutable MatrixType m_MInverseMatrix;
 
 	ModelInfo m_modelInfo;
-
+	bool m_modelLoaded;
 };
 
 } // namespace statismo

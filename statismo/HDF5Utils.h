@@ -46,6 +46,8 @@ namespace H5 {
 class CommonFG;
 class Group;
 class H5File;
+class H5Object;
+class DataSet;
 }
 
 namespace statismo {
@@ -91,6 +93,14 @@ public:
 	 */
 	static void readMatrix(const H5::CommonFG& fg, const char* name, unsigned nCols, MatrixType& matrix);
 
+	/**
+	 * Read a Matrix of a given type from a HDF5 File
+	 * @param fg The group
+	 * @param name the name of the entry
+	 * @param the output matrix
+	 */
+	template <class T>
+	static void readMatrixOfType(const H5::CommonFG& fg, const char* name, typename GenericEigenType<T>::MatrixType& matrix);
 
 	/**
 	 * Write a Matrix to the HDF5 File
@@ -98,7 +108,17 @@ public:
 	 * @param name the name of the entry
 	 * @param the matrix to be written
 	 */
-	static void writeMatrix(const H5::CommonFG& fg, const char* name, const MatrixType& matrix);
+	static H5::DataSet writeMatrix(const H5::CommonFG& fg, const char* name, const MatrixType& matrix);
+
+	 /**
+	 * Write a Matrix of the given type to the HDF5 File
+	 * @param fg The group
+	 * @param name the name of the entry
+	 * @param the matrix to be written
+	 */
+	template <class T>
+	static H5::DataSet writeMatrixOfType(const H5::CommonFG& fg, const char* name, const typename GenericEigenType<T>::MatrixType& matrix);
+
 
 	/**
 	 * Read a Vector from a HDF5 File with the given number of elements
@@ -118,6 +138,8 @@ public:
 	 */
 	static void readVector(const H5::CommonFG& fg, const char* name, VectorType& vector);
 
+	template <class T>
+	static void readVectorOfType(const H5::CommonFG& fg, const char* name, typename GenericEigenType<T>::VectorType& vector);
 
 	/**
 	 * Write a vector to the HDF5 File
@@ -125,7 +147,11 @@ public:
 	 * @param name the name of the entry
 	 * @param the vector to be written
 	 */
-	static void writeVector(const H5::CommonFG& fg, const char* name, const VectorType& vector);
+	static H5::DataSet writeVector(const H5::CommonFG& fg, const char* name, const VectorType& vector);
+
+	template <class T>
+	static H5::DataSet writeVectorOfType(const H5::CommonFG& fg, const char* name, const typename GenericEigenType<T>::VectorType& vector);
+
 
 	/**
 	 * Reads a file (in binary mode) and saves it as a byte array in the hdf5 file.
@@ -148,7 +174,7 @@ public:
 	 * @param name The name of the entry in the group
 	 * @param s The string to be written
 	 */
-	static void writeString(const H5::CommonFG& fg, const char* name, const std::string& s);
+	static H5::DataSet writeString(const H5::CommonFG& fg, const char* name, const std::string& s);
 
 	/** Reads a string from the given group
 	 * @param group the hdf5 group
@@ -162,14 +188,31 @@ public:
 	 * @param name The name of the entry in the group
 	 * @param s The string to be written
 	 */
-	static void writeStringAttribute(const H5::Group& group, const char* name, const std::string& s);
+	static void writeStringAttribute(const H5::H5Object& group, const char* name, const std::string& s);
+
+	/** Writes an int attribute for the given group
+	 * @param fg The hdf5 group
+	 * @param name The name of the entry in the group
+	 * @param value the int value to be written
+	 */
+	static void writeIntAttribute(const H5::H5Object& fg, const char* name, int value);
+
+
 
 	/** Reads a string attribute from the given group
 	 * @param group the hdf5 group
 	 * @param name the name of the entry in the group
 	 * @return the value
 	 */
-	static std::string readStringAttribute(const H5::Group& group, const char* name);
+	static std::string readStringAttribute(const H5::H5Object& group, const char* name);
+
+	/** Reads a int attribute from the given group
+	 * @param group the hdf5 group
+	 * @param name the name of the entry in the group
+	 * @return the value
+	 */
+	static int readIntAttribute(const H5::H5Object& group, const char* name);
+
 
 	/** Reads an integer from the hdf5 file
 	 * @param fg The hdf5 group
@@ -183,7 +226,7 @@ public:
 	 * @param name The name
 	 * @param value The value to be written
 	 */
-	static void writeInt(const H5::CommonFG& fg, const char* name, int value);
+	static H5::DataSet writeInt(const H5::CommonFG& fg, const char* name, int value);
 
 	/** Reads an dobule from the hdf5 file
 	 * @param fg The hdf5 group
@@ -197,7 +240,7 @@ public:
 	 * @param name The name
 	 * @param value The value to be written
 	 */
-	static void writeFloat(const H5::CommonFG& fg, const char* name, float value);
+	static H5::DataSet writeFloat(const H5::CommonFG& fg, const char* name, float value);
 
 	/** Reads an array from the hdf5 group
 	 * @param fg The hdf5 group
@@ -213,7 +256,8 @@ public:
 	 * @param array The array (type std::vector<T>) to be written
 	 */
   template<typename T>
-	static void writeArray(const H5::CommonFG& fg, const char* name, std::vector<T> const& array );
+	static H5::DataSet writeArray(const H5::CommonFG& fg, const char* name, std::vector<T> const& array );
+
 
 	/** Check whether an object (direct child) of fg with the given name exists
 	 */

@@ -37,13 +37,12 @@
 
 
 
-#ifndef VTKSTRUCTUREDPOINTSREPRESENTER_H_
-#define VTKSTRUCTUREDPOINTSREPRESENTER_H_
+#ifndef VTKSTANDARDIMAGERESENTER_H_
+#define VTKSTANDARDIMAGERESENTER_H_
+
 
 #include "vtkStructuredPoints.h"
 #include "statismo/Representer.h"
-#include "vtkPoint.h"
-#include "vtkPixel.h"
 #include "vtkHelper.h"
 #include "statismo/CommonTypes.h"
 #include "statismo/Domain.h"
@@ -52,13 +51,11 @@
 #include <H5Cpp.h>
 
 /**
- * \brief Representer class for vtkStructuredPoints of arbitrary scalar type and dimension
+ * \brief Representer class for vtkStructuredPoints of arbitrary scalar type and PixelDimension
  * \sa Representer
  */
 
 namespace statismo {
-
-
 template <>
 struct RepresenterTraits<vtkStructuredPoints> {
 	typedef vtkStructuredPoints* DatasetPointerType;
@@ -77,25 +74,30 @@ struct RepresenterTraits<vtkStructuredPoints> {
 };
 
 
-class vtkStructuredPointsRepresenter  : public Representer<vtkStructuredPoints> {
+
+template <class TScalar, unsigned PixelDimensions>
+class vtkStandardImageRepresenter  : public Representer<vtkStructuredPoints> {
 public:
 
-	static vtkStructuredPointsRepresenter* Create() { return new vtkStructuredPointsRepresenter(); }
-	static vtkStructuredPointsRepresenter* Create(const vtkStructuredPoints* reference) { return new vtkStructuredPointsRepresenter(reference); }
-
-	void Load(const H5::CommonFG& fg);
-	vtkStructuredPointsRepresenter* Clone() const;
 
 
-	virtual ~vtkStructuredPointsRepresenter();
+	static vtkStandardImageRepresenter* Create(const vtkStructuredPoints* reference) { return new vtkStandardImageRepresenter(reference); }
+	static vtkStandardImageRepresenter* Create() { return new vtkStandardImageRepresenter(); }
+
+	void Load(const H5::Group& fg);
+	vtkStandardImageRepresenter* Clone() const;
+
+	virtual ~vtkStandardImageRepresenter();
 	void Delete() const { delete this; }
 
 
 
-	unsigned GetDimensions() const { return  m_reference->GetDataDimension(); }
+	unsigned GetDimensions() const { return  PixelDimensions; }
+	std::string GetVersion() const { return "1.0" ; }
+	RepresenterDataType GetType() const { return IMAGE; }
 	const DomainType& GetDomain() const  { return m_domain; }
 
-	std::string GetName() const { return "vtkStructuredPointsRepresenter"; }
+	std::string GetName() const { return "vtkStandardImageRepresenter"; }
 
 	const vtkStructuredPoints* GetReference() const { return m_reference; }
 
@@ -112,20 +114,16 @@ public:
 	unsigned GetPointIdForPoint(const PointType& pt) const;
 
 	unsigned GetNumberOfPoints() const;
-	void Save(const H5::CommonFG& fg) const;
+	void Save(const H5::Group& fg) const;
 
-	unsigned GetNumberOfPoints(DatasetPointerType  reference) const;
+    static unsigned GetNumberOfPoints(DatasetPointerType  reference);
 
 
 private:
 
-	vtkStructuredPointsRepresenter(const vtkStructuredPoints* reference);
-	vtkStructuredPointsRepresenter() : m_reference(0) {}
-
-    static DatasetPointerType ReadDataset(const std::string& filename);
-	static void WriteDataset(const std::string& filename, DatasetConstPointerType sp);
-
-	void SetReference(const vtkStructuredPoints* reference);
+	vtkStandardImageRepresenter(DatasetConstPointerType reference);
+	vtkStandardImageRepresenter() : m_reference(0) {}
+	void SetReference(DatasetConstPointerType reference);
 
 	vtkStructuredPoints* m_reference;
 	DomainType m_domain;
@@ -133,7 +131,6 @@ private:
 
 } // namespace statismo
 
-#include "vtkStructuredPointsRepresenter.txx"
+#include "vtkStandardImageRepresenter.txx"
 
-
-#endif /* VTKSTRUCTUREDPOINTSREPRESENTER_H_ */
+#endif /* VTKStandardImageRepRESENTER_H_ */

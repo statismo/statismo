@@ -2,6 +2,7 @@
  * This file is part of the statismo library.
  *
  * Author: Marcel Luethi (marcel.luethi@unibas.ch)
+ *         Thomas Albrecht (thomas.albrecht@unibas.ch)
  *
  * Copyright (c) 2011 University of Basel
  * All rights reserved.
@@ -34,76 +35,49 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+ 
+%{
+#include "vtkUnstructuredGridRepresenter.h"
+%}
 
 
-#ifndef VTKPIXEL_H
-#define VTKPIXEL_H
-
-#include <iostream>
-#include <sstream>
-#include "statismo/Exceptions.h"
-
-using statismo::StatisticalModelException;
-
-/**
-  * \brief Helper class that represents a vtkPixel or arbitrary type and dimension
-  * In vtk a pixel is just of type  T*. The statismo library relies on a proper
-  * copy semantics, and hence requires such a wrapper.
- */
-
-class vtkNDPixel {
+/*class vtkPoint {
 public:
-	vtkNDPixel(unsigned dimensions) : m_pixel(new double[dimensions]), m_dimensions(dimensions) { }
-	~vtkNDPixel() {delete[] m_pixel; }
-
-	vtkNDPixel(double* x, unsigned dimensions)  : m_pixel(new double[dimensions]), m_dimensions(dimensions) {
-		for (unsigned d = 0; d < dimensions; d++)
-			m_pixel[d] = x[d];
-
-	}
-
-	double& operator[](unsigned i) {
-		if (i >= m_dimensions) {
-			std::ostringstream os;
-			os << "Invalid index for vtkPixel (index = " << i << ")";
-			throw StatisticalModelException(os.str().c_str());
-		}
-		else {
-			return m_pixel[i];
-		}
-	}
-
-	const double& operator[](unsigned i) const {
-		if (i >= m_dimensions) {
-			std::ostringstream os;
-			os << "Invalid index for vtkPixel (index = " << i << ")";
-			throw StatisticalModelException(os.str().c_str());
-		}
-		else {
-			return m_pixel[i];
-		}
-	}
+	vtkPoint(double x, double y, double z);
+};*/	
 
 
-	vtkNDPixel	& operator=(const vtkNDPixel& rhs) {
-		if (this != &rhs) {
-			for (unsigned d = 0; d < m_dimensions; d++) {
-				m_pixel[d] = rhs.m_pixel[d];
-			}
 
-		}
-		return *this;
-	}
 
-	vtkNDPixel(const vtkNDPixel& orig) {
-		operator=(orig);
-	}
+class vtkUnstructuredGridRepresenter {
+public:
+typedef vtkPoint PointType;
+typedef vtkPoint ValueType;
+typedef vtkUnstructuredGrid* DatasetPointerType;
+typedef const vtkUnstructuredGrid* DatasetConstPointerType;
+
+typedef statismo::Domain<PointType> DomainType;
+
+ enum AlignmentType {
+   NONE=999,
+   RIGID=VTK_LANDMARK_RIGIDBODY,
+   SIMILARITY=VTK_LANDMARK_SIMILARITY,
+   AFFINE=VTK_LANDMARK_AFFINE
+ };
+
+ %newobject Create; 
+ static vtkUnstructuredGridRepresenter* Create(const vtkUnstructuredGrid* reference, AlignmentType alignment);
+  static unsigned GetDimensions();
+  AlignmentType GetAlignment() const;
+  
+  const DomainType& GetDomain() const;
+  
+ const vtkUnstructuredGrid* GetReference() const;
+ unsigned GetNumberOfPoints();
+ unsigned GetPointIdForPoint(const vtkPoint& pt);
 
 private:
-	unsigned m_dimensions;
-	double* m_pixel;
+ 
+ vtkUnstructuredGridRepresenter(AlignmentType alignment = RIGID);
+
 };
-
-
-
-#endif

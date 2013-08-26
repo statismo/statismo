@@ -40,6 +40,7 @@
 
 #include "Config.h"
 #include "Domain.h"
+#include "Exceptions.h"
 #include <iostream>
 
 #include <exception>
@@ -57,21 +58,52 @@ const double PI	=	3.14159265358979323846;
 /// the type that is used for all vector and matrices throughout the library.
 typedef float ScalarType;
 
-/// Vector type used throughout the library
-typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, 1> VectorType;
-typedef Eigen::Matrix<double, Eigen::Dynamic, 1> VectorTypeDoublePrecision;
-typedef Eigen::Matrix<ScalarType, 1 , Eigen::Dynamic> RowVectorType;
+// wrapper struct that allows us to easily select matrix and vectors of an arbitrary
+// type, wich has the same traits as the standard matrix / vector traits
+template <typename ScalarType> struct GenericEigenType {
+	typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
+	typedef Eigen::DiagonalMatrix<ScalarType, Eigen::Dynamic> DiagMatrixType;
+	typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, 1> VectorType;
+	typedef Eigen::Matrix<ScalarType, 1 , Eigen::Dynamic> RowVectorType;
 
-/// Matrix type used throughout the library
-/// Having RowMajor storage is important, as we want to be able to efficiently copy data to HDF5
-/// and vnl, which are both storing the data as rowMajor
-typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
-typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixTypeDoublePrecision;
+};
+typedef GenericEigenType<ScalarType>::MatrixType MatrixType;
+typedef GenericEigenType<double>::MatrixType MatrixTypeDoublePrecision;
+typedef GenericEigenType<ScalarType>::DiagMatrixType DiagMatrixType;
+typedef GenericEigenType<ScalarType>::VectorType VectorType;
+typedef GenericEigenType<double>::VectorType VectorTypeDoublePrecision;
+typedef GenericEigenType<ScalarType>::RowVectorType RowVectorType;
 
-/// Diagonal matrix type used throughout the library
-typedef Eigen::DiagonalMatrix<ScalarType, Eigen::Dynamic> DiagMatrixType;
-typedef Eigen::DiagonalMatrix<double, Eigen::Dynamic> DiagMatrixTypeDoublePrecision;
+// type definitions used in the standard file format.
+// Note that these are the same as used by VTK
+const static unsigned VOID = 0;
+const static unsigned SIGNED_CHAR = 2;
+const static unsigned UNSIGNED_CHAR  = 3;
+const static unsigned  SIGNED_SHORT     =  4;
+const static unsigned UNSIGNED_SHORT = 5;
+const static unsigned SIGNED_INT             = 6;
+const static unsigned UNSIGNED_INT   = 7;
+const static unsigned  SIGNED_LONG          =  8;
+const static unsigned  UNSIGNED_LONG  = 9;
+const static unsigned FLOAT =         10;
+const static unsigned DOUBLE      =   11;
+
+template <class T> unsigned GetDataTypeId() {
+	throw StatisticalModelException("The datatype that was provided is not a valid statismo data type ");
+}
+template <> unsigned GetDataTypeId<signed char>() { return SIGNED_CHAR; }
+template <> unsigned GetDataTypeId<unsigned char>() { return UNSIGNED_CHAR; }
+template <> unsigned GetDataTypeId<signed short>() { return SIGNED_SHORT; }
+template <> unsigned GetDataTypeId<unsigned short>() { return UNSIGNED_SHORT; }
+template <> unsigned GetDataTypeId<signed int>() { return SIGNED_INT; }
+template <> unsigned GetDataTypeId<unsigned int>() { return UNSIGNED_INT; }
+template <> unsigned GetDataTypeId<signed long>() { return SIGNED_LONG; }
+template <> unsigned GetDataTypeId<unsigned long>() { return UNSIGNED_LONG; }
+template <> unsigned GetDataTypeId<float>() { return FLOAT; }
+template <> unsigned GetDataTypeId<double>() { return DOUBLE; }
+
 
 } //namespace statismo
 
 #endif
+

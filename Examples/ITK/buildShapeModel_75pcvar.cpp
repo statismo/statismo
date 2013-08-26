@@ -36,8 +36,7 @@
  */
 
 
-#include "itkVectorImageRepresenter.h"
-#include "itkMeshRepresenter.h"
+#include "itkStandardMeshRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkPCAModelBuilder.h"
 #include "statismo_ITK/itkReducedVarianceModelBuilder.h"
@@ -57,7 +56,7 @@
 const unsigned Dimensions = 3;
 typedef itk::Mesh<float, Dimensions  > MeshType;
 
-typedef itk::MeshRepresenter<float, Dimensions> RepresenterType;
+typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
 
 
 /*function... might want it in some class?*/

@@ -37,7 +37,7 @@
 
 
 #include "statismo/StatisticalModel.h"
-#include "Representers/VTK/vtkPolyDataRepresenter.h"
+#include "Representers/VTK/vtkStandardMeshRepresenter.h"
 
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 
 	// All the statismo classes have to be parameterized with the RepresenterType.
 	// For building a shape model with vtk, we use the vtkPolyDataRepresenter.
-	typedef vtkPolyDataRepresenter RepresenterType;
+	typedef vtkStandardMeshRepresenter RepresenterType;
 	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
 
 	try {

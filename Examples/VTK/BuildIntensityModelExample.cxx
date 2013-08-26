@@ -41,7 +41,7 @@
 #include "statismo/DataManager.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
-#include "Representers/VTK/vtkStructuredPointsRepresenter.h"
+#include "vtkStandardImageRepresenter.h"
 
 #include <iostream>
 #include <ostream>
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 	// For building a intensity model with vtk, we use the vtkStructuredPointsRepresenter.
 	// Here, we work with unsigned character images. The second template parameter specifies
 	// the pixel dimension (1 means scalar image, whereas 3 is a 3D vector image).
-	typedef vtkStructuredPointsRepresenter RepresenterType;
+	typedef vtkStandardImageRepresenter<unsigned char, 1> RepresenterType;
 	typedef DataManager<vtkStructuredPoints> DataManagerType;
 	typedef PCAModelBuilder<vtkStructuredPoints> ModelBuilderType;
 	typedef StatisticalModel<vtkStructuredPoints> StatisticalModelType;
@@ -107,11 +107,12 @@ int main(int argc, char** argv) {
 		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
 		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0.01));
 		model->Save(modelname);
+
 		reference->Delete();
 		std::cout << "Successfully saved model as " << modelname << std::endl;
 	}
 	catch (StatisticalModelException& e) {
-		std::cout << "Exception occured while building the intenisity model" << std::endl;
+		std::cout << "Exception occured while building the intensity model" << std::endl;
 		std::cout << e.what() << std::endl;
 	}
 }

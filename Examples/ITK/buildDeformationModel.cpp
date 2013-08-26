@@ -36,7 +36,7 @@
  */
 
 
-#include "itkVectorImageRepresenter.h"
+#include "itkStandardImageRepresenter.h"
 #include "itkImageRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkPCAModelBuilder.h"
@@ -53,13 +53,13 @@
 
 
 typedef itk::Image<float, 3> ImageType3D;
-typedef itk::Image< itk::Vector<float, ImageType3D::ImageDimension> , ImageType3D::ImageDimension > VectorImageType3D;
-typedef itk::VectorImageRepresenter<float, 3, 3> RepresenterType3D;
+typedef itk::Image< itk::Vector<float, 3> ,3 > VectorImageType3D;
+typedef itk::StandardImageRepresenter<itk::Vector<float, 3>, 3> RepresenterType3D;
 
 typedef itk::Image<float, 2> ImageType2D;
-typedef itk::Image< itk::Vector<float, ImageType2D::ImageDimension> , ImageType2D::ImageDimension > VectorImageType2D;
+typedef itk::Image< itk::Vector<float, 2> ,2 > VectorImageType2D;
+typedef itk::StandardImageRepresenter<itk::Vector<float, 2>, 2> RepresenterType2D;
 
-typedef itk::VectorImageRepresenter<float, 2, 2> RepresenterType2D;
 
 
 int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*")

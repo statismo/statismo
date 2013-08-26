@@ -41,7 +41,6 @@
 #include "statismo/Representer.h"
 #include <iostream>
 #include "itkTransform.h"
-#include "itkVectorImageRepresenter.h"
 #include "itkStatisticalModel.h"
 #include "itkImage.h"
 #include "itkVector.h"
@@ -60,14 +59,15 @@ namespace itk
  *
  * \ingroup Transforms
  */
-template <class TDataset, class TScalarType,  unsigned int TDimension >
+
+template <class TDataset, class TScalarType,  unsigned int TInputDimension, unsigned int TOutputDimension = TInputDimension  >
 class ITK_EXPORT StatisticalModelTransformBase :
-public itk::Transform< TScalarType , TDimension, TDimension>
+public itk::Transform< TScalarType , TInputDimension, TOutputDimension>
 {
 public:
 	/* Standard class typedefs. */
 	typedef StatisticalModelTransformBase            Self;
-	typedef itk::Transform< TScalarType , TDimension, TDimension>	Superclass;
+	typedef itk::Transform< TScalarType , TInputDimension, TOutputDimension>	Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
@@ -92,9 +92,9 @@ public:
 	itkTypeMacro( StatisticalModelTransformBase, Superclass );
 
 	/* Dimension of parameters. */
-	itkStaticConstMacro(SpaceDimension, unsigned int, TDimension);
-	itkStaticConstMacro(InputSpaceDimension, unsigned int, TDimension);
-	itkStaticConstMacro(OutputSpaceDimension, unsigned int, TDimension);
+	itkStaticConstMacro(SpaceDimension, unsigned int, TInputDimension);
+	itkStaticConstMacro(InputSpaceDimension, unsigned int, TInputDimension);
+	itkStaticConstMacro(OutputSpaceDimension, unsigned int, TOutputDimension);
 
 
 	/* Parameters Type   */

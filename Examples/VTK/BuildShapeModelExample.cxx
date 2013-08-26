@@ -39,8 +39,8 @@
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/StatisticalModel.h"
 #include "statismo/DataManager.h"
-
-#include "Representers/VTK/vtkPolyDataRepresenter.h"
+#include "vtkPolyDataReader.h"
+#include "vtkStandardMeshRepresenter.h"
 
 #include <iostream>
 #include <memory>
@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
 
 	// All the statismo classes have to be parameterized with the RepresenterType.
 	// For building a shape model with vtk, we use the vtkPolyDataRepresenter.
-	typedef vtkPolyDataRepresenter RepresenterType;
+	typedef vtkStandardMeshRepresenter RepresenterType;
 	typedef DataManager<vtkPolyData> DataManagerType;
 	typedef PCAModelBuilder<vtkPolyData> ModelBuilderType;
 	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
 		// and the alignmentType. The alignmenttype (which is here RIGID) determines how the dataset that we
 		// will use will later be aligned to the reference.
 		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand-0.vtk");
-		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference, RepresenterType::RIGID));
+		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 
 		// We create a datamanager and provide it with a pointer  to the representer
 		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));

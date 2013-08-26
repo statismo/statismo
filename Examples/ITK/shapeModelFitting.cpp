@@ -39,7 +39,7 @@
  * This example shows how the fitting of a statistical shape model to a Mesh can be performed with Statismo and the itk Registration framework.
  */
 
-#include "itkMeshRepresenter.h"
+#include "itkStandardMeshRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkStatisticalShapeModelTransform.h"
 #include "itkEuclideanDistancePointMetric.h"
@@ -53,7 +53,7 @@
 const unsigned Dimensions = 3;
 typedef itk::Mesh<float, Dimensions  > MeshType;
 
-typedef itk::MeshRepresenter<float, Dimensions> RepresenterType;
+typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
 
 typedef itk::MeshFileReader<MeshType> MeshReaderType;
 typedef itk::EuclideanDistancePointMetric<MeshType, MeshType> MetricType;

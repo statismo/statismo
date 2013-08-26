@@ -53,11 +53,11 @@ StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const 
   m_mean(m),
   m_pcaVariance(pcaVariance),
   m_noiseVariance(noiseVariance),
-  m_cachedValuesValid(false)
+  m_cachedValuesValid(false),
+  m_modelLoaded(false)
   {
 	VectorType D = pcaVariance.array().sqrt();
 	m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
-
   }
 
 
@@ -531,18 +531,38 @@ StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoo
 
 	StatisticalModel* newModel = 0;
 
-	if (maxNumberOfPCAComponents != std::numeric_limits<unsigned>::max()) {
-		std::cout << "Warning! Loading a subset of the PCA Components can \
-				lead to inconsistencies in the model's history, when the model is saved or processed by other model builders." << std::endl;
-	}
-
-
 	try {
 		Group representerGroup = modelRoot.openGroup("./representer");
 		std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
-		if (rep_name != representer->GetName() && representer->GetName() != "TrivialVectorialRepresenter") {
-			throw StatisticalModelException("A different representer was used to create the file. Cannot load hdf5 file.");
+		std::string repTypeStr = HDF5Utils::readStringAttribute(representerGroup, "datasetType");
+		std::string versionStr = HDF5Utils::readStringAttribute(representerGroup, "version");
+		typename RepresenterType::RepresenterDataType type = RepresenterType::TypeFromString(repTypeStr);
+		if (type == RepresenterType::CUSTOM || type == RepresenterType::UNKNOWN) {
+			if (rep_name != representer->GetName()) {
+				std::ostringstream os;
+				os << "A different representer was used to create the file and the representer is not of a standard type ";
+				os << ("(RepresenterName = ") << rep_name << " does not match required name = " << representer->GetName() << ")";
+				os << "Cannot load hdf5 file";
+				throw StatisticalModelException(os.str().c_str());
+			}
+			if (versionStr != representer->GetVersion()) {
+				std::ostringstream os;
+				os << "The version of the representers do not match ";
+				os << ("(Version = ") << versionStr << " != = " << representer->GetVersion() << ")";
+				os << "Cannot load hdf5 file";
+
+			}
+
 		}
+		if (type != representer->GetType()) {
+			std::ostringstream os;
+			os << "The representer that was provided cannot be used to load the dataset ";
+			os << "(" << type << " != " << representer->GetType() << ").";
+			os << "Cannot load hdf5 file.";
+			throw StatisticalModelException(os.str().c_str());
+		}
+
+
 
 		representer->Load(representerGroup);
 		newModel = new StatisticalModel(representer);
@@ -567,6 +587,8 @@ StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoo
 	assert(newModel != 0);
 	newModel->m_cachedValuesValid = false;
 
+	newModel->m_modelLoaded = true;
+
 	return newModel;
 }
 
@@ -574,6 +596,12 @@ template <typename T>
 void
 StatisticalModel<T>::Save(const std::string& filename) const {
 	using namespace H5;
+
+	if (m_modelLoaded == true) {
+		throw StatisticalModelException("Cannot save the model: Note, to prevent inconsistencies in the model's history, only models that have been newly created can be saved, and not those loaded from an hdf5 file.");
+	}
+
+
 
 	H5File file;
 	std::ifstream ifile(filename.c_str());
@@ -600,8 +628,12 @@ StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
 	 try {
 		// create the group structure
 
+		 std::string dataTypeStr = RepresenterType::TypeToString(m_representer->GetType());
+
 		Group representerGroup = modelRoot.createGroup("./representer");
 		HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
+		HDF5Utils::writeStringAttribute(representerGroup, "version", m_representer->GetVersion());
+		HDF5Utils::writeStringAttribute(representerGroup, "datasetType", dataTypeStr);
 
 		this->m_representer->Save(representerGroup);
 		representerGroup.close();
