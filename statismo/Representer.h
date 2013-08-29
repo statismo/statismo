@@ -206,6 +206,10 @@ public:
 
 	virtual DatasetConstPointerType GetReference() const = 0;
 
+	/**
+	 * Converts a Point
+	 */
+	virtual statismo::VectorType PointToVector(const PointType& pt) const = 0;
 
 	/**
 	 * Returns a vectorial representation of the given sample.

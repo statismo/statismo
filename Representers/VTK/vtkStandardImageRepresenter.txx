@@ -194,6 +194,16 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load(const H5::Group& fg)
 	this->SetReference(newImage);
 }
 
+template <class TScalar, unsigned PixelDimensions>
+statismo::VectorType vtkStandardImageRepresenter<TScalar, PixelDimensions>::PointToVector(const PointType& pt) const {
+	// a vtk point is always 3 dimensional
+	VectorType v(3);
+	for (unsigned i = 0; i < 3; i++) {
+		v(i) = pt[i];
+	}
+	return v;
+}
+
 
 
 template <class TScalar, unsigned PixelDimensions>

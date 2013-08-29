@@ -183,6 +183,20 @@ StandardImageRepresenter<TPixel, ImageDimension>::SetReference(ImageType* refere
 }
 
 template <class TPixel, unsigned ImageDimension>
+statismo::VectorType
+StandardImageRepresenter<TPixel, ImageDimension>::PointToVector(const PointType& pt) const
+{
+	statismo::VectorType v(PointType::GetPointDimension());
+	for (unsigned i = 0; i < PointType::GetPointDimension(); i++) {
+		v(i) = pt[i];
+	}
+	return v;
+
+}
+
+
+
+template <class TPixel, unsigned ImageDimension>
 typename StandardImageRepresenter<TPixel, ImageDimension>::DatasetPointerType
 StandardImageRepresenter<TPixel, ImageDimension>::DatasetToSample(DatasetConstPointerType image) const
 {

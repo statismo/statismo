@@ -117,6 +117,7 @@ public:
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
 	 * Alignment.
 	 */
+	statismo::VectorType PointToVector(const PointType& pt) const;
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
 	DatasetPointerType SampleVectorToSample(

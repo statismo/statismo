@@ -119,6 +119,12 @@ public:
 	const DomainType& GetDomain() const { return m_domain; }
 	DatasetConstPointerType GetReference() const { return VectorType::Zero(m_domain.GetNumberOfPoints()); }
 
+	VectorType PointToVector(const PointType& pt) const {
+		// here, the pt type is simply an id (the index into the vector).
+		VectorType v(1);
+		v(0) = pt.ptId;
+		return v;
+	}
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const { return ds; }
 	VectorType SampleToSampleVector(DatasetConstPointerType sample) const { return sample; }
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const { return sample; }
