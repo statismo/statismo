@@ -69,7 +69,7 @@ public:
 
 	typedef statismo::PCAModelBuilder<Representer> ImplType;
 	typedef statismo::DataManager<Representer> DataManagerType;
-	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
+	typedef typename DataManagerType::DataItemListType DataItemListType;
 
 	PCAModelBuilder() : m_impl(ImplType::Create()){}
 
@@ -92,8 +92,8 @@ public:
 
 
 
-	typename StatisticalModel<Representer>::Pointer BuildNewModel(SampleDataStructureListType SampleDataStructureList, float noiseVariance, bool computeScores = true) {
-		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, noiseVariance, computeScores));
+	typename StatisticalModel<Representer>::Pointer BuildNewModel(DataItemListType DataItemList, float noiseVariance, bool computeScores = true) {
+		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, noiseVariance, computeScores));
 		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
 		model_itk->SetstatismoImplObj(model_statismo);
 		return model_itk;

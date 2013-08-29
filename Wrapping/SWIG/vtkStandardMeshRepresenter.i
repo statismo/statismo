@@ -34,63 +34,66 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+ 
+%{
+#include "statismo/Representer.h"
+#include "vtkStandardMeshRepresenter.h"
+#include "vtkHelper.h"
+#include "vtkPolyData.h"
+%}
 
-#ifndef __MODELBUILDER_H_
-#define __MODELBUILDER_H_
-
-
-#include "DataManager.h"
-#include "StatisticalModel.h"
-#include "CommonTypes.h"
-#include <vector>
-#include <memory>
-
-
-namespace statismo {
-
-/**
- * \brief Common base class for all the model builder classes
- */
-template <typename T>
-class ModelBuilder {
-
-public:
-	typedef Representer<T> RepresenterType;
-	typedef StatisticalModel<T> StatisticalModelType;
-	typedef DataManager<T> DataManagerType;
-	typedef typename DataManagerType::DataItemListType DataItemListType;
-
-	// Values below this tolerance are treated as 0.
-	static const double TOLERANCE;
+%include "Representer.i"
 
 
-protected:
-
-	MatrixType ComputeScores(const MatrixType& X, const StatisticalModelType* model) const {
-
-		MatrixType scores(model->GetNumberOfPrincipalComponents(), X.rows());
-		for (unsigned i = 0; i < scores.cols(); i++) {
-			scores.col(i) = model->ComputeCoefficientsForSampleVector(X.row(i));
-		}
-		return scores;
-	}
+namespace statismo { 
 
 
-	ModelBuilder() {}
-
-	ModelInfo CollectModelInfo() const;
-
-private:
-	// private - to prevent use	
-	ModelBuilder(const ModelBuilder& orig);				
-	ModelBuilder& operator=(const ModelBuilder& rhs);
-
+class vtkPoint {
+	public:
+	vtkPoint(double x, double y, double z);
 };
 
-template <class Representer>
-const double ModelBuilder<Representer>::TOLERANCE = 1e-5;
 
+
+
+
+%rename(representerTraitsVtkPolyData) RepresenterTraits<vtkPolyData>;  
+class RepresenterTraits<vtkPolyData> {
+public:
+	typedef const vtkPolyData* DatasetConstPointerType;
+	typedef vtkPolyData* DatasetPointerType;
+	typedef vtkPoint PointType;
+	typedef vtkPoint ValueType;	
+};
+
+
+
+}
+%template(RepresenterVTK) statismo::Representer<vtkPolyData>;
+
+
+namespace statismo { 
+
+class vtkStandardMeshRepresenter : public Representer<vtkPolyData> {
+public:
+
+	virtual ~vtkStandardMeshRepresenter();
+
+typedef statismo::Domain<PointType> DomainType;
+
+ 
+ %newobject Create; 
+ static vtkStandardMeshRepresenter* Create(); 
+ static vtkStandardMeshRepresenter* Create(const vtkPolyData* reference);
+  
+  const DomainType& GetDomain() const;
+ 
+ unsigned GetNumberOfPoints();
+// unsigned GetPointIdForPoint(const vtkPoint& pt);
+
+private:
+ 
+ vtkStandardMeshRepresenter();
+
+};
 } // namespace statismo
-
-
-#endif /* __MODELBUILDER_H_ */

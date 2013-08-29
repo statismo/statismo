@@ -52,10 +52,10 @@ namespace statismo {
 
 template <typename T>
 unsigned
-ConditionalModelBuilder<T>::PrepareData(const SampleDataStructureListType& sampleDataList,
+ConditionalModelBuilder<T>::PrepareData(const DataItemListType& sampleDataList,
                                                   const SurrogateTypeInfoType& surrogateTypesInfo,
 												  const CondVariableValueVectorType& conditioningInfo,
-												  SampleDataStructureListType *acceptedSamples,
+												  DataItemListType *acceptedSamples,
 												  MatrixType *surrogateMatrix,
 												  VectorType *conditions) const
 {
@@ -68,7 +68,7 @@ ConditionalModelBuilder<T>::PrepareData(const SampleDataStructureListType& sampl
 	//first: identify the continuous and categorical variables, which are used for conditioning and which are not
 	for (unsigned i=0 ; i<conditioningInfo.size() ; i++) {
 		if (conditioningInfo[i].first) { //only variables that are used for conditioning are of interest here
-			if (surrogateTypesInfo.types[i] == SampleDataStructureWithSurrogatesType::Continuous) {
+			if (surrogateTypesInfo.types[i] == DataItemWithSurrogatesType::Continuous) {
 				nbContinuousSurrogatesInUse++;
 				indicesContinuousSurrogatesInUse.push_back(i);
 			}
@@ -83,9 +83,9 @@ ConditionalModelBuilder<T>::PrepareData(const SampleDataStructureListType& sampl
 	surrogateMatrix->resize(nbContinuousSurrogatesInUse, sampleDataList.size()); //number of variables is now known: nbContinuousSurrogatesInUse ; the number of samples is yet unknown... 
 	
 	//now, browse all samples to select the ones which fall into the requested categories
-	for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
+	for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
 	{
-		const SampleDataStructureWithSurrogatesType* sampleData = dynamic_cast<const SampleDataStructureWithSurrogatesType*>(*it);
+		const DataItemWithSurrogatesType* sampleData = dynamic_cast<const DataItemWithSurrogatesType*>(*it);
 		if (sampleData == 0)  {
 			// this is a normal sample without surrogate information.
 			// we simply discard it
@@ -122,13 +122,13 @@ ConditionalModelBuilder<T>::PrepareData(const SampleDataStructureListType& sampl
 
 template <typename T>
 typename ConditionalModelBuilder<T>::StatisticalModelType*
-ConditionalModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sampleDataList,
+ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList,
 													const SurrogateTypeInfoType& surrogateTypesInfo,
 													const CondVariableValueVectorType& conditioningInfo,
 													float noiseVariance,										
 													double modelVarianceRetained) const
 {
-	SampleDataStructureListType acceptedSamples;
+	DataItemListType acceptedSamples;
 	MatrixType X;
 	VectorType x0;
 	unsigned nSamples = PrepareData(sampleDataList, surrogateTypesInfo, conditioningInfo, &acceptedSamples, &X, &x0);
@@ -214,7 +214,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sam
   	VectorType newPCAVariance = singularValues.topRows(numComponentsToKeep);
   	MatrixType newPCABasisMatrix = (pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).topLeftCorner(X.cols(), numComponentsToKeep);
 
-		StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(), condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(), pcaModel->GetPreprocessor(),  condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance);
 
 		// add builder info and data info to the info list
 		MatrixType scores(0,0);
@@ -233,11 +233,11 @@ ConditionalModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sam
 		typename BuilderInfo::DataInfoList di;
 
 		unsigned i = 0;
-	  for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin();
+	  for (typename DataItemListType::const_iterator it = sampleDataList.begin();
 	      it != sampleDataList.end();
 	      ++it, i++)
 	  {
-	    const SampleDataStructureWithSurrogatesType* sampleData = dynamic_cast<const SampleDataStructureWithSurrogatesType*>(*it);
+	    const DataItemWithSurrogatesType* sampleData = dynamic_cast<const DataItemWithSurrogatesType*>(*it);
 	    std::ostringstream os;
       os << "URI_" << i;
       di.push_back(BuilderInfo::KeyValuePair(os.str().c_str(),sampleData->GetDatasetURI()));

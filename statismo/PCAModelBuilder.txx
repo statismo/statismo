@@ -55,7 +55,7 @@ PCAModelBuilder<T>::PCAModelBuilder()
 
 template <typename T>
 typename PCAModelBuilder<T>::StatisticalModelType*
-PCAModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sampleDataList, double noiseVariance, bool computeScores) const
+PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double noiseVariance, bool computeScores) const
  {
 
 	unsigned n = sampleDataList.size();
@@ -65,12 +65,13 @@ PCAModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sampleDataL
 
 	unsigned p = sampleDataList.front()->GetSampleVector().rows();
 	const Representer<T>* representer = sampleDataList.front()->GetRepresenter();
+	const Preprocessor<T>* preprocessor = sampleDataList.front()->GetPreprocessor();
 
 	// Build the sample matrix X
 	MatrixType X(n, p);
 
 	unsigned i = 0;
-	for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin();
+	for (typename DataItemListType::const_iterator it = sampleDataList.begin();
 		it != sampleDataList.end();
 		++it)
 	{
@@ -81,7 +82,7 @@ PCAModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sampleDataL
 
 
 	// build the model
-	StatisticalModelType* model = BuildNewModelInternal(representer, X, noiseVariance);
+	StatisticalModelType* model = BuildNewModelInternal(representer, preprocessor, X, noiseVariance);
 	MatrixType scores;
 	if (computeScores) {
 		scores = this->ComputeScores(X, model);
@@ -93,7 +94,7 @@ PCAModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sampleDataL
 
 	typename BuilderInfo::DataInfoList dataInfo;
 	i = 0;
-	for (typename SampleDataStructureListType::const_iterator it = sampleDataList.begin();
+	for (typename DataItemListType::const_iterator it = sampleDataList.begin();
 		it != sampleDataList.end();
 		++it, i++)
 	{
@@ -118,7 +119,7 @@ PCAModelBuilder<T>::BuildNewModel(const SampleDataStructureListType& sampleDataL
 
 template <typename T>
 typename PCAModelBuilder<T>::StatisticalModelType*
-PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const
+PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const Preprocessor<T>* preprocessor, const MatrixType& X, double noiseVariance) const
 {
 
 	typedef Eigen::JacobiSVD<MatrixType> SVDType;
@@ -171,7 +172,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
 		VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
 		VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
 
-		StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(representer, preprocessor, mu, pcaBasis, pcaVariance, noiseVariance);
 
 		return model;
 	}
@@ -188,7 +189,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
 
 		VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
 		VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
-		StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(representer, preprocessor, mu, pcaBasis, pcaVariance, noiseVariance);
 		return model;
 	}
 }

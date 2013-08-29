@@ -64,10 +64,6 @@ struct RepresenterTraits<vtkStructuredPoints> {
 	typedef vtkPoint PointType;
 	typedef vtkNDPixel ValueType;
 
-
-	static void DeleteDataset(DatasetPointerType d) {
-		d->Delete();
-	};
     ///@}
 
 
@@ -90,6 +86,15 @@ public:
 	virtual ~vtkStandardImageRepresenter();
 	void Delete() const { delete this; }
 
+	void DeleteDataset(DatasetPointerType d) const {
+		d->Delete();
+	};
+
+	DatasetPointerType CloneDataset(DatasetConstPointerType d) const {
+		vtkStructuredPoints* clone = vtkStructuredPoints::New();
+		clone->DeepCopy(const_cast<vtkStructuredPoints*>(d));
+		return clone;
+	}
 
 
 	unsigned GetDimensions() const { return  PixelDimensions; }

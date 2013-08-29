@@ -1,5 +1,5 @@
 /*
- * SampleDataStructure.h
+ * DataItem.h
  *
  * Created by Marcel Luethi
  *
@@ -39,37 +39,40 @@
 #define __SAMPLE_DATA_H
 
 #include "Representer.h"
+#include "Preprocessor.h"
 #include "CommonTypes.h"
 
 namespace statismo {
-/* \class SampleDataStructure
+/* \class DataItem
  * \brief Holds all the information for a given sample.
  * Use GetSample() to recover a Sample 
  * \warning This method generates a new object containing the sample. If the Representer does not provide a smart pointer, the user is responsible for releasing memory.
  */
 template <typename T>
-class SampleDataStructure {
+class DataItem {
 public:
 	typedef Representer<T> RepresenterType;
+	typedef Preprocessor<T> PreprocessorType;
 	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
 
 	/**
 	 * Ctor. Usually not called from outside of the library
 	 */
-	static SampleDataStructure* Create(const RepresenterType* representer, const std::string& URI, const VectorType& sampleVector)
+	static DataItem* Create(const RepresenterType* representer, const PreprocessorType* preprocessor, const std::string& URI, const VectorType& sampleVector)
 	{
-		return new SampleDataStructure(representer, URI, sampleVector);
+		return new DataItem(representer, preprocessor, URI, sampleVector);
 	}
 
 	/**
 	 * Dtor
 	 */
-	virtual ~SampleDataStructure() {}
+	virtual ~DataItem() {}
 
-	/** Create a new SampleDataStructure object, using the data from the group in the HDF5 file
+	/** Create a new DataItem object, using the data from the group in the HDF5 file
 	 * \param dsGroup. The group in the hdf5 file for this dataset
 	 */
-	static SampleDataStructure* Load(const RepresenterType* representer, const H5::Group& dsGroup);
+	static DataItem* Load(const RepresenterType* representer, const H5::Group& dsGroup);
+	static DataItem* Load(const RepresenterType* representer, const PreprocessorType* preprocessor, const H5::Group& dsGroup);
 	/**
 	 *  Save the sample data to the hdf5 group dsGroup.
 	 */
@@ -85,6 +88,8 @@ public:
 	 */
 	const RepresenterType* GetRepresenter() const { return m_representer; }
 
+	const PreprocessorType* GetPreprocessor() const { return m_preprocessor; }
+
 	/**
 	 * Get the vectorial representation of this sample
 	 */
@@ -98,12 +103,12 @@ public:
 
 protected:
 
-	SampleDataStructure(const RepresenterType* representer, const std::string& URI, const VectorType& sampleVector)
-		: m_representer(representer), m_URI(URI), m_sampleVector(sampleVector)
+	DataItem(const RepresenterType* representer, const PreprocessorType* preprocessor, const std::string& URI, const VectorType& sampleVector)
+		: m_representer(representer), m_preprocessor(preprocessor), m_URI(URI), m_sampleVector(sampleVector)
 	{
 	}
 
-	SampleDataStructure(const RepresenterType* representer) : m_representer(representer)
+	DataItem(const RepresenterType* representer, const PreprocessorType* preprocessor) : m_representer(representer), m_preprocessor(preprocessor)
 	{}
 
 	// loads the internal state from the hdf5 file
@@ -120,6 +125,7 @@ protected:
 
 
 	const RepresenterType* m_representer;
+	const PreprocessorType* m_preprocessor;
 	std::string m_URI;
 	VectorType m_sampleVector;
 };
@@ -127,21 +133,23 @@ protected:
 
 
 
-/* \class SampleDataStructureWithSurrogates
+/* \class DataItemWithSurrogates
  * \brief Holds all the information for a given sample.
   * Use GetSample() to recover a Sample 
  * \warning This method generates a new object containing the sample. If the Representer does not provide a smart pointer, the user is responsible for releasing memory.
  * In particular, it enables to associate categorical or continuous variables with a sample, in a vectorial representation.
  * The vector is provided by a file providing the values in ascii format (empty space or EOL separating the values)
- * \sa SampleDataStructure
+ * \sa DataItem
  * \sa DataManagerWithSurrogates
  */
 
 template <typename T>
-class SampleDataStructureWithSurrogates : public SampleDataStructure<T>
+class DataItemWithSurrogates : public DataItem<T>
 {
-	friend class SampleDataStructure<T>;
+	friend class DataItem<T>;
 	typedef Representer<T> RepresenterType;
+	typedef Preprocessor<T> PreprocessorType;
+
 public:
 
 	enum SurrogateType {
@@ -153,48 +161,59 @@ public:
 	typedef std::vector<SurrogateType>	SurrogateTypeVectorType;
 
 
-	static SampleDataStructureWithSurrogates* Create(const RepresenterType* representer,
+	static DataItemWithSurrogates* Create(const RepresenterType* representer,
 									 const std::string& datasetURI,
 									 const VectorType& sampleVector,
 									 const std::string& surrogateFilename,
 									 const VectorType& surrogateVector)
 	{
-		return new SampleDataStructureWithSurrogates(representer, datasetURI, sampleVector, surrogateFilename, surrogateVector);
+		return new DataItemWithSurrogates(representer, 0, datasetURI, sampleVector, surrogateFilename, surrogateVector);
+	}
+
+	static DataItemWithSurrogates* Create(const RepresenterType* representer,
+								     const PreprocessorType* preprocessor,
+									 const std::string& datasetURI,
+									 const VectorType& sampleVector,
+									 const std::string& surrogateFilename,
+									 const VectorType& surrogateVector)
+	{
+		return new DataItemWithSurrogates(representer, datasetURI, sampleVector, surrogateFilename, surrogateVector);
 	}
 
 
 
 
-	virtual ~SampleDataStructureWithSurrogates() {}
+	virtual ~DataItemWithSurrogates() {}
 
 	const VectorType& GetSurrogateVector() const { return m_surrogateVector; }
 	const std::string& GetSurrogateFilename() const { return m_surrogateFilename; }
 
 private:
 
-	SampleDataStructureWithSurrogates(const RepresenterType* representer,
+	DataItemWithSurrogates(const RepresenterType* representer,
+							  const PreprocessorType* preprocessor,
 							const std::string& datasetURI,
 							const VectorType& sampleVector,
 							const std::string& surrogateFilename,
 							const VectorType& surrogateVector)
-	: SampleDataStructure<T>(representer, datasetURI, sampleVector),
+	: DataItem<T>(representer, preprocessor, datasetURI, sampleVector),
 	  m_surrogateFilename(surrogateFilename),
 	  m_surrogateVector(surrogateVector)
 	{
 	}
 
-	SampleDataStructureWithSurrogates(const RepresenterType* r) : SampleDataStructure<T>(r) {}
+	DataItemWithSurrogates(const RepresenterType* r, const PreprocessorType* p) : DataItem<T>(r, p) {}
 
 	// loads the internal state from the hdf5 file
 	virtual void LoadInternal(const H5::Group& dsGroup) {
-		SampleDataStructure<T>::LoadInternal(dsGroup);
+		DataItem<T>::LoadInternal(dsGroup);
 		VectorType v;
 		HDF5Utils::readVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
 		m_surrogateFilename = HDF5Utils::readString(dsGroup, "./surrogateFilename");
 	}
 
 	virtual void SaveInternal(const H5::Group& dsGroup) const {
-		SampleDataStructure<T>::SaveInternal(dsGroup);
+		DataItem<T>::SaveInternal(dsGroup);
 		HDF5Utils::writeVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
 		HDF5Utils::writeString(dsGroup, "./surrogateFilename", this->m_surrogateFilename);
 	}
@@ -206,7 +225,7 @@ private:
 
 } // namespace statismo
 
-#include "SampleDataStructure.txx"
+#include "DataItem.txx"
 
 #endif // __SAMPLE_DATA_H
 

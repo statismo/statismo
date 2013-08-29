@@ -1,5 +1,5 @@
 /*
- * SampleDataStructure.h
+ * DataItem.h
  *
  * Created by Marcel Luethi
  *
@@ -41,17 +41,23 @@
 namespace statismo {
 
 template <class T>
-SampleDataStructure<T>*
-SampleDataStructure<T>::Load(const RepresenterType* representer, const H5::Group& dsGroup)
+DataItem<T>*
+DataItem<T>::Load(const RepresenterType* representer, const H5::Group& dsGroup) {
+	return Load(representer, 0, dsGroup);
+}
+
+template <class T>
+DataItem<T>*
+DataItem<T>::Load(const RepresenterType* representer, const PreprocessorType* preprocessor, const H5::Group& dsGroup)
 {
 	VectorType dsVector;
 	std::string sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
-	SampleDataStructure* newSample = 0;
-	if (sampleType == "SampleDataStructure") {
-		newSample = new SampleDataStructure<T>(representer);
+	DataItem* newSample = 0;
+	if (sampleType == "DataItem") {
+		newSample = new DataItem<T>(representer, preprocessor);
 	}
-	else if (sampleType == "SampleDataStructureWithSurrogates") {
-		newSample = new SampleDataStructureWithSurrogates<T>(representer);
+	else if (sampleType == "DataItemWithSurrogates") {
+		newSample = new DataItemWithSurrogates<T>(representer, preprocessor);
 	}
 	else {
 		throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") +sampleType).c_str());
@@ -62,12 +68,12 @@ SampleDataStructure<T>::Load(const RepresenterType* representer, const H5::Group
 
 template <class T>
 void
-SampleDataStructure<T>::Save(const H5::Group& dsGroup) const {
-	if (dynamic_cast<const SampleDataStructureWithSurrogates<T>* >(this) != 0) {
-		HDF5Utils::writeString(dsGroup, "./sampletype", "SampleDataStructureWithSurrogates");
+DataItem<T>::Save(const H5::Group& dsGroup) const {
+	if (dynamic_cast<const DataItemWithSurrogates<T>* >(this) != 0) {
+		HDF5Utils::writeString(dsGroup, "./sampletype", "DataItemWithSurrogates");
 	}
 	else {
-		HDF5Utils::writeString(dsGroup, "./sampletype", "SampleDataStructure");
+		HDF5Utils::writeString(dsGroup, "./sampletype", "DataItem");
 	}
 	SaveInternal(dsGroup);
 }

@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
 	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
 	typedef PCAModelBuilder<vtkPolyData> ModelBuilderType;
 	typedef DataManagerType::CrossValidationFoldListType CVFoldListType;
-	typedef DataManagerType::SampleDataStructureListType SampleDataStructureListType;
+	typedef DataManagerType::DataItemListType DataItemListType;
 
 
 	try {
@@ -122,9 +122,9 @@ int main(int argc, char** argv) {
 			std::cout << "built model with  " << model->GetNumberOfPrincipalComponents() << " principal components"<< std::endl;
 
 			// Now we can iterate over the test data and do whatever validation we would like to do.
-			const SampleDataStructureListType testSamplesList = it->GetTestingData();
+			const DataItemListType testSamplesList = it->GetTestingData();
 
-			for (SampleDataStructureListType::const_iterator it = testSamplesList.begin();
+			for (DataItemListType::const_iterator it = testSamplesList.begin();
 					it != testSamplesList.end();
 					++it)
 			{

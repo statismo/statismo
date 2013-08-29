@@ -35,7 +35,6 @@
  *
  */
 
-
 #ifndef __DATAMANAGER_H_
 #define __DATAMANAGER_H_
 
@@ -45,51 +44,55 @@
 #include "Exceptions.h"
 #include "HDF5Utils.h"
 #include "ModelInfo.h"
-#include "SampleDataStructure.h"
+#include "DataItem.h"
 #include "Representer.h"
+#include "Preprocessor.h"
 #include <list>
 
 namespace statismo {
 
-
-
 /**
  * \brief Holds training and test data used for Crossvalidation
  */
-template <typename T>
+template<typename T>
 class CrossValidationFold {
 public:
-	typedef SampleDataStructure<T> SampleDataStructureType;
-	typedef std::list<const SampleDataStructureType*> SampleDataStructureListType;
+	typedef DataItem<T> DataItemType;
+	typedef std::list<const DataItemType*> DataItemListType;
 
 	/***
 	 * Create an empty fold
 	 */
-	CrossValidationFold() {};
+	CrossValidationFold() {
+	}
+	;
 
 	/**
 	 * Create a fold with the given trainingData and testingData
 	 */
-	CrossValidationFold(const SampleDataStructureListType& trainingData, const SampleDataStructureListType& testingData)
-	: m_trainingData(trainingData), m_testingData(testingData)
-	{}
+	CrossValidationFold(const DataItemListType& trainingData,
+			const DataItemListType& testingData) :
+			m_trainingData(trainingData), m_testingData(testingData) {
+	}
 
 	/**
 	 * Get a list holding the training data
 	 */
-	SampleDataStructureListType GetTrainingData() const { return m_trainingData; }
+	DataItemListType GetTrainingData() const {
+		return m_trainingData;
+	}
 
 	/**
 	 * Get a list holding the testing data
 	 */
-	SampleDataStructureListType GetTestingData() const { return m_testingData; }
-
+	DataItemListType GetTestingData() const {
+		return m_testingData;
+	}
 
 private:
-	SampleDataStructureListType m_trainingData;
-	SampleDataStructureListType m_testingData;
+	DataItemListType m_trainingData;
+	DataItemListType m_testingData;
 };
-
 
 /**
  * \brief Manages Training and Test Data for building Statistical Models and provides functionality for Crossvalidation.
@@ -103,22 +106,23 @@ private:
  * Note that while Dataset are provided, the Representer class automatically converts them into Samples (Representer::DatasetToSample)
  * For efficiency purposes, the data is internally stored as a large matrix, using the internal SampleVector representation (Representer::DatasetToSample).
  * Furthermore, Statismo emphasizes on traceability, and ties information with the datasets, such as the original filename.
- * This means that when accessing the data stored in the DataManager, one gets a SampleDataStructure structure
+ * This means that when accessing the data stored in the DataManager, one gets a DataItem structure
  * \sa Representer
- * \sa SampleDataStructure
+ * \sa DataItem
  */
-template <typename T>
+template<typename T>
 class DataManager {
-	typedef  Representer<T> RepresenterType;
-	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
-	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
-
 
 public:
 
-	typedef SampleDataStructure<T> SampleDataStructureType;
-	typedef SampleDataStructureWithSurrogates<T> SampleDataStructureWithSurrogatesType;
-	typedef std::list<const SampleDataStructureType*> SampleDataStructureListType;
+	typedef Representer<T> RepresenterType;
+	typedef Preprocessor<T> PreprocessorType;
+	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
+	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
+
+	typedef DataItem<T> DataItemType;
+	typedef DataItemWithSurrogates<T> DataItemWithSurrogatesType;
+	typedef std::list<const DataItemType*> DataItemListType;
 	typedef CrossValidationFold<T> CrossValidationFoldType;
 	typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
 
@@ -126,12 +130,22 @@ public:
 	 * Factory method that creates a new instance of a DataManager class
 	 *
 	 */
-	static DataManager<T>* Create(const RepresenterType* representer) { return new DataManager<T>(representer); }
+	static DataManager<T>* Create(const RepresenterType* representer, const PreprocessorType* preprocessor) {
+		return new DataManager<T>(representer, preprocessor);
+	}
+
+	static DataManager<T>* Create(const RepresenterType* representer) {
+		return Create(representer, 0);
+	}
 
 	/**
 	 * Create a new dataManager, with the data stored in the given hdf5 file
 	 */
-	static DataManager<T>* Load(Representer<T>* representer, const std::string& filename);
+	static DataManager<T>* Load(Representer<T>* representer,
+			const std::string& filename);
+
+	static DataManager<T>* Load(Representer<T>* representer, Preprocessor<T>* preprocessor,
+			const std::string& filename);
 
 
 	/**
@@ -139,13 +153,14 @@ public:
 	 * The same effect can be achieved by deleting the object in the usual
 	 * way using the c++ delete keyword.
 	 */
-	void Delete() {delete this; }
+	void Delete() {
+		delete this;
+	}
 
 	/**
 	 * Destructor
 	 */
 	virtual ~DataManager();
-
 
 	/**
 	 * Add a dataset to the data manager.
@@ -156,26 +171,27 @@ public:
 	 * it is strongly encouraged to add a description. The string will be added to the metadata and stored with the model.
 	 * Having this information stored with the model may prove valuable at a later point in time.
 	 */
-	virtual void AddDataset(const DatasetConstPointerType dataset, const std::string& URI);
+	virtual void AddDataset(DatasetConstPointerType dataset,
+			const std::string& URI);
 
-	
 	/**
 	 * Saves the data matrix and all URIs into an HDF5 file.
 	 * \param filename
 	 */
 	virtual void Save(const std::string& filename) const;
 
-
 	/**
 	 * return a list with all the sample data objects managed by the data manager
-	 * \sa SampleDataStructure
+	 * \sa DataItem
 	 */
-	SampleDataStructureListType GetSampleDataStructure() const;
+	DataItemListType GetData() const;
 
 	/**
 	 * returns the number of samples managed by the datamanager
 	 */
-	unsigned GetNumberOfSamples() const { return m_SampleDataStructureList.size(); }
+	unsigned GetNumberOfSamples() const {
+		return m_DataItemList.size();
+	}
 
 	/**
 	 * Assigns the data to one of n Folds to be used for cross validation.
@@ -184,30 +200,29 @@ public:
 	 * \param nFolds The number of folds used in the crossvalidation
 	 * \param randomize If true, the data will be randomly assigned to the nfolds, otherwise the order with which it was added is preserved
 	 */
-	CrossValidationFoldListType GetCrossValidationFolds(unsigned nFolds, bool randomize = true) const;
+	CrossValidationFoldListType GetCrossValidationFolds(unsigned nFolds,
+			bool randomize = true) const;
 
 	/**
 	 * Generates Leave-one-out cross validation folds
 	 */
 	CrossValidationFoldListType GetLeaveOneOutCrossValidationFolds() const;
 
-
-
 protected:
-	DataManager(const RepresenterType* representer);
+	DataManager(const RepresenterType* representer, const PreprocessorType* preprocessor);
 
 	DataManager(const DataManager<T>& orig);
 	DataManager& operator=(const DataManager<T>& rhs);
 
-	RepresenterType* m_representer; // TODO make this a shared pointer
+	RepresenterType* m_representer;
+	PreprocessorType* m_preprocessor;
 
 	// members
-	SampleDataStructureListType m_SampleDataStructureList;
+	DataItemListType m_DataItemList;
 };
 
 }
 
 #include "DataManager.txx"
-
 
 #endif /* __DATAMANAGER_H_ */

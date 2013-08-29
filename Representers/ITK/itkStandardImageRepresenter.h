@@ -136,8 +136,11 @@ public:
 
 	void Delete() const {
 		this->UnRegister();
-		// the delete of itk is non-const. We call it from the const version
 	}
+
+
+	void DeleteDataset(DatasetConstPointerType d) const {d->UnRegister();}
+	DatasetPointerType CloneDataset(DatasetConstPointerType d) const;
 
 private:
 

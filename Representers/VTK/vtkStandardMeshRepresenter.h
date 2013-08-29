@@ -42,6 +42,7 @@
 
 #include "vtkPolyData.h"
 #include "vtkHelper.h"
+#include "statismo/Representer.h"
 #include "statismo/CommonTypes.h"
 #include "statismo/Domain.h"
 #include "vtkSmartPointer.h"
@@ -49,6 +50,7 @@
 
 
 namespace statismo {
+
 
 template <>
 struct RepresenterTraits<vtkPolyData> {
@@ -58,9 +60,6 @@ struct RepresenterTraits<vtkPolyData> {
 	typedef vtkPoint PointType;
 	typedef vtkPoint ValueType;
 
-	static void DeleteDataset(DatasetPointerType d) {
-		d->Delete();
-	};
     ///@}
 
 
@@ -101,6 +100,16 @@ public:
 	std::string GetVersion() const { return "1.0" ; }
 	RepresenterDataType GetType() const { return POLYGON_MESH; }
 	const DomainType& GetDomain() const { return m_domain; }
+
+	void DeleteDataset(DatasetPointerType d) const {
+		d->Delete();
+	};
+
+	DatasetPointerType CloneDataset(DatasetConstPointerType d) const {
+		vtkPolyData* clone = vtkPolyData::New();
+		clone->DeepCopy(const_cast<vtkPolyData*>(d));
+		return clone;
+	}
 
 	DatasetConstPointerType GetReference() const { return m_reference; }
 

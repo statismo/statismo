@@ -64,11 +64,12 @@ using statismo::StatisticalModelException;
 namespace statismo {
 
 inline vtkStandardMeshRepresenter::vtkStandardMeshRepresenter(
-		DatasetConstPointerType reference) {
+		DatasetConstPointerType reference) : m_reference(0) {
 	this->SetReference(reference);
 }
 
 inline vtkStandardMeshRepresenter::~vtkStandardMeshRepresenter() {
+
 	if (m_reference != 0) {
 		m_reference->Delete();
 		m_reference = 0;
@@ -85,13 +86,6 @@ inline
 void vtkStandardMeshRepresenter::Load(const H5::Group& fg) {
 	DatasetPointerType ref;
 
-	std::string type = HDF5Utils::readStringAttribute(fg, "datasetType");
-	if (type != "POLYGON_MESH") {
-		throw StatisticalModelException(
-				(std::string("Cannot load representer data: The ")
-						+ "representer specified in the given hdf5 file is of the wrong type: ("
-						+ type + ", expected POLYGON_MESH)").c_str());
-	}
 	statismo::MatrixType vertexMat;
 	HDF5Utils::readMatrix(fg, "./points", vertexMat);
 
@@ -393,6 +387,7 @@ void vtkStandardMeshRepresenter::FillDataArray(
 }
 
 void vtkStandardMeshRepresenter::SetReference(const vtkPolyData* reference) {
+	// whta happens if m_refrnece is reference?
 	m_reference = vtkPolyData::New();
 	m_reference->DeepCopy(const_cast<DatasetPointerType>(reference));
 

@@ -131,7 +131,7 @@ int main(int argc, char** argv) {
 		// Create the model builder and build the model
 		std::auto_ptr<ConditionalModelBuilderType> modelBuilder(ConditionalModelBuilderType::Create());
 
-		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(),
+		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(),
 										 dataManager->GetSurrogateTypeInfo(),
 										 conditioningInfo,
 										 0.1));

@@ -73,7 +73,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::Clone() const {
 	StandardMeshRepresenter* clone = new StandardMeshRepresenter();
 	clone->Register();
 
-	typename MeshType::Pointer clonedReference = cloneMesh(m_reference);
+	typename MeshType::Pointer clonedReference = this->CloneDataset(m_reference);
 	clone->SetReference(clonedReference);
 	return clone;
 }
@@ -137,13 +137,13 @@ StandardMeshRepresenter<TPixel, MeshDimension>::Load(const H5::Group& fg) {
 
 		if (HDF5Utils::existsObjectWithName(pdGroup, "scalars")) {
 			H5::DataSet ds = pdGroup.openDataSet("scalars");
-			int type = HDF5Utils::readIntAttribute(ds, "datatype");
+			unsigned type = static_cast<unsigned>(HDF5Utils::readIntAttribute(ds, "datatype"));
 			if (type != PixelConversionTrait<TPixel>::GetDataType()) {
 				std::cout << "Warning: The datatype specified for the scalars does not match the TPixel template argument used in this representer." << std::endl;
 			}
 			DoubleMatrixType m;
 			HDF5Utils::readMatrixOfType<double>(pdGroup, "scalars", m);
-			assert(m.cols() == mesh->GetNumberOfPoints());
+			assert(static_cast<unsigned>(m.cols()) == mesh->GetNumberOfPoints());
 			typename MeshType::PointDataContainerPointer pd = MeshType::PointDataContainer::New();
 
 			for (unsigned i = 0; i < m.cols(); i++) {
@@ -191,7 +191,7 @@ typename StandardMeshRepresenter<TPixel, MeshDimension>::DatasetPointerType
 StandardMeshRepresenter<TPixel, MeshDimension>::DatasetToSample(DatasetConstPointerType ds) const
 {
 	// we don't do any alignment, but simply return a clone of the dataset
-	return cloneMesh(ds);
+	return this->CloneDataset(ds);
 }
 
 template <class TPixel, unsigned MeshDimension>
@@ -221,7 +221,7 @@ template <class TPixel, unsigned MeshDimension>
 typename StandardMeshRepresenter<TPixel, MeshDimension>::DatasetPointerType
 StandardMeshRepresenter<TPixel, MeshDimension>::SampleVectorToSample(const VectorType& sample) const
 {
-	typename MeshType::Pointer mesh = cloneMesh(m_reference);
+	typename MeshType::Pointer mesh = this->CloneDataset(m_reference);
 	typename PointsContainerType::Pointer points = mesh->GetPoints();
 	typename PointsContainerType::Iterator pointsIterator = points->Begin();
 
@@ -359,7 +359,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::GetPointIdForPoint(const PointTy
 
 template <class TPixel, unsigned MeshDimension>
 typename  StandardMeshRepresenter<TPixel, MeshDimension>::DatasetPointerType
-StandardMeshRepresenter<TPixel, MeshDimension>::cloneMesh(const MeshType* mesh) const {
+StandardMeshRepresenter<TPixel, MeshDimension>::CloneDataset(DatasetConstPointerType mesh) const {
 
 	// cloning is cumbersome - therefore we let itk do the job for, and use perform a
 	// Mesh transform using the identity transform. This should result in a perfect clone.

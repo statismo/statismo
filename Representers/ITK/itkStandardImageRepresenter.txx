@@ -74,11 +74,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::Clone() const {
 	StandardImageRepresenter* clone = new StandardImageRepresenter();
 	clone->Register();
 
-	typedef itk::ImageDuplicator< DatasetType > DuplicatorType;
-	typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
-	duplicator->SetInputImage(m_reference);
-	duplicator->Update();
-	DatasetPointerType clonedReference = duplicator->GetOutput();
+	DatasetPointerType clonedReference = this->CloneDataset(m_reference);
 	clone->SetReference(clonedReference);
 	return clone;
 }
@@ -374,6 +370,15 @@ StandardImageRepresenter<TPixel, ImageDimension>::GetPointIdForPoint(const Point
     return index;
 }
 
-
+template <class TPixel, unsigned ImageDimension>
+typename StandardImageRepresenter<TPixel, ImageDimension>::DatasetPointerType
+StandardImageRepresenter<TPixel, ImageDimension>::CloneDataset(DatasetConstPointerType d) const {
+	typedef itk::ImageDuplicator< DatasetType > DuplicatorType;
+	typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
+	duplicator->SetInputImage(d);
+	duplicator->Update();
+	DatasetPointerType clonedReference = duplicator->GetOutput();
+	return clonedReference;
+}
 
 } // namespace itk

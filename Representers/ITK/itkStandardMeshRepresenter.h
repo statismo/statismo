@@ -61,8 +61,6 @@ struct RepresenterTraits<itk::Mesh<float, 3u> > {
 
 	typedef typename MeshType::PointType PointType;
 	typedef typename MeshType::PointType ValueType;
-
-	static void DeleteDataset(DatasetPointerType d) {};
     ///@}
 
 };
@@ -191,8 +189,11 @@ public:
     }
 
 
+	void DeleteDataset(DatasetPointerType d) const { d->UnRegister(); };
+    DatasetPointerType CloneDataset(DatasetConstPointerType mesh) const;
+
 private:
-    DatasetPointerType cloneMesh(const MeshType* mesh) const;
+
 
 
     // returns the closest point for the given mesh

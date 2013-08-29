@@ -101,10 +101,10 @@ public:
 	typedef Representer<T> RepresenterType ;
 	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
 	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
-
-
-    typedef typename RepresenterType::ValueType RepresenterValueType;
+    typedef typename RepresenterType::ValueType ValueType;
 	typedef typename RepresenterType::PointType PointType;
+
+	typedef Preprocessor<T> PreprocessorType ;
 
 	typedef Domain<PointType> DomainType;
 
@@ -112,8 +112,8 @@ public:
 
 
 	//typedef  PointValuePair<Representer>  PointValuePairType;
-	typedef std::pair<PointType, RepresenterValueType> PointValuePairType;
-	typedef std::pair<unsigned, RepresenterValueType> PointIdValuePairType;
+	typedef std::pair<PointType, ValueType> PointValuePairType;
+	typedef std::pair<unsigned, ValueType> PointIdValuePairType;
 	typedef std::list<PointValuePairType> PointValueListType;
 	typedef std::list<PointIdValuePairType> PointIdValueListType;
 
@@ -144,13 +144,15 @@ public:
 	 * \param noiseVariance The variance of the (N(0,noiseVariance)) noise on each point
 	 */
 	static StatisticalModel* Create(const RepresenterType* representer,
+									 const PreprocessorType* preprocessor,
 									const VectorType& m,
 									const MatrixType& orthonormalPCABasis,
 									const VectorType& pcaVariance,
 									double noiseVariance)
 	{
-		return new StatisticalModel(representer, m, orthonormalPCABasis, pcaVariance, noiseVariance);
+		return new StatisticalModel(representer, preprocessor, m, orthonormalPCABasis, pcaVariance, noiseVariance);
 	}
+
 
 
 	/**
@@ -159,7 +161,16 @@ public:
 	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
 	 * to create the model.
 	 */
-	static StatisticalModel* Load(Representer<T>* representer, const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+	static StatisticalModel* Load(Representer<T>* representer, const std::string& filename,  unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+
+	/**
+	 * Returns a new statistical model, which is loaded from the given HDF5 file
+	 * \param filename The filename
+	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
+	 * to create the model.
+	 */
+	static StatisticalModel* Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const std::string& filename,  unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+
 
 	/**
 	 * Returns a new statistical model, which is stored in the given HDF5 Group 
@@ -169,6 +180,9 @@ public:
 	 * to create the model.
 	 */
 	static StatisticalModel* Load(Representer<T>* representer, const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+
+	static StatisticalModel* Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
+
 
 
 	/**
@@ -240,7 +254,7 @@ public:
 	 *
 	 * \returns The value of the sample, at the specified point
 	 */
-	RepresenterValueType EvaluateSampleAtPoint(DatasetConstPointerType sample, unsigned ptId) const ;
+	ValueType EvaluateSampleAtPoint(DatasetConstPointerType sample, unsigned ptId) const ;
 
 
 	/**
@@ -251,7 +265,7 @@ public:
 	 *
 	 * \returns The value of the sample, at the specified point
 	 */
-	RepresenterValueType EvaluateSampleAtPoint(DatasetConstPointerType sample, const PointType& pt) const;
+	ValueType EvaluateSampleAtPoint(DatasetConstPointerType sample, const PointType& pt) const;
 
 
 	/**
@@ -303,7 +317,7 @@ public:
 	 * \param point A point on the domain the model is defined
 	 * \returns The mean Sample evaluated at the point point
 	 */
-	RepresenterValueType DrawMeanAtPoint( const PointType& point) const;
+	ValueType DrawMeanAtPoint( const PointType& point) const;
 
 	/**
 	 * Returns the mean of the model, evaluated at the given pointid.
@@ -311,7 +325,7 @@ public:
 	 * \param pointid The pointId of the point where it should be evaluated (as defined by the representer)
 	 * \returns The mean sample evaluated at the given pointId \see DrawMeanAtPoint
 	 */
-	RepresenterValueType DrawMeanAtPoint( unsigned pointId) const;
+	ValueType DrawMeanAtPoint( unsigned pointId) const;
 
 	/**
 	 * Returns the value of the sample defined by coefficients at the specified point.
@@ -322,7 +336,7 @@ public:
 	 * \param the point of the sample where it is evaluated
 	 * \param addNoise If true, the Gaussian noise assumed in the model is added to the sample
 	 */
-	RepresenterValueType DrawSampleAtPoint(const VectorType& coefficients, const PointType& point, bool addNoise = false) const;
+	ValueType DrawSampleAtPoint(const VectorType& coefficients, const PointType& point, bool addNoise = false) const;
 
 	/**
 	 * Returns the value of the sample defined by coefficients at the specified pointID.
@@ -333,7 +347,7 @@ public:
 	 * \param the point of the sample where it is evaluated
 	 * \param addNoise If true, the Gaussian noise assumed in the model is added to the sample
 	 */
-	RepresenterValueType DrawSampleAtPoint(const VectorType& coefficients, unsigned pointId, bool addNoise = false) const;
+	ValueType DrawSampleAtPoint(const VectorType& coefficients, unsigned pointId, bool addNoise = false) const;
 
 
 	/**
@@ -532,6 +546,10 @@ public:
 		return m_representer;
 	}
 
+	const PreprocessorType* GetPreprocessor() const {
+		return m_preprocessor;
+	}
+
 	/**
 	 * Return the domain of the statistical model
 	 */
@@ -549,16 +567,18 @@ private:
 	 * Create an instance of the StatisticalModel
 	 * @param representer An instance of the representer, used to convert the samples to dataset of the represented type.
 	 */
-	StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
+	StatisticalModel(const RepresenterType* representer, const PreprocessorType* preprocessor, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
 
 	/** Create an empty model. This is only used for the load method, which then sets all the parameters manually */
-	StatisticalModel(const RepresenterType* representer) : m_representer(representer), m_noiseVariance(0), m_cachedValuesValid(0) {}
+	StatisticalModel(const RepresenterType* representer, const PreprocessorType* preprocessor);
 
 	// to prevent use
 	StatisticalModel(const StatisticalModel& rhs);
 	StatisticalModel& operator=(const StatisticalModel& rhs);
 
 	const RepresenterType* m_representer;
+	const PreprocessorType* m_preprocessor;
+
 	VectorType m_mean;
 	MatrixType m_pcaBasisMatrix;
 	VectorType m_pcaVariance;

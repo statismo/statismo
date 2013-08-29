@@ -82,8 +82,8 @@ public:
 	typedef std::vector<CondVariableValuePair> CondVariableValueVectorType; //replace list by vector, to gain direct access
 
 	typedef DataManagerWithSurrogates<T> DataManagerType;
-	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
-	typedef typename DataManagerType::SampleDataStructureWithSurrogatesType SampleDataStructureWithSurrogatesType;
+	typedef typename DataManagerType::DataItemListType DataItemListType;
+	typedef typename DataManagerType::DataItemWithSurrogatesType DataItemWithSurrogatesType;
 	typedef typename DataManagerType::SurrogateTypeInfoType SurrogateTypeInfoType;
 
 	/**
@@ -109,7 +109,7 @@ public:
 	 *
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleSet,
+	StatisticalModelType* BuildNewModel(const DataItemListType& sampleSet,
 										const SurrogateTypeInfoType& surrogateTypesInfo,
 										const CondVariableValueVectorType& conditioningInfo,
 										float noiseVariance,
@@ -117,10 +117,10 @@ public:
 
 private:
 
-	unsigned PrepareData(const SampleDataStructureListType& SampleDataStructureList,
+	unsigned PrepareData(const DataItemListType& DataItemList,
 						 const SurrogateTypeInfoType& surrogateTypesInfo,
 						 const CondVariableValueVectorType& conditioningInfo,
-						 SampleDataStructureListType* acceptedSamples,
+						 DataItemListType* acceptedSamples,
 						 MatrixType* surrogateMatrix,
 						 VectorType* conditions) const;
 

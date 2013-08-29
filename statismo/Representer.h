@@ -185,10 +185,13 @@ public:
 	/**
 	 * \name Adapter methods
 	 */
-	static void DeleteDataset(DatasetPointerType d) {
-		RepresenterTraits<T>::DeleteDataset(d);
-	}
+	virtual void DeleteDataset(DatasetPointerType d) const = 0;
+	virtual DatasetPointerType CloneDataset(DatasetConstPointerType d) const = 0;
 	///@}
+
+
+
+
 
 	/**
 	 * \name Conversion from the dataset to a vector representation and back
@@ -203,12 +206,6 @@ public:
 
 	virtual DatasetConstPointerType GetReference() const = 0;
 
-	/**
-	 * Takes the given dataset and converts it to a sample, as it is internally used by statismo.
-	 * Typical steps that are performed to convert a dataset into a sample are alignment and registration.
-	 */
-	virtual DatasetPointerType DatasetToSample(
-			DatasetConstPointerType ds) const = 0;
 
 	/**
 	 * Returns a vectorial representation of the given sample.

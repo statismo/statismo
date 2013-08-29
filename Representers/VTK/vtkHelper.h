@@ -53,6 +53,9 @@ using statismo::StatisticalModelException;
   * copy semantics, and hence requires such a wrapper.
  */
 
+
+namespace statismo {
+
 class vtkNDPixel {
 public:
 
@@ -103,8 +106,8 @@ public:
 	}
 
 private:
-	unsigned m_dimensions;
 	double* m_pixel;
+	unsigned m_dimensions;
 };
 
 
@@ -195,5 +198,5 @@ public:
 	}
 };
 
-
+}; // namespace statismo
 #endif // __VTK_HELPER_H

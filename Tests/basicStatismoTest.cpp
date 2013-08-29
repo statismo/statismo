@@ -76,8 +76,7 @@ int main(int argc, char* argv[]) {
 
 
 		std::auto_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
-		StatisticalModelType* statmodel = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0.01);
-		std::auto_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0.01));
+		std::auto_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
 
 		// As we have added 3 linearly independent samples, we get 2 principal components.
 		if (model->GetNumberOfPrincipalComponents() != 2) {
@@ -88,10 +87,10 @@ int main(int argc, char* argv[]) {
 
 		RepresenterType* newRepresenter = RepresenterType::Create();
 		std::auto_ptr<StatisticalModelType> loadedModel(StatisticalModelType::Load(newRepresenter, "test.h5"));
-
 		if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents()) {
 			return EXIT_FAILURE;
 		}
+
 
     }
     catch (statismo::StatisticalModelException& e) {

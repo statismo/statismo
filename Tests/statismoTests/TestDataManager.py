@@ -48,7 +48,7 @@ class Test(unittest.TestCase):
         self.datafiles = getDataFiles(DATADIR)
         ref = read_vtkpd(self.datafiles[0])
             
-        self.representer = statismo.vtkPolyDataRepresenter.Create(ref, statismo.vtkPolyDataRepresenter.RIGID)        
+        self.representer = statismo.vtkStandardMeshRepresenter.Create(ref)        
 
     def tearDown(self):
         pass
@@ -67,7 +67,7 @@ class Test(unittest.TestCase):
 
         self.assertEqual(datamanager.GetNumberOfSamples(),len(self.datafiles))
         
-        for (i, sampleData) in enumerate(datamanager.GetSampleDataStructure()): 
+        for (i, sampleData) in enumerate(datamanager.GetData()): 
             self.assertEqual(sampleData.GetDatasetURI(),self.datafiles[i])
 
             
@@ -80,14 +80,14 @@ class Test(unittest.TestCase):
 
 
         tmpfile = tempfile.mktemp(suffix="h5")
+        representer = statismo.vtkStandardMeshRepresenter.Create()
         datamanager.Save(tmpfile)
-        datamanager_new =  statismo.DataManager_vtkPD.Load(tmpfile)
+        datamanager_new =  statismo.DataManager_vtkPD.Load(representer, tmpfile)
         
-
         self.assertEqual(datamanager.GetNumberOfSamples(), datamanager_new.GetNumberOfSamples())
         
-        sampleSet = datamanager.GetSampleDataStructure()
-        newSampleSet = datamanager_new.GetSampleDataStructure()
+        sampleSet = datamanager.GetData()
+        newSampleSet = datamanager_new.GetData()
         for (sample, newSample) in zip(sampleSet, newSampleSet):
             self.assertTrue((sample.GetSampleVector() == newSample.GetSampleVector()).all() == True)
 
@@ -101,12 +101,14 @@ class Test(unittest.TestCase):
 
         tmpfile = tempfile.mktemp(suffix="h5")
         datamanager.Save(tmpfile)
-        datamanager_new = statismo.DataManagerWithSurrogates_vtkPD.Load(tmpfile)
+
+        representer = statismo.vtkStandardMeshRepresenter.Create()
+        datamanager_new = statismo.DataManagerWithSurrogates_vtkPD.Load(representer, tmpfile)
 
         self.assertEqual(datamanager.GetNumberOfSamples(), datamanager_new.GetNumberOfSamples())
         
-        sampleSet = datamanager.GetSampleDataStructure()
-        newSampleSet = datamanager_new.GetSampleDataStructure()
+        sampleSet = datamanager.GetData()
+        newSampleSet = datamanager_new.GetData()
         for (sample, newSample) in zip(sampleSet, newSampleSet):
             self.assertTrue((sample.GetSampleVector() == newSample.GetSampleVector()).all() == True)
 

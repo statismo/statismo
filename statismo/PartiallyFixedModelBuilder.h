@@ -69,13 +69,14 @@ class PartiallyFixedModelBuilder : public ModelBuilder<T> {
 public:
 
 	typedef Representer<T> RepresenterType;
+	typedef Preprocessor<T> PreprocessorType;
 	typedef ModelBuilder<T> Superclass;
 	typedef typename Superclass::DataManagerType 				DataManagerType;
 	typedef typename Superclass::StatisticalModelType 	StatisticalModelType;
 	typedef typename RepresenterType::ValueType ValueType;
 	typedef typename RepresenterType::PointType PointType;
 	typedef typename StatisticalModelType::PointValueListType PointValueListType;
-	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
+	typedef typename DataManagerType::DataItemListType DataItemListType;
 
 
 	/**
@@ -107,7 +108,7 @@ public:
 	 *
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
-	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& SampleDataStructureList,
+	StatisticalModelType* BuildNewModel(const DataItemListType& DataItemList,
 										const PointValueListType& pointValues,
 										double pointValueNoiseVariance,
 										double noiseVariance) const;

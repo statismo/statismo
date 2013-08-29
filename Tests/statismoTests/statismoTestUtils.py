@@ -60,7 +60,7 @@ def buildPolyDataModel(datadir, noise):
     files = getDataFiles(datadir)
     ref = read_vtkpd(files[0])
         
-    representer = statismo.vtkPolyDataRepresenter.Create(ref, statismo.vtkPolyDataRepresenter.RIGID)    
+    representer = statismo.vtkStandardMeshRepresenter.Create(ref)    
     dm = statismo.DataManager_vtkPD.Create(representer)
 
     datasets = map(read_vtkpd, files)
@@ -68,7 +68,7 @@ def buildPolyDataModel(datadir, noise):
         dm.AddDataset(dataset, filename)
     
     builder = statismo.PCAModelBuilder_vtkPD.Create()
-    model =  builder.BuildNewModel(dm.GetSampleDataStructure(), noise)
+    model =  builder.BuildNewModel(dm.GetData(), noise)
 
     return model
   

@@ -56,7 +56,7 @@ PartiallyFixedModelBuilder<T>::PartiallyFixedModelBuilder()
 template <typename T>
 typename PartiallyFixedModelBuilder<T>::StatisticalModelType*
 PartiallyFixedModelBuilder<T>::BuildNewModel(
-		const SampleDataStructureListType& sampleDataList,
+		const DataItemListType& sampleDataList,
 		const PointValueListType& pointValues,
 		double pointValuesNoiseVariance,
 		double noiseVariance) const
@@ -80,6 +80,7 @@ PartiallyFixedModelBuilder<T>::BuildNewModelFromModel(
 		bool computeScores) const {
 
 	const RepresenterType* representer = inputModel->GetRepresenter();
+	const PreprocessorType* preprocessor = inputModel->GetPreprocessor();
 
 	const MatrixType& pcaBasisMatrix =  inputModel->GetOrthonormalPCABasisMatrix();
 	const VectorType& meanVector = inputModel->GetMeanVector();
@@ -168,7 +169,7 @@ PartiallyFixedModelBuilder<T>::BuildNewModelFromModel(
 
 	MatrixType newPCABasisMatrix = pcaBasisMatrix * svd.matrixU().cast<ScalarType>();
 
-	StatisticalModelType* partiallyFixedModel = StatisticalModelType::Create(representer,newMean, newPCABasisMatrix, newPCAVariance, noiseVariance);
+	StatisticalModelType* partiallyFixedModel = StatisticalModelType::Create(representer, preprocessor, newMean, newPCABasisMatrix, newPCAVariance, noiseVariance);
 
 	// Write the parameters used to build the models into the builderInfo
 

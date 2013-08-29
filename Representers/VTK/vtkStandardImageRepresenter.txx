@@ -92,8 +92,8 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load(const H5::Group& fg)
 	statismo::VectorType originVec;
 	HDF5Utils::readVector(fg, "origin", originVec);
 
-	int imageDimension = HDF5Utils::readInt(fg, "imageDimension");
-	int pixelDimension = HDF5Utils::readInt(fg, "pixelDimension");
+	unsigned imageDimension = static_cast<unsigned>(HDF5Utils::readInt(fg, "imageDimension"));
+	unsigned pixelDimension = static_cast<unsigned>(HDF5Utils::readInt(fg, "pixelDimension"));
 
 	if (imageDimension > 3) {
 		throw StatisticalModelException("this representer does not support images of dimensionality > 3");
@@ -123,12 +123,18 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load(const H5::Group& fg)
 	}
 
 	H5::Group pdGroup = fg.openGroup("./pointData");
-	int readPixelDimension = HDF5Utils::readInt(pdGroup, "pixelDimension");
+	unsigned int readPixelDimension = static_cast<unsigned>(HDF5Utils::readInt(pdGroup, "pixelDimension"));
+	if (readPixelDimension != pixelDimension) {
+		std::ostringstream os;
+		os << "The pixel dimension that was specified does not match the pixel dimension in the file" <<  " (" << readPixelDimension << " != " << pixelDimension << ")";
+		throw StatisticalModelException(os.str().c_str());
+	}
+
 
 	typename statismo::GenericEigenType<double>::MatrixType pixelMat;
 	HDF5Utils::readMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
 	H5::DataSet ds = pdGroup.openDataSet("pixelValues");
-	int datatype = HDF5Utils::readIntAttribute(ds, "datatype");
+	unsigned int datatype = static_cast<unsigned>(HDF5Utils::readIntAttribute(ds, "datatype"));
 
 	if (statismo::GetDataTypeId<TScalar>() != datatype) {
 		std::cout << "Warning: The datatype specified for the scalars does not match the TPixel template argument used in this representer." << std::endl;
@@ -178,7 +184,7 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load(const H5::Group& fg)
 			 for (int k = 0; k < size[0]; k++) {
 				 unsigned index = size[1] * size[0] * i + size[0] * j + k;
 				 TScalar* scalarPtr = static_cast<TScalar*>(newImage->GetScalarPointer(k,j,i));
-				 for (int d = 0; d < pixelDimension; d++) {
+				 for (unsigned d = 0; d < pixelDimension; d++) {
 					 scalarPtr[d] = pixelMat(d, index);
 				 }
 			 }
@@ -314,7 +320,7 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group& fg) cons
 
 	// get the effective image dimension, by check the size
 	int* size = m_reference->GetDimensions();
-	int imageDimension = 0;
+	unsigned imageDimension = 0;
 	if (size[2] == 1 && size[1] == 1) imageDimension = 1;
 	else if (size[2] == 1) imageDimension = 2;
 	else imageDimension = 3;
@@ -349,9 +355,9 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group& fg) cons
 	DoubleMatrixType pixelMat(GetDimensions(), GetNumberOfPoints());
 
 
-	for (unsigned i = 0; i < size[2]; i++) {
-		for (unsigned j = 0; j < size[1]; j++) {
-			for (unsigned k = 0; k < size[0]; k++) {
+	for (unsigned i = 0; i < static_cast<unsigned>(size[2]); i++) {
+		for (unsigned j = 0; j < static_cast<unsigned>(size[1]); j++) {
+			for (unsigned k = 0; k < static_cast<unsigned>(size[0]); k++) {
 				unsigned ind = i * size[1] * size[0] + j * size[0] + k;
 				TScalar * pixel = static_cast<TScalar*>(m_reference->GetScalarPointer(k,j,i));
 				for (unsigned d = 0; d < GetDimensions(); d++) {

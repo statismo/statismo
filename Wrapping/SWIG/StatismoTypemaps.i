@@ -151,7 +151,7 @@
 	%typemap (out) (statismo::vtkPoint)
 	{
         $result = PyTuple_New(3);
-        statismo::vtkPoint pt = $1;
+        vtkPoint pt = $1;
     	PyTuple_SetItem($result,0,PyFloat_FromDouble(pt[0]));
     	PyTuple_SetItem($result,1,PyFloat_FromDouble(pt[1]));
     	PyTuple_SetItem($result,2,PyFloat_FromDouble(pt[2]));            	

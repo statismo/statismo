@@ -67,8 +67,6 @@ struct RepresenterTraits<statismo::VectorType> {
 
 	typedef PointIdType PointType;
 	typedef statismo::ScalarType ValueType;
-
-	static void DeleteDataset(DatasetPointerType d) {};
     ///@}
 
 
@@ -87,6 +85,7 @@ public:
 
 	typedef statismo::ScalarType ValueType;
 	typedef statismo::Domain<PointType> DomainType;
+	typedef Representer<statismo::VectorType> RepresenterBaseType;
 
 	static TrivialVectorialRepresenter* Create() {
 		return new TrivialVectorialRepresenter();
@@ -96,7 +95,7 @@ public:
 		return new TrivialVectorialRepresenter(numberOfPoints);
 	}
 
-	void Load(const H5::CommonFG& fg) {
+	void Load(const H5::Group& fg) {
 		unsigned numPoints = static_cast<unsigned>(statismo::HDF5Utils::readInt(fg, "numberOfPoints"));
 		initializeObject(numPoints);
 	}
@@ -109,9 +108,16 @@ public:
 
 	std::string GetName() const { return "TrivialVectorialRepresenter"; }
 	 unsigned GetDimensions() const { return 1; }
+	std::string GetVersion() const { return "0.1"; }
+	RepresenterBaseType::RepresenterDataType GetType() const { return  RepresenterBaseType::VECTOR; }
+
+
+	void DeleteDataset(DatasetPointerType d) const { };
+	DatasetPointerType CloneDataset(DatasetConstPointerType d) const { return d; }
+
 
 	const DomainType& GetDomain() const { return m_domain; }
-	DatasetConstPointerType GetReference() const { VectorType::Zero(m_domain.GetNumberOfPoints()); }
+	DatasetConstPointerType GetReference() const { return VectorType::Zero(m_domain.GetNumberOfPoints()); }
 
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const { return ds; }
 	VectorType SampleToSampleVector(DatasetConstPointerType sample) const { return sample; }
@@ -128,7 +134,7 @@ public:
 	ValueType PointSampleVectorToPointSample(const VectorType& pointSample) const {return pointSample(0); }
 
 
-	void Save(const H5::CommonFG& fg) const {
+	void Save(const H5::Group& fg) const {
 		HDF5Utils::writeInt(fg, "numberOfPoints", static_cast<int>(m_domain.GetNumberOfPoints()));
 	}
 

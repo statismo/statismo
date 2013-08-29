@@ -69,8 +69,8 @@ public:
 
 
 	typedef statismo::DataManager<T> ImplType;
-	typedef typename statismo::DataManager<T>::SampleDataStructureType     SampleDataStructureType;
-	typedef typename statismo::DataManager<T>::SampleDataStructureListType SampleDataStructureListType;
+	typedef typename statismo::DataManager<T>::DataItemType     DataItemType;
+	typedef typename statismo::DataManager<T>::DataItemListType DataItemListType;
 	typedef statismo::Representer<T> RepresenterType;
 
 	template <class F>
@@ -127,8 +127,8 @@ public:
 		callstatismoImpl(std::tr1::bind(&ImplType::Save, this->m_impl, filename));
 	}
 
-	typename statismo::DataManager<T>::SampleDataStructureListType GetSampleDataStructure() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetSampleDataStructure, this->m_impl));
+	typename statismo::DataManager<T>::DataItemListType GetData() const {
+		return callstatismoImpl(std::tr1::bind(&ImplType::GetData, this->m_impl));
 	}
 
 

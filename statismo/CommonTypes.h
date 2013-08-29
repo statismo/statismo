@@ -53,6 +53,8 @@
 
 
 namespace statismo {
+
+
 const double PI	=	3.14159265358979323846;
 
 /// the type that is used for all vector and matrices throughout the library.

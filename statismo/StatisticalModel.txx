@@ -48,27 +48,47 @@
 namespace statismo {
 
 template <typename T>
-StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
+StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const PreprocessorType* preprocessor, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
 : m_representer(representer->Clone()),
+  m_preprocessor(0),
   m_mean(m),
   m_pcaVariance(pcaVariance),
   m_noiseVariance(noiseVariance),
   m_cachedValuesValid(false),
   m_modelLoaded(false)
   {
+    if (preprocessor != 0) {
+      m_preprocessor = preprocessor->Clone();
+    }
 	VectorType D = pcaVariance.array().sqrt();
 	m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
   }
+
+template <typename T>
+StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const PreprocessorType* preprocessor)
+: m_representer(representer->Clone()), m_preprocessor(0),  m_noiseVariance(0), m_cachedValuesValid(0) {
+    if (preprocessor != 0) {
+      m_preprocessor = preprocessor->Clone();
+    }
+}
 
 
 template <typename T>
 StatisticalModel<T>::~StatisticalModel()
 {
-	if (m_representer != 0) {
-		// not all representers can implement a const correct version of delete.
-		// We therefore simply const cast it. This is save here.
-		const_cast<RepresenterType*>(m_representer)->Delete();
+	if (m_preprocessor != 0) {
+		m_preprocessor->Delete();
+		m_preprocessor = 0;
 	}
+
+
+	if (m_representer != 0) {
+//		 not all representers can implement a const correct version of delete.
+//		 We therefore simply const cast it. This is save here.
+		const_cast<RepresenterType*>(m_representer)->Delete();
+		m_representer = 0;
+	}
+
 }
 
 
@@ -76,12 +96,18 @@ StatisticalModel<T>::~StatisticalModel()
 template <typename T>
 typename StatisticalModel<T>::DatasetPointerType
 StatisticalModel<T>::DatasetToSample(DatasetConstPointerType ds) const {
-	return m_representer->DatasetToSample(ds, 0);
+  DatasetPointerType sample;
+  if (m_preprocessor == 0) { 
+    sample = m_representer->CloneDataset(ds); 
+  } else {     
+    sample = m_preprocessor->Preprocess(ds);
+  }
+  return sample;
 }
 
 
 template <typename T>
-typename StatisticalModel<T>::RepresenterValueType
+typename StatisticalModel<T>::ValueType
 StatisticalModel<T>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, const PointType& point) const {
 	unsigned ptid = this->m_representer->GetPointIdForPoint(point);
 	return EvaluateSampleAtPoint(sample, ptid);
@@ -89,7 +115,7 @@ StatisticalModel<T>::EvaluateSampleAtPoint(const DatasetConstPointerType sample,
 
 
 template <typename T>
-typename StatisticalModel<T>::RepresenterValueType
+typename StatisticalModel<T>::ValueType
 StatisticalModel<T>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, unsigned ptid) const {
 	return this->m_representer->PointSampleFromSample(sample, ptid);
 }
@@ -104,7 +130,7 @@ StatisticalModel<T>::DrawMean() const {
 
 
 template <typename T>
-typename StatisticalModel<T>::RepresenterValueType
+typename StatisticalModel<T>::ValueType
 StatisticalModel<T>::DrawMeanAtPoint(const PointType& point) const {
 	VectorType coeffs = VectorType::Zero(this->GetNumberOfPrincipalComponents());
 	return DrawSampleAtPoint(coeffs, point);
@@ -112,7 +138,7 @@ StatisticalModel<T>::DrawMeanAtPoint(const PointType& point) const {
 }
 
 template <typename T>
-typename StatisticalModel<T>::RepresenterValueType
+typename StatisticalModel<T>::ValueType
 StatisticalModel<T>::DrawMeanAtPoint(unsigned pointId) const {
 	VectorType coeffs = VectorType::Zero(this->GetNumberOfPrincipalComponents());
 	return DrawSampleAtPoint(coeffs, pointId, false);
@@ -175,7 +201,7 @@ StatisticalModel<T>::DrawSampleVector(const VectorType& coefficients, bool addNo
 
 
 template <typename T>
-typename StatisticalModel<T>::RepresenterValueType
+typename StatisticalModel<T>::ValueType
 StatisticalModel<T>::DrawSampleAtPoint(const VectorType& coefficients, const PointType& point, bool addNoise) const {
 
 	unsigned ptId = this->m_representer->GetPointIdForPoint(point);
@@ -185,7 +211,7 @@ StatisticalModel<T>::DrawSampleAtPoint(const VectorType& coefficients, const Poi
 }
 
 template <typename T>
-typename StatisticalModel<T>::RepresenterValueType
+typename StatisticalModel<T>::ValueType
 StatisticalModel<T>::DrawSampleAtPoint(const VectorType& coefficients, const unsigned ptId, bool addNoise) const {
 
 	unsigned dim = m_representer->GetDimensions();
@@ -227,14 +253,14 @@ template <typename T>
 MatrixType
 StatisticalModel<T>::GetCovarianceAtPoint(unsigned ptId1, unsigned ptId2) const
 {
-	unsigned dim = RepresenterType::GetDimensions();
+	unsigned dim = m_representer->GetDimensions();
 	MatrixType cov(dim, dim);
 
 	for (unsigned i = 0; i < dim; i++) {
-		unsigned idxi = RepresenterType::MapPointIdToInternalIdx(ptId1, i);
+		unsigned idxi = m_representer->MapPointIdToInternalIdx(ptId1, i);
 		VectorType vi = m_pcaBasisMatrix.row(idxi);
 		for (unsigned j = 0; j < dim; j++) {
-			unsigned idxj = RepresenterType::MapPointIdToInternalIdx(ptId2, j);
+			unsigned idxj = m_representer->MapPointIdToInternalIdx(ptId2, j);
 			VectorType vj = m_pcaBasisMatrix.row(idxj);
 			cov(i,j) = vi.dot(vj);
 			if (i == j) cov(i,j) += m_noiseVariance;
@@ -256,9 +282,14 @@ StatisticalModel<T>::GetCovarianceMatrix() const
 template <typename T>
 VectorType
 StatisticalModel<T>::ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const {
-	DatasetPointerType sample = m_representer->DatasetToSample(dataset);
-	VectorType v = ComputeCoefficientsForSample(sample);
-	RepresenterType::DeleteDataset(sample);
+  DatasetPointerType sample;
+  if (m_preprocessor == 0) { 
+    sample = m_representer->CloneDataset(dataset);
+  } else { 
+    sample= m_preprocessor->Preprocess(dataset);
+  }
+  VectorType v = ComputeCoefficientsForSample(sample);
+	m_representer->DeleteDataset(sample);
 	return v;
 }
 
@@ -300,7 +331,7 @@ template <typename T>
 VectorType
 StatisticalModel<T>::ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointIdValueList, double pointValueNoiseVariance) const {
 
-	unsigned dim = RepresenterType::GetDimensions();
+	unsigned dim = m_representer->GetDimensions();
 
 	double noiseVariance = std::max(pointValueNoiseVariance, (double) m_noiseVariance);
 
@@ -314,8 +345,8 @@ StatisticalModel<T>::ComputeCoefficientsForPointIDValues(const PointIdValueListT
 		VectorType val = this->m_representer->PointSampleToPointSampleVector(it->second);
 		unsigned pt_id = it->first;
 		for (unsigned d = 0; d < dim; d++) {
-			PCABasisPart.row(i * dim + d) = this->GetPCABasisMatrix().row(RepresenterType::MapPointIdToInternalIdx(pt_id, d));
-			muPart[i * dim + d] = this->GetMeanVector()[RepresenterType::MapPointIdToInternalIdx(pt_id, d)];
+			PCABasisPart.row(i * dim + d) = this->GetPCABasisMatrix().row(m_representer->MapPointIdToInternalIdx(pt_id, d));
+			muPart[i * dim + d] = this->GetMeanVector()[m_representer->MapPointIdToInternalIdx(pt_id, d)];
 			sample[i * dim + d] = val[d];
 		}
 		i++;
@@ -498,6 +529,12 @@ StatisticalModel<T>::GetJacobian(const PointType& pt) const {
 template <typename T>
 StatisticalModel<T>*
 StatisticalModel<T>::Load(Representer<T>* representer, const std::string& filename, unsigned maxNumberOfPCAComponents) {
+	return Load(representer, 0, filename, maxNumberOfPCAComponents);
+}
+
+template <typename T>
+StatisticalModel<T>*
+StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const std::string& filename, unsigned maxNumberOfPCAComponents) {
 
 	using namespace H5;
 
@@ -514,7 +551,7 @@ StatisticalModel<T>::Load(Representer<T>* representer, const std::string& filena
 
 	Group modelRoot = file.openGroup("/");
 	
-	newModel =  Load(representer, modelRoot, maxNumberOfPCAComponents);
+	newModel =  Load(representer, preprocessor, modelRoot, maxNumberOfPCAComponents);
 
 	modelRoot.close();
 	file.close();
@@ -522,10 +559,15 @@ StatisticalModel<T>::Load(Representer<T>* representer, const std::string& filena
 
 }
 
-
 template <typename T>
 StatisticalModel<T>*
 StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
+	return Load(representer, 0, modelRoot, maxNumberOfPCAComponents);
+}
+
+template <typename T>
+StatisticalModel<T>*
+StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
 
 	using namespace H5;
 
@@ -565,8 +607,35 @@ StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoo
 
 
 		representer->Load(representerGroup);
-		newModel = new StatisticalModel(representer);
 		representerGroup.close();
+
+		// loading preprocessor. To maintain compatibility with earlier formats, we have to handle the case,
+		// when no preprocessor is defined in the file. 
+		  std::string prep_name;
+		  if (HDF5Utils::existsObjectWithName(modelRoot,"preprocessor")) {
+			Group preprocessorGroup = modelRoot.openGroup("preprocessor");
+			prep_name = HDF5Utils::readStringAttribute(preprocessorGroup,"name");
+
+			if (preprocessor != 0) { 
+			  if (prep_name != preprocessor->GetName()) {
+			    throw StatisticalModelException("A different preprocessor was used to create the file. Cannot load hdf5 file.");
+			  }
+			  preprocessor->Load(preprocessorGroup);
+			  preprocessorGroup.close();
+			}
+			else {
+			  throw StatisticalModelException("No preprocessor specified, but found one in file. Cannot load hdf5 file.");			  
+			}
+		  }
+		  else { 
+		    if (preprocessor != 0) { 
+		      throw StatisticalModelException("A preprocessor was specified, but could not find one in the file. Cannot load hdf5 file.");		      
+		    }
+		  }
+	
+
+
+		newModel = new StatisticalModel(representer, preprocessor);
 
 		Group modelGroup = modelRoot.openGroup("./model");
 		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
@@ -637,6 +706,16 @@ StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
 
 		this->m_representer->Save(representerGroup);
 		representerGroup.close();
+
+		// saving preprocessor
+		if (m_preprocessor != 0) { 
+		Group preprocessorGroup = modelRoot.createGroup("./preprocessor");
+		HDF5Utils::writeStringAttribute(preprocessorGroup, "name",
+				m_preprocessor->GetName());
+
+		this->m_preprocessor->Save(preprocessorGroup);
+		preprocessorGroup.close();
+		}
 
 		Group modelGroup = modelRoot.createGroup( "./model" );
 		HDF5Utils::writeMatrix(modelGroup, "./pcaBasis", m_pcaBasisMatrix);

@@ -118,7 +118,7 @@ void itkExample(const char* dir, const char* modelname) {
     }
 
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0);
+    typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0);
     model->Save(modelname);
 
 }

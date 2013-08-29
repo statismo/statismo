@@ -47,8 +47,8 @@ namespace statismo {
 
 
 template <typename T>
-DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType* representer, const std::string& filename)
-: DataManager<T>(representer)
+DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType* representer, const PreprocessorType* preprocessor, const std::string& filename)
+: DataManager<T>(representer, preprocessor)
 {
 	LoadSurrogateTypes(filename);
 }
@@ -62,8 +62,8 @@ DataManagerWithSurrogates<T>::LoadSurrogateTypes(const std::string& filename) {
 	m_typeInfo.typeFilename = filename;
 	m_typeInfo.types.clear();
 	for (unsigned i=0 ; i<tmpVector.size() ; i++) {
-		if (tmpVector(i)==0) m_typeInfo.types.push_back(SampleDataStructureWithSurrogatesType::Categorical);
-		else m_typeInfo.types.push_back(SampleDataStructureWithSurrogatesType::Continuous);
+		if (tmpVector(i)==0) m_typeInfo.types.push_back(DataItemWithSurrogatesType::Categorical);
+		else m_typeInfo.types.push_back(DataItemWithSurrogatesType::Continuous);
 	}
 }
 
@@ -76,16 +76,21 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
 																 const std::string& surrogateFilename)
 {
 
-	assert(this->m_representer != 0);
-	assert(this->m_surrogateTypes.size() > 0);
+	//assert(this->m_representer != 0);
+	//assert(this->m_surrogateTypes.size() > 0);
 
 	const VectorType& surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
 
-	if (surrogateVector.size() != m_typeInfo.types.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
+	if (static_cast<unsigned>(surrogateVector.size()) != m_typeInfo.types.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
 
-	DatasetPointerType sample = this->m_representer->DatasetToSample(ds);
+	DatasetPointerType sample;
+	if (this->m_preprocessor == 0) { 
+	  sample = this->m_representer->CloneDataset(ds);
+	} else { 
+	  sample  = this->m_preprocessor->Preprocess(ds);
+	}
 
-	this->m_SampleDataStructureList.push_back(SampleDataStructureWithSurrogatesType::Create(this->m_representer,
+	this->m_DataItemList.push_back(DataItemWithSurrogatesType::Create(this->m_representer,
 																			datasetURI,
 																		this->m_representer->SampleToSampleVector(sample),
 																	   surrogateFilename,

@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 		// The second parameter to BuildNewModel is the variance of the noise on our data
 		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
 
-		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(), 0.01));
+		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
 
 		// Once we have built the model, we can save it to disk.
 		model->Save(modelname);
