@@ -124,7 +124,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::Load(const H5::Group& fg) {
 	}
 
 	H5::Group pdGroup = fg.openGroup("./pointData");
-	int readPixelDimension = HDF5Utils::readInt(pdGroup, "pixelDimension");
+	unsigned readPixelDimension = static_cast<unsigned>(HDF5Utils::readInt(pdGroup, "pixelDimension"));
 	if (readPixelDimension != GetDimensions())  {
 		throw statismo::StatisticalModelException("the pixel dimension specified in the statismo file does not match the one specified as template parameter");
 	}
@@ -137,7 +137,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::Load(const H5::Group& fg) {
 
 
 	H5::DataSet ds = pdGroup.openDataSet("pixelValues");
-	int type = HDF5Utils::readIntAttribute(ds, "datatype");
+	unsigned int type = static_cast<unsigned>(HDF5Utils::readIntAttribute(ds, "datatype"));
 	if (type != PixelConversionTrait<TPixel>::GetDataType()) {
 		std::cout << "Warning: The datatype specified for the scalars does not match the TPixel template argument used in this representer." << std::endl;
 	}
@@ -391,8 +391,9 @@ StandardImageRepresenter<TPixel, ImageDimension>::CloneDataset(DatasetConstPoint
 	typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
 	duplicator->SetInputImage(d);
 	duplicator->Update();
-	DatasetPointerType clonedReference = duplicator->GetOutput();
-	return clonedReference;
+	DatasetPointerType clone = duplicator->GetOutput();
+	clone->DisconnectPipeline();
+	return clone;
 }
 
 } // namespace itk
