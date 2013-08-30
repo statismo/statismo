@@ -36,7 +36,6 @@
  */
 
 
-#include "itkVectorImageRepresenter.h"
 #include "itkStandardMeshRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkPCAModelBuilder.h"

@@ -37,7 +37,6 @@
 
 
 #include "itkStandardImageRepresenter.h"
-#include "itkImageRepresenter.h"
 #include "statismo_ITK/itkStatisticalModel.h"
 #include "statismo_ITK/itkPCAModelBuilder.h"
 #include "statismo_ITK/itkDataManager.h"

@@ -263,7 +263,6 @@ void DataManager<T>::AddDataset(DatasetConstPointerType dataset,
   if (m_preprocessor == 0) { 
     sample = m_representer->CloneDataset(dataset);
   } else { 
-
     sample = this->m_preprocessor->Preprocess(dataset);
   }
     m_DataItemList.push_back(

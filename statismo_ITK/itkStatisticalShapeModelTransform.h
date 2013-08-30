@@ -40,7 +40,7 @@
 
 #include <iostream>
 #include "itkStatisticalModelTransformBase.h"
-#include "itkVectorImageRepresenter.h"
+#include "itkStandardImageRepresenter.h"
 #include "itkStatisticalModel.h"
 #include "itkImage.h"
 #include "itkVector.h"
