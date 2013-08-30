@@ -46,6 +46,12 @@ add_executable (itkBuildShapeModel_75pcvar buildShapeModel_75pcvar.cpp
 ADD_DEPENDENCIES(itkBuildShapeModel_75pcvar HDF5)
 target_link_libraries (itkBuildShapeModel_75pcvar ${ITK_LIBRARIES} )
 
+add_executable (itkBuildGaussianProcessDeformationModel buildGaussianProcessDeformationModel.cpp 
+	${SOURCE_FILES}
+	${INCLUDE_FILES}
+) 
+ADD_DEPENDENCIES(itkBuildGaussianProcessDeformationModel HDF5)
+target_link_libraries (itkBuildGaussianProcessDeformationModel ${ITK_LIBRARIES} )
 
 
 
