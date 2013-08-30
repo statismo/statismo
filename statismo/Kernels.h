@@ -25,26 +25,28 @@ public:
 
 
 // forward declarations
-template <unsigned Dim> class SumKernel;
-template <unsigned Dim> class ScaledKernel;
-template <unsigned Dim> class ProductKernel;
+class SumKernel;
+class ScaledKernel;
+class ProductKernel;
 
 
-template <unsigned Dim>
 class MatrixValuedKernel {
 public:
 
-	MatrixValuedKernel() {}
+	MatrixValuedKernel(unsigned dim): m_dimension(dim) {}
 
 	virtual MatrixType operator()(const VectorType& x,
 			const VectorType& y) const = 0;
 
-	virtual unsigned GetDimension() const { return Dim; }
+	virtual unsigned GetDimension() const { return m_dimension; }
 	;
 	virtual ~MatrixValuedKernel() {
 	}
 
 	virtual std::string GetKernelInfo() const = 0;
+
+protected:
+	unsigned m_dimension;
 
 };
 
@@ -53,10 +55,13 @@ public:
 
 
 
-template <unsigned Dim>
-class SumKernel : public MatrixValuedKernel<Dim>{
+class SumKernel : public MatrixValuedKernel{
 public:
-	SumKernel(const MatrixValuedKernel<Dim>* lhs, const MatrixValuedKernel<Dim>* rhs) : m_lhs(lhs), m_rhs(rhs) {}
+	SumKernel(const MatrixValuedKernel* lhs, const MatrixValuedKernel* rhs) : MatrixValuedKernel(lhs->GetDimension()), m_lhs(lhs), m_rhs(rhs) {
+		if (lhs->GetDimension() != rhs->GetDimension()) {
+			throw StatisticalModelException("Kernels in SumKernel must have the same dimensionality");
+		}
+	}
 
 	MatrixType operator()(const VectorType& x,const VectorType& y) const {
 		return (*m_lhs)(x,y) + (*m_rhs)(x,y);
@@ -70,15 +75,19 @@ public:
 
 
 private:
-	const MatrixValuedKernel<Dim>* m_lhs;
-	const MatrixValuedKernel<Dim>* m_rhs;
+	const MatrixValuedKernel* m_lhs;
+	const MatrixValuedKernel* m_rhs;
 };
 
 
-template <unsigned Dim>
-class ProductKernel : public MatrixValuedKernel<Dim>{
+class ProductKernel : public MatrixValuedKernel{
 public:
-	ProductKernel(const MatrixValuedKernel<Dim>* lhs, const MatrixValuedKernel<Dim>* rhs) : m_lhs(lhs), m_rhs(rhs) {}
+	ProductKernel(const MatrixValuedKernel* lhs, const MatrixValuedKernel* rhs) : MatrixValuedKernel(lhs->GetDimension()), m_lhs(lhs), m_rhs(rhs) {
+		if (lhs->GetDimension() != rhs->GetDimension()) {
+			throw StatisticalModelException("Kernels in SumKernel must have the same dimensionality");
+		}
+
+	}
 
 	MatrixType operator()(const VectorType& x,const VectorType& y) const {
 		return (*m_lhs)(x,y) * (*m_rhs)(x,y);
@@ -92,15 +101,14 @@ public:
 
 
 private:
-	const MatrixValuedKernel<Dim>* m_lhs;
-	const MatrixValuedKernel<Dim>* m_rhs;
+	const MatrixValuedKernel* m_lhs;
+	const MatrixValuedKernel* m_rhs;
 };
 
 
-template <unsigned Dim>
-class ScaledKernel : public MatrixValuedKernel<Dim> {
+class ScaledKernel : public MatrixValuedKernel {
 public:
-	ScaledKernel(const MatrixValuedKernel<Dim>* kernel, double scalingFactor) : m_kernel(kernel), m_scalingFactor(scalingFactor) {}
+	ScaledKernel(const MatrixValuedKernel* kernel, double scalingFactor) : MatrixValuedKernel(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {}
 
 	MatrixType operator()(const VectorType& x,const VectorType& y) const {
 		return (*m_kernel)(x,y) * m_scalingFactor;
@@ -113,17 +121,17 @@ public:
 
 
 private:
-	const MatrixValuedKernel<Dim>* m_kernel;
+	const MatrixValuedKernel* m_kernel;
 	double m_scalingFactor;
 };
 
 
-template <unsigned Dim>
-class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel<Dim> {
+class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel{
 public:
-	UncorrelatedMatrixValuedKernel(const ScalarValuedKernel* scalarKernel):
+	UncorrelatedMatrixValuedKernel(const ScalarValuedKernel* scalarKernel, unsigned dimension):
+		MatrixValuedKernel(dimension),
 		m_kernel(scalarKernel),
-		m_ident(MatrixType::Identity(Dim, Dim)) {}
+		m_ident(MatrixType::Identity(dimension, dimension)) {}
 
 		MatrixType operator()(const VectorType& x,
 				const VectorType& y) const {
@@ -136,7 +144,7 @@ public:
 
 	std::string GetKernelInfo() const {
 		std::ostringstream os;
-		os << "UncorrelatedGaussianKernel(" << (*m_kernel).GetKernelInfo() << ", " << Dim << ")";
+		os << "UncorrelatedGaussianKernel(" << (*m_kernel).GetKernelInfo() << ", " << this->m_dimension << ")";
 		return os.str();
 	}
 

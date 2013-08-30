@@ -93,8 +93,8 @@ int main(int argc, char** argv) {
 		const GaussianKernel gk = GaussianKernel(gaussianKernelSigma);
 
 		// make the kernel matrix valued and scale it by a factor of 100
-		const MatrixValuedKernel<3>& mvGk = UncorrelatedMatrixValuedKernel<3>(&gk);
-		const MatrixValuedKernel<3>& scaledGk = ScaledKernel<3>(&mvGk, 100.0);
+		const MatrixValuedKernel& mvGk = UncorrelatedMatrixValuedKernel(&gk, 3);
+		const MatrixValuedKernel& scaledGk = ScaledKernel(&mvGk, 100.0);
 
 
 		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create(representer.get()));

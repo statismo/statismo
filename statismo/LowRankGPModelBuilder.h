@@ -80,9 +80,8 @@ public:
 	 * @param numEigenfunction The number of eigenfunctions
 	 * @param domainPts a list of points for which the eigenfunction has to be computed
 	 */
-	template <unsigned Dim>
 	ResEigenfunctionPointComputations computeEigenfunctionsForPoints(
-			const MatrixValuedKernel<Dim>* kernel, unsigned numEigenfunctions,
+			const MatrixValuedKernel* kernel, unsigned numEigenfunctions,
 			unsigned numDomainPoints, const std::vector<VectorType>& xs,
 			const std::vector<VectorType> & domainPts, const MatrixType& M,
 			unsigned lowerInd, unsigned upperInd) const {
@@ -130,13 +129,12 @@ public:
 	}
 
 
-	template <unsigned Dim>
 	StatisticalModelType* BuildNewZeroMeanModel(
-			const MatrixValuedKernel<Dim>& kernel, unsigned numComponents,
+			const MatrixValuedKernel& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 
-		VectorType zeroVec = VectorType::Zero(m_representer->GetNumberOfPoints() * m_representer->GetDimensions());
-		typename RepresenterType::DatasetPointerType zeroMean = m_representer->SampleVectorToSample(zeroVec);
+		VectorType zeroVec = VectorType::Zero(m_representer->GetDomain().GetNumberOfPoints() * m_representer->GetDimensions());
+		typename RepresenterType::DatasetConstPointerType zeroMean = m_representer->SampleVectorToSample(zeroVec);
 		return BuildNewModel(zeroMean, kernel, numComponents, numPointsForNystrom);
 	}
 
@@ -147,10 +145,9 @@ public:
 	 *
 	 * \return a new statistical model representing the given gaussian process
 	 */
-	template <unsigned Dim>
 	StatisticalModelType* BuildNewModel(
-			typename RepresenterType::DatasetPointerType mean,
-			const MatrixValuedKernel<Dim>& kernel, unsigned numComponents,
+			typename RepresenterType::DatasetConstPointerType mean,
+			const MatrixValuedKernel& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 
 		DomainType domain = m_representer->GetDomain();
@@ -212,7 +209,7 @@ public:
 				break;
 			resvec.push_back(
 					std::async(std::launch::async,
-							&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints<Dim>,
+							&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
 							this, &kernel, numComponents, n, xs, domainPoints, M,
 							lowerInd, upperInd));
 
@@ -265,8 +262,7 @@ private:
 	 * return a matrix U with the first numComponents eigenvectors and a vector D with
 	 * the corresponding eigenvalues of this kernel matrix
 	 */
-	template <unsigned Dim>
-	void computeKernelMatrixDecomposition(const MatrixValuedKernel<Dim>* kernel,
+	void computeKernelMatrixDecomposition(const MatrixValuedKernel* kernel,
 			const std::vector<VectorType>& xs, unsigned numComponents,
 			MatrixType& U, VectorType& D) const {
 		unsigned kernelDim = kernel->GetDimension();
