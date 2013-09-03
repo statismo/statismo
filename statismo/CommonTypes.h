@@ -78,7 +78,7 @@ typedef GenericEigenType<ScalarType>::RowVectorType RowVectorType;
 
 // type definitions used in the standard file format.
 // Note that these are the same as used by VTK
-const static unsigned VOID = 0;
+const static unsigned Void = 0; // not capitalized, as windows defines: #define VOID void, which causes trouble
 const static unsigned SIGNED_CHAR = 2;
 const static unsigned UNSIGNED_CHAR  = 3;
 const static unsigned  SIGNED_SHORT     =  4;

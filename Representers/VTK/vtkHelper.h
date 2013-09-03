@@ -159,7 +159,7 @@ class vtkHelper {
 public:
 	static int vtkDataTypeIdToStatismoDataTypeId(int vtkDataTypeId) {
 
-		int dataType = statismo::VOID;
+		int dataType = statismo::Void;
 		switch(vtkDataTypeId) {
 		case VTK_UNSIGNED_CHAR:
 			dataType = statismo::UNSIGNED_CHAR;
