@@ -238,15 +238,7 @@ inline statismo::VectorType vtkStandardMeshRepresenter::PointToVector(const Poin
 }
 
 
-inline vtkStandardMeshRepresenter::DatasetPointerType vtkStandardMeshRepresenter::DatasetToSample(
-		DatasetConstPointerType _pd) const {
-	vtkPolyData* pd = const_cast<vtkPolyData*>(_pd);
 
-	vtkPolyData* clonePd = vtkPolyData::New();
-	clonePd->DeepCopy(pd);
-
-	return clonePd;
-}
 
 inline statismo::VectorType vtkStandardMeshRepresenter::SampleToSampleVector(
 		DatasetConstPointerType _sample) const {

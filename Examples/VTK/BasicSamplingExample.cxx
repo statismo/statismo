@@ -42,7 +42,7 @@
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
-
+#include "vtkVersion.h"
 #include <iostream>
 #include <memory>
 
@@ -54,7 +54,11 @@ void saveSample(const vtkPolyData* pd, const std::string& resdir, const std::str
 	std::string filename = resdir +std::string("/") + basename;
 
 	vtkPolyDataWriter* w = vtkPolyDataWriter::New();
+#if (VTK_MAJOR_VERSION == 5 )
 	w->SetInput(const_cast<vtkPolyData*>(pd));
+#else
+	w->SetInputData(const_cast<vtkPolyData*>(pd));
+#endif
 	w->SetFileName(filename.c_str());
 	w->Update();
 }

@@ -8,15 +8,6 @@ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 FIND_PACKAGE(VTK REQUIRED)
 include (${VTK_USE_FILE})
 
-set(VTK_LIBRARIES
-        vtkCommon 
-        vtkFiltering 
-        vtkGraphics 
-        vtkImaging 
-        vtkIO 
-        vtkRendering 
-        vtkWidgets 
-)
 
 set (VTK_LIBRARIES_PYTHON
         vtkCommonPythonD
