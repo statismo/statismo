@@ -89,7 +89,7 @@ void vtkStandardMeshRepresenter::Load(const H5::Group& fg) {
 	statismo::MatrixType vertexMat;
 	HDF5Utils::readMatrix(fg, "./points", vertexMat);
 
-	typedef typename statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
+	typedef statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
 	UIntMatrixType cellsMat;
 	HDF5Utils::readMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
 
@@ -181,7 +181,7 @@ void vtkStandardMeshRepresenter::Save(const H5::Group& fg) const {
 		numPointsPerCell = m_reference->GetCell(0)->GetNumberOfPoints();
 	}
 
-	typedef typename statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
+	typedef statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
 	UIntMatrixType facesMat = UIntMatrixType::Zero(numPointsPerCell,
 			m_reference->GetNumberOfCells());
 
