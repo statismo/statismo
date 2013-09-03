@@ -144,7 +144,7 @@ public:
 
 	std::string GetKernelInfo() const {
 		std::ostringstream os;
-		os << "UncorrelatedGaussianKernel(" << (*m_kernel).GetKernelInfo() << ", " << this->m_dimension << ")";
+		os << "UncorrelatedMatrixValuedKernel(" << (*m_kernel).GetKernelInfo() << ", " << this->m_dimension << ")";
 		return os.str();
 	}
 
