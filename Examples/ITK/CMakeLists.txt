@@ -63,5 +63,20 @@ add_executable (itkShapeModelFitting shapeModelFitting.cpp
 ADD_DEPENDENCIES(itkShapeModelFitting HDF5)
 target_link_libraries (itkShapeModelFitting  ${ITK_LIBRARIES})
 
-INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkBuildShapeModel_75pcvar itkShapeModelFitting RUNTIME DESTINATION bin)
+add_executable(itkLowRankGaussianProcessImageToImageRegistration lowRankGaussianProcessImageToImageRegistration.cpp
+        ${SOURCE_FILES}
+        ${INCLUDE_FILES}
+) 
+ADD_DEPENDENCIES(itkLowRankGaussianProcessImageToImageRegistration HDF5)
+target_link_libraries (itkLowRankGaussianProcessImageToImageRegistration  ${ITK_LIBRARIES})
+
+add_executable(itkSimpleGaussianProcessImageToImageRegistration simpleGaussianProcessImageToImageRegistration.cpp
+        ${SOURCE_FILES}
+        ${INCLUDE_FILES}
+) 
+ADD_DEPENDENCIES(itkSimpleGaussianProcessImageToImageRegistration HDF5)
+target_link_libraries (itkSimpleGaussianProcessImageToImageRegistration  ${ITK_LIBRARIES})
+
+
+INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkBuildShapeModel_75pcvar itkShapeModelFitting itkLowRankGaussianProcessImageToImageRegistration itkSimpleGaussianProcessImageToImageRegistration RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runITKExamples.sh DESTINATION  bin)

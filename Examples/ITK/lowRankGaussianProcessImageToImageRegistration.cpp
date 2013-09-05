@@ -1,7 +1,7 @@
 /*
  * This file is part of the statismo library.
  *
- * Author: Marcel Luethi (marcel.luethi@unibas.ch)
+ * Author: Christoph Jud (christoph.jud@unibas.ch)
  *
  * Copyright (c) 2011 University of Basel
  * All rights reserved.
@@ -102,7 +102,7 @@ typename TStatisticalModelType::Pointer buildLowRankGPModel(const char* referenc
 	referenceReader->Update();
 
     typename TRepresenterType::Pointer representer = TRepresenterType::New();
-    representer->SetReference(refReader->GetOutput());
+    representer->SetReference(referenceReader->GetOutput());
 
 	const statismo::GaussianKernel gk = statismo::GaussianKernel(gaussianKernelSigma); // a Gaussian kernel with sigma=gaussianKernelSigma
 	// make the kernel matrix valued and scale it by a factor of 100
@@ -544,9 +544,9 @@ int main(int argc, char* argv[]) {
 	std::cout << "Low-rank Gaussian process image registration:" << std::endl;
 	std::cout << " - space dimensions\t\t" << numDimensions << std::endl;
 	std::cout << " - reference\t\t\t" << referenceFilename << std::endl;
-	if(referenceLandmarkFilename.size()>0) std::cout << " - reference landmarks\t" << referenceLandmarkFilename << std::endl;
+	if(referenceLandmarkFilename.size()>0) std::cout << " - reference landmarks\t\t" << referenceLandmarkFilename << std::endl;
 	std::cout << " - target\t\t\t" << targetFilename << std::endl;
-	if(targetLandmarkFilename.size()>0) std::cout << " - target landmarks\t" << targetLandmarkFilename << std::endl;
+	if(targetLandmarkFilename.size()>0) std::cout << " - target landmarks\t\t" << targetLandmarkFilename << std::endl;
 	std::cout << " - output\t\t\t" << outputFilename << std::endl;
 	std::cout << " - output deformation field\t" << outputDfFilename << std::endl << std::endl;
 	std::cout << " - similarity metric\t\t" << similarityMetric << std::endl;
@@ -569,7 +569,6 @@ int main(int argc, char* argv[]) {
 		std::cout << "Error: landmark uncertainty has to be positive." << std::endl;
 		return -1;
 	}
-	
 	
 	if (numDimensions==2){ // run the image to image registration in 2D
 		runImageToImageRegistration<float, 2>(referenceFilename, 

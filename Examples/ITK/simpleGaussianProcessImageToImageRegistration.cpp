@@ -1,7 +1,7 @@
 /*
  * This file is part of the statismo library.
  *
- * Author: Marcel Luethi (marcel.luethi@unibas.ch)
+ * Author: Christoph Jud (christoph.jud@unibas.ch)
  *
  * Copyright (c) 2011 University of Basel
  * All rights reserved.
