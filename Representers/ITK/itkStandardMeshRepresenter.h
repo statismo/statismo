@@ -191,7 +191,7 @@ public:
     }
 
 
-	void DeleteDataset(DatasetPointerType d) const { d->UnRegister(); };
+	void DeleteDataset(DatasetPointerType d) const { };
     DatasetPointerType CloneDataset(DatasetConstPointerType mesh) const;
 
 private:

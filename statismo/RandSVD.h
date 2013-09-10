@@ -4,7 +4,9 @@
 #include <iostream>
 
 
-
+/**
+ * TODO comment and add reference to paper
+ */
 #include <cmath>
 #include <limits>
 #include <boost/random.hpp>

@@ -136,11 +136,11 @@ public:
 	unsigned GetNumberOfPoints() const;
 
 	void Delete() const {
-		this->UnRegister();
+	  this->UnRegister();
 	}
 
 
-	void DeleteDataset(DatasetConstPointerType d) const {d->UnRegister();}
+	void DeleteDataset(DatasetConstPointerType d) const {}
 	DatasetPointerType CloneDataset(DatasetConstPointerType d) const;
 
 private:
