@@ -63,5 +63,12 @@ add_executable (itkShapeModelFitting shapeModelFitting.cpp
 ADD_DEPENDENCIES(itkShapeModelFitting HDF5)
 target_link_libraries (itkShapeModelFitting  ${ITK_LIBRARIES})
 
-INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkBuildShapeModel_75pcvar itkShapeModelFitting itkBuildImageIntensityModelOnROI RUNTIME DESTINATION bin)
+add_executable (itkLandmarkConstrainedShapeModelFitting landmarkConstrainedShapeModelFitting.cpp 
+	${SOURCE_FILES}
+	${INCLUDE_FILES}
+) 
+ADD_DEPENDENCIES(itkLandmarkConstrainedShapeModelFitting HDF5)
+target_link_libraries (itkLandmarkConstrainedShapeModelFitting  ${ITK_LIBRARIES})
+
+INSTALL(TARGETS itkBuildDeformationModel  itkDeformationModelFitting itkBuildShapeModel itkBuildShapeModel_75pcvar itkShapeModelFitting itkLandmarkConstrainedShapeModelFitting itkBuildImageIntensityModelOnROI RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runITKExamples.sh DESTINATION  bin)
