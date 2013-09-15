@@ -52,14 +52,14 @@ add_DEPENDENCIES(vtkReduceModelVarianceExample HDF5)
 target_link_libraries (vtkReduceModelVarianceExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 
-add_executable (vtkBuildPartiallyFixedModelExample BuildPartiallyFixedModelExample.cxx) 
-add_DEPENDENCIES(vtkBuildPartiallyFixedModelExample HDF5)
-target_link_libraries (vtkBuildPartiallyFixedModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+add_executable (vtkBuildPosteriorModelExample BuildPosteriorModelExample.cxx) 
+add_DEPENDENCIES(vtkBuildPosteriorModelExample HDF5)
+target_link_libraries (vtkBuildPosteriorModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 
 add_executable (vtkBuildConditionalModelExample BuildConditionalModelExample.cxx) 
 add_DEPENDENCIES(vtkBuildConditionalModelExample HDF5)
 target_link_libraries (vtkBuildConditionalModelExample  ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
-INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPartiallyFixedModelExample vtkBuildConditionalModelExample RUNTIME DESTINATION bin)
+INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPosteriorModelExample vtkBuildConditionalModelExample RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runVTKExamples.sh DESTINATION  bin)
