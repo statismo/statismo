@@ -32,6 +32,13 @@ ADD_DEPENDENCIES(vtkBuildShapeModelExample HDF5)
 target_link_libraries (vtkBuildShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 
+add_executable (vtkBuildShapeModel buildVTKShapeModel.cxx) 
+ADD_DEPENDENCIES(vtkBuildShapeModel HDF5)
+target_link_libraries (vtkBuildShapeModel ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+INSTALL(TARGETS vtkBuildShapeModel RUNTIME DESTINATION bin)
+
+
+
 add_executable (vtkBasicSamplingExample BasicSamplingExample.cxx) 
 ADD_DEPENDENCIES(vtkBasicSamplingExample HDF5)
 target_link_libraries (vtkBasicSamplingExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
