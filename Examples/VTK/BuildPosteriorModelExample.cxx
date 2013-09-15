@@ -36,7 +36,7 @@
  */
 
 
-#include "statismo/PartiallyFixedModelBuilder.h"
+#include "statismo/PosteriorModelBuilder.h"
 #include "statismo/StatisticalModel.h"
 #include "statismo/DataManager.h"
 
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 	// For building a shape model with vtk, we use the vtkPolyDataRepresenter.
 	typedef vtkPolyDataRepresenter RepresenterType;
 	typedef StatisticalModel<RepresenterType> StatisticalModelType;
-	typedef PartiallyFixedModelBuilder<RepresenterType> PartiallyFixedModelBuilderType;
+	typedef PosteriorModelBuilder<RepresenterType> PosteriorModelBuilderType;
 	typedef StatisticalModelType::DomainType DomainType;
 
 	try {
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 		auto_ptr<StatisticalModelType> inputModel(StatisticalModelType::Load(inputModelName));
 
 
-		auto_ptr<PartiallyFixedModelBuilderType> pfmb(PartiallyFixedModelBuilderType::Create());
+		auto_ptr<PosteriorModelBuilderType> pfmb(PosteriorModelBuilderType::Create());
 
 		// For simplicity, we simply fix the 1st point in the domain
 		const DomainType::DomainPointsListType& domainPoints = inputModel->GetDomain().GetDomainPoints();
