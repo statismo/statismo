@@ -3,8 +3,8 @@ project (statismo)
 
 ENABLE_TESTING()
 
-SET(STATISMO_VERSION 0.9) 
-SET(STATISMO_MINOR_VERSION 0)
+SET(STATISMO_VERSION 0.8) 
+SET(STATISMO_MINOR_VERSION 1)
 
 
 # rpath settings
@@ -109,7 +109,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo_ITK DESTINATION include)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION include)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_VERSION})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_VERSION}${STATISMO_MINOR_VERSION})
 
 # 
 # copy the data
