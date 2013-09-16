@@ -155,24 +155,25 @@ public:
 
 		// convert all the points in the domain to a vector representation
 		std::vector<VectorType> domainPoints;
+		std::vector<VectorType> shuffledDomainPoints;
 		for (typename DomainPointsListType::const_iterator it =
 				domain.GetDomainPoints().begin();
 				it != domain.GetDomainPoints().end(); ++it) {
 
 			domainPoints.push_back(m_representer->PointToVector(*it));
+			shuffledDomainPoints.push_back(m_representer->PointToVector(*it));
 		}
 		assert(domainPoints.size() == n);
 
+		std::random_shuffle ( shuffledDomainPoints.begin(), shuffledDomainPoints.end() );
 
 		// select a subset of the points for computing the nystrom approximation.
-		// Currently we simply sample every nth point. This is only efficient if the
-		// points of the domain are approximatly uniformly distributed.
 		std::vector<VectorType> xs;
-		int step = domainPoints.size() / numPointsForNystrom;
-		for (typename std::vector<VectorType>::const_iterator it =
-				domainPoints.begin(); it < domainPoints.end(); it += step) {
-			xs.push_back(*it);
+		for (unsigned i=0; i<numPointsForNystrom; i++) {
+			xs.push_back(shuffledDomainPoints[i]);
 		}
+
+		shuffledDomainPoints.clear();
 
 		int m = xs.size();
 
