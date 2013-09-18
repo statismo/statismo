@@ -110,6 +110,7 @@ public:
             
     static void DeleteDataset(DatasetPointerType ds) {}// do nothing, as we are working with smart pointers
 
+	statismo::VectorType PointToVector(const PointType& pt) const;
 
 	/**
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes

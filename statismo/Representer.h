@@ -136,6 +136,10 @@ public:
 	 */
 	const statismo::Domain<PointType>& GetDomain() const;
 
+	/**
+	 * Converts a Dataset::PointType to a vector in statismo::Vector
+	 */
+	VectorType PointToVector(const PointType& pt) const;
 
 	/**
 	 * Takes the given dataset and converts it to a sample, as it is internally used by statismo.
