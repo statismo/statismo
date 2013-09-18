@@ -11,12 +11,13 @@
 #include <vector>
 #include <cmath>
 #include <memory>
-#include <future>
-#include <thread>
 #include "RandSVD.h"
 
-namespace statismo {
+#ifdef HAS_CXX11_ASYNC
+#include <future>
+#endif
 
+namespace statismo {
 
 /*
  * This class holds the result of the eigenfunction computation for
@@ -38,7 +39,7 @@ struct ResEigenfunctionPointComputations {
  * A model builder
  */
 
-template <typename Representer>
+template<typename Representer>
 class LowRankGPModelBuilder: public ModelBuilder<Representer> {
 
 public:
@@ -71,7 +72,6 @@ public:
 	 */
 	virtual ~LowRankGPModelBuilder() {
 	}
-
 
 	/**
 	 * Computes the row of the PCABasismat for the domainPoints with index ranging from lowerInd to upperInd
@@ -113,28 +113,23 @@ public:
 				MatrixType x = (kxi * M.col(j));
 				resMat.block((i - lowerInd) * kernelDim, j, kernelDim, 1) = x;
 			}
-			// add the result to the result matrix
-			//resMat.block((i - lowerInd) * kernelDim, 0,  kernelDim, numEigenfunctions) =  (M  * kxi).transpose();
 
-			// status update
-			if ((i - lowerInd) % 100000 == 0 && (i - lowerInd) != 0) {
-				std::cout << "processed 100'000 items out of "
-						<< upperInd - lowerInd << " " << "(id = "
-						<< std::this_thread::get_id() << ")" << std::endl;
-			}
 		}
 
 		return ResEigenfunctionPointComputations(lowerInd, upperInd, resMat);
 	}
 
-
 	StatisticalModelType* BuildNewZeroMeanModel(
 			const MatrixValuedKernel& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 
-		VectorType zeroVec = VectorType::Zero(m_representer->GetDomain().GetNumberOfPoints() * m_representer->GetDimensions());
-		typename RepresenterType::DatasetConstPointerType zeroMean = m_representer->SampleVectorToSample(zeroVec);
-		return BuildNewModel(zeroMean, kernel, numComponents, numPointsForNystrom);
+		VectorType zeroVec = VectorType::Zero(
+				m_representer->GetDomain().GetNumberOfPoints()
+						* m_representer->GetDimensions());
+		typename RepresenterType::DatasetConstPointerType zeroMean =
+				m_representer->SampleVectorToSample(zeroVec);
+		return BuildNewModel(zeroMean, kernel, numComponents,
+				numPointsForNystrom);
 	}
 
 	/**
@@ -164,11 +159,12 @@ public:
 		}
 		assert(domainPoints.size() == n);
 
-		std::random_shuffle ( shuffledDomainPoints.begin(), shuffledDomainPoints.end() );
+		std::random_shuffle(shuffledDomainPoints.begin(),
+				shuffledDomainPoints.end());
 
 		// select a subset of the points for computing the nystrom approximation.
 		std::vector<VectorType> xs;
-		for (unsigned i=0; i<numPointsForNystrom; i++) {
+		for (unsigned i = 0; i < numPointsForNystrom; i++) {
 			xs.push_back(shuffledDomainPoints[i]);
 		}
 
@@ -183,17 +179,22 @@ public:
 		VectorType D; // will hold the eigenvalues (variance)
 		computeKernelMatrixDecomposition(&kernel, xs, numComponents, U, D);
 
+		MatrixType pcaBasis = MatrixType::Zero(n * kernelDim, numComponents);
+
 		// we precompute the value of the eigenfunction for each domain point
 		// and store it later in the pcaBasis matrix. In this way we obtain
 		// a standard statismo model.
 		// To save time, we parallelize over the rows
+
+#ifdef HAS_CXX11_ASYNC
 		std::vector < std::future<ResEigenfunctionPointComputations> > resvec;
+#else
+		std::vector<ResEigenfunctionPointComputations> resvec;
+#endif
 		// precompute the part of the nystrom approximation, which is independent of the domain point
 		MatrixType M = sqrt(m / float(n))
 				* (U.leftCols(numComponents)
 						* D.topRows(numComponents).asDiagonal().inverse());
-
-		MatrixType pcaBasis = MatrixType::Zero(n * kernelDim, numComponents);
 
 		// we split it in 1000 chunks, which should be more than most machines have cores. so we keep all cores busy
 		unsigned numChunks = 1000;
@@ -207,17 +208,28 @@ public:
 					(i + 1) * chunkSize);
 			if (lowerInd >= upperInd)
 				break;
+#ifdef HAS_CXX11_ASYNC
 			resvec.push_back(
 					std::async(std::launch::async,
 							&LowRankGPModelBuilder<Representer>::computeEigenfunctionsForPoints,
 							this, &kernel, numComponents, n, xs, domainPoints, M,
 							lowerInd, upperInd));
+#else
+			resvec.push_back(LowRankGPModelBuilder<Representer>::computeEigenfunctionsForPoints(
+							&kernel, numComponents, n, xs, domainPoints,
+							M, lowerInd, upperInd));
+
+#endif
 
 		}
 
 		// collect the result
 		for (unsigned i = 0; i < resvec.size(); i++) {
+#ifdef HAS_CXX11_ASYNC
 			ResEigenfunctionPointComputations res = resvec[i].get();
+#else
+			ResEigenfunctionPointComputations res = resvec[i];
+#endif
 			pcaBasis.block(res.lowerInd * kernelDim, 0,
 					(res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
 					res.resMatrix;
@@ -228,32 +240,31 @@ public:
 		RowVectorType mu = m_representer->SampleToSampleVector(mean);
 
 		StatisticalModelType* model = StatisticalModelType::Create(
-				m_representer,  mu, pcaBasis, pcaVariance, 0);
-
+				m_representer, mu, pcaBasis, pcaVariance, 0);
 
 		// the model builder does not use any data. Hence the scores and the datainfo is emtpy
 		MatrixType scores; // no scores
 		typename BuilderInfo::DataInfoList dataInfo;
 
-
 		typename BuilderInfo::ParameterInfoList bi;
-		bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ",		Utils::toString(0)));
-		bi.push_back(BuilderInfo::KeyValuePair("KernelInfo", kernel.GetKernelInfo()));
+		bi.push_back(
+				BuilderInfo::KeyValuePair("NoiseVariance ",
+						Utils::toString(0)));
+		bi.push_back(
+				BuilderInfo::KeyValuePair("KernelInfo",
+						kernel.GetKernelInfo()));
 
 		// finally add meta data to the model info
 		BuilderInfo builderInfo("LowRankGPModelBuilder", dataInfo, bi);
 
-
 		ModelInfo::BuilderInfoList biList;
 		biList.push_back(builderInfo);
-
 
 		ModelInfo info(scores, biList);
 		model->SetModelInfo(info);
 
 		return model;
 	}
-
 
 private:
 
