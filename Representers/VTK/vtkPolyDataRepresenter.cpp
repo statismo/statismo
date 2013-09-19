@@ -121,6 +121,16 @@ vtkPolyDataRepresenter::Save(const H5::CommonFG& fg) const {
 
 }
 
+inline statismo::VectorType vtkPolyDataRepresenter::PointToVector(const PointType& pt) const {
+        // a vtk point is always 3 dimensional
+        VectorType v(3);
+        for (unsigned i = 0; i < 3; i++) {
+                v(i) = pt[i];
+        }
+        return v;
+}
+
+
 inline
 vtkPolyDataRepresenter::DatasetPointerType
 vtkPolyDataRepresenter::DatasetToSample(DatasetConstPointerType _pd, DatasetInfo* notUsed) const

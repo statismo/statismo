@@ -7,15 +7,6 @@ SET(CMAKE_VERBOSE_MAKEFILE ON)
 FIND_PACKAGE(VTK REQUIRED)
 include (${VTK_USE_FILE})
 
-set(VTK_LIBRARIES
-        vtkCommon 
-        vtkFiltering 
-        vtkGraphics 
-        vtkImaging 
-        vtkIO 
-        vtkRendering 
-        vtkWidgets 
-)
 
 FILE(GLOB INCLUDE_FILES *.h)
 FILE(GLOB SOURCE_FILES  *.txx *.cpp)
@@ -68,5 +59,12 @@ add_executable (vtkBuildConditionalModelExample BuildConditionalModelExample.cxx
 add_DEPENDENCIES(vtkBuildConditionalModelExample HDF5)
 target_link_libraries (vtkBuildConditionalModelExample  ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
-INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPosteriorModelExample vtkBuildConditionalModelExample RUNTIME DESTINATION bin)
+add_executable (vtkBuildGaussianProcessShapeModelExample BuildGaussianProcessShapeModelExample.cxx) 
+ADD_DEPENDENCIES(vtkBuildGaussianProcessShapeModelExample HDF5)
+target_link_libraries (vtkBuildGaussianProcessShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+
+
+
+
+INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPosteriorModelExample vtkBuildConditionalModelExample vtkBuildGaussianProcessShapeModelExample RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runVTKExamples.sh DESTINATION  bin)

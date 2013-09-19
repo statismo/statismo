@@ -109,7 +109,7 @@ public:
 	AlignmentType GetAlignment() const { return m_alignment; }
 
 	DatasetConstPointerType GetReference() const { return m_reference; }
-
+	statismo::VectorType PointToVector(const PointType& pt) const;
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds, DatasetInfo* notUsed) const;
 	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
 	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;

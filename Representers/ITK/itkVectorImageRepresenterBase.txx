@@ -105,6 +105,18 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SetReferenc
 }
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
+statismo::VectorType
+VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointToVector(const PointType& pt) const
+{
+        statismo::VectorType v(PointType::GetPointDimension());
+        for (unsigned i = 0; i < PointType::GetPointDimension(); i++) {
+                v(i) = pt[i];
+        }
+        return v;
+}
+
+
+template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 VectorType
 VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SampleToSampleVector(ImageType* image) const
 {
