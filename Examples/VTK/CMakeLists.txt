@@ -17,6 +17,13 @@ include_directories(${STATISMO_ROOT_DIR}  ${STATISMO_ROOT_DIR}/3rdParty  ${STATI
 					${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})					
 
 link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} ${HDF5_LIBRARY_DIR})
+
+IF(WIN32)
+# Fix for VS2012 that has _VARIADIC_MAX set to 5. For some of the examples, this does not seem to be sufficient. 
+#Don't set too high because it increases compiler memory usage / compile-time.
+add_definitions( -D_VARIADIC_MAX=9 )
+ENDIF()
+
  
 add_executable (vtkBuildShapeModelExample BuildShapeModelExample.cxx) 
 ADD_DEPENDENCIES(vtkBuildShapeModelExample HDF5)
