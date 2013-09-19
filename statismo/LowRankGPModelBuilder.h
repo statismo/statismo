@@ -25,6 +25,10 @@ namespace statismo {
  */
 struct ResEigenfunctionPointComputations {
 
+	// needs an explicit default constructor, as otherwise the visual Studio compiler complains
+	ResEigenfunctionPointComputations() : lowerInd(0), upperInd(0) {
+	}
+
 	ResEigenfunctionPointComputations(unsigned _lowerInd, unsigned _upperInd,
 			const MatrixType& _resMat) :
 			lowerInd(_lowerInd), upperInd(_upperInd), resMatrix(_resMat) {
