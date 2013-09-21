@@ -95,6 +95,11 @@ OPTION(BUILD_STATISMO_TESTS_PYTHON "Build Unit tests written in python (requires
 OPTION(BUILD_REPRESENTER_TESTS "Build representer tests (requires ITK and VTK)" OFF)
 MARK_AS_ADVANCED(BUILD_REPRESENTER_TESTS)
 
+OPTION(HAS_CXX11_ASYNC "Statismo can make use of multi-threading in case the compiler supports std::async of the C++11 standard " OFF)
+IF (HAS_CXX11_ASYNC )
+add_definitions( -DHAS_CXX11_ASYNC ) 
+ENDIF(HAS_CXX11_ASYNC)
+
 
 #
 # Install boost and eigen, by just copying them from the 3rdParty directory

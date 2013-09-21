@@ -180,7 +180,7 @@ computePartiallyFixedModel(const RigidTransformType* rigidTransform,
 		ptLocator->SetPoints(reference->GetPoints());
 		ptLocator->Initialize();
 
-		assert(refLandmarks.size() == targetLandmarks.size());
+		assert(modelLandmarks.size() == targetLandmarks.size());
 	    for (unsigned i = 0; i < targetLandmarks.size(); i++) {
 
 			int closestPointId = ptLocator->FindClosestPoint(modelLandmarks[i]);

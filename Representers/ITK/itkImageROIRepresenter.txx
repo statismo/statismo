@@ -166,6 +166,16 @@ ImageROIRepresenter<TPixel, ImageDimension, TMaskPixel>::SetReference(ImageType*
 }
 
 template <class TPixel, unsigned ImageDimension, class TMaskPixel>
+statismo::VectorType
+ImageROIRepresenter<TPixel, ImageDimension, TMaskPixel>::PointToVector(const PointType& pt) const
+{
+        statismo::VectorType v(1);
+        v(0) = pt;
+        return v;
+}
+
+
+template <class TPixel, unsigned ImageDimension, class TMaskPixel>
 typename ImageROIRepresenter<TPixel, ImageDimension, TMaskPixel>::DatasetPointerType
 ImageROIRepresenter<TPixel, ImageDimension, TMaskPixel>::DatasetToSample(ImageType* image, DatasetInfo* notUsed) const
 {
