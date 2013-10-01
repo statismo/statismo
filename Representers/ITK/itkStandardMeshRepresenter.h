@@ -59,8 +59,8 @@ struct RepresenterTraits<itk::Mesh<float, 3u> > {
 	typedef MeshType::Pointer DatasetPointerType;
 	typedef MeshType::Pointer DatasetConstPointerType;
 
-	typedef typename MeshType::PointType PointType;
-	typedef typename MeshType::PointType ValueType;
+	typedef MeshType::PointType PointType;
+	typedef MeshType::PointType ValueType;
     ///@}
 
 };

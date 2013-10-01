@@ -205,13 +205,13 @@ int main(int argc, char* argv[]) {
 	typedef itk::MeanSquaresImageToImageMetric<ImageType, ImageType> MeanSquaresMetricType;
 	
 	// perform low-rank approximation of Gaussian process prior
-	typename StatisticalModelType::Pointer model = buildLowRankGPModel<RepresenterType, VectorImageType, StatisticalModelType>(referenceFilename.c_str());
+	StatisticalModelType::Pointer model = buildLowRankGPModel<RepresenterType, VectorImageType, StatisticalModelType>(referenceFilename.c_str());
 
 	// perform image to image registration using the Gaussian process deformation model
-	typename VectorImageType::Pointer deformationField = modelBasedImageToImageRegistration<ImageType, VectorImageType, StatisticalModelType, MeanSquaresMetricType, 2>(referenceFilename, targetFilename, model); 
+	 VectorImageType::Pointer deformationField = modelBasedImageToImageRegistration<ImageType, VectorImageType, StatisticalModelType, MeanSquaresMetricType, 2>(referenceFilename, targetFilename, model); 
 
 	// write deformation field
-	typename itk::ImageFileWriter<VectorImageType>::Pointer df_writer = itk::ImageFileWriter<VectorImageType>::New();
+	itk::ImageFileWriter<VectorImageType>::Pointer df_writer = itk::ImageFileWriter<VectorImageType>::New();
 	df_writer->SetFileName(outputFilename);
 	df_writer->SetInput(deformationField);
 	df_writer->Update();
