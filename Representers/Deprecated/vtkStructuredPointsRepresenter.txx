@@ -85,6 +85,16 @@ vtkStructuredPointsRepresenter::Load(const H5::CommonFG& fg) {
 	SetReference(reference);
 }
 
+template <class TPrecision, unsigned Dimensions>
+statismo::VectorType
+vtkStructuredPointsRepresenter<TPrecision, Dimensions>::PointToVector(const PointType& pt) const {
+        // a vtk point is always 3 dimensional
+        VectorType v(3);
+        for (unsigned i = 0; i < 3; i++) {
+                v(i) = pt[i];
+        }
+        return v;
+}
 
 typename vtkStructuredPointsRepresenter::DatasetPointerType
 vtkStructuredPointsRepresenter::DatasetToSample(DatasetConstPointerType dataset) const

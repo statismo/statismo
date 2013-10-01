@@ -101,9 +101,20 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::SetReferenc
 		domainPoints.push_back(pt);
 		++it;
 	}
-	m_domain = DomainType(domainPoints);
-
+	m_domain = DomainType(domainPoints);	
 }
+
+template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
+statismo::VectorType
+VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::PointToVector(const PointType& pt) const
+{
+        statismo::VectorType v(PointType::GetPointDimension());
+        for (unsigned i = 0; i < PointType::GetPointDimension(); i++) {
+                v(i) = pt[i];
+        }
+        return v;
+}
+
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 VectorType
@@ -212,8 +223,7 @@ VectorImageRepresenterBase<TPixel, ImageDimension, VectorDimension>::LoadBaseMem
 	}
 
 	statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
-	this->m_reference = ReadDataset(tmpfilename.c_str());
-
+	b->SetReference(ReadDataset(tmpfilename.c_str()));
 	std::remove(tmpfilename.c_str());
 }
 

@@ -76,8 +76,10 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
 																 const std::string& surrogateFilename)
 {
 
+
 	//assert(this->m_representer != 0);
 	//assert(this->m_surrogateTypes.size() > 0);
+	assert(this->m_representer != 0);
 
 	const VectorType& surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
 

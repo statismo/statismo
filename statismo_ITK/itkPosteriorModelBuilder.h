@@ -36,37 +36,39 @@
  */
 
 
-#ifndef ITK_PARTIALLY_FIXED_MODELBUILDER_H_
-#define ITK_PARTIALLY_FIXED_MODELBUILDER_H_
+#ifndef ITK_POSTERIOR_MODELBUILDER_H_
+#define ITK_POSTERIOR_MODELBUILDER_H_
 
 #include "itkObject.h"
+#include "statismo/Representer.h"
 #include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
-#include "statismo/PartiallyFixedModelBuilder.h"
+#include "statismo/PosteriorModelBuilder.h"
 
 
 namespace itk
 {
 
 /**
- * \brief ITK Wrapper for the statismo::PartiallyFixedModelBuilder class.
- * \see statismo::PartiallyFixedModelBuilder for detailed documentation.
+ * \brief ITK Wrapper for the statismo::PosteriorModelBuilder class.
+ * \see statismo::PosteriorModelBuilder for detailed documentation.
  */
-template <class Representer>
-class PartiallyFixedModelBuilder : public Object {
+template <class T>
+class PosteriorModelBuilder : public Object {
 public:
 
-	typedef PartiallyFixedModelBuilder            Self;
+	typedef statismo::Representer<T> RepresenterType;
+	typedef PosteriorModelBuilder            Self;
 	typedef Object	Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
 	itkNewMacro( Self );
-	itkTypeMacro( PartiallyFixedModelBuilder, Object );
+	itkTypeMacro( PosteriorModelBuilder, Object );
 
-	typedef statismo::PartiallyFixedModelBuilder<Representer> ImplType;
-	typedef statismo::DataManager<Representer> DataManagerType;
+	typedef statismo::PosteriorModelBuilder<T> ImplType;
+	typedef statismo::DataManager<T> DataManagerType;
 	typedef typename DataManagerType::DataItemListType DataItemListType;
 
 
@@ -82,9 +84,9 @@ public:
 	}
 
 
-	PartiallyFixedModelBuilder() : m_impl(ImplType::Create()) {}
+	PosteriorModelBuilder() : m_impl(ImplType::Create()) {}
 
-	virtual ~PartiallyFixedModelBuilder() {
+	virtual ~PosteriorModelBuilder() {
 		if (m_impl) {
 			delete m_impl;
 			m_impl = 0;
@@ -93,29 +95,29 @@ public:
 
 
 	// create statismo stuff
-	typedef typename Representer::ValueType ValueType;
-	typedef typename Representer::PointType PointType;
-	typedef typename statismo::PartiallyFixedModelBuilder<Representer>::PointValueListType PointValueListType;
+	typedef typename RepresenterType::ValueType ValueType;
+	typedef typename RepresenterType::PointType PointType;
+	typedef typename statismo::PosteriorModelBuilder<T>::PointValueListType PointValueListType;
 
 
-	typename StatisticalModel<Representer>::Pointer BuildNewModelFromModel(const StatisticalModel<Representer>* model, const PointValueListType& pointValues, double pointValuesNoiseVariance,  bool computeScores=true) {
-		statismo::StatisticalModel<Representer>* model_statismo = model->GetstatismoImplObj();
-		statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelFromModel, this->m_impl, model_statismo, pointValues, pointValuesNoiseVariance, computeScores));
-		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
+	typename StatisticalModel<T>::Pointer BuildNewModelFromModel(const StatisticalModel<T>* model, const PointValueListType& pointValues, double pointValuesNoiseVariance,  bool computeScores=true) {
+		statismo::StatisticalModel<T>* model_statismo = model->GetstatismoImplObj();
+		statismo::StatisticalModel<T>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelFromModel, this->m_impl, model_statismo, pointValues, pointValuesNoiseVariance, computeScores));
+		typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
 		model_itk->SetstatismoImplObj(new_model_statismo);
 		return model_itk;
 	}
 
-	typename StatisticalModel<Representer>::Pointer BuildNewModel(DataItemListType DataItemList, const PointValueListType& pointValues, double pointValuesNoiseVariance, double noiseVariance) {
-		statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList ,pointValues, pointValuesNoiseVariance, noiseVariance));
-		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
+	typename StatisticalModel<T>::Pointer BuildNewModel(DataItemListType data, const PointValueListType& pointValues, double pointValuesNoiseVariance, double noiseVariance) {
+		statismo::StatisticalModel<T>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, data ,pointValues, pointValuesNoiseVariance, noiseVariance));
+		typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
 		model_itk->SetstatismoImplObj(model_statismo);
 		return model_itk;
 	}
 
 private:
-	PartiallyFixedModelBuilder(const PartiallyFixedModelBuilder& orig);
-	PartiallyFixedModelBuilder& operator=(const PartiallyFixedModelBuilder& rhs);
+	PosteriorModelBuilder(const PosteriorModelBuilder& orig);
+	PosteriorModelBuilder& operator=(const PosteriorModelBuilder& rhs);
 
 	ImplType* m_impl;
 };
@@ -123,4 +125,4 @@ private:
 
 }
 
-#endif /* ITK_PARTIALLY_FIXED_MODEL_BUILDER */
+#endif /* ITK_POSTERIOR_MODEL_BUILDER */

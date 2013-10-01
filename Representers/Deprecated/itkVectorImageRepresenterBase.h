@@ -135,7 +135,13 @@ public:
 	virtual unsigned GetNumberOfPoints() const;
 	virtual unsigned GetPointIdForPoint(const PointType& point) const;
             
+
 	virtual unsigned GetDimensions() const { 	return ImageType::ImageDimension; }
+
+    static void DeleteDataset(DatasetPointerType ds) {}// do nothing, as we are working with smart pointers
+
+	statismo::VectorType PointToVector(const PointType& pt) const;
+
 
 	/**
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes

@@ -53,6 +53,7 @@ namespace itk {
  * \brief ITK Wrapper for the statismo::LowRankGPModelBuilder class.
  * \see statismo::LowRankGPModelBuilder for detailed documentation.
  */
+
 template<class T>
 class LowRankGPModelBuilder: public Object {
 public:
@@ -65,8 +66,11 @@ public:
 
 	itkNewMacro (Self);itkTypeMacro( LowRankGPModelBuilder, Object );
 
+
 	typedef statismo::LowRankGPModelBuilder<T> ImplType;
 	typedef itk::StatisticalModel<T> StatisticalModelType;
+	typedef statismo::MatrixValuedKernel<T> MatrixValuedKernelType;
+
 
 	LowRankGPModelBuilder() :
 			m_impl(0) {
@@ -93,11 +97,12 @@ public:
 	}
 
 	typename StatisticalModelType::Pointer BuildNewZeroMeanModel(
-			const statismo::MatrixValuedKernel& kernel, unsigned numComponents,
+			const MatrixValuedKernelType& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 		if (m_impl == 0) {
 itkExceptionMacro		(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
 	}
+
 
 	statismo::StatisticalModel<T>* model_statismo = 0;
 	try {
@@ -114,7 +119,7 @@ itkExceptionMacro		(<< "Model not properly initialized. Maybe you forgot to call
 
 }
 
-typename StatisticalModelType::Pointer BuildNewModel(typename RepresenterType::DatasetType* mean, const statismo::MatrixValuedKernel& kernel, unsigned numComponents, unsigned numPointsForNystrom = 500) {
+typename StatisticalModelType::Pointer BuildNewModel(typename RepresenterType::DatasetType* mean, const MatrixValuedKernelType& kernel, unsigned numComponents, unsigned numPointsForNystrom = 500) {
 	if (m_impl == 0) {
 		itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
 	}
@@ -127,6 +132,7 @@ typename StatisticalModelType::Pointer BuildNewModel(typename RepresenterType::D
 	catch (statismo::StatisticalModelException& s) {
 		itkExceptionMacro(<< s.what());
 	}
+
 
 	typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
 	model_itk->SetstatismoImplObj(model_statismo);

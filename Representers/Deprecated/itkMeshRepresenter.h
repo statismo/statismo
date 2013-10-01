@@ -139,6 +139,7 @@ public:
 	/** Set the reference that is used to build the model */
 	void SetReference(DatasetConstPointerType ds);
 
+	statismo::VectorType PointToVector(const PointType& pt) const;
 
 	/**
 	 * Create a sample from the dataset. No alignment or registration is done

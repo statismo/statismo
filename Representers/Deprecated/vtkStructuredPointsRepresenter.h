@@ -99,6 +99,7 @@ public:
 
 	const vtkStructuredPoints* GetReference() const { return m_reference; }
 
+	statismo::VectorType PointToVector(const PointType& pt) const;
 
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;

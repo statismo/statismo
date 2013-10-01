@@ -58,7 +58,7 @@
 #include "statismo/DataManager.h"
 #include "statismo/DataManagerWithSurrogates.h"
 #include "statismo/StatisticalModel.h"
-#include "statismo/PartiallyFixedModelBuilder.h"
+#include "statismo/PosteriorModelBuilder.h"
 #include "statismo/ReducedVarianceModelBuilder.h"
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/Exceptions.h"
@@ -393,7 +393,7 @@ private:
 
 
 //////////////////////////////////////////////////////
-// PartiallyFixedModelBuilder
+// PosteriorModelBuilder
 //////////////////////////////////////////////////////
 
 
@@ -403,7 +403,7 @@ namespace statismo {
 %newobject *::BuildNewModel;
 
 template <typename T>
-class PartiallyFixedModelBuilder {
+class PosteriorModelBuilder {
 	typedef ModelBuilder<T> Superclass;
 public:
 	typedef  DataManager<T> 				DataManagerType;
@@ -413,18 +413,18 @@ public:
 	typedef  typename StatisticalModelType::PointValueListType PointValueListType;
 	
 	%newobject Create;
-	static PartiallyFixedModelBuilder* Create();
-	virtual ~PartiallyFixedModelBuilder();
+	static PosteriorModelBuilder* Create();
+	virtual ~PosteriorModelBuilder();
 
 	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model,	const PointValueListType& pointValues,  double pointValuesNoiseVariance, bool computeScores=true) const;
 	StatisticalModelType* BuildNewModel(const DataItemListType& sampleList, const PointValueListType& pointValues,  double pointValuesNoiseVariance,	double noiseVariance) const;
 
 	private:
-		PartiallyFixedModelBuilder();
+		PosteriorModelBuilder();
 };
 }
 
-%template(PartiallyFixedModelBuilder_vtkPD) statismo::PartiallyFixedModelBuilder<vtkPolyData>;
+%template(PosteriorModelBuilder_vtkPD) statismo::PosteriorModelBuilder<vtkPolyData>;
 
 
 //////////////////////////////////////////////////////

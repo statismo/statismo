@@ -44,18 +44,18 @@
 namespace statismo {
 
 //
-// PartiallyFixedModelBuilder
+// PosteriorModelBuilder
 //
 //
 
 template <typename T>
-PartiallyFixedModelBuilder<T>::PartiallyFixedModelBuilder()
+PosteriorModelBuilder<T>::PosteriorModelBuilder()
 : Superclass()
 {}
 
 template <typename T>
-typename PartiallyFixedModelBuilder<T>::StatisticalModelType*
-PartiallyFixedModelBuilder<T>::BuildNewModel(
+typename PosteriorModelBuilder<T>::StatisticalModelType*
+PosteriorModelBuilder<T>::BuildNewModel(
 		const DataItemListType& sampleDataList,
 		const PointValueListType& pointValues,
 		double pointValuesNoiseVariance,
@@ -64,120 +64,104 @@ PartiallyFixedModelBuilder<T>::BuildNewModel(
 	typedef PCAModelBuilder<T> PCAModelBuilderType;
 	PCAModelBuilderType* modelBuilder = PCAModelBuilderType::Create();
 	StatisticalModelType* model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
-	StatisticalModelType* partiallyFixedModel = BuildNewModelFromModel(model, pointValues, pointValuesNoiseVariance, noiseVariance);
+	StatisticalModelType* PosteriorModel = BuildNewModelFromModel(model, pointValues, pointValuesNoiseVariance, noiseVariance);
 	delete modelBuilder;
 	delete model;
-	return partiallyFixedModel;
+	return PosteriorModel;
 }
 
 
 template <typename T>
-typename PartiallyFixedModelBuilder<T>::StatisticalModelType*
-PartiallyFixedModelBuilder<T>::BuildNewModelFromModel(
+typename PosteriorModelBuilder<T>::StatisticalModelType*
+PosteriorModelBuilder<T>::BuildNewModelFromModel(
 		const StatisticalModelType* inputModel,
 		const PointValueListType& pointValues,
-		double pointValuesNoiseVariance,
+		double sigma2,
 		bool computeScores) const {
 
 	const RepresenterType* representer = inputModel->GetRepresenter();
-	const PreprocessorType* preprocessor = inputModel->GetPreprocessor();
 
-	const MatrixType& pcaBasisMatrix =  inputModel->GetOrthonormalPCABasisMatrix();
-	const VectorType& meanVector = inputModel->GetMeanVector();
+
+	// The naming of the variables correspond to those used in the paper
+	// Posterior Shape Models,
+	// Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
+	//
+	const MatrixType& U =  inputModel->GetOrthonormalPCABasisMatrix();
+	const VectorType& mu = inputModel->GetMeanVector();
 
 	// this method only makes sense for a proper PPCA model (e.g. the noise term is properly defined)
 	// if the model has zero noise, we assume a small amount of noise
-	double noiseVariance = std::max((double) inputModel->GetNoiseVariance(), (double) Superclass::TOLERANCE);
+	double rho2 = std::max((double) inputModel->GetNoiseVariance(), (double) Superclass::TOLERANCE);
 
 	unsigned dim = representer->GetDimensions();
 
 
 	// build the part matrices with , considering only the points that are fixed
 	//
-	MatrixType PCABasisPart(pointValues.size()* dim, inputModel->GetNumberOfPrincipalComponents());
-	VectorType muPart(pointValues.size() * dim);
-	VectorType samplePart(pointValues.size() * dim);
+	MatrixType U_g(pointValues.size()* dim, inputModel->GetNumberOfPrincipalComponents());
+	VectorType mu_g(pointValues.size() * dim);
+	VectorType s_g(pointValues.size() * dim);
 
 	unsigned i = 0;
 	for (typename PointValueListType::const_iterator it = pointValues.begin(); it != pointValues.end(); ++it) {
 		VectorType val = representer->PointSampleToPointSampleVector(it->second);
 		unsigned pt_id = representer->GetPointIdForPoint(it->first);
 		for (unsigned d = 0; d < dim; d++) {
-			PCABasisPart.row(i * dim + d) = pcaBasisMatrix.row(representer->MapPointIdToInternalIdx(pt_id, d));
-			muPart[i * dim + d] = meanVector[representer->MapPointIdToInternalIdx(pt_id, d)];
-			samplePart[i * dim + d] = val[d];
+			U_g.row(i * dim + d) = U.row(representer->MapPointIdToInternalIdx(pt_id, d));
+			mu_g[i * dim + d] = mu[representer->MapPointIdToInternalIdx(pt_id, d)];
+			s_g[i * dim + d] = val[d];
 		}
 		i++;
 	}
 
-	VectorType D2 = inputModel->GetPCAVarianceVector().array() - pointValuesNoiseVariance;
-	// the values of D2 can be negative. We need to be careful when taking the root
-	for (unsigned i = 0; i < D2.rows(); i++) {
-		D2(i) = std::max((ScalarType) 0, D2(i));
-	}
+	VectorType D2 = inputModel->GetPCAVarianceVector().array();
 	VectorType D = D2.array().sqrt();
 
-	// the names of the matrices are those used in Bishop, Pattern recognition and Machine learning (PRML),
-	// chapter 12, on which this implementation is based.
-	const MatrixType& W = PCABasisPart * D.asDiagonal();
-	const MatrixType& WT = W.transpose();
+	const MatrixType& Q_g = U_g * D.asDiagonal();
+	const MatrixType& Q_gT = Q_g.transpose();
 
-	MatrixType M = WT * W;
-	M.diagonal() += pointValuesNoiseVariance * VectorType::Ones(W.cols());
+	MatrixType M = Q_gT * Q_g;
+	M.diagonal() += sigma2 * VectorType::Ones(Q_g.cols());
 
 
 	MatrixTypeDoublePrecision Minv = M.cast<double>().inverse();
 
 	// the MAP solution for the latent variables (coefficients)
-	VectorType coeffs = Minv.cast<ScalarType>() * WT * (samplePart - muPart);
+	VectorType coeffs = Minv.cast<ScalarType>() * Q_gT * (s_g - mu_g);
 
 	// the MAP solution in the sample space
-	VectorType newMean = inputModel->GetRepresenter()->SampleToSampleVector(inputModel->DrawSample(coeffs));
+	VectorType mu_c = inputModel->GetRepresenter()->SampleToSampleVector(inputModel->DrawSample(coeffs));
 
-	// We note that the posterior distribution can again be seen as  PPCA model
-	// (i.e. any sample S  can be written in the form S =  mu + W alpha + epsilon)
-	// To obtain the matrix W for this posterior model, we need to perform a pca of
-	// the posterior covariance matrix given by
-	// pcaBasisMatrix * variance * Minv * pcaBasisMatrix^T.
-	//
-	// We could decompose this matrix using an SVD, as we do in the PCAModelBuilder.
-	// However, there is a more efficient way. We can use the fact that the PCABasisMatrix
-	// of the input model is composed of an orthonormal matrix U (the eigenvectors fo the data covariance)
-	// and the pcaSdev D (e.g. W = UD). We have that the covariance is given by
-	// U * pcaVariance^{1/2} * Minv * pcaVariance^{1/2} * U.T
-	// We see that all the variance terms are in the inner part of above expression (without the U).
-	// We can now compute an SVD of this inner part, say
-	// pcaVariance^{1/2} * Minv * pcaVariance^{1/2} = Uhat Dhat^2 Uhat^T.
-	// We then take U * Uhat as the new pcaBasis and Dhat^2 is the new variance. Together with the mean, this defines
-	// again a new, valid ppca model.
-	// If U is orthonormal, then we see that U*Uhat actually diagonalizes the matrix. So we even get back the classic
-	// interpretation of the U as the eigenvectors of the (now constrained) covariance matrix.
-	//
-	// For a more detailed explanation, consult the paper
-	//  Probabilistic Modeling and Visualization of the	Flexibility in Morphable Models, M. Luethi, T.Albrecht, T.Vetter
-	// and the book C. Bishop, PRML Chapter 12
-	//
 	const VectorType& pcaVariance = inputModel->GetPCAVarianceVector();
 	VectorTypeDoublePrecision pcaSdev = pcaVariance.cast<double>().array().sqrt();
 
+	VectorType D2MinusRho = D2 - VectorType::Ones(D2.rows()) * rho2;
+	// the values of D2 can be negative. We need to be careful when taking the root
+	for (unsigned i = 0; i < D2MinusRho.rows(); i++) {
+		D2MinusRho(i) = std::max((ScalarType) 0, D2(i));
+	}
+	VectorType D2MinusRhoSqrt = D2MinusRho.array().sqrt();
+
+
 	typedef Eigen::JacobiSVD<MatrixTypeDoublePrecision> SVDType;
-	MatrixTypeDoublePrecision innerMatrix = pcaSdev.asDiagonal() * Minv * pointValuesNoiseVariance * pcaSdev.asDiagonal();
+	MatrixTypeDoublePrecision innerMatrix = D2MinusRhoSqrt.cast<double>().asDiagonal() * Minv * D2MinusRhoSqrt.cast<double>().asDiagonal() * sigma2;
 	SVDType svd(innerMatrix, Eigen::ComputeThinU);
 
 
-	VectorType newPCAVariance = svd.singularValues().cast<ScalarType>();
+	// SVD of the inner matrix 
+	VectorType D_c = svd.singularValues().cast<ScalarType>();
 
-	MatrixType newPCABasisMatrix = pcaBasisMatrix * svd.matrixU().cast<ScalarType>();
+	MatrixType U_c = U * svd.matrixU().cast<ScalarType>();
 
-	StatisticalModelType* partiallyFixedModel = StatisticalModelType::Create(representer, preprocessor, newMean, newPCABasisMatrix, newPCAVariance, noiseVariance);
+	StatisticalModelType* PosteriorModel = StatisticalModelType::Create(representer,0, mu_c, U_c, D_c, rho2);
 
 	// Write the parameters used to build the models into the builderInfo
 
 	typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
 
 	BuilderInfo::ParameterInfoList bi;
-	bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
-	bi.push_back(BuilderInfo::KeyValuePair("FixedPointsVariance ", Utils::toString(pointValuesNoiseVariance)));
+	bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(rho2)));
+	bi.push_back(BuilderInfo::KeyValuePair("FixedPointsVariance ", Utils::toString(sigma2)));
 //
 	BuilderInfo::DataInfoList di;
 
@@ -202,7 +186,7 @@ PartiallyFixedModelBuilder<T>::BuildNewModelFromModel(
 	}
 
 
-	BuilderInfo builderInfo("PartiallyFixedModelBuilder", di, bi);
+	BuilderInfo builderInfo("PosteriorModelBuilder", di, bi);
 	builderInfoList.push_back(builderInfo);
 
 	MatrixType inputScores = inputModel->GetModelInfo().GetScoresMatrix();
@@ -214,14 +198,14 @@ PartiallyFixedModelBuilder<T>::BuildNewModelFromModel(
 		for (unsigned i = 0; i < inputScores.cols(); i++) {
 			// reconstruct the sample from the input model and project it back into the model
 			typename RepresenterType::DatasetPointerType ds = inputModel->DrawSample(inputScores.col(i));
-			scores.col(i) = partiallyFixedModel->ComputeCoefficientsForDataset(ds);
+			scores.col(i) = PosteriorModel->ComputeCoefficientsForDataset(ds);
 			representer->DeleteDataset(ds);
 		}
 	}
 	ModelInfo info(scores, builderInfoList);
-	partiallyFixedModel->SetModelInfo(info);
+	PosteriorModel->SetModelInfo(info);
 
-	return partiallyFixedModel;
+	return PosteriorModel;
 
 }
 

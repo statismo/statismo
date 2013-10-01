@@ -3,8 +3,8 @@ project (statismo)
 
 ENABLE_TESTING()
 
-SET(STATISMO_VERSION 0.9) 
-SET(STATISMO_MINOR_VERSION 0)
+SET(STATISMO_VERSION 0.8) 
+SET(STATISMO_MINOR_VERSION 1)
 
 
 # rpath settings
@@ -95,6 +95,11 @@ OPTION(BUILD_STATISMO_TESTS_PYTHON "Build Unit tests written in python (requires
 OPTION(BUILD_REPRESENTER_TESTS "Build representer tests (requires ITK and VTK)" OFF)
 MARK_AS_ADVANCED(BUILD_REPRESENTER_TESTS)
 
+OPTION(HAS_CXX11_ASYNC "Statismo can make use of multi-threading in case the compiler supports std::async of the C++11 standard " OFF)
+IF (HAS_CXX11_ASYNC )
+add_definitions( -DHAS_CXX11_ASYNC ) 
+ENDIF(HAS_CXX11_ASYNC)
+
 
 #
 # Install boost and eigen, by just copying them from the 3rdParty directory
@@ -109,7 +114,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo_ITK DESTINATION include)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION include)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_VERSION})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_VERSION}${STATISMO_MINOR_VERSION})
 
 # 
 # copy the data

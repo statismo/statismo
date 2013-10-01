@@ -118,6 +118,17 @@ MeshRepresenter<TPixel, MeshDimension>::SetReference(DatasetConstPointerType ref
 }
 
 
+template <class TPixel, unsigned MeshDimension>
+statismo::VectorType
+MeshRepresenter<TPixel, MeshDimension>::PointToVector(const PointType& pt) const
+{
+        statismo::VectorType v(PointType::GetPointDimension());
+        for (unsigned i = 0; i < PointType::GetPointDimension(); i++) {
+                v(i) = pt[i];
+        }
+        return v;
+}
+
 
 template <class TPixel, unsigned MeshDimension>
 typename MeshRepresenter<TPixel, MeshDimension>::DatasetPointerType

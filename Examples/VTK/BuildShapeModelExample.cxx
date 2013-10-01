@@ -39,14 +39,32 @@
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/StatisticalModel.h"
 #include "statismo/DataManager.h"
-#include "vtkPolyDataReader.h"
 #include "vtkStandardMeshRepresenter.h"
 
 #include <iostream>
 #include <memory>
 
+#include "vtkDirectory.h"
+#include "vtkPolyDataReader.h"
+
 using namespace statismo;
 using std::auto_ptr;
+
+
+int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*")
+{
+	vtkDirectory *directory = vtkDirectory::New();
+	directory->Open(dir.c_str());
+
+	for (unsigned i = 0; i < directory->GetNumberOfFiles(); i++) {
+		const char* filename = directory->GetFile(i);
+		if (extension == ".*" || std::string(filename).find(extension) != std::string::npos)
+            files.push_back(filename);
+	}
+	directory->Delete();
+    return 0;
+}
+
 
 vtkPolyData* loadVTKPolyData(const std::string& filename)
 {
@@ -79,12 +97,20 @@ int main(int argc, char** argv) {
 	typedef PCAModelBuilder<vtkPolyData> ModelBuilderType;
 	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
 
+	typedef std::vector<std::string> StringVectorType;
+	StringVectorType filenames;
+    getdir(datadir, filenames, ".vtk");
+    if (filenames.size() == 0) {
+    	std::cerr << "did not find any vtk files in directory " << datadir << " exiting.";
+    	exit(-1);
+    }
 	try {
 
 		// We create a new representer object. For the vtkPolyDataRepresenter, we have to set a reference
 		// and the alignmentType. The alignmenttype (which is here RIGID) determines how the dataset that we
 		// will use will later be aligned to the reference.
-		vtkPolyData* reference = loadVTKPolyData(datadir +"/hand-0.vtk");
+
+		vtkPolyData* reference = loadVTKPolyData(datadir + "/" + filenames[0]);
 		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 
 		// We create a datamanager and provide it with a pointer  to the representer
@@ -93,16 +119,12 @@ int main(int argc, char** argv) {
 
 		// Now we add our data to the data manager
 		// load the data and add it to the data manager. We take the first 17 hand shapes that we find in the data folder
-		for (unsigned i = 0; i < 17; i++) {
-
-			std::ostringstream ss;
-			ss << datadir +"/hand-" << i << ".vtk";
-			const std::string datasetFilename = ss.str();
-			vtkPolyData* dataset = loadVTKPolyData(datasetFilename);
+		for (unsigned i = 0; i < filenames.size() ; i++) {
+			vtkPolyData* dataset = loadVTKPolyData(datadir + "/" + filenames[i]);
 
 			// We provde the filename as a second argument.
 			// It will be written as metadata, and allows us to more easily figure out what we did later.
-			dataManager->AddDataset(dataset, datasetFilename);
+			dataManager->AddDataset(dataset, filenames[i]);
 
 			// it is save to delete the dataset after it was added, as the datamanager direclty copies it.
 			dataset->Delete();

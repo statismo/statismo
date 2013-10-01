@@ -204,12 +204,13 @@ public:
 	 */
 	virtual const statismo::Domain<PointType>& GetDomain() const = 0;
 
+
 	virtual DatasetConstPointerType GetReference() const = 0;
 
 	/**
-	 * Converts a Point
+	 * Converts a Dataset::PointType to a vector in statismo::Vector
 	 */
-	virtual statismo::VectorType PointToVector(const PointType& pt) const = 0;
+	virtual VectorType PointToVector(const PointType& pt) const = 0;
 
 	/**
 	 * Returns a vectorial representation of the given sample.

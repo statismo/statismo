@@ -36,15 +36,14 @@
  */
 
 
-#ifndef VTKPOLYDATAREPRESENTER_H_
-#define VTKPOLYDATAREPRESENTER_H_
+#ifndef vtkUnstructuredGridREPRESENTER_H_
+#define vtkUnstructuredGridREPRESENTER_H_
 
-#include "statismo/Representer.h"
-#include "vtkPolyData.h"
+#include "vtkUnstructuredGrid.h"
 #include "vtkLandmarkTransform.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
-#include "vtkHelper.h"
+#include "vtkPoint.h"
 #include "statismo/CommonTypes.h"
 #include "statismo/Domain.h"
 #include "vtkSmartPointer.h"
@@ -53,9 +52,9 @@
 
 
 /**
- * \brief A representer for vtkPolyData using Procrustes alignment to align the datasets
+ * \brief A representer for vtkUnstructuredGrid using Procrustes alignment to align the datasets
  *
- * This class provides a specialization of the Representer for the type vtkPolyData.
+ * This class provides a specialization of the Representer for the type vtkUnstructuredGrid.
  * Procrustes is used to align the given datasets with the reference.
  * The user can choose between Rigid, Similarity and Affine alignment.
  *
@@ -65,33 +64,22 @@
  * that the dataset that are read by the class need to be aligned.
  *
  * See Representer for more details about representer classes
- * \sa Representer
  */
+class vtkUnstructuredGridRepresenter  {
+public:
 
-namespace statismo {
-
-template <>
-struct RepresenterTraits<vtkPolyData> {
-	typedef vtkPolyData* DatasetPointerType;
-	typedef const vtkPolyData* DatasetConstPointerType;
+	/// The type of the data set to be used
+	typedef vtkUnstructuredGrid* DatasetPointerType;
+	typedef const vtkUnstructuredGrid* DatasetConstPointerType;
 
 	typedef vtkPoint PointType;
 	typedef vtkPoint ValueType;
 
-	static void DeleteDataset(DatasetPointerType d) {
-		d->Delete();
-	};
-    ///@}
+	typedef statismo::Domain<PointType> DomainType;
+
+	struct DatasetInfo {}; // not used for this representer, but needs to be here as it is part of the generic interface
 
 
-};
-
-
-
-class vtkPolyDataRepresenter  : public Representer<vtkPolyData>{
-public:
-
-	/// The type of the data set to be used
 
 	enum AlignmentType {
 	  NONE=999, // something that VTK does not define
@@ -100,29 +88,27 @@ public:
 	  AFFINE=VTK_LANDMARK_AFFINE
 	};
 
-	static vtkPolyDataRepresenter* Create() { return new vtkPolyDataRepresenter(); }
-
-	static vtkPolyDataRepresenter* Create(DatasetConstPointerType reference, AlignmentType alignment) {
-		return new vtkPolyDataRepresenter(reference, alignment);
+	static vtkUnstructuredGridRepresenter* Create(DatasetConstPointerType reference, AlignmentType alignment) {
+		return new vtkUnstructuredGridRepresenter(reference, alignment);
 	}
 
-	void Load(const H5::CommonFG& fg);
+	static vtkUnstructuredGridRepresenter* Load(const H5::CommonFG& fg);
 
-	vtkPolyDataRepresenter* Clone() const;
+	vtkUnstructuredGridRepresenter* Clone() const;
 	void Delete() const { delete this; }
 
-	virtual ~vtkPolyDataRepresenter();
+	virtual ~vtkUnstructuredGridRepresenter();
 
 
-	std::string GetName() const { return "vtkPolyDataRepresenter"; }
-	unsigned GetDimensions() const { return 3; }
+	static std::string GetName() { return "vtkUnstructuredGridRepresenter"; }
+	static unsigned GetDimensions() { return 3; }
 
 	const DomainType& GetDomain() const { return m_domain; }
 
 	AlignmentType GetAlignment() const { return m_alignment; }
 
 	DatasetConstPointerType GetReference() const { return m_reference; }
-	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
+
 	statismo::VectorType PointToVector(const PointType& pt) const;
 	DatasetPointerType DatasetToSample(DatasetConstPointerType ds, DatasetInfo* notUsed) const;
 	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
@@ -137,19 +123,27 @@ public:
 	unsigned GetNumberOfPoints() const;
 	unsigned GetPointIdForPoint(const PointType& point) const;
 
+    
+    static void DeleteDataset(DatasetPointerType d) ;
+
+	 /* Maps a (Pointid,component) tuple to a component of the internal matrix.
+	 * This is used to locate the place in the matrix to store the elements for a given point.
+	 * @params ptId The point id
+	 * @params the Component Index (range 0, Dimensionality)
+	 * @returns an index.
+	 */
+	static unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) {
+		return ptId * GetDimensions() + componentInd;
+	}
 
 
 
 private:
 
-	vtkPolyDataRepresenter() : m_reference(0), m_pdTransform(0), m_alignment(NONE) {}
-
-	vtkPolyDataRepresenter(const std::string& reference, AlignmentType alignment);
-	vtkPolyDataRepresenter(const DatasetConstPointerType reference, AlignmentType alignment);
-	vtkPolyDataRepresenter(const vtkPolyDataRepresenter& orig);
-	vtkPolyDataRepresenter& operator=(const vtkPolyDataRepresenter& rhs);
-
-	void SetReference(const vtkPolyData* reference);
+	vtkUnstructuredGridRepresenter(const std::string& reference, AlignmentType alignment);
+	vtkUnstructuredGridRepresenter(const DatasetConstPointerType reference, AlignmentType alignment);
+	vtkUnstructuredGridRepresenter(const vtkUnstructuredGridRepresenter& orig);
+	vtkUnstructuredGridRepresenter& operator=(const vtkUnstructuredGridRepresenter& rhs);
 
 	static DatasetPointerType ReadDataset(const std::string& filename);
 	static void WriteDataset(const std::string& filename, DatasetConstPointerType pd) ;
@@ -162,8 +156,6 @@ private:
 	DomainType m_domain;
 };
 
-} // namespace statismo
+#include "vtkUnstructuredGridRepresenter.cpp"
 
-#include "vtkPolyDataRepresenter.cpp"
-
-#endif /* VTKPOLYDATAREPRESENTER_H_ */
+#endif /* vtkUnstructuredGridREPRESENTER_H_ */

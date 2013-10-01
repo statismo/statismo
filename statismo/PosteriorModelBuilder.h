@@ -36,10 +36,12 @@
  */
 
 
-#ifndef __PARTIALLYFIXEDMODELBUILDER_H_
-#define __PARTIALLYFIXEDMODELBUILDER_H_
+#ifndef __POSTERIORMODELBUILDER_H_
+#define __POSTERIORMODELBUILDER_H_
+
 
 #include "Config.h"
+#include "Representer.h"
 #include "ModelBuilder.h"
 #include "DataManager.h"
 #include "StatisticalModel.h"
@@ -51,25 +53,25 @@ namespace statismo {
 
 
 /**
- * \brief creates a statistical model (PCA Model), given point constraints (fixed values)
+ * \brief Given a statistical model (prior) and a set of point constraints (likelihood), generate a new PCA model (posterior).
  *
  * This class builds a StatisticalModel, just as PCAModelBuilder. However, in addition to the data,
  * this model builder also takes as input a set of point constraints, i.e. known values for points.
  * The resulting model will satisfy these constraints, and thus has a much lower variability than an
  * unconstrained model would have.
  *
- * For mathematical details, see the paper
- * Probabilistic Modeling and Visualization of the Flexibility in Morphable Models,
- * M. Luethi, T. Albrecht and T. Vetter, Mathematics of Surfaces, 2009
+ * For mathematical detailes see the paper
+ * Posterior Shape Models
+ * Thomas Albrecht, Marcel L ̈thi, Thomas Gerig, Thomas Vetter
+ * Medical Image Analysis 2013
  *
- * \todo Add method that allows for the use of the pointId in the constraint.
+ * Add method that allows for the use of the pointId in the constraint.
  */
 template <typename T>
-class PartiallyFixedModelBuilder : public ModelBuilder<T> {
+class PosteriorModelBuilder : public ModelBuilder<T> {
 public:
 
 	typedef Representer<T> RepresenterType;
-	typedef Preprocessor<T> PreprocessorType;
 	typedef ModelBuilder<T> Superclass;
 	typedef typename Superclass::DataManagerType 				DataManagerType;
 	typedef typename Superclass::StatisticalModelType 	StatisticalModelType;
@@ -80,10 +82,10 @@ public:
 
 
 	/**
-	 * Factory method to create a new PartiallyFixedModelBuilder
+	 * Factory method to create a new PosteriorModelBuilder
 	 * \param representer The representer
 	 */
-	static PartiallyFixedModelBuilder* Create() { return new PartiallyFixedModelBuilder(); }
+	static PosteriorModelBuilder* Create() { return new PosteriorModelBuilder(); }
 
 	/**
 	 * Destroy the object.
@@ -96,7 +98,7 @@ public:
 	/**
 	 * destructor
 	 */
-	virtual ~PartiallyFixedModelBuilder() {}
+	virtual ~PosteriorModelBuilder() {}
 
 	/**
 	 * Builds a new model from the data provided in the dataManager, and the given constraints.
@@ -108,7 +110,7 @@ public:
 	 *
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
-	StatisticalModelType* BuildNewModel(const DataItemListType& DataItemList,
+	StatisticalModelType* BuildNewModel(const DataItemListType& dataItemList,
 										const PointValueListType& pointValues,
 										double pointValueNoiseVariance,
 										double noiseVariance) const;
@@ -133,15 +135,15 @@ protected:
 	
 
 private:
-	PartiallyFixedModelBuilder();
-	PartiallyFixedModelBuilder(const PartiallyFixedModelBuilder& orig);
-	PartiallyFixedModelBuilder& operator=(const PartiallyFixedModelBuilder& rhs);
+	PosteriorModelBuilder();
+	PosteriorModelBuilder(const PosteriorModelBuilder& orig);
+	PosteriorModelBuilder& operator=(const PosteriorModelBuilder& rhs);
 
 
 };
 
 } // namespace statismo
 
-#include "PartiallyFixedModelBuilder.txx"
+#include "PosteriorModelBuilder.txx"
 
-#endif /* __PARTIALLYFIXEDMODELBUILDER_H_ */
+#endif /* __POSTERIORMODELBUILDER_H_ */
