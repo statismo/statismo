@@ -66,6 +66,7 @@ public:
 
 	typedef statismo::LowRankGPModelBuilder<Representer> ImplType;
 	typedef itk::StatisticalModel<Representer> StatisticalModelType;
+	typedef statismo::MatrixValuedKernel<Representer> MatrixValuedKernelType;
 
 	LowRankGPModelBuilder() :
 			m_impl(0) {
@@ -92,7 +93,7 @@ public:
 	}
 
 	typename StatisticalModelType::Pointer BuildNewZeroMeanModel(
-			const statismo::MatrixValuedKernel& kernel, unsigned numComponents,
+			const MatrixValuedKernelType& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 		if (m_impl == 0) {
 itkExceptionMacro		(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
@@ -113,7 +114,7 @@ itkExceptionMacro		(<< "Model not properly initialized. Maybe you forgot to call
 
 }
 
-typename StatisticalModelType::Pointer BuildNewModel(typename RepresenterType::DatasetType* mean, const statismo::MatrixValuedKernel& kernel, unsigned numComponents, unsigned numPointsForNystrom = 500) {
+typename StatisticalModelType::Pointer BuildNewModel(typename RepresenterType::DatasetType* mean, const MatrixValuedKernelType& kernel, unsigned numComponents, unsigned numPointsForNystrom = 500) {
 	if (m_impl == 0) {
 		itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
 	}
