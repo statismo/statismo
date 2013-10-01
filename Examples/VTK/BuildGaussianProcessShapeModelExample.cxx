@@ -59,22 +59,20 @@ vtkPolyData* loadVTKPolyData(const std::string& filename)
 
 
 
-
-
-
 //
-// Build a new shape model TODO document me
+// This example illustrates, how the flexibility of a statistical (shape) model can be extended by combining its covariance function
+// with a Gaussian Kernel function.
 //
 int main(int argc, char** argv) {
 
 	if (argc < 5) {
-		std::cout << "Usage " << argv[0] << " reference gaussianKernelWidth numberOfComponents, modelname" << std::endl;
+		std::cout << "Usage " << argv[0] << " model gaussianKernelWidth numberOfComponents, outputmodelName" << std::endl;
 		exit(-1);
 	}
-	std::string referenceFilename(argv[1]);
+	std::string modelFilename(argv[1]);
 	double gaussianKernelSigma = std::atof(argv[2]);
 	int numberOfComponents = std::atoi(argv[3]);
-	std::string modelname(argv[4]);
+	std::string outputModelFilename(argv[4]);
 
 
 	// All the statismo classes have to be parameterized with the RepresenterType.
@@ -82,29 +80,36 @@ int main(int argc, char** argv) {
 	typedef vtkPolyDataRepresenter RepresenterType;
 	typedef LowRankGPModelBuilder<vtkPolyDataRepresenter> ModelBuilderType;
 	typedef StatisticalModel<vtkPolyDataRepresenter> StatisticalModelType;
+	typedef GaussianKernel<vtkPolyDataRepresenter> GaussianKernelType;
+	typedef MatrixValuedKernel<vtkPolyDataRepresenter> MatrixValuedKernelType;
 
 	try {
 
-		// We create a new representer object. For the vtkPolyDataRepresenter, we have to set a reference.
-		vtkPolyData* reference = loadVTKPolyData(referenceFilename);
-		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference, RepresenterType::NONE));
+		// we load an existing statistical model and create a StatisticalModelKernel from it. The statisticlModelKernel
+		// takes the covariance (matrix) of the model and defines a kernel function from it.
+		auto_ptr<StatisticalModelType> model(StatisticalModelType::Load(modelFilename));
+		const MatrixValuedKernelType& statModelKernel = StatisticalModelKernel<RepresenterType>(model.get());
 
-		// create a scalar valued kernel
-		const GaussianKernel gk = GaussianKernel(gaussianKernelSigma);
+		// Create a (scalar valued) gaussian kernel. This kernel is then made matrix-valued. We use a UncorrelatedMatrixValuedKernel,
+		// which assumes that each output component is independent.
+		const GaussianKernelType gk = GaussianKernelType(model->GetRepresenter(), gaussianKernelSigma);
+		const MatrixValuedKernelType& mvGk = UncorrelatedMatrixValuedKernel<RepresenterType>(&gk, model->GetRepresenter()->GetDimensions());
 
-		// make the kernel matrix valued and scale it by a factor of 100
-		const MatrixValuedKernel& mvGk = UncorrelatedMatrixValuedKernel(&gk, 3);
-		const MatrixValuedKernel& scaledGk = ScaledKernel(&mvGk, 100.0);
+		// We scale the kernel (and hence the resulting deformations) of the Gaussian kernel by  a factor of 100, in order
+		// to achieve a visible effect.
+		const MatrixValuedKernelType& scaledGk = ScaledKernel<RepresenterType>(&mvGk, 100.0);
 
+		// The model kernel and the Gaussian kernel are combined to a new kernel.
+		const MatrixValuedKernelType& combinedModelAndGaussKernel = SumKernel<RepresenterType>(&statModelKernel, &scaledGk);
 
-		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create(representer.get()));
-		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(reference, scaledGk, numberOfComponents));
+		// We create a new model using the combined kernel. The new model will be more flexible than the original statistical model.
+		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create(model->GetRepresenter()));
+		auto_ptr<StatisticalModelType> combinedModel(modelBuilder->BuildNewModel(model->DrawMean(), combinedModelAndGaussKernel, numberOfComponents));
 
 		// Once we have built the model, we can save it to disk.
-		model->Save(modelname);
-		std::cout << "Successfully saved shape model as " << modelname << std::endl;
+		combinedModel->Save(outputModelFilename);
+		std::cout << "Successfully saved shape model as " << outputModelFilename << std::endl;
 
-		reference->Delete();
 	}
 	catch (StatisticalModelException& e) {
 		std::cout << "Exception occured while building the shape model" << std::endl;

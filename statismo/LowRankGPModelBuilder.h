@@ -25,6 +25,8 @@ namespace statismo {
  */
 struct ResEigenfunctionPointComputations {
 
+	ResEigenfunctionPointComputations() : lowerInd(0), upperInd(0) {}
+
 	ResEigenfunctionPointComputations(unsigned _lowerInd, unsigned _upperInd,
 			const MatrixType& _resMat) :
 			lowerInd(_lowerInd), upperInd(_upperInd), resMatrix(_resMat) {
@@ -36,23 +38,31 @@ struct ResEigenfunctionPointComputations {
 };
 
 /**
- * A model builder
+ * A model builder for building statistical models that are specified by an arbitrary Gaussian Process.
+ * For details on the theoretical basis for this type of model builder, see the paper
+ *
+ * A unified approach to shape model fitting and non-rigid registration
+ * Marcel Lüthi, Christoph Jud and Thomas Vetter
+ * IN: Proceedings of the 4th International Workshop on Machine Learning in Medical Imaging,
+ * LNCS 8184, pp.66-73 Nagoya, Japan, September 2013
+ *
  */
-
-template<typename Representer>
-class LowRankGPModelBuilder: public ModelBuilder<Representer> {
+template<typename TRepresenter>
+class LowRankGPModelBuilder: public ModelBuilder<TRepresenter> {
 
 public:
-	typedef Representer RepresenterType;
-	typedef ModelBuilder<Representer> Superclass;
+	typedef TRepresenter RepresenterType;
+	typedef ModelBuilder<TRepresenter> Superclass;
 	typedef typename Superclass::DataManagerType DataManagerType;
 	typedef typename Superclass::StatisticalModelType StatisticalModelType;
 
 	typedef statismo::Domain<typename RepresenterType::PointType> DomainType;
 	typedef typename DomainType::DomainPointsListType DomainPointsListType;
+	typedef MatrixValuedKernel<TRepresenter> MatrixValuedKernelType;
+	typedef typename RepresenterType::PointType PointType;
 
 	/**
-	 * Factory method to create a new PCAModelBuilder
+	 * Factory method to create a new ModelBuilder
 	 */
 	static LowRankGPModelBuilder* Create(const RepresenterType* representer) {
 		return new LowRankGPModelBuilder(representer);
@@ -68,59 +78,22 @@ public:
 	}
 
 	/**
-	 * The desctructor
+	 * The destructor
 	 */
 	virtual ~LowRankGPModelBuilder() {
 	}
 
+
 	/**
-	 * Computes the row of the PCABasismat for the domainPoints with index ranging from lowerInd to upperInd
-	 * @param kernel A kernel function
-	 * @param numEigenfunction The number of eigenfunctions
-	 * @param domainPts a list of points for which the eigenfunction has to be computed
+	 * Build a new model using a zero-mean Gaussian process with given  kernel.
+	 * \param kernel: A kernel (or covariance) function
+	 * \param numComponents The number of components used for the low rank approximation.
+	 * \param numPointsForNystrom  The number of points used for the Nystrom approximation
+	 *
+	 * \return a new statistical model representing the given Gaussian process
 	 */
-	ResEigenfunctionPointComputations computeEigenfunctionsForPoints(
-			const MatrixValuedKernel* kernel, unsigned numEigenfunctions,
-			unsigned numDomainPoints, const std::vector<VectorType>& xs,
-			const std::vector<VectorType> & domainPts, const MatrixType& M,
-			unsigned lowerInd, unsigned upperInd) const {
-
-		unsigned m = xs.size();
-
-		unsigned kernelDim = kernel->GetDimension();
-
-		assert(upperInd <= domainPts.size());
-
-		// holds the results of the computation
-		MatrixType resMat = MatrixType::Zero((upperInd - lowerInd) * kernelDim,
-				numEigenfunctions);
-
-		// compute the nystrom extension for each point i in domainPts, for which
-		// i is in the right range
-		for (unsigned i = lowerInd; i < upperInd; i++) {
-
-			// for every domain point x in the list, we compute the kernel vector
-			// kx = (k(x, x1), ... k(x, xm))
-			// since the kernel is matrix valued, kx is actually a matrix
-			MatrixType kxi = MatrixType::Zero(kernelDim, m * kernelDim);
-
-			for (unsigned j = 0; j < m; j++) {
-				kxi.block(0, j * kernelDim, kernelDim, kernelDim) = (*kernel)(
-						domainPts[i], xs[j]);
-			}
-
-			for (unsigned j = 0; j < numEigenfunctions; j++) {
-				MatrixType x = (kxi * M.col(j));
-				resMat.block((i - lowerInd) * kernelDim, j, kernelDim, 1) = x;
-			}
-
-		}
-
-		return ResEigenfunctionPointComputations(lowerInd, upperInd, resMat);
-	}
-
 	StatisticalModelType* BuildNewZeroMeanModel(
-			const MatrixValuedKernel& kernel, unsigned numComponents,
+			const MatrixValuedKernelType& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 
 		VectorType zeroVec = VectorType::Zero(
@@ -134,28 +107,30 @@ public:
 
 	/**
 	 * Build a new model using a Gaussian process with given mean and kernel.
-	 * \param numPointsForNystrom  The number of points used in the Nystrom Approximation
-	 * \param numComponents The number of principal components to be computed
+	 * \param mean: A dataset that represents the mean (shape or deformation)
+	 * \param kernel: A kernel (or covariance) function
+	 * \param numComponents The number of components used for the low rank approximation.
+	 * \param numPointsForNystrom  The number of points used for the Nystrom approximation
 	 *
-	 * \return a new statistical model representing the given gaussian process
+	 * \return a new statistical model representing the given Gaussian process
 	 */
 	StatisticalModelType* BuildNewModel(
 			typename RepresenterType::DatasetConstPointerType mean,
-			const MatrixValuedKernel& kernel, unsigned numComponents,
+			const MatrixValuedKernelType& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 
 		DomainType domain = m_representer->GetDomain();
 		unsigned n = domain.GetNumberOfPoints();
 
 		// convert all the points in the domain to a vector representation
-		std::vector<VectorType> domainPoints;
-		std::vector<VectorType> shuffledDomainPoints;
+		std::vector<PointType> domainPoints;
+		std::vector<PointType> shuffledDomainPoints;
 		for (typename DomainPointsListType::const_iterator it =
 				domain.GetDomainPoints().begin();
 				it != domain.GetDomainPoints().end(); ++it) {
 
-			domainPoints.push_back(m_representer->PointToVector(*it));
-			shuffledDomainPoints.push_back(m_representer->PointToVector(*it));
+			domainPoints.push_back(*it);
+			shuffledDomainPoints.push_back(*it);
 		}
 		assert(domainPoints.size() == n);
 
@@ -163,7 +138,7 @@ public:
 				shuffledDomainPoints.end());
 
 		// select a subset of the points for computing the nystrom approximation.
-		std::vector<VectorType> xs;
+		std::vector<PointType> xs;
 		for (unsigned i = 0; i < numPointsForNystrom; i++) {
 			xs.push_back(shuffledDomainPoints[i]);
 		}
@@ -211,11 +186,11 @@ public:
 #ifdef HAS_CXX11_ASYNC
 			resvec.push_back(
 					std::async(std::launch::async,
-							&LowRankGPModelBuilder<Representer>::computeEigenfunctionsForPoints,
+							&LowRankGPModelBuilder<TRepresenter>::computeEigenfunctionsForPoints,
 							this, &kernel, numComponents, n, xs, domainPoints, M,
 							lowerInd, upperInd));
 #else
-			resvec.push_back(LowRankGPModelBuilder<Representer>::computeEigenfunctionsForPoints(
+			resvec.push_back(LowRankGPModelBuilder<TRepresenter>::computeEigenfunctionsForPoints(
 							&kernel, numComponents, n, xs, domainPoints,
 							M, lowerInd, upperInd));
 
@@ -268,13 +243,61 @@ public:
 
 private:
 
+
+	/*
+	 * Compute the eigenfunction value at the poitns with index lowerInd - upperInd.
+	 * Return a result object with the given values.
+	 * This method is used to be able to parallelize the computations.
+	 */
+	ResEigenfunctionPointComputations computeEigenfunctionsForPoints(
+			const MatrixValuedKernelType* kernel, unsigned numEigenfunctions,
+			unsigned numDomainPoints, const std::vector<PointType>& xs,
+			const std::vector<PointType> & domainPts, const MatrixType& M,
+			unsigned lowerInd, unsigned upperInd) const {
+
+		unsigned m = xs.size();
+
+		unsigned kernelDim = kernel->GetDimension();
+
+		assert(upperInd <= domainPts.size());
+
+		// holds the results of the computation
+		MatrixType resMat = MatrixType::Zero((upperInd - lowerInd) * kernelDim,
+				numEigenfunctions);
+
+		// compute the nystrom extension for each point i in domainPts, for which
+		// i is in the right range
+		for (unsigned i = lowerInd; i < upperInd; i++) {
+
+			// for every domain point x in the list, we compute the kernel vector
+			// kx = (k(x, x1), ... k(x, xm))
+			// since the kernel is matrix valued, kx is actually a matrix
+			MatrixType kxi = MatrixType::Zero(kernelDim, m * kernelDim);
+
+			for (unsigned j = 0; j < m; j++) {
+				kxi.block(0, j * kernelDim, kernelDim, kernelDim) = (*kernel)(
+						domainPts[i], xs[j]);
+			}
+
+			for (unsigned j = 0; j < numEigenfunctions; j++) {
+				MatrixType x = (kxi * M.col(j));
+				resMat.block((i - lowerInd) * kernelDim, j, kernelDim, 1) = x;
+			}
+
+		}
+
+		return ResEigenfunctionPointComputations(lowerInd, upperInd, resMat);
+	}
+
+
+
 	/**
 	 * Compute the kernel matrix for all points given in xs and
 	 * return a matrix U with the first numComponents eigenvectors and a vector D with
 	 * the corresponding eigenvalues of this kernel matrix
 	 */
-	void computeKernelMatrixDecomposition(const MatrixValuedKernel* kernel,
-			const std::vector<VectorType>& xs, unsigned numComponents,
+	void computeKernelMatrixDecomposition(const MatrixValuedKernelType* kernel,
+			const std::vector<PointType>& xs, unsigned numComponents,
 			MatrixType& U, VectorType& D) const {
 		unsigned kernelDim = kernel->GetDimension();
 

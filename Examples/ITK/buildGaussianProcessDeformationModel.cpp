@@ -79,10 +79,10 @@ void itkExample(const char* referenceFilename, double gaussianKernelSigma, const
     representer->SetReference(refReader->GetOutput());
 
 
-	const statismo::GaussianKernel gk = statismo::GaussianKernel(gaussianKernelSigma); // a gk with sigma 100
+	const statismo::GaussianKernel<RepresenterType> gk = statismo::GaussianKernel<RepresenterType>(representer, gaussianKernelSigma); // a gk with sigma 100
 	// make the kernel matrix valued and scale it by a factor of 100
-	const statismo::MatrixValuedKernel& mvGk = statismo::UncorrelatedMatrixValuedKernel(&gk, representer->GetDimensions());
-	const statismo::MatrixValuedKernel& scaledGk = statismo::ScaledKernel(&mvGk, 100.0);
+	const statismo::MatrixValuedKernel<RepresenterType>& mvGk = statismo::UncorrelatedMatrixValuedKernel<RepresenterType>(&gk, representer->GetDimensions());
+	const statismo::MatrixValuedKernel<RepresenterType>& scaledGk = statismo::ScaledKernel<RepresenterType>(&mvGk, 100.0);
 
 
     typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();

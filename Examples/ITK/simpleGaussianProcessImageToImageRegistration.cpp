@@ -116,10 +116,11 @@ StatisticalModelType::Pointer buildLowRankGPModel(
 	RepresenterType::Pointer representer = RepresenterType::New();
 	representer->SetReference(referenceReader->GetOutput());
 
-	const statismo::GaussianKernel gk = statismo::GaussianKernel(GaussianSigma); // a Gaussian kernel with sigma=gaussianKernelSigma
+	const statismo::GaussianKernel<RepresenterType> gk = statismo::GaussianKernel<RepresenterType>(representer, GaussianSigma); // a Gaussian kernel with sigma=gaussianKernelSigma
+
 	// make the kernel matrix valued and scale it by a factor of 100
-	const statismo::MatrixValuedKernel& mvGk = statismo::UncorrelatedMatrixValuedKernel(&gk, representer->GetDimensions());
-	const statismo::MatrixValuedKernel& scaledGk = statismo::ScaledKernel(&mvGk, GaussianScale); // apply Gaussian scale parameter
+	const statismo::MatrixValuedKernel<RepresenterType>& mvGk = statismo::UncorrelatedMatrixValuedKernel<RepresenterType>(&gk, representer->GetDimensions());
+	const statismo::MatrixValuedKernel<RepresenterType>& scaledGk = statismo::ScaledKernel<RepresenterType>(&mvGk, GaussianScale); // apply Gaussian scale parameter
 
 	ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
 	gpModelBuilder->SetRepresenter(representer);
