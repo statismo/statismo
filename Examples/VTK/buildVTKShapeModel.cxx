@@ -52,7 +52,6 @@ using namespace statismo;
 using std::auto_ptr;
 
 
-/*function... might want it in some class?*/
 int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*")
 {
 	vtkDirectory *directory = vtkDirectory::New();
@@ -72,11 +71,9 @@ vtkPolyData* loadVTKPolyData(const std::string& filename)
 {
 	vtkPolyDataReader* reader = vtkPolyDataReader::New();
 	reader->SetFileName(filename.c_str());
-	std::cout<<"names: "<<filename<<std::endl;
 	reader->Update();
 	vtkPolyData* pd = vtkPolyData::New();
 	pd->ShallowCopy(reader->GetOutput());
-	std::cout<<"nb pts: "<<pd->GetNumberOfPoints()<<std::endl;
 	return pd;
 }
 
@@ -104,7 +101,10 @@ int main(int argc, char** argv) {
 	typedef std::vector<std::string> StringVectorType;
 	StringVectorType filenames;
     getdir(datadir, filenames, ".vtk");
-
+    if (filenames.size() == 0) {
+    	std::cerr << "did not find any vtk files in directory " << datadir << " exiting.";
+    	exit(-1);
+    }
 	try {
 
 		// We create a new representer object. For the vtkPolyDataRepresenter, we have to set a reference
@@ -121,7 +121,6 @@ int main(int argc, char** argv) {
 		// Now we add our data to the data manager
 		// load the data and add it to the data manager. We take the first 17 hand shapes that we find in the data folder
 		for (unsigned i = 0; i < filenames.size() ; i++) {
-			std::cout<<"trying to open file: "<<filenames[i]<<std::endl;
 			vtkPolyData* dataset = loadVTKPolyData(datadir + "/" + filenames[i]);
 
 			// We provde the filename as a second argument.
