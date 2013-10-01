@@ -173,9 +173,9 @@ public:
 		// To save time, we parallelize over the rows
 
 #ifdef HAS_CXX11_ASYNC
-		std::vector < std::future<ResEigenfunctionPointComputations> > resvec;
+		std::vector < std::future<ResEigenfunctionPointComputations>* > resvec;
 #else
-		std::vector<ResEigenfunctionPointComputations> resvec;
+		std::vector<ResEigenfunctionPointComputations*> resvec;
 #endif
 		// precompute the part of the nystrom approximation, which is independent of the domain point
 		MatrixType M = sqrt(m / float(n))
@@ -195,31 +195,31 @@ public:
 			if (lowerInd >= upperInd)
 				break;
 
-#ifdef HAS_CXX11_ASYNC
-			resvec.push_back(
-					std::async(std::launch::async,
-							&LowRankGPModelBuilder<TRepresenter>::computeEigenfunctionsForPoints,
-							this, &kernel, numComponents, n, xs, domainPoints, M,
-							lowerInd, upperInd));
-#else
-			resvec.push_back(LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints(
-							&kernel, numComponents, n, xs, domainPoints,
-							M, lowerInd, upperInd));
 
+#ifdef HAS_CXX11_ASYNC
+			resvec.push_back(new std::future<ResEigenfunctionPointComputations>(
+					std::async(std::launch::async,
+							&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
+							this, &kernel, numComponents, n, xs, domainPoints, M,
+							lowerInd, upperInd)));
+#else
+			resvec.push_back(new ResEigenfunctionPointComputations(LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints(
+							&kernel, numComponents, n, xs, domainPoints,
+							M, lowerInd, upperInd)));
 #endif
 		}
 
 		// collect the result
 		for (unsigned i = 0; i < resvec.size(); i++) {
 #ifdef HAS_CXX11_ASYNC
-			ResEigenfunctionPointComputations res = resvec[i].get();
+			ResEigenfunctionPointComputations res = resvec[i]->get();
 #else
-			ResEigenfunctionPointComputations res = resvec[i];
+			ResEigenfunctionPointComputations res = *(resvec[i]);
 #endif
-
 			pcaBasis.block(res.lowerInd * kernelDim, 0,
 					(res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
 					res.resMatrix;
+			delete resvec[i];
 		}
 
 		MatrixType pcaVariance = n / float(m) * D.topRows(numComponents);
