@@ -10,60 +10,115 @@
 
 namespace statismo {
 
-
-
+/**
+ * Base class from which all ScalarValuedKernels derive.
+ */
+template<class TRepresenter>
 class ScalarValuedKernel {
 public:
 
-	virtual ~ScalarValuedKernel() {	}
-	virtual double operator()(const VectorType& x,
-			const VectorType& y) const = 0;
+	typedef typename TRepresenter::PointType PointType;
 
+	/**
+	 * Create a new scalar valued kernel.
+	 */
+	ScalarValuedKernel(const TRepresenter* representer) :
+			m_representer(representer) {
+	}
+
+	virtual ~ScalarValuedKernel() {
+	}
+
+	/**
+	 * Evaluate the kernel function at the points x and y
+	 */
+	virtual double operator()(const PointType& x, const PointType& y) const = 0;
+
+	/**
+	 * Return a description of this kernel
+	 */
 	virtual std::string GetKernelInfo() const = 0;
+
+	/**
+	 * Returns the representer.
+	 */
+	const TRepresenter* GetRepresenter() const { return m_representer; }
+
+protected:
+	const TRepresenter* m_representer;
 };
 
 
-// forward declarations
-class SumKernel;
-class ScaledKernel;
-class ProductKernel;
-
-
+/**
+ * Base class for all matrix valued kernels
+ */
+template<class TRepresenter>
 class MatrixValuedKernel {
 public:
+	typedef typename TRepresenter::PointType PointType;
 
-	MatrixValuedKernel(unsigned dim): m_dimension(dim) {}
+	/**
+	 * Create a new MatrixValuedKernel
+	 */
+	MatrixValuedKernel(const TRepresenter* representer, unsigned dim) :
+			m_representer(representer), m_dimension(dim) {
+	}
 
-	virtual MatrixType operator()(const VectorType& x,
-			const VectorType& y) const = 0;
+	/**
+	 * Evaluate the kernel at the points x and y
+	 */
+	virtual MatrixType operator()(const PointType& x,
+			const PointType& y) const = 0;
 
-	virtual unsigned GetDimension() const { return m_dimension; }
+	/**
+	 * Return the dimensionality of the kernel (i.e. the size of the matrix)
+	 */
+	virtual unsigned GetDimension() const {
+		return m_dimension;
+	}
 	;
 	virtual ~MatrixValuedKernel() {
 	}
 
+	/**
+	 * Return a description of this kernel.
+	 */
 	virtual std::string GetKernelInfo() const = 0;
 
+	/**
+	 * Return the representer.
+	 */
+	const TRepresenter* GetRepresenter() const { return m_representer; }
+
 protected:
+	const TRepresenter* m_representer;
 	unsigned m_dimension;
 
 };
 
+/**
+ * A (matrix valued) kernel, which represents the sum of two matrix valued kernels.
+ */
+template<class TRepresenter>
+class SumKernel: public MatrixValuedKernel<TRepresenter> {
 
-
-
-
-
-class SumKernel : public MatrixValuedKernel{
 public:
-	SumKernel(const MatrixValuedKernel* lhs, const MatrixValuedKernel* rhs) : MatrixValuedKernel(lhs->GetDimension()), m_lhs(lhs), m_rhs(rhs) {
+
+	typedef typename TRepresenter::PointType PointType;
+
+	SumKernel(const MatrixValuedKernel<TRepresenter>* lhs,
+			const MatrixValuedKernel<TRepresenter>* rhs) :
+			MatrixValuedKernel<TRepresenter>(m_lhs->GetRepresenter(), lhs->GetDimension()),
+			m_lhs(lhs),
+			m_rhs(rhs) {
 		if (lhs->GetDimension() != rhs->GetDimension()) {
-			throw StatisticalModelException("Kernels in SumKernel must have the same dimensionality");
+			throw StatisticalModelException(
+					"Kernels in SumKernel must have the same dimensionality");
 		}
 	}
 
-	MatrixType operator()(const VectorType& x,const VectorType& y) const {
-		return (*m_lhs)(x,y) + (*m_rhs)(x,y);
+	MatrixType operator()(const PointType& x, const PointType& y) const {
+		return (*m_lhs)(x, y) + (*m_rhs)(x, y);
 	}
 
 	std::string GetKernelInfo() const {
@@ -72,24 +127,36 @@ public:
 		return os.str();
 	}
 
-
 private:
-	const MatrixValuedKernel* m_lhs;
-	const MatrixValuedKernel* m_rhs;
+	const MatrixValuedKernel<TRepresenter>* m_lhs;
+	const MatrixValuedKernel<TRepresenter>* m_rhs;
 };
 
 
-class ProductKernel : public MatrixValuedKernel{
+
+/**
+ * A (matrix valued) kernel, which represents the product of two matrix valued kernels.
+ */
+
+template<class TRepresenter>
+class ProductKernel: public MatrixValuedKernel<TRepresenter> {
 public:
-	ProductKernel(const MatrixValuedKernel* lhs, const MatrixValuedKernel* rhs) : MatrixValuedKernel(lhs->GetDimension()), m_lhs(lhs), m_rhs(rhs) {
+
+	typedef typename TRepresenter::PointType PointType;
+
+	ProductKernel(const MatrixValuedKernel<TRepresenter>* lhs,
+			const MatrixValuedKernel<TRepresenter>* rhs) :
+			MatrixValuedKernel<TRepresenter>(lhs->GetDimension()), m_lhs(lhs), m_rhs(
+					rhs) {
 		if (lhs->GetDimension() != rhs->GetDimension()) {
-			throw StatisticalModelException("Kernels in SumKernel must have the same dimensionality");
+			throw StatisticalModelException(
+					"Kernels in SumKernel must have the same dimensionality");
 		}
 
 	}
 
-	MatrixType operator()(const VectorType& x,const VectorType& y) const {
-		return (*m_lhs)(x,y) * (*m_rhs)(x,y);
+	MatrixType operator()(const PointType& x, const PointType& y) const {
+		return (*m_lhs)(x, y) * (*m_rhs)(x, y);
 	}
 
 	std::string GetKernelInfo() const {
@@ -98,19 +165,30 @@ public:
 		return os.str();
 	}
 
-
 private:
-	const MatrixValuedKernel* m_lhs;
-	const MatrixValuedKernel* m_rhs;
+	const MatrixValuedKernel<TRepresenter>* m_lhs;
+	const MatrixValuedKernel<TRepresenter>* m_rhs;
 };
 
 
-class ScaledKernel : public MatrixValuedKernel {
-public:
-	ScaledKernel(const MatrixValuedKernel* kernel, double scalingFactor) : MatrixValuedKernel(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {}
+/**
+ * A (matrix valued) kernel, which represents a scalar multiple of a matrix valued kernel.
+ */
 
-	MatrixType operator()(const VectorType& x,const VectorType& y) const {
-		return (*m_kernel)(x,y) * m_scalingFactor;
+template<class TRepresenter>
+class ScaledKernel: public MatrixValuedKernel<TRepresenter> {
+public:
+
+	typedef typename TRepresenter::PointType PointType;
+
+	ScaledKernel(const MatrixValuedKernel<TRepresenter>* kernel,
+			double scalingFactor) :
+			MatrixValuedKernel<TRepresenter>(kernel->GetRepresenter(), kernel->GetDimension()), m_kernel(
+					kernel), m_scalingFactor(scalingFactor) {
+	}
+
+	MatrixType operator()(const PointType& x, const PointType& y) const {
+		return (*m_kernel)(x, y) * m_scalingFactor;
 	}
 	std::string GetKernelInfo() const {
 		std::ostringstream os;
@@ -118,56 +196,74 @@ public:
 		return os.str();
 	}
 
-
 private:
-	const MatrixValuedKernel* m_kernel;
+	const MatrixValuedKernel<TRepresenter>* m_kernel;
 	double m_scalingFactor;
 };
 
 
-class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel{
+/**
+ * Takes a scalar valued kernel and creates a matrix valued kernel of the given dimension.
+ * The new kernel models the output components as independent, i.e. if K(x,y) is a scalar valued Kernel,
+ * the matrix valued kernel becomes Id*K(x,y), where Id is an identity matrix of dimensionality d.
+ */
+template<class TRepresenter>
+class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel<TRepresenter> {
 public:
-	UncorrelatedMatrixValuedKernel(const ScalarValuedKernel* scalarKernel, unsigned dimension):
-		MatrixValuedKernel(dimension),
-		m_kernel(scalarKernel),
-		m_ident(MatrixType::Identity(dimension, dimension)) {}
 
-		MatrixType operator()(const VectorType& x,
-				const VectorType& y) const {
+	typedef typename TRepresenter::PointType PointType;
 
-			return m_ident * (*m_kernel)(x, y);
-		}
+	UncorrelatedMatrixValuedKernel(
+			const ScalarValuedKernel<TRepresenter>* scalarKernel,
+			unsigned dimension) :
+			MatrixValuedKernel<TRepresenter>(scalarKernel->GetRepresenter(),
+					dimension), m_kernel(scalarKernel), m_ident(
+					MatrixType::Identity(dimension, dimension)) {
+	}
+
+	MatrixType operator()(const PointType& x, const PointType& y) const {
+
+		return m_ident * (*m_kernel)(x, y);
+	}
 
 	virtual ~UncorrelatedMatrixValuedKernel() {
 	}
 
 	std::string GetKernelInfo() const {
 		std::ostringstream os;
-		os << "UncorrelatedMatrixValuedKernel(" << (*m_kernel).GetKernelInfo() << ", " << this->m_dimension << ")";
+		os << "UncorrelatedMatrixValuedKernel(" << (*m_kernel).GetKernelInfo()
+				<< ", " << this->m_dimension << ")";
 		return os.str();
 	}
 
 private:
 
-
-	const ScalarValuedKernel* m_kernel;
+	const ScalarValuedKernel<TRepresenter>* m_kernel;
 	MatrixType m_ident;
 
 };
 
-class GaussianKernel: public ScalarValuedKernel {
+/**
+ * A scalar valued gaussian kernel.
+ */
+template<class TRepresenter>
+class GaussianKernel: public ScalarValuedKernel<TRepresenter> {
 public:
 
-	 GaussianKernel(double sigma) :
-		 m_sigma(sigma),
-	  m_sigma2(sigma * sigma) {}
+	typedef typename TRepresenter::PointType PointType;
 
+	GaussianKernel(const TRepresenter* representer, double sigma) :
+			ScalarValuedKernel<TRepresenter>(representer), m_sigma(sigma), m_sigma2(
+					sigma * sigma) {
+	}
 
- virtual ~GaussianKernel() {}
+	virtual ~GaussianKernel() {
+	}
 
-
-	inline double operator()(const VectorType& x, const VectorType& y) const {
-		VectorType r = x - y;
+	inline double operator()(const PointType& x, const PointType& y) const {
+		VectorType xv = this->m_representer->PointToVector(x);
+		VectorType yv = this->m_representer->PointToVector(y);
+		VectorType r = xv - yv;
 		return exp(-r.dot(r) / m_sigma2);
 	}
 
@@ -184,9 +280,40 @@ private:
 };
 
 
+/**
+ * This (matrix valued) kernel represents the covariance of a given statistical model.
+ */
+template<class TRepresenter>
+class StatisticalModelKernel: public MatrixValuedKernel<TRepresenter> {
+public:
+
+        typedef typename TRepresenter::PointType PointType;
+        typedef StatisticalModel<TRepresenter> StatisticalModelType;
+
+        StatisticalModelKernel(const StatisticalModelType* model)
+        : MatrixValuedKernel<TRepresenter>(model->GetRepresenter(), model->GetRepresenter()->GetDimensions()),
+          m_statisticalModel(model)
+          { }
+
+
+        virtual ~StatisticalModelKernel() {
+        }
+
+        inline MatrixType operator()(const PointType& x, const PointType& y) const {
+                MatrixType m = m_statisticalModel->GetCovarianceAtPoint(x, y);
+                return m;
+        }
+
+
+        std::string GetKernelInfo() const {
+        	return "StatisticalModelKernel";
+        }
+
+private:
+        const StatisticalModelType* m_statisticalModel;
+};
 
 
 } // namespace statismo
-
 
 #endif // __KERNELS_H
