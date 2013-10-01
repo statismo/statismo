@@ -188,7 +188,7 @@ public:
 		// and store it later in the pcaBasis matrix. In this way we obtain
 		// a standard statismo model.
 		// To save time, we parallelize over the rows
-		std::vector < std::future<ResEigenfunctionPointComputations> > resvec;
+		std::vector < std::future<ResEigenfunctionPointComputations>* > resvec;
 		// precompute the part of the nystrom approximation, which is independent of the domain point
 		MatrixType M = sqrt(m / float(n))
 				* (U.leftCols(numComponents)
@@ -208,20 +208,21 @@ public:
 					(i + 1) * chunkSize);
 			if (lowerInd >= upperInd)
 				break;
-			resvec.push_back(
-					std::async(std::launch::async,
+			resvec.push_back(new std::future<ResEigenfunctionPointComputations>(
+							std::async(std::launch::async,
 							&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
 							this, &kernel, numComponents, n, xs, domainPoints, M,
-							lowerInd, upperInd));
+							lowerInd, upperInd)));
 
 		}
 
 		// collect the result
 		for (unsigned i = 0; i < resvec.size(); i++) {
-			ResEigenfunctionPointComputations res = resvec[i].get();
+			ResEigenfunctionPointComputations res = resvec[i]->get();
 			pcaBasis.block(res.lowerInd * kernelDim, 0,
 					(res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
 					res.resMatrix;
+			delete resvec[i];
 		}
 
 		MatrixType pcaVariance = n / float(m) * D.topRows(numComponents);
