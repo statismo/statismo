@@ -139,7 +139,7 @@ StatisticalModelType::Pointer buildLowRankGPModel(
 	typedef itk::LowRankGPModelBuilder<RepresenterType> ModelBuilderType;
 	typedef std::vector<std::string> StringVectorType;
 	typedef itk::ImageFileReader<VectorImageType> DeformationFieldReaderType;
-	typedef typename RepresenterType::PointType PointType;
+	typedef RepresenterType::PointType PointType;
 
 	std::cout << "Building low-rank Gaussian process deformation model... "
 			<< std::flush;
