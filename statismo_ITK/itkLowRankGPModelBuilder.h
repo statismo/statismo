@@ -66,7 +66,7 @@ public:
 
 	typedef statismo::LowRankGPModelBuilder<Representer> ImplType;
 	typedef itk::StatisticalModel<Representer> StatisticalModelType;
-	typedef statismo::MatrixValuedKernel<Representer> MatrixValuedKernelType;
+	typedef statismo::MatrixValuedKernel<typename Representer::PointType> MatrixValuedKernelType;
 
 	LowRankGPModelBuilder() :
 			m_impl(0) {

@@ -13,18 +13,14 @@ namespace statismo {
 /**
  * Base class from which all ScalarValuedKernels derive.
  */
-template<class TRepresenter>
+template<class TPoint>
 class ScalarValuedKernel {
 public:
-
-	typedef typename TRepresenter::PointType PointType;
 
 	/**
 	 * Create a new scalar valued kernel.
 	 */
-	ScalarValuedKernel(const TRepresenter* representer) :
-			m_representer(representer) {
-	}
+	ScalarValuedKernel(){	}
 
 	virtual ~ScalarValuedKernel() {
 	}
@@ -32,43 +28,35 @@ public:
 	/**
 	 * Evaluate the kernel function at the points x and y
 	 */
-	virtual double operator()(const PointType& x, const PointType& y) const = 0;
+	virtual double operator()(const TPoint& x, const TPoint& y) const = 0;
 
 	/**
 	 * Return a description of this kernel
 	 */
 	virtual std::string GetKernelInfo() const = 0;
 
-	/**
-	 * Returns the representer.
-	 */
-	const TRepresenter* GetRepresenter() const { return m_representer; }
-
-protected:
-	const TRepresenter* m_representer;
 };
 
 
 /**
  * Base class for all matrix valued kernels
  */
-template<class TRepresenter>
+template<class TPoint>
 class MatrixValuedKernel {
 public:
-	typedef typename TRepresenter::PointType PointType;
 
 	/**
 	 * Create a new MatrixValuedKernel
 	 */
-	MatrixValuedKernel(const TRepresenter* representer, unsigned dim) :
-			m_representer(representer), m_dimension(dim) {
+	MatrixValuedKernel(unsigned dim) :
+			m_dimension(dim) {
 	}
 
 	/**
 	 * Evaluate the kernel at the points x and y
 	 */
-	virtual MatrixType operator()(const PointType& x,
-			const PointType& y) const = 0;
+	virtual MatrixType operator()(const TPoint& x,
+			const TPoint& y) const = 0;
 
 	/**
 	 * Return the dimensionality of the kernel (i.e. the size of the matrix)
@@ -85,13 +73,7 @@ public:
 	 */
 	virtual std::string GetKernelInfo() const = 0;
 
-	/**
-	 * Return the representer.
-	 */
-	const TRepresenter* GetRepresenter() const { return m_representer; }
-
 protected:
-	const TRepresenter* m_representer;
 	unsigned m_dimension;
 
 };
@@ -99,16 +81,14 @@ protected:
 /**
  * A (matrix valued) kernel, which represents the sum of two matrix valued kernels.
  */
-template<class TRepresenter>
-class SumKernel: public MatrixValuedKernel<TRepresenter> {
+template<class TPoint>
+class SumKernel: public MatrixValuedKernel<TPoint> {
 
 public:
 
-	typedef typename TRepresenter::PointType PointType;
-
-	SumKernel(const MatrixValuedKernel<TRepresenter>* lhs,
-			const MatrixValuedKernel<TRepresenter>* rhs) :
-			MatrixValuedKernel<TRepresenter>(m_lhs->GetRepresenter(), lhs->GetDimension()),
+	SumKernel(const MatrixValuedKernel<TPoint>* lhs,
+			const MatrixValuedKernel<TPoint>* rhs) :
+			MatrixValuedKernel<TPoint>(lhs->GetDimension()),
 			m_lhs(lhs),
 			m_rhs(rhs) {
 		if (lhs->GetDimension() != rhs->GetDimension()) {
@@ -117,7 +97,7 @@ public:
 		}
 	}
 
-	MatrixType operator()(const PointType& x, const PointType& y) const {
+	MatrixType operator()(const TPoint& x, const TPoint& y) const {
 		return (*m_lhs)(x, y) + (*m_rhs)(x, y);
 	}
 
@@ -128,8 +108,8 @@ public:
 	}
 
 private:
-	const MatrixValuedKernel<TRepresenter>* m_lhs;
-	const MatrixValuedKernel<TRepresenter>* m_rhs;
+	const MatrixValuedKernel<TPoint>* m_lhs;
+	const MatrixValuedKernel<TPoint>* m_rhs;
 };
 
 
@@ -138,15 +118,13 @@ private:
  * A (matrix valued) kernel, which represents the product of two matrix valued kernels.
  */
 
-template<class TRepresenter>
-class ProductKernel: public MatrixValuedKernel<TRepresenter> {
+template<class TPoint>
+class ProductKernel: public MatrixValuedKernel<TPoint> {
 public:
 
-	typedef typename TRepresenter::PointType PointType;
-
-	ProductKernel(const MatrixValuedKernel<TRepresenter>* lhs,
-			const MatrixValuedKernel<TRepresenter>* rhs) :
-			MatrixValuedKernel<TRepresenter>(lhs->GetDimension()), m_lhs(lhs), m_rhs(
+	ProductKernel(const MatrixValuedKernel<TPoint>* lhs,
+			const MatrixValuedKernel<TPoint>* rhs) :
+			MatrixValuedKernel<TPoint>(lhs->GetDimension()), m_lhs(lhs), m_rhs(
 					rhs) {
 		if (lhs->GetDimension() != rhs->GetDimension()) {
 			throw StatisticalModelException(
@@ -155,7 +133,7 @@ public:
 
 	}
 
-	MatrixType operator()(const PointType& x, const PointType& y) const {
+	MatrixType operator()(const TPoint& x, const TPoint& y) const {
 		return (*m_lhs)(x, y) * (*m_rhs)(x, y);
 	}
 
@@ -166,8 +144,8 @@ public:
 	}
 
 private:
-	const MatrixValuedKernel<TRepresenter>* m_lhs;
-	const MatrixValuedKernel<TRepresenter>* m_rhs;
+	const MatrixValuedKernel<TPoint>* m_lhs;
+	const MatrixValuedKernel<TPoint>* m_rhs;
 };
 
 
@@ -175,19 +153,16 @@ private:
  * A (matrix valued) kernel, which represents a scalar multiple of a matrix valued kernel.
  */
 
-template<class TRepresenter>
-class ScaledKernel: public MatrixValuedKernel<TRepresenter> {
+template<class TPoint>
+class ScaledKernel: public MatrixValuedKernel<TPoint> {
 public:
 
-	typedef typename TRepresenter::PointType PointType;
-
-	ScaledKernel(const MatrixValuedKernel<TRepresenter>* kernel,
+	ScaledKernel(const MatrixValuedKernel<TPoint>* kernel,
 			double scalingFactor) :
-			MatrixValuedKernel<TRepresenter>(kernel->GetRepresenter(), kernel->GetDimension()), m_kernel(
-					kernel), m_scalingFactor(scalingFactor) {
+			MatrixValuedKernel<TPoint>(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {
 	}
 
-	MatrixType operator()(const PointType& x, const PointType& y) const {
+	MatrixType operator()(const TPoint& x, const TPoint& y) const {
 		return (*m_kernel)(x, y) * m_scalingFactor;
 	}
 	std::string GetKernelInfo() const {
@@ -197,7 +172,7 @@ public:
 	}
 
 private:
-	const MatrixValuedKernel<TRepresenter>* m_kernel;
+	const MatrixValuedKernel<TPoint>* m_kernel;
 	double m_scalingFactor;
 };
 
@@ -207,21 +182,18 @@ private:
  * The new kernel models the output components as independent, i.e. if K(x,y) is a scalar valued Kernel,
  * the matrix valued kernel becomes Id*K(x,y), where Id is an identity matrix of dimensionality d.
  */
-template<class TRepresenter>
-class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel<TRepresenter> {
+template<class TPoint>
+class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel<TPoint> {
 public:
 
-	typedef typename TRepresenter::PointType PointType;
-
 	UncorrelatedMatrixValuedKernel(
-			const ScalarValuedKernel<TRepresenter>* scalarKernel,
+			const ScalarValuedKernel<TPoint>* scalarKernel,
 			unsigned dimension) :
-			MatrixValuedKernel<TRepresenter>(scalarKernel->GetRepresenter(),
-					dimension), m_kernel(scalarKernel), m_ident(
-					MatrixType::Identity(dimension, dimension)) {
+			MatrixValuedKernel<TPoint>(	dimension), m_kernel(scalarKernel),
+			m_ident(MatrixType::Identity(dimension, dimension)) {
 	}
 
-	MatrixType operator()(const PointType& x, const PointType& y) const {
+	MatrixType operator()(const TPoint& x, const TPoint& y) const {
 
 		return m_ident * (*m_kernel)(x, y);
 	}
@@ -238,60 +210,25 @@ public:
 
 private:
 
-	const ScalarValuedKernel<TRepresenter>* m_kernel;
+	const ScalarValuedKernel<TPoint>* m_kernel;
 	MatrixType m_ident;
 
 };
 
-/**
- * A scalar valued gaussian kernel.
- */
-template<class TRepresenter>
-class GaussianKernel: public ScalarValuedKernel<TRepresenter> {
-public:
-
-	typedef typename TRepresenter::PointType PointType;
-
-	GaussianKernel(const TRepresenter* representer, double sigma) :
-			ScalarValuedKernel<TRepresenter>(representer), m_sigma(sigma), m_sigma2(
-					sigma * sigma) {
-	}
-
-	virtual ~GaussianKernel() {
-	}
-
-	inline double operator()(const PointType& x, const PointType& y) const {
-		VectorType xv = this->m_representer->PointToVector(x);
-		VectorType yv = this->m_representer->PointToVector(y);
-		VectorType r = xv - yv;
-		return exp(-r.dot(r) / m_sigma2);
-	}
-
-	std::string GetKernelInfo() const {
-		std::ostringstream os;
-		os << "GaussianKernel(" << m_sigma << ")";
-		return os.str();
-	}
-
-private:
-
-	double m_sigma;
-	double m_sigma2;
-};
 
 
 /**
  * This (matrix valued) kernel represents the covariance of a given statistical model.
  */
 template<class TRepresenter>
-class StatisticalModelKernel: public MatrixValuedKernel<TRepresenter> {
+class StatisticalModelKernel: public MatrixValuedKernel<typename TRepresenter::PointType> {
 public:
 
-        typedef typename TRepresenter::PointType PointType;
         typedef StatisticalModel<TRepresenter> StatisticalModelType;
+        typedef typename TRepresenter::PointType PointType;
 
         StatisticalModelKernel(const StatisticalModelType* model)
-        : MatrixValuedKernel<TRepresenter>(model->GetRepresenter(), model->GetRepresenter()->GetDimensions()),
+        : MatrixValuedKernel<PointType>(model->GetRepresenter()->GetDimensions()),
           m_statisticalModel(model)
           { }
 

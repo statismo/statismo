@@ -74,6 +74,40 @@
 #include <string>
 
 
+
+/**
+ * A scalar valued gaussian kernel.
+ */
+template <class TPoint>
+class GaussianKernel: public statismo::ScalarValuedKernel<TPoint>{
+public:
+	typedef typename  TPoint::CoordRepType CoordRepType;
+	typedef vnl_vector<CoordRepType> VectorType;
+
+	GaussianKernel(double sigma) : m_sigma(sigma), m_sigma2(sigma * sigma) {}
+
+	inline double operator()(const TPoint& x, const TPoint& y) const {
+		VectorType xv = x.GetVnlVector();
+		VectorType yv = y.GetVnlVector();
+
+		VectorType r = yv - xv;
+		return exp(dot_product(r, r) / m_sigma2);
+	}
+
+	std::string GetKernelInfo() const {
+		std::ostringstream os;
+		os << "GaussianKernel(" << m_sigma << ")";
+		return os.str();
+	}
+
+private:
+
+	double m_sigma;
+	double m_sigma2;
+};
+
+
+
 /*
  * Build a low-rank Gaussian process model using a Gaussian kernel function
  * 
@@ -97,6 +131,7 @@ typename TStatisticalModelType::Pointer buildLowRankGPModel(const char* referenc
 	typedef itk::LowRankGPModelBuilder<TRepresenter> ModelBuilderType;
     typedef std::vector<std::string> StringVectorType;
 	typedef itk::ImageFileReader<TImage> ImageFileReaderType;
+	typedef typename TImage::PointType PointType;
 
 	std::cout << "Building low-rank Gaussian process deformation model... " << std::flush;
 
@@ -108,10 +143,10 @@ typename TStatisticalModelType::Pointer buildLowRankGPModel(const char* referenc
     typename TRepresenter::Pointer representer = TRepresenter::New();
     representer->SetReference(referenceReader->GetOutput());
 
-	const statismo::GaussianKernel<TRepresenter> gk = statismo::GaussianKernel<TRepresenter>(representer, gaussianKernelSigma); // a Gaussian kernel with sigma=gaussianKernelSigma
+	const GaussianKernel<PointType> gk = GaussianKernel<PointType>(gaussianKernelSigma); // a Gaussian kernel with sigma=gaussianKernelSigma
 	// make the kernel matrix valued and scale it by a factor of 100
-	const statismo::MatrixValuedKernel<TRepresenter>& mvGk = statismo::UncorrelatedMatrixValuedKernel<TRepresenter>(&gk, representer->GetDimensions());
-	const statismo::MatrixValuedKernel<TRepresenter>& scaledGk = statismo::ScaledKernel<TRepresenter>(&mvGk, gaussianKernelScale); // apply Gaussian scale parameter
+	const statismo::MatrixValuedKernel<PointType>& mvGk = statismo::UncorrelatedMatrixValuedKernel<PointType>(&gk, representer->GetDimensions());
+	const statismo::MatrixValuedKernel<PointType>& scaledGk = statismo::ScaledKernel<PointType>(&mvGk, gaussianKernelScale); // apply Gaussian scale parameter
 
     typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
     gpModelBuilder->SetRepresenter(representer);
