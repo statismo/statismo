@@ -91,7 +91,7 @@ public:
 		VectorType yv = y.GetVnlVector();
 
 		VectorType r = yv - xv;
-		return exp(dot_product(r, r) / m_sigma2);
+		return exp(-dot_product(r, r) / m_sigma2);
 	}
 
 	std::string GetKernelInfo() const {
