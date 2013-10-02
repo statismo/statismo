@@ -75,6 +75,40 @@
 #include <string>
 
 
+
+/**
+ * A scalar valued gaussian kernel.
+ */
+template <class TPoint>
+class GaussianKernel: public statismo::ScalarValuedKernel<TPoint>{
+public:
+	typedef typename  TPoint::CoordRepType CoordRepType;
+	typedef vnl_vector<CoordRepType> VectorType;
+
+	GaussianKernel(double sigma) : m_sigma(sigma), m_sigma2(sigma * sigma) {}
+
+	inline double operator()(const TPoint& x, const TPoint& y) const {
+		VectorType xv = x.GetVnlVector();
+		VectorType yv = y.GetVnlVector();
+
+		VectorType r = yv - xv;
+		return exp(dot_product(r, r) / m_sigma2);
+	}
+
+	std::string GetKernelInfo() const {
+		std::ostringstream os;
+		os << "GaussianKernel(" << m_sigma << ")";
+		return os.str();
+	}
+
+private:
+
+	double m_sigma;
+	double m_sigma2;
+};
+
+
+
 /*
  * Build a low-rank Gaussian process model using a Gaussian kernel function
  * 
@@ -97,7 +131,13 @@ typename TStatisticalModel::Pointer buildLowRankGPModel(const char* referenceFil
 	typedef itk::LowRankGPModelBuilder<TImage> ModelBuilderType;
     typedef std::vector<std::string> StringVectorType;
 	typedef itk::ImageFileReader<TImage> ImageFileReaderType;
+	typedef typename TImage::PointType PointType;
+
+
     typename TRepresenter::Pointer representer = TRepresenter::New();
+
+	std::cout << "Building low-rank Gaussian process deformation model... " << std::flush;
+
 
     // we take an arbitrary dataset as the reference, as they have all the same resolution anyway
 	typename ImageFileReaderType::Pointer referenceReader = ImageFileReaderType::New();
@@ -106,10 +146,10 @@ typename TStatisticalModel::Pointer buildLowRankGPModel(const char* referenceFil
 
     representer->SetReference(referenceReader->GetOutput());
 
-	const statismo::GaussianKernel<TImage> gk = statismo::GaussianKernel<TImage>(representer, gaussianKernelSigma); // a Gaussian kernel with sigma=gaussianKernelSigma
+	const GaussianKernel<PointType> gk = GaussianKernel<PointType>(gaussianKernelSigma); // a Gaussian kernel with sigma=gaussianKernelSigma
 	// make the kernel matrix valued and scale it by a factor of 100
-	const statismo::MatrixValuedKernel<TImage>& mvGk = statismo::UncorrelatedMatrixValuedKernel<TImage>(&gk, representer->GetDimensions());
-	const statismo::MatrixValuedKernel<TImage>& scaledGk = statismo::ScaledKernel<TImage>(&mvGk, gaussianKernelScale); // apply Gaussian scale parameter
+	const statismo::MatrixValuedKernel<PointType>& mvGk = statismo::UncorrelatedMatrixValuedKernel<PointType>(&gk, representer->GetDimensions());
+	const statismo::MatrixValuedKernel<PointType>& scaledGk = statismo::ScaledKernel<PointType>(&mvGk, gaussianKernelScale); // apply Gaussian scale parameter
 
     typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
     gpModelBuilder->SetRepresenter(representer);

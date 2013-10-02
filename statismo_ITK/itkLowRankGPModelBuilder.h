@@ -66,11 +66,9 @@ public:
 
 	itkNewMacro (Self);itkTypeMacro( LowRankGPModelBuilder, Object );
 
-
 	typedef statismo::LowRankGPModelBuilder<T> ImplType;
 	typedef itk::StatisticalModel<T> StatisticalModelType;
-	typedef statismo::MatrixValuedKernel<T> MatrixValuedKernelType;
-
+	typedef statismo::MatrixValuedKernel<typename RepresenterType::PointType> MatrixValuedKernelType;
 
 	LowRankGPModelBuilder() :
 			m_impl(0) {
@@ -100,7 +98,7 @@ public:
 			const MatrixValuedKernelType& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 		if (m_impl == 0) {
-itkExceptionMacro		(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
+			itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
 	}
 
 

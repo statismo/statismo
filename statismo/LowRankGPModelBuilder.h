@@ -68,10 +68,8 @@ public:
 
 	typedef statismo::Domain<typename RepresenterType::PointType> DomainType;
 	typedef typename DomainType::DomainPointsListType DomainPointsListType;
-
-
-	typedef MatrixValuedKernel<T> MatrixValuedKernelType;
 	typedef typename RepresenterType::PointType PointType;
+	typedef MatrixValuedKernel<PointType> MatrixValuedKernelType;
 
 	/**
 	 * Factory method to create a new ModelBuilder

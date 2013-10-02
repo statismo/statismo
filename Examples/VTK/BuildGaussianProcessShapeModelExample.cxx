@@ -47,6 +47,35 @@
 using namespace statismo;
 using std::auto_ptr;
 
+
+/**
+ * A scalar valued gaussian kernel.
+ */
+class GaussianKernel: public ScalarValuedKernel<vtkPoint> {
+public:
+
+	GaussianKernel(double sigma) : m_sigma(sigma), m_sigma2(sigma * sigma) {
+	}
+
+	inline double operator()(const vtkPoint& x, const vtkPoint& y) const {
+		VectorType r(3);
+		r << x[0] - y[0], x[1] - y[1], x[2] - y[2];
+		return exp(-r.dot(r) / m_sigma2);
+	}
+
+	std::string GetKernelInfo() const {
+		std::ostringstream os;
+		os << "GaussianKernel(" << m_sigma << ")";
+		return os.str();
+	}
+
+private:
+
+	double m_sigma;
+	double m_sigma2;
+};
+
+
 vtkPolyData* loadVTKPolyData(const std::string& filename)
 {
 	vtkPolyDataReader* reader = vtkPolyDataReader::New();
@@ -76,11 +105,12 @@ int main(int argc, char** argv) {
 
 
 	// All the statismo classes have to be parameterized with the RepresenterType.
+
 	typedef vtkStandardMeshRepresenter RepresenterType;
 	typedef LowRankGPModelBuilder<vtkPolyData> ModelBuilderType;
 	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
-	typedef GaussianKernel<vtkPolyData> GaussianKernelType;
-	typedef MatrixValuedKernel<vtkPolyData> MatrixValuedKernelType;
+	typedef GaussianKernel GaussianKernelType;
+	typedef MatrixValuedKernel<vtkPoint> MatrixValuedKernelType;
 
 	try {
 
@@ -92,15 +122,16 @@ int main(int argc, char** argv) {
 
 		// Create a (scalar valued) gaussian kernel. This kernel is then made matrix-valued. We use a UncorrelatedMatrixValuedKernel,
 		// which assumes that each output component is independent.
-		const GaussianKernelType gk = GaussianKernelType(model->GetRepresenter(), gaussianKernelSigma);
-		const MatrixValuedKernelType& mvGk = UncorrelatedMatrixValuedKernel<vtkPolyData>(&gk, model->GetRepresenter()->GetDimensions());
+
+		const GaussianKernel gk = GaussianKernel(gaussianKernelSigma);
+		const MatrixValuedKernelType& mvGk = UncorrelatedMatrixValuedKernel<vtkPoint>(&gk, model->GetRepresenter()->GetDimensions());
 
 		// We scale the kernel (and hence the resulting deformations) of the Gaussian kernel by  a factor of 100, in order
 		// to achieve a visible effect.
-		const MatrixValuedKernelType& scaledGk = ScaledKernel<vtkPolyData>(&mvGk, 100.0);
+		const MatrixValuedKernelType& scaledGk = ScaledKernel<vtkPoint>(&mvGk, 100.0);
 
 		// The model kernel and the Gaussian kernel are combined to a new kernel.
-		const MatrixValuedKernelType& combinedModelAndGaussKernel = SumKernel<vtkPolyData>(&statModelKernel, &scaledGk);
+		const MatrixValuedKernelType& combinedModelAndGaussKernel = SumKernel<vtkPoint>(&statModelKernel, &scaledGk);
 
 		// We create a new model using the combined kernel. The new model will be more flexible than the original statistical model.
 		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create(model->GetRepresenter()));
