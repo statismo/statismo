@@ -221,7 +221,7 @@ void vtkStandardMeshRepresenter::Save(const H5::Group& fg) const {
 		vtkDataArray* vectors = cd->GetVectors();
 		WriteDataArray(cdGroup, "vectors", vectors);
 	}
-	if (pd != 0 && pd->GetNormals() != 0) {
+	if (cd != 0 && cd->GetNormals() != 0) {
 		vtkDataArray* normals = cd->GetNormals();
 		WriteDataArray(cdGroup, "normals", normals);
 	}
