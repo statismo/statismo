@@ -99,7 +99,7 @@ typedef itk::TransformMeshFilter<MeshType, MeshType, CompositeTransformType> Tra
 
 
 typedef itk::PartiallyFixedModelBuilder<RepresenterType> PartiallyFixedModelBuilderType;
-typedef itk::PointsLocator<int, 3, double, MeshType::PointsContainer > PointsLocatorType;
+typedef itk::PointsLocator< MeshType::PointsContainer > PointsLocatorType;
 
 class ConfigParameters {
 public:

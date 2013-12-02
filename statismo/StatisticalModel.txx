@@ -499,20 +499,18 @@ template <typename Representer>
 StatisticalModel<Representer>*
 StatisticalModel<Representer>::Load(const std::string& filename, unsigned maxNumberOfPCAComponents) {
 
-	using namespace H5;
-
-	StatisticalModel* newModel = 0;
+    StatisticalModel* newModel = 0;
 
 	H5::H5File file;
 	try {
-		file = H5File(filename.c_str(), H5F_ACC_RDONLY);
+        file = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
 	}
 	catch (H5::Exception& e) {
 		 std::string msg(std::string("could not open HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
 
-	Group modelRoot = file.openGroup("/");
+    H5::Group modelRoot = file.openGroup("/");
 	
 	newModel =  Load(modelRoot, maxNumberOfPCAComponents);
 
@@ -527,9 +525,7 @@ template <typename Representer>
 StatisticalModel<Representer>*
 StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
 
-	using namespace H5;
-
-	StatisticalModel* newModel = 0;
+    StatisticalModel* newModel = 0;
 
 	if (maxNumberOfPCAComponents != std::numeric_limits<unsigned>::max()) {
 		std::cout << "Warning! Loading a subset of the PCA Components can \
@@ -538,7 +534,7 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 
 
 	try {
-		Group representerGroup = modelRoot.openGroup("./representer");
+        H5::Group representerGroup = modelRoot.openGroup("./representer");
 		std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
 		if (rep_name != Representer::GetName() && Representer::GetName() != "TrivialVectorialRepresenter") {
 			throw StatisticalModelException("A different representer was used to create the file. Cannot load hdf5 file.");
@@ -547,7 +543,7 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 		newModel = new StatisticalModel(Representer::Load(representerGroup));
 		representerGroup.close();
 
-		Group modelGroup = modelRoot.openGroup("./model");
+        H5::Group modelGroup = modelRoot.openGroup("./model");
 		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
 		HDF5Utils::readVector(modelGroup, "./mean", newModel->m_mean);
 		HDF5Utils::readVector(modelGroup, "./pcaVariance", maxNumberOfPCAComponents, newModel->m_pcaVariance);
@@ -572,14 +568,11 @@ StatisticalModel<Representer>::Load(const H5::Group& modelRoot, unsigned maxNumb
 template <typename Representer>
 void
 StatisticalModel<Representer>::Save(const std::string& filename) const {
-	using namespace H5;
-
-	H5File file;
-	std::ifstream ifile(filename.c_str());
+    H5::H5File file;
 
 	try {
 	     file = H5::H5File( filename.c_str(), H5F_ACC_TRUNC);
-	 } catch (FileIException& e) {
+     } catch (H5::FileIException& e) {
 		 std::string msg(std::string("Could not open HDF5 file for writing \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	 }
@@ -588,7 +581,7 @@ StatisticalModel<Representer>::Save(const std::string& filename) const {
 	 H5::Group modelRoot = file.openGroup("/");
 	 Save(modelRoot);
 	 modelRoot.close();
-	file.close();	
+     file.close();
 }
 
 template <typename Representer>
