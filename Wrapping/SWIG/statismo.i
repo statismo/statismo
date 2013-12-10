@@ -360,6 +360,7 @@ public:
 	 %rename("DrawSampleAtPointId") DrawSampleAtPoint(const statismo::VectorType&, unsigned) const;
 	 Representer::ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, unsigned ptId) const;
 
+   DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const; 
 
 	 
 	 statismo::VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const;
