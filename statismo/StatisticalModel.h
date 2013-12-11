@@ -283,7 +283,7 @@ public:
 	/**
 		 * Draws the sample corresponding to the ith pca matrix
 		 *
-		 * \param componentNumber The number of the PCA Basis to be retriefed
+		 * \param componentNumber The number of the PCA Basis to be retrieved
 		 *
 		 * \return A new sample
 		 * */

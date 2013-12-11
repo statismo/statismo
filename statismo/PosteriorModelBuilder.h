@@ -46,6 +46,7 @@
 #include "CommonTypes.h"
 
 #include <vector>
+#include <list>
 
 namespace statismo {
 
@@ -77,6 +78,17 @@ public:
 	typedef typename StatisticalModelType::PointValueListType PointValueListType;
 	typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
+	// Maybe at some point, we can statically define a 3x3 resp. 2x3 matrix type.
+	typedef MatrixType PointCovarianceMatrixType;
+
+	typedef typename StatisticalModelType::PointValuePairType PointValuePairType;
+	typedef typename std::pair<PointValuePairType, PointCovarianceMatrixType> PointValueWithCovariancePairType;
+	typedef typename std::list<PointValueWithCovariancePairType> PointValueWithCovarianceListType;
+
+	//typedef std::pair<PointType, RepresenterValueType> PointValuePairType;
+	//typedef std::pair<unsigned, RepresenterValueType> PointIdValuePairType;
+	//typedef std::list<PointValuePairType> PointValueListType;
+	//typedef std::list<PointIdValuePairType> PointIdValueListType;
 
 	/**
 	 * Factory method to create a new PosteriorModelBuilder
@@ -90,7 +102,6 @@ public:
 	 * way using the c++ delete keyword.
 	 */
 	void Delete() {delete this; }
-
 
 	/**
 	 * destructor
@@ -112,6 +123,14 @@ public:
 										double pointValueNoiseVariance,
 										double noiseVariance) const;
 
+
+
+	StatisticalModelType* BuildNewModel(const SampleDataStructureListType& SampleDataStructureList,
+										const PointValueWithCovarianceListType& pointValuesWithCovariance,
+										double noiseVariance) const;
+
+
+
 	/**
 	 * Builds a new StatisticalModel given a StatisticalModel and the given constraints.
 	 * If we interpret the given model as a prior distribution over the modeled objects,
@@ -127,6 +146,15 @@ public:
 	 * \warning The returned model needs to be explicitly deleted by the user of this method.
 	 */
 	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, const PointValueListType& pointValues, double pointValueNoiseVariance, bool computeScores=true) const;
+
+
+	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model,
+			const PointValueWithCovarianceListType& pointValuesWithCovariance,
+			bool computeScores=true) const;
+
+
+	PointValueWithCovarianceListType TrivialPointValueWithCovarianceListWithUniformNoise(const PointValueListType& pointValues, double pointValueNoiseVariance) const;
+
 
 protected:
 	

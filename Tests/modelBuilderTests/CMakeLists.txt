@@ -1,0 +1,46 @@
+PROJECT(ModelBuilderTests)
+cmake_minimum_required(VERSION 2.6)
+
+ENABLE_TESTING()
+#INCLUDE(Dart)
+
+FIND_PACKAGE(ITK 4.1 REQUIRED)
+include (${ITK_USE_FILE})
+
+FIND_PACKAGE(VTK REQUIRED)
+include (${VTK_USE_FILE})
+
+set(VTK_LIBRARIES
+        vtkCommon 
+        vtkFiltering 
+        vtkGraphics 
+        vtkImaging 
+        vtkIO 
+        vtkRendering 
+        vtkWidgets 
+)
+
+STRING(REGEX REPLACE "itkhdf5_cpp" "" ITK_LIBRARIES "${ITK_LIBRARIES}")
+STRING(REGEX REPLACE "itkhdf5" "" ITK_LIBRARIES "${ITK_LIBRARIES}")
+
+
+
+include_directories(${STATISMO_ROOT_DIR} ${STATISMO_ROOT_DIR}/statismo_ITK  
+					${STATISMO_ROOT_DIR}/3rdParty  ${STATISMO_INCLUDE_DIR}  
+                  	${ITK_INCLUDE_DIRS}  ${STATISMO_ROOT_DIR}/Representers/ITK 
+					${STATISMO_ROOT_DIR}/Representers/VTK ${VTK_INCLUDE_DIR} 
+					${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})
+
+link_directories(   ${HDF5_LIBRARY_DIR} ${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR})
+
+
+ADD_EXECUTABLE(PosteriorModelBuilderTest PosteriorModelBuilderTest.cpp) 
+ADD_DEPENDENCIES(PosteriorModelBuilderTest HDF5)
+TARGET_LINK_LIBRARIES(PosteriorModelBuilderTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES} ${HDF5_LIBRARIES})
+
+ADD_EXECUTABLE(PosteriorModelBuilder3DTest PosteriorModelBuilder3DTest.cpp) 
+ADD_DEPENDENCIES(PosteriorModelBuilder3DTest HDF5)
+TARGET_LINK_LIBRARIES(PosteriorModelBuilder3DTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES} ${HDF5_LIBRARIES})
+
+ADD_TEST(PosteriorModelBuilderTest  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/PosteriorModelBuilderTest ${STATISMO_ROOT_DIR}/data)
+ADD_TEST(PosteriorModelBuilder3DTest  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/PosteriorModelBuilder3DTest ${STATISMO_ROOT_DIR}/data)

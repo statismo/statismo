@@ -37,8 +37,6 @@
  
 %module statismo
 
-
-
 %include "typemaps.i"
 %include "std_string.i"
 %include "std_list.i"
@@ -63,10 +61,10 @@
 #include "statismo/ReducedVarianceModelBuilder.h"
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/Exceptions.h"
+#include "statismo/CommonTypes.h"
 #include <list>
 #include <string>
 %}
-
 
 
 namespace statismo { 
@@ -250,6 +248,21 @@ private:
 //%template(PointIdValuePair_vtkUG) std::pair<unsigned, vtkUnstructuredGridRepresenter::ValueType>;
 //%template(PointIdValueList_vtkUG) std::list<std::pair<unsigned, vtkUnstructuredGridRepresenter::ValueType> >;
 
+//////////////////////////////////////////////////////
+// PointValueWithCovariancePair
+//////////////////////////////////////////////////////
+
+// Never got this to work properly. The wrapping of statismo::MatrixType is not sophisticated enough to work with the std::pair and list wrappers.
+
+//%template(PointValuePair_tvr) std::pair<TrivialVectorialRepresenter::PointType, TrivialVectorialRepresenter::ValueType>;
+//%template(PointValueWithCovariancePair_vtkPD) std::pair< std::pair< vtkPoint,vtkPoint >,statismo::MatrixType >; 
+//%template(PointValueWithCovarianceList_vtkPD) std::list< std::pair< std::pair< vtkPoint,vtkPoint >,statismo::MatrixType > >;
+//%template(MatrixList) std::list<statismo::MatrixType>;
+//%template(MatrixMatrixPair) std::pair< statismo::MatrixType, statismo::MatrixType >;
+//%template(MatrixMatrixList) std::list< std::pair< statismo::MatrixType, statismo::MatrixType > >;
+//%template(PointMatrixPair) std::pair< vtkPoint, statismo::MatrixType >;
+//%template(PointMatrixList) std::list< std::pair< vtkPoint, statismo::MatrixType > >;
+
 
 //////////////////////////////////////////////////////
 // ModelInfo
@@ -347,6 +360,7 @@ public:
 	 %rename("DrawSampleAtPointId") DrawSampleAtPoint(const statismo::VectorType&, unsigned) const;
 	 Representer::ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, unsigned ptId) const;
 
+   DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const; 
 
 	 
 	 statismo::VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const;
@@ -481,6 +495,57 @@ public:
 
 	private:
 		PosteriorModelBuilder();
+};
+}
+
+%template(PosteriorModelBuilder_tvr) statismo::PosteriorModelBuilder<TrivialVectorialRepresenter>;
+%template(PosteriorModelBuilder_vtkPD) statismo::PosteriorModelBuilder<vtkPolyDataRepresenter>;
+%template(PosteriorModelBuilder_vtkUG) statismo::PosteriorModelBuilder<vtkUnstructuredGridRepresenter>;
+%template(PosteriorModelBuilder_vtkSPF3) statismo::PosteriorModelBuilder<vtkStructuredPointsRepresenter<float, 3> >;
+%template(PosteriorModelBuilder_vtkSPSS1) statismo::PosteriorModelBuilder<vtkStructuredPointsRepresenter<signed short, 1> >;
+
+
+//////////////////////////////////////////////////////
+// PosteriorModelBuilder
+//////////////////////////////////////////////////////
+
+
+
+namespace statismo { 
+%newobject *::BuildNewModelFromModel;
+%newobject *::BuildNewModel;
+
+template <typename Representer>
+class PosteriorModelBuilder {
+  typedef ModelBuilder<Representer> Superclass;
+public:
+  typedef  DataManager<Representer>         DataManagerType;
+  typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;    
+  typedef  StatisticalModel<Representer>  StatisticalModelType; 
+  typedef typename StatisticalModelType::PointValueType PointValueType;
+  typedef typename StatisticalModelType::PointValueListType PointValueListType;
+
+  typedef statismo::MatrixType PointCovarianceMatrixType;
+
+  typedef typename StatisticalModelType::PointValuePairType PointValuePairType;
+  typedef std::pair<PointValuePairType, PointCovarianceMatrixType> PointValueWithCovariancePairType;
+  typedef std::list<PointValueWithCovariancePairType> PointValueWithCovarianceListType;
+  
+  
+  
+  %newobject Create;
+  static PosteriorModelBuilder* Create();
+  virtual ~PosteriorModelBuilder();
+
+  StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, const PointValueListType& pointValues,  double pointValuesNoiseVariance, bool computeScores=true) const;
+  StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleList, const PointValueListType& pointValues,  double pointValuesNoiseVariance, double noiseVariance) const;
+
+
+  //StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, const PointValueWithCovarianceListType& pointValuesWithCovariance, bool computeScores=true) const;
+  //StatisticalModelType* BuildNewModel(const SampleDataStructureListType& sampleList, const PointValueWithCovarianceListType& pointValuesWithCovariance, double noiseVariance) const;
+
+  private:
+    PosteriorModelBuilder();
 };
 }
 

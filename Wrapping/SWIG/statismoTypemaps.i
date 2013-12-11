@@ -75,6 +75,28 @@
 		$result = c;
 	}
 
+  %typemap (out) const statismo::MatrixType
+  {
+    npy_intp dims[2];
+    dims[0] = $1.rows();
+    dims[1] = $1.cols();
+    PyObject* c = PyArray_SimpleNew(2, dims, NPY_FLOAT);    
+    memcpy(PyArray_DATA(c), $1.data(), dims[0] * dims[1] * sizeof(float));
+    $result = c;
+      
+  }
+  
+  
+  %typemap (out) const statismo::MatrixType&
+  {
+    npy_intp dims[2];
+    dims[0] = $1->rows();
+    dims[1] = $1->cols();
+    PyObject* c = PyArray_SimpleNew(2, dims, NPY_FLOAT);
+    memcpy(PyArray_DATA(c), $1->data(), dims[0] * dims[1] * sizeof(float));
+    $result = c;
+  }
+
 	
 	%typemap (out) statismo::VectorType&
 	{
@@ -135,6 +157,56 @@
 		}		 
 		$1= m ;
 	}
+	
+  %typemap (in) (const statismo::MatrixType)
+  {
+    int is_new_object1 = 0;
+    PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 2, 2);
+    unsigned dim1 = array->dimensions[0];
+    unsigned dim2 = array->dimensions[1];
+    
+    statismo::MatrixType* m = new statismo::MatrixType(dim1, dim2);
+    for (unsigned i = 0; i < dim1; i++) { 
+      for (unsigned j = 0; j < dim2; j++) {
+        (*m)(i,j) = (float) ((double*) array->data)[i* dim2 + j];
+      }
+    }    
+    $1= *m ;
+    delete m;
+  }
+
+  %typemap (in) (statismo::MatrixType&)
+  {
+    int is_new_object1 = 0;
+    PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 2, 2);
+    unsigned dim1 = array->dimensions[0];
+    unsigned dim2 = array->dimensions[1];
+    
+    statismo::MatrixType* m = new statismo::MatrixType(dim1, dim2);
+    for (unsigned i = 0; i < dim1; i++) { 
+      for (unsigned j = 0; j < dim2; j++) {
+        (*m)(i,j) = (float) ((double*) array->data)[i* dim2 + j];
+      }
+    }    
+    $1= m ;
+  }
+  
+  %typemap (in) (statismo::MatrixType)
+  {
+    int is_new_object1 = 0;
+    PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 2, 2);
+    unsigned dim1 = array->dimensions[0];
+    unsigned dim2 = array->dimensions[1];
+    
+    statismo::MatrixType* m = new statismo::MatrixType(dim1, dim2);
+    for (unsigned i = 0; i < dim1; i++) { 
+      for (unsigned j = 0; j < dim2; j++) {
+        (*m)(i,j) = (float) ((double*) array->data)[i* dim2 + j];
+      }
+    }    
+    $1= *m ;
+    delete m;
+  }
 
 	// the typecheck is needed to disambiguate overloaded function
 	%typecheck(SWIG_TYPECHECK_POINTER) vtkPolyData * {
