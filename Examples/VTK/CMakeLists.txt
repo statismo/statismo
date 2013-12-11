@@ -7,15 +7,6 @@ SET(CMAKE_VERBOSE_MAKEFILE ON)
 FIND_PACKAGE(VTK REQUIRED)
 include (${VTK_USE_FILE})
 
-set(VTK_LIBRARIES
-        vtkCommon 
-        vtkFiltering 
-        vtkGraphics 
-        vtkImaging 
-        vtkIO 
-        vtkRendering 
-        vtkWidgets 
-)
 
 FILE(GLOB INCLUDE_FILES *.h)
 FILE(GLOB SOURCE_FILES  *.txx *.cpp)
@@ -30,6 +21,13 @@ link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} ${HDF5_LIBRARY_DIR})
 add_executable (vtkBuildShapeModelExample BuildShapeModelExample.cxx) 
 ADD_DEPENDENCIES(vtkBuildShapeModelExample HDF5)
 target_link_libraries (vtkBuildShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+
+
+add_executable (vtkBuildShapeModel buildVTKShapeModel.cxx) 
+ADD_DEPENDENCIES(vtkBuildShapeModel HDF5)
+target_link_libraries (vtkBuildShapeModel ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+INSTALL(TARGETS vtkBuildShapeModel RUNTIME DESTINATION bin)
+
 
 
 add_executable (vtkBasicSamplingExample BasicSamplingExample.cxx) 
@@ -52,14 +50,21 @@ add_DEPENDENCIES(vtkReduceModelVarianceExample HDF5)
 target_link_libraries (vtkReduceModelVarianceExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 
-add_executable (vtkBuildPartiallyFixedModelExample BuildPartiallyFixedModelExample.cxx) 
-add_DEPENDENCIES(vtkBuildPartiallyFixedModelExample HDF5)
-target_link_libraries (vtkBuildPartiallyFixedModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+add_executable (vtkBuildPosteriorModelExample BuildPosteriorModelExample.cxx) 
+add_DEPENDENCIES(vtkBuildPosteriorModelExample HDF5)
+target_link_libraries (vtkBuildPosteriorModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 
 add_executable (vtkBuildConditionalModelExample BuildConditionalModelExample.cxx) 
 add_DEPENDENCIES(vtkBuildConditionalModelExample HDF5)
 target_link_libraries (vtkBuildConditionalModelExample  ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
-INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPartiallyFixedModelExample vtkBuildConditionalModelExample RUNTIME DESTINATION bin)
+add_executable (vtkBuildGaussianProcessShapeModelExample BuildGaussianProcessShapeModelExample.cxx) 
+ADD_DEPENDENCIES(vtkBuildGaussianProcessShapeModelExample HDF5)
+target_link_libraries (vtkBuildGaussianProcessShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+
+
+
+
+INSTALL(TARGETS vtkBuildShapeModelExample vtkBasicSamplingExample vtkCrossValidationExample vtkBuildIntensityModelExample vtkBuildPosteriorModelExample vtkBuildConditionalModelExample vtkBuildGaussianProcessShapeModelExample RUNTIME DESTINATION bin)
 INSTALL(PROGRAMS runVTKExamples.sh DESTINATION  bin)

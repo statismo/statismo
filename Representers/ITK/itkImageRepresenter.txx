@@ -125,6 +125,19 @@ ImageRepresenter<TPixel, ImageDimension>::SetReference(ImageType* reference) {
 }
 
 template <class TPixel, unsigned ImageDimension>
+statismo::VectorType
+ImageRepresenter<TPixel, ImageDimension>::PointToVector(const PointType& pt) const
+{
+        statismo::VectorType v(PointType::GetPointDimension());
+        for (unsigned i = 0; i < PointType::GetPointDimension(); i++) {
+                v(i) = pt[i];
+        }
+        return v;
+}
+
+
+
+template <class TPixel, unsigned ImageDimension>
 typename ImageRepresenter<TPixel, ImageDimension>::DatasetPointerType
 ImageRepresenter<TPixel, ImageDimension>::DatasetToSample(ImageType* image, DatasetInfo* notUsed) const
 {

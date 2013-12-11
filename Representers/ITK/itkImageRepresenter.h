@@ -104,6 +104,7 @@ public:
 	/** Set the reference that is used to build the model */
 	void SetReference(ImageType* ds);
 
+	statismo::VectorType PointToVector(const PointType& pt) const;
 
 	/**
 	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes

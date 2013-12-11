@@ -44,7 +44,7 @@
 #include "DataManager.h"
 #include "StatisticalModel.h"
 #include "CommonTypes.h"
-
+#include "PosteriorModelBuilder.h"
 #include <vector>
 
 namespace statismo {
@@ -53,16 +53,7 @@ namespace statismo {
 /**
  * \brief creates a statistical model (PCA Model), given point constraints (fixed values)
  *
- * This class builds a StatisticalModel, just as PCAModelBuilder. However, in addition to the data,
- * this model builder also takes as input a set of point constraints, i.e. known values for points.
- * The resulting model will satisfy these constraints, and thus has a much lower variability than an
- * unconstrained model would have.
- *
- * For mathematical details, see the paper
- * Probabilistic Modeling and Visualization of the Flexibility in Morphable Models,
- * M. Luethi, T. Albrecht and T. Vetter, Mathematics of Surfaces, 2009
- *
- * \todo Add method that allows for the use of the pointId in the constraint.
+ * \warning This class is deprecated. Please use the PosteriorModelBuilder instead.
  */
 template <typename Representer>
 class PartiallyFixedModelBuilder : public ModelBuilder<Representer> {
@@ -81,7 +72,11 @@ public:
 	 * Factory method to create a new PartiallyFixedModelBuilder
 	 * \param representer The representer
 	 */
-	static PartiallyFixedModelBuilder* Create() { return new PartiallyFixedModelBuilder(); }
+	static PartiallyFixedModelBuilder* Create() {
+		std::cout << "Deprecation warning: This model builder is deprecated and will be removed in the next version of statismo. ";
+		std::cout << " The same functionality is available through the PosteriorModelBuilder. Please change your code accordingly" << std::endl;
+		return new PartiallyFixedModelBuilder();
+	}
 
 	/**
 	 * Destroy the object.

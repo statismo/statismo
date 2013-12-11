@@ -24,4 +24,11 @@ mkdir $RESDIR
 # for the registration of the images (which resulted in the displacement fields).
 ./itkDeformationModelFitting $RESDIR/itkDeformationModel.h5 $DATADIR/hand_images/hand-0.vtk $DATADIR/hand_images/hand-1.vtk $RESDIR/fittet-hand-df.vtk
 
+# Perform a basic Gaussian Process registration 
+./itkSimpleGaussianProcessImageToImageRegistration $DATADIR/hand_images/hand-1.vtk $DATADIR/hand_images/hand-2.vtk $RESDIR/deformationfield-simplegp.vtk
+
+# Perform hybrid, Gaussian process registration
+./bin/itkLowRankGaussianProcessImageToImageRegistration $DATADIR/hand_images/hand-1.vtk $DATADIR/hand_landmarks/hand-1.fcsv $DATADIR/hand_images/hand-2.vtk $DATADIR/hand_landmarks/hand-2.fcsv $RESDIR/registered.vtk $RESDIR/deformationfield-hybridgp.vtk MeanSquares 70 100 0.1 100 100
+
+
 
