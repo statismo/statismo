@@ -1,6 +1,7 @@
 PROJECT(RepresenterTests)
 cmake_minimum_required(VERSION 2.6)
 
+
 ENABLE_TESTING()
 #INCLUDE(Dart)
 

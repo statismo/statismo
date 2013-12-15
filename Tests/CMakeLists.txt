@@ -17,6 +17,5 @@ ADD_DEPENDENCIES(basicStatismoTest HDF5)
 TARGET_LINK_LIBRARIES(basicStatismoTest ${HDF5_LIBRARIES})
 ADD_TEST(basicStatismoTest ${CMAKE_BINARY_DIR}/bin/basicStatismoTest)
 
-ADD_SUBDIRECTORY(representerTests)
 ADD_SUBDIRECTORY(modelBuilderTests)
 

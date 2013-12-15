@@ -129,19 +129,13 @@ if(BUILD_STATISMO_TESTS)
   add_subdirectory(Tests)
 endif()
 
+if(BUILD_REPRESENTER_TESTS)
+add_subdirectory(Tests/representerTests)
+endif()
 
 if(BUILD_STATISMO_TESTS_PYTHON)
   set(BUILD_PYTHON_WRAPPING_VTK ON)
   add_custom_target(unit_test  ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/runPythonTests.sh ${CMAKE_CURRENT_BINARY_DIR}/Wrapping/SWIG ${CMAKE_CURRENT_SOURCE_DIR}/Tests/statismoTests/)
-endif()
-
-if(BUILD_TESTS)
-  add_subdirectory(Tests)
-endif()
-
-
-if(BUILD_REPRESENTER_TESTS)
-  add_subdirectory(Tests/representerTests)
 endif()
 
 
