@@ -44,6 +44,7 @@
 #include "statismo/utils.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
+#include "vtkVersion.h"
 
 using statismo::VectorType;
 using statismo::HDF5Utils;
@@ -142,7 +143,11 @@ vtkPolyDataRepresenter::DatasetToSample(DatasetConstPointerType _pd, DatasetInfo
 	  transform->SetTargetLandmarks(m_reference->GetPoints());
 	  transform->SetMode(m_alignment);
 
+#if (VTK_MAJOR_VERSION == 5 )
 	  m_pdTransform->SetInput(pd);
+#else
+	  m_pdTransform->SetInputData(pd);
+#endif
 	  m_pdTransform->SetTransform(transform);
 	  m_pdTransform->Update();
 
@@ -274,8 +279,12 @@ inline
 void vtkPolyDataRepresenter::WriteDataset(const std::string& filename,DatasetConstPointerType pd) {
     vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
     writer->SetFileName(filename.c_str());
-    writer->SetInput(const_cast<vtkPolyData*>(pd));
-    writer->Update();
+#if (VTK_MAJOR_VERSION == 5 )
+	writer->SetInput(const_cast<vtkPolyData*>(pd));
+#else
+	writer->SetInputData(const_cast<vtkPolyData*>(pd));
+#endif
+	writer->Update();
     if (writer->GetErrorCode() != 0) {
         throw StatisticalModelException((std::string("Could not read file ") + filename).c_str());
     }
