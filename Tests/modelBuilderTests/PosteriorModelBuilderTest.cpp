@@ -14,6 +14,7 @@
 
 #include <Eigen/Geometry>
 #include "vtkMath.h"
+#include "vtkVersion.h"
 
 typedef GenericRepresenterTest<vtkPolyDataRepresenter> RepresenterTestType;
 
@@ -49,9 +50,9 @@ int main(int argc, char** argv) {
   typedef statismo::StatisticalModel<RepresenterType> StatisticalModelType;
 
   typedef statismo::PosteriorModelBuilder<RepresenterType> PosteriorModelBuilderType;
-	typedef typename PosteriorModelBuilderType::PointValuePairType PointValuePairType;
-	typedef typename PosteriorModelBuilderType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
-	typedef typename PosteriorModelBuilderType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
+	typedef  PosteriorModelBuilderType::PointValuePairType PointValuePairType;
+	typedef  PosteriorModelBuilderType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
+	typedef  PosteriorModelBuilderType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
 	typedef statismo::MatrixType MatrixType;
 
   unsigned nPointsFixed = 100;

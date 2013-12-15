@@ -19,6 +19,7 @@
 #include "vtkDataArray.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkSmartPointer.h"
+#include "vtkVersion.h"
 
 typedef GenericRepresenterTest<vtkPolyDataRepresenter> RepresenterTestType;
 
@@ -35,7 +36,11 @@ vtkPolyData* loadPolyData(const std::string& filename) {
 void writePolyData(vtkPolyData* pd, const std::string& filename) {
 	vtkSmartPointer< vtkPolyDataWriter > writer = vtkSmartPointer< vtkPolyDataWriter >::New();
 	writer->SetFileName(filename.c_str());
-	writer->SetInput(pd);
+#if (VTK_MAJOR_VERSION == 5 )
+     writer->SetInput(pd);
+#else
+	 writer->SetInputData(pd);
+#endif
 	writer->Update();
 }
 
@@ -58,9 +63,9 @@ int main(int argc, char** argv) {
   typedef statismo::StatisticalModel<RepresenterType> StatisticalModelType;
 
   typedef statismo::PosteriorModelBuilder<RepresenterType> PosteriorModelBuilderType;
-	typedef typename PosteriorModelBuilderType::PointValuePairType PointValuePairType;
-	typedef typename PosteriorModelBuilderType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
-	typedef typename PosteriorModelBuilderType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
+	typedef  PosteriorModelBuilderType::PointValuePairType PointValuePairType;
+	typedef  PosteriorModelBuilderType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
+	typedef  PosteriorModelBuilderType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
 	typedef statismo::MatrixType MatrixType;
 	typedef statismo::VectorType VectorType;
 	typedef statismo::VectorTypeDoublePrecision VectorTypeDoublePrecision;
