@@ -71,10 +71,11 @@
 #include "itkSignedDanielssonDistanceMapImageFilter.h"
 #include "itkBinaryThresholdImageFilter.h"
 #include "itkCompositeTransform.h"
-#include "itkPartiallyFixedModelBuilder.h"
+#include "itkPosteriorModelBuilder.h"
 #include "itkPointsLocator.h"
 
 const unsigned Dimensions = 3;
+typedef itk::PointSet<float, Dimensions  > PointSetType;
 typedef itk::Mesh<float, Dimensions  > MeshType;
 typedef itk::Point<double, 3> PointType;
 typedef itk::Image<float, Dimensions> CTImageType;
@@ -84,10 +85,10 @@ typedef itk::ImageFileWriter<DistanceImageType> DistanceImageWriterType;
 typedef itk::MeshRepresenter<float, Dimensions> RepresenterType;
 typedef itk::MeshFileReader<MeshType> MeshReaderType;
 typedef itk::Image< itk::CovariantVector<float, Dimensions>, Dimensions >   GradientImageType;
-typedef itk::MeanSquaresPointSetToImageMetric<MeshType, DistanceImageType> MetricType;
+typedef itk::MeanSquaresPointSetToImageMetric<PointSetType, DistanceImageType> MetricType;
 typedef itk::StatisticalShapeModelTransform<RepresenterType, double, Dimensions> StatisticalModelTransformType;
 typedef itk::StatisticalModel<RepresenterType> StatisticalModelType;
-typedef itk::PointSetToImageRegistrationMethod<MeshType, DistanceImageType> RegistrationFilterType;
+typedef itk::PointSetToImageRegistrationMethod<PointSetType, DistanceImageType> RegistrationFilterType;
 typedef  itk::LBFGSOptimizer OptimizerType;
 typedef itk::LinearInterpolateImageFunction<DistanceImageType, double> InterpolatorType;
 typedef itk::BinaryThresholdImageFilter <CTImageType, CTImageType>  BinaryThresholdImageFilterType;
@@ -98,7 +99,7 @@ typedef itk::CompositeTransform<double, 3> CompositeTransformType;
 typedef itk::TransformMeshFilter<MeshType, MeshType, CompositeTransformType> TransformMeshFilterType;
 
 
-typedef itk::PartiallyFixedModelBuilder<RepresenterType> PartiallyFixedModelBuilderType;
+typedef itk::PosteriorModelBuilder<RepresenterType> PosteriorModelBuilderType;
 #if (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 4)
 typedef itk::PointsLocator< MeshType::PointsContainer > PointsLocatorType;
 #else
@@ -165,7 +166,7 @@ public:
 // Returns a new model, that is restricted to go through the proints specified in targetLandmarks..
 //
 StatisticalModelType::Pointer
-computePartiallyFixedModel(const RigidTransformType* rigidTransform,
+computePosteriorModel(const RigidTransformType* rigidTransform,
 												const StatisticalModelType* statisticalModel,
 												const  std::vector<PointType >& modelLandmarks,
 												const  std::vector<PointType >& targetLandmarks,
@@ -197,10 +198,10 @@ computePartiallyFixedModel(const RigidTransformType* rigidTransform,
 
 		}
 
-		PartiallyFixedModelBuilderType::Pointer partiallyFixedModelBuilder = PartiallyFixedModelBuilderType::New();
-	    StatisticalModelType::Pointer partiallyFixedModel = partiallyFixedModelBuilder->BuildNewModelFromModel(statisticalModel,constraints, variance, false);
+		PosteriorModelBuilderType::Pointer PosteriorModelBuilder = PosteriorModelBuilderType::New();
+	    StatisticalModelType::Pointer PosteriorModel = PosteriorModelBuilder->BuildNewModelFromModel(statisticalModel,constraints, variance, false);
 
-	    return partiallyFixedModel;
+	    return PosteriorModel;
 }
 
 
@@ -315,8 +316,7 @@ int main(int argc, char* argv[]) {
 	// load the model create a shape model transform with it
 	StatisticalModelType::Pointer model = StatisticalModelType::New();
 	model->Load(modelName);
-
-	StatisticalModelType::Pointer constraintModel = computePartiallyFixedModel(rigidTransform, model, fixedLandmarks, movingLandmarks, lmVariance);
+	StatisticalModelType::Pointer constraintModel = computePosteriorModel(rigidTransform, model, fixedLandmarks, movingLandmarks, lmVariance);
 
 	StatisticalModelTransformType::Pointer statModelTransform = StatisticalModelTransformType::New();
 	statModelTransform->SetStatisticalModel(constraintModel);
@@ -370,9 +370,18 @@ int main(int argc, char* argv[]) {
 	registration->SetTransform(   transform );
 
 
-	// the input to the registration will be the reference of the statistical model and the
-	// distance map we computed above.
-	registration->SetFixedPointSet(  model->GetRepresenter()->GetReference() );
+    // we create the fixedPointSet of the registration from the reference mesh of our model.
+    // As we are fitting to the 0 level set of a distance image, we set the value of the pointdata to 0.
+    PointSetType::Pointer fixedPointSet = PointSetType::New();
+    fixedPointSet->SetPoints(model->GetRepresenter()->GetReference()->GetPoints());
+    PointSetType::PointDataContainer::Pointer points = PointSetType::PointDataContainer::New();
+    points->Reserve(model->GetRepresenter()->GetReference()->GetNumberOfPoints());
+    for (PointSetType::PointDataContainer::Iterator it = points->Begin(); it != points->End(); ++it) {
+        it->Value() = 0;
+    }
+    fixedPointSet->SetPointData(points);
+
+	registration->SetFixedPointSet(  fixedPointSet);
 	registration->SetMovingImage(distanceImage);
 
 	try {
