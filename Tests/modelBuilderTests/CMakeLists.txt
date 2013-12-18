@@ -29,9 +29,4 @@ ADD_EXECUTABLE(PosteriorModelBuilderTest PosteriorModelBuilderTest.cpp)
 ADD_DEPENDENCIES(PosteriorModelBuilderTest HDF5)
 TARGET_LINK_LIBRARIES(PosteriorModelBuilderTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES} ${HDF5_LIBRARIES})
 
-ADD_EXECUTABLE(PosteriorModelBuilder3DTest PosteriorModelBuilder3DTest.cpp) 
-ADD_DEPENDENCIES(PosteriorModelBuilder3DTest HDF5)
-TARGET_LINK_LIBRARIES(PosteriorModelBuilder3DTest ${VTK_LIBRARIES} ${STATISMO_LIBRARIES} ${HDF5_LIBRARIES})
-
 ADD_TEST(PosteriorModelBuilderTest  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/PosteriorModelBuilderTest ${STATISMO_ROOT_DIR}/data)
-ADD_TEST(PosteriorModelBuilder3DTest  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/PosteriorModelBuilder3DTest ${STATISMO_ROOT_DIR}/data)

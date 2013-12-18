@@ -9,6 +9,7 @@
 #include "../representerTests/genericRepresenterTest.hxx"
 #include "statismo/DataManager.h"
 #include "statismo/PosteriorModelBuilder.h"
+#include "statismo/PCAModelBuilder.h"
 #include "statismo/CommonTypes.h"
 #include "statismo/Domain.h"
 
@@ -28,6 +29,17 @@ vtkPolyData* loadPolyData(const std::string& filename) {
 	return pd;
 }
 
+void writePolyData(vtkPolyData* pd, const std::string& filename) {
+	vtkSmartPointer< vtkPolyDataWriter > writer = vtkSmartPointer< vtkPolyDataWriter >::New();
+	writer->SetFileName(filename.c_str());
+#if (VTK_MAJOR_VERSION == 5 )
+     writer->SetInput(pd);
+#else
+	 writer->SetInputData(pd);
+#endif
+	writer->Update();
+}
+
 
 
 int main(int argc, char** argv) {
@@ -40,6 +52,8 @@ int main(int argc, char** argv) {
 	const std::string referenceFilename = datadir + "/hand_polydata/hand-0.vtk";
 	const std::string testDatasetFilename = datadir + "/hand_polydata/hand-1.vtk";
 	const std::string testDatasetFilename2 = datadir + "/hand_polydata/hand-2.vtk";
+	const std::string testDatasetFilename3 = datadir + "/hand_polydata/hand-3.vtk";
+	const std::string testDatasetFilename4 = datadir + "/hand_polydata/hand-4.vtk";
 
 
 	typedef vtkPolyDataRepresenter RepresenterType;
@@ -66,10 +80,15 @@ int main(int argc, char** argv) {
 
 	vtkPolyData* testDataset = loadPolyData(testDatasetFilename);
 	vtkPolyData* testDataset2 = loadPolyData(testDatasetFilename2);
+	vtkPolyData* testDataset3 = loadPolyData(testDatasetFilename3);
+	vtkPolyData* testDataset4 = loadPolyData(testDatasetFilename4);
+
 
 	dataManager->AddDataset(reference, "ref");
 	dataManager->AddDataset(testDataset, "dataset1");
 	dataManager->AddDataset(testDataset2, "dataset2");
+	dataManager->AddDataset(testDataset3, "dataset3");
+	dataManager->AddDataset(testDataset4, "dataset4");
 
 	double pointValueNoiseVariance = 0.1;
 	const MatrixType pointCovarianceMatrix = pointValueNoiseVariance * MatrixType::Identity(3,3);
@@ -102,9 +121,62 @@ int main(int argc, char** argv) {
 		PointType testPoint = testSample->GetPoint(pt_id);
 
 		double distance2 = vtkMath::Distance2BetweenPoints(posteriorMeanPoint.data(),testPoint.data());
-		if(distance2 > tolerance * tolerance) testsOk = false;
-
+		if(distance2 > tolerance * tolerance) {
+			std::cout << "Hand model test failed: Posterior mean not correct." << std::endl;
+			testsOk = false;
+		}
 	}
+
+
+	typedef statismo::PCAModelBuilder<RepresenterType> PCAModelBuilderType;
+	PCAModelBuilderType* pcaModelBuilder = PCAModelBuilderType::Create();
+	StatisticalModelType* fullModel = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(),0.1,false);
+
+
+  PointType middleFiducial(244, 290, 0);
+  PointType funkyTargetPoint(270, 300, 0);
+
+  statismo::VectorType anisotropicNoiseVariances(3); anisotropicNoiseVariances << .01, 100, .01;//100, 100;
+
+  // This assumes that the normal vectors is (1,0,0) and the tangential (0,1,0) and (0,0,1)
+	MatrixType fiducialCovMatrix = anisotropicNoiseVariances.asDiagonal();
+
+	PointValuePairType funkyPointPair(middleFiducial,funkyTargetPoint);
+	PointValueWithCovariancePairType pointValueWithCovariancePair(funkyPointPair, fiducialCovMatrix);
+	PointValueWithCovarianceListType pointValueWithCovarianceList;
+	pointValueWithCovarianceList.push_back(pointValueWithCovariancePair);
+
+	//PointType upperPoint(420, 278, 0);
+	//PointType lowerPoint(166, 266, 0);
+	//PointValueWithCovariancePairType upperPair(PointValuePairType(upperPoint,upperPoint),MatrixType::Identity(3,3));
+	//PointValueWithCovariancePairType lowerPair(PointValuePairType(lowerPoint,lowerPoint),MatrixType::Identity(3,3));
+	//pointValueWithCovarianceList.push_back(upperPair);
+	//pointValueWithCovarianceList.push_back(lowerPair);
+
+	PosteriorModelBuilderType* anisotropicPosteriorModelBuilder = PosteriorModelBuilderType::Create();
+	StatisticalModelType* anisotropicPosteriorModel
+		= anisotropicPosteriorModelBuilder->BuildNewModelFromModel(fullModel, pointValueWithCovarianceList, false);
+
+	vtkPolyData* posteriorMean = anisotropicPosteriorModel->DrawMean();
+
+	double probability = fullModel->ComputeLogProbabilityOfDataset(posteriorMean);
+
+	//writePolyData(posteriorMean,"/local/tmp/hand-test.vtk");
+	//fullModel->Save("/local/tmp/hand-model.h5");
+	//std::cout << probability << std::endl;
+
+	if(probability < -10) {
+		testsOk = false;
+		std::cout << "The probability within the original model of the posterior mean is too small:" << probability << std::endl;
+		std::cout << "This means that the anisotropic noise model does not work." << std::endl;
+	}
+
+
+
+
+
+
+
 
 
 	vtkPolyData* onePointPD = vtkPolyData::New();
