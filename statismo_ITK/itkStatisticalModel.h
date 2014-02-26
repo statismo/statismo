@@ -253,6 +253,10 @@ public:
 		return toVnlMatrix(callstatismoImpl(std::tr1::bind(&ImplType::GetPCABasisMatrix, this->m_impl)));
 	}
 
+	MatrixType GetOrthonormalPCABasisMatrix() const { 
+		return toVnlMatrix(callstatismoImpl(std::tr1::bind(&ImplType::GetOrthonormalPCABasisMatrix, this->m_impl)));
+	}
+
 	VectorType GetPCAVarianceVector() const {
 		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::GetPCAVarianceVector, this->m_impl)));
 	}
