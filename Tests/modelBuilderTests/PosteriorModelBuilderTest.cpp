@@ -5,22 +5,19 @@
  *      Author: luethi
  */
 
-#include "Representers/VTK/vtkStandardMeshRepresenter.h"
+#include "vtkPolyDataRepresenter.h"
 #include "../representerTests/genericRepresenterTest.hxx"
 #include "statismo/DataManager.h"
 #include "statismo/PosteriorModelBuilder.h"
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/CommonTypes.h"
 #include "statismo/Domain.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
+
 #include <Eigen/Geometry>
 #include "vtkMath.h"
 #include "vtkVersion.h"
 
-using namespace statismo;
-
-typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
+typedef GenericRepresenterTest<vtkPolyDataRepresenter> RepresenterTestType;
 
 vtkPolyData* loadPolyData(const std::string& filename) {
 	vtkPolyDataReader* reader = vtkPolyDataReader::New();
@@ -59,17 +56,17 @@ int main(int argc, char** argv) {
 	const std::string testDatasetFilename4 = datadir + "/hand_polydata/hand-4.vtk";
 
 
-    typedef vtkStandardMeshRepresenter RepresenterType;
-  typedef statismo::DataManager<vtkPolyData> DataManagerType;
-  typedef vtkStandardMeshRepresenter::PointType PointType;
-  typedef vtkStandardMeshRepresenter::DomainType DomainType;
+	typedef vtkPolyDataRepresenter RepresenterType;
+  typedef statismo::DataManager<RepresenterType> DataManagerType;
+  typedef vtkPolyDataRepresenter::PointType PointType;
+  typedef vtkPolyDataRepresenter::DomainType DomainType;
   typedef DomainType::DomainPointsListType DomainPointsListType;
-  typedef statismo::StatisticalModel<vtkPolyData> StatisticalModelType;
+  typedef statismo::StatisticalModel<RepresenterType> StatisticalModelType;
 
-  typedef statismo::PosteriorModelBuilder<vtkPolyData> PosteriorModelBuilderType;
-	typedef  PosteriorModelBuilderType::PointValuePairType PointValuePairType;
-	typedef  PosteriorModelBuilderType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
-	typedef  PosteriorModelBuilderType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
+  typedef statismo::PosteriorModelBuilder<RepresenterType> PosteriorModelBuilderType;
+	typedef PosteriorModelBuilderType::PointValuePairType PointValuePairType;
+	typedef PosteriorModelBuilderType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
+	typedef PosteriorModelBuilderType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
 	typedef statismo::MatrixType MatrixType;
 
   unsigned nPointsFixed = 100;
@@ -77,7 +74,7 @@ int main(int argc, char** argv) {
   double tolerance = 0.01;
 
 	vtkPolyData* reference = loadPolyData(referenceFilename);
-    RepresenterType* representer = RepresenterType::Create(reference);
+	RepresenterType* representer = RepresenterType::Create(reference, vtkPolyDataRepresenter::RIGID);
 
 	std::auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
@@ -97,7 +94,7 @@ int main(int argc, char** argv) {
 	const MatrixType pointCovarianceMatrix = pointValueNoiseVariance * MatrixType::Identity(3,3);
 	PointValueWithCovarianceListType pvcList;//(pointValues.size());
 
-    RepresenterType::DatasetPointerType testSample = dataManager->GetData().back()->GetSample();
+	RepresenterType::DatasetPointerType testSample = dataManager->GetSampleDataStructure().back()->GetSample();
 
 	DomainPointsListType domaintPointsList = representer->GetDomain().GetDomainPoints();
 	unsigned nDomainPoints = representer->GetDomain().GetNumberOfPoints();
@@ -112,7 +109,7 @@ int main(int argc, char** argv) {
 	}
 
 	PosteriorModelBuilderType* pModelBuilder = PosteriorModelBuilderType::Create();
-    StatisticalModelType* posteriorModel = pModelBuilder->BuildNewModel(dataManager->GetData(),pvcList, 0.1);
+	StatisticalModelType* posteriorModel = pModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(),pvcList, 0.1);
 
 	RepresenterType::DatasetPointerType posterior_mean = posteriorModel->DrawMean();
 
@@ -131,9 +128,9 @@ int main(int argc, char** argv) {
 	}
 
 
-    typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
+	typedef statismo::PCAModelBuilder<RepresenterType> PCAModelBuilderType;
 	PCAModelBuilderType* pcaModelBuilder = PCAModelBuilderType::Create();
-    StatisticalModelType* fullModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(),0.1,false);
+	StatisticalModelType* fullModel = pcaModelBuilder->BuildNewModel(dataManager->GetSampleDataStructure(),0.1,false);
 
 
   PointType middleFiducial(244, 290, 0);
@@ -187,7 +184,7 @@ int main(int argc, char** argv) {
 	onePoint->Allocate(1);
 	onePoint->InsertNextPoint(0,0,0);
 	onePointPD->SetPoints(onePoint);
-    RepresenterType* onePointRepresenter = RepresenterType::Create(onePointPD);
+	RepresenterType* onePointRepresenter = RepresenterType::Create(onePointPD, vtkPolyDataRepresenter::NONE);
 	VectorType onePointMean(3); onePointMean << 0, 0, 0;
 	VectorType onePointVar(3);  onePointVar  << 1, 1, 1;
 	MatrixType onePointPCABasis = MatrixType::Identity(3,3);
