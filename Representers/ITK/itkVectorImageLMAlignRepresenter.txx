@@ -73,7 +73,14 @@ template <>
 struct TransformSelector<3> {
 	typedef itk::VersorRigid3DTransform<double> TransformType;
 };
-
+// There needs to be a case for 4D if this is compiled
+// for instance with elastix. I do not think the Affine
+// Transform makes a lot of sense, but this will have
+// to be rethunk for 4D anyway.
+template <>
+struct TransformSelector<4> {
+	typedef itk::AffineTransform<double,4> TransformType;
+};
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::VectorImageLMAlignRepresenter()
