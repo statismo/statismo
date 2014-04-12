@@ -536,20 +536,18 @@ template <typename T>
 StatisticalModel<T>*
 StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const std::string& filename, unsigned maxNumberOfPCAComponents) {
 
-	using namespace H5;
-
-	StatisticalModel* newModel = 0;
+    StatisticalModel* newModel = 0;
 
 	H5::H5File file;
 	try {
-		file = H5File(filename.c_str(), H5F_ACC_RDONLY);
+        file = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
 	}
 	catch (H5::Exception& e) {
 		 std::string msg(std::string("could not open HDF5 file \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	}
 
-	Group modelRoot = file.openGroup("/");
+    H5::Group modelRoot = file.openGroup("/");
 	
 	newModel =  Load(representer, preprocessor, modelRoot, maxNumberOfPCAComponents);
 
@@ -569,12 +567,10 @@ template <typename T>
 StatisticalModel<T>*
 StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
 
-	using namespace H5;
-
-	StatisticalModel* newModel = 0;
+    StatisticalModel* newModel = 0;
 
 	try {
-		Group representerGroup = modelRoot.openGroup("./representer");
+        H5::Group representerGroup = modelRoot.openGroup("./representer");
 		std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
 		std::string repTypeStr = HDF5Utils::readStringAttribute(representerGroup, "datasetType");
 		std::string versionStr = HDF5Utils::readStringAttribute(representerGroup, "version");
@@ -612,8 +608,9 @@ StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preproce
 		// loading preprocessor. To maintain compatibility with earlier formats, we have to handle the case,
 		// when no preprocessor is defined in the file. 
 		  std::string prep_name;
+
 		  if (HDF5Utils::existsObjectWithName(modelRoot,"preprocessor")) {
-			Group preprocessorGroup = modelRoot.openGroup("preprocessor");
+			H5::Group preprocessorGroup = modelRoot.openGroup("preprocessor");
 			prep_name = HDF5Utils::readStringAttribute(preprocessorGroup,"name");
 
 			if (preprocessor != 0) { 
@@ -637,7 +634,7 @@ StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preproce
 
 		newModel = new StatisticalModel(representer, preprocessor);
 
-		Group modelGroup = modelRoot.openGroup("./model");
+        H5::Group modelGroup = modelRoot.openGroup("./model");
 		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
 		HDF5Utils::readVector(modelGroup, "./mean", newModel->m_mean);
 		HDF5Utils::readVector(modelGroup, "./pcaVariance", maxNumberOfPCAComponents, newModel->m_pcaVariance);
@@ -677,7 +674,7 @@ StatisticalModel<T>::Save(const std::string& filename) const {
 
 	try {
 	     file = H5::H5File( filename.c_str(), H5F_ACC_TRUNC);
-	 } catch (FileIException& e) {
+     } catch (H5::FileIException& e) {
 		 std::string msg(std::string("Could not open HDF5 file for writing \n") + e.getCDetailMsg());
 		 throw StatisticalModelException(msg.c_str());
 	 }
@@ -686,7 +683,7 @@ StatisticalModel<T>::Save(const std::string& filename) const {
 	 H5::Group modelRoot = file.openGroup("/");
 	 Save(modelRoot);
 	 modelRoot.close();
-	file.close();	
+     file.close();
 }
 
 template <typename T>

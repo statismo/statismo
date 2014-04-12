@@ -1,6 +1,7 @@
 PROJECT(RepresenterTests)
 cmake_minimum_required(VERSION 2.6)
 
+
 ENABLE_TESTING()
 #INCLUDE(Dart)
 
@@ -9,16 +10,6 @@ include (${ITK_USE_FILE})
 
 FIND_PACKAGE(VTK REQUIRED)
 include (${VTK_USE_FILE})
-
-set(VTK_LIBRARIES
-        vtkCommon 
-        vtkFiltering 
-        vtkGraphics 
-        vtkImaging 
-        vtkIO 
-        vtkRendering 
-        vtkWidgets 
-)
 
 STRING(REGEX REPLACE "itkhdf5_cpp" "" ITK_LIBRARIES "${ITK_LIBRARIES}")
 STRING(REGEX REPLACE "itkhdf5" "" ITK_LIBRARIES "${ITK_LIBRARIES}")

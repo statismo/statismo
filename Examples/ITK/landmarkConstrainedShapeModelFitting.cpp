@@ -75,6 +75,7 @@
 #include "itkPointsLocator.h"
 
 const unsigned Dimensions = 3;
+typedef itk::PointSet<float, Dimensions  > PointSetType;
 typedef itk::Mesh<float, Dimensions  > MeshType;
 typedef itk::Point<double, 3> PointType;
 typedef itk::Image<float, Dimensions> CTImageType;
@@ -84,10 +85,10 @@ typedef itk::ImageFileWriter<DistanceImageType> DistanceImageWriterType;
 typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
 typedef itk::MeshFileReader<MeshType> MeshReaderType;
 typedef itk::Image< itk::CovariantVector<float, Dimensions>, Dimensions >   GradientImageType;
-typedef itk::MeanSquaresPointSetToImageMetric<MeshType, DistanceImageType> MetricType;
+typedef itk::MeanSquaresPointSetToImageMetric<PointSetType, DistanceImageType> MetricType;
 typedef itk::StatisticalShapeModelTransform<MeshType, double, Dimensions> StatisticalModelTransformType;
 typedef itk::StatisticalModel<MeshType> StatisticalModelType;
-typedef itk::PointSetToImageRegistrationMethod<MeshType, DistanceImageType> RegistrationFilterType;
+typedef itk::PointSetToImageRegistrationMethod<PointSetType, DistanceImageType> RegistrationFilterType;
 typedef  itk::LBFGSOptimizer OptimizerType;
 typedef itk::LinearInterpolateImageFunction<DistanceImageType, double> InterpolatorType;
 typedef itk::BinaryThresholdImageFilter <CTImageType, CTImageType>  BinaryThresholdImageFilterType;
@@ -99,7 +100,11 @@ typedef itk::TransformMeshFilter<MeshType, MeshType, CompositeTransformType> Tra
 
 
 typedef itk::PosteriorModelBuilder<MeshType> PosteriorModelBuilderType;
+#if (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 4)
+typedef itk::PointsLocator< MeshType::PointsContainer > PointsLocatorType;
+#else
 typedef itk::PointsLocator<int, 3, double, MeshType::PointsContainer > PointsLocatorType;
+#endif
 
 class ConfigParameters {
 public:
@@ -367,9 +372,18 @@ int main(int argc, char* argv[]) {
 	registration->SetTransform(   transform );
 
 
-	// the input to the registration will be the reference of the statistical model and the
-	// distance map we computed above.
-	registration->SetFixedPointSet(  model->GetRepresenter()->GetReference() );
+    // we create the fixedPointSet of the registration from the reference mesh of our model.
+    // As we are fitting to the 0 level set of a distance image, we set the value of the pointdata to 0.
+    PointSetType::Pointer fixedPointSet = PointSetType::New();
+    fixedPointSet->SetPoints(model->GetRepresenter()->GetReference()->GetPoints());
+    PointSetType::PointDataContainer::Pointer points = PointSetType::PointDataContainer::New();
+    points->Reserve(model->GetRepresenter()->GetReference()->GetNumberOfPoints());
+    for (PointSetType::PointDataContainer::Iterator it = points->Begin(); it != points->End(); ++it) {
+        it->Value() = 0;
+    }
+    fixedPointSet->SetPointData(points);
+
+	registration->SetFixedPointSet(  fixedPointSet);
 	registration->SetMovingImage(distanceImage);
 
 	try {

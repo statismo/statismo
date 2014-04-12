@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef ITKMODELBUILDER_H_
-#define ITKMODELBUILDER_H_
+#ifndef ITKLOWRANKMODELBUILDER_H_
+#define ITKLOWRANKMODELBUILDER_H_
 
 #include "itkObject.h"
 #include "itkObjectFactory.h"
@@ -147,4 +147,4 @@ ImplType* m_impl;
 
 }
 
-#endif /* ITKMODELBUILDER_H_ */
+#endif /* ITKLOWRANKMODELBUILDER_H_ */

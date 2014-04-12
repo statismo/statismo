@@ -41,6 +41,7 @@
 #include "vtkStructuredPointsWriter.h"
 #include "vtkPointData.h"
 #include "vtkDataArray.h"
+#include "vtkVersion.h"
 #include "statismo/HDF5Utils.h"
 #include "statismo/utils.h"
 
@@ -247,7 +248,11 @@ vtkStructuredPointsRepresenter::ReadDataset(const std::string& filename) {
 void vtkStructuredPointsRepresenter::WriteDataset(const std::string& filename, const vtkStructuredPoints* sp) {
     vtkStructuredPointsWriter* writer = vtkStructuredPointsWriter::New();
     writer->SetFileName(filename.c_str());
+#if (VTK_MAJOR_VERSION == 5 )
     writer->SetInput(const_cast<vtkStructuredPoints*>(sp));
+#else
+    writer->SetInputData(const_cast<vtkStructuredPoints*>(sp));
+#endif
     if (writer->GetErrorCode() != 0) {
         throw StatisticalModelException((std::string("Could not write file ") + filename).c_str());
     }

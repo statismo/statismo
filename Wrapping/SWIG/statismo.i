@@ -62,10 +62,10 @@
 #include "statismo/ReducedVarianceModelBuilder.h"
 #include "statismo/PCAModelBuilder.h"
 #include "statismo/Exceptions.h"
+#include "statismo/CommonTypes.h"
 #include <list>
 #include <string>
 %}
-
 
 
 namespace statismo { 
@@ -218,6 +218,21 @@ private:
 %template(PointIdValuePair_vtkPD) std::pair<unsigned, statismo::RepresenterTraits<vtkPolyData>::ValueType>;
 %template(PointIdValueList_vtkPD) std::list<std::pair<unsigned, statismo::RepresenterTraits<vtkPolyData>::ValueType> >;
 
+//////////////////////////////////////////////////////
+// PointValueWithCovariancePair
+//////////////////////////////////////////////////////
+
+// Never got this to work properly. The wrapping of statismo::MatrixType is not sophisticated enough to work with the std::pair and list wrappers.
+
+//%template(PointValuePair_tvr) std::pair<TrivialVectorialRepresenter::PointType, TrivialVectorialRepresenter::ValueType>;
+//%template(PointValueWithCovariancePair_vtkPD) std::pair< std::pair< vtkPoint,vtkPoint >,statismo::MatrixType >; 
+//%template(PointValueWithCovarianceList_vtkPD) std::list< std::pair< std::pair< vtkPoint,vtkPoint >,statismo::MatrixType > >;
+//%template(MatrixList) std::list<statismo::MatrixType>;
+//%template(MatrixMatrixPair) std::pair< statismo::MatrixType, statismo::MatrixType >;
+//%template(MatrixMatrixList) std::list< std::pair< statismo::MatrixType, statismo::MatrixType > >;
+//%template(PointMatrixPair) std::pair< vtkPoint, statismo::MatrixType >;
+//%template(PointMatrixList) std::list< std::pair< vtkPoint, statismo::MatrixType > >;
+
 
 //////////////////////////////////////////////////////
 // ModelInfo
@@ -331,6 +346,7 @@ public:
 	 %rename("DrawSampleAtPointId") DrawSampleAtPoint(const statismo::VectorType&, unsigned) const;
 	 ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, unsigned ptId) const;
 
+   DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const; 
 
 	 
 	 statismo::VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const;
@@ -425,6 +441,8 @@ public:
 }
 
 %template(PosteriorModelBuilder_vtkPD) statismo::PosteriorModelBuilder<vtkPolyData>;
+
+
 
 
 //////////////////////////////////////////////////////

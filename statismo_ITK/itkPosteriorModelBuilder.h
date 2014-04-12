@@ -40,7 +40,6 @@
 #define ITK_POSTERIOR_MODELBUILDER_H_
 
 #include "itkObject.h"
-#include "statismo/Representer.h"
 #include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
@@ -58,7 +57,6 @@ template <class T>
 class PosteriorModelBuilder : public Object {
 public:
 
-	typedef statismo::Representer<T> RepresenterType;
 	typedef PosteriorModelBuilder            Self;
 	typedef Object	Superclass;
 	typedef SmartPointer<Self>                Pointer;
@@ -95,22 +93,45 @@ public:
 
 
 	// create statismo stuff
-	typedef typename RepresenterType::ValueType ValueType;
-	typedef typename RepresenterType::PointType PointType;
+	typedef  statismo::Representer<T> RepresenterType;
+	typedef  typename RepresenterType::ValueType ValueType;
+	typedef  typename RepresenterType::PointType PointType;
 	typedef typename statismo::PosteriorModelBuilder<T>::PointValueListType PointValueListType;
+	typedef typename statismo::PosteriorModelBuilder<T>::PointValueWithCovariancePairType PointValueWithCovariancePairType;
+	typedef typename statismo::PosteriorModelBuilder<T>::PointValueWithCovarianceListType PointValueWithCovarianceListType;
+	typedef itk::StatisticalModel<T> StatisticalModelType;
+	typedef statismo::StatisticalModel<T> StatismoStatisticalModelType;
 
-
-	typename StatisticalModel<T>::Pointer BuildNewModelFromModel(const StatisticalModel<T>* model, const PointValueListType& pointValues, double pointValuesNoiseVariance,  bool computeScores=true) {
-		statismo::StatisticalModel<T>* model_statismo = model->GetstatismoImplObj();
-		statismo::StatisticalModel<T>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelFromModel, this->m_impl, model_statismo, pointValues, pointValuesNoiseVariance, computeScores));
-		typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
+	typename StatisticalModelType::Pointer BuildNewModelFromModel(const StatisticalModelType* model, const PointValueListType& pointValues, double pointValuesNoiseVariance,  bool computeScores=true) {
+		StatismoStatisticalModelType* model_statismo = model->GetstatismoImplObj();
+		StatismoStatisticalModelType* new_model_statismo = callstatismoImpl(std::tr1::bind(
+			static_cast<StatismoStatisticalModelType* (ImplType::*) (const StatismoStatisticalModelType* model, const PointValueListType& pointValues, double pointValuesNoiseVariance,  bool computeScores) const > (&ImplType::BuildNewModelFromModel),
+			this->m_impl, model_statismo, pointValues, pointValuesNoiseVariance, computeScores));		
+		typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
 		model_itk->SetstatismoImplObj(new_model_statismo);
 		return model_itk;
 	}
 
-	typename StatisticalModel<T>::Pointer BuildNewModel(DataItemListType data, const PointValueListType& pointValues, double pointValuesNoiseVariance, double noiseVariance) {
-		statismo::StatisticalModel<T>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, data ,pointValues, pointValuesNoiseVariance, noiseVariance));
-		typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
+	typename StatisticalModelType::Pointer BuildNewModel(DataItemListType DataItemList, const PointValueListType& pointValues, double pointValuesNoiseVariance, double noiseVariance) {
+		StatismoStatisticalModelType* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList ,pointValues, pointValuesNoiseVariance, noiseVariance));
+		typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
+		model_itk->SetstatismoImplObj(model_statismo);
+		return model_itk;
+	}
+
+	typename StatisticalModelType::Pointer BuildNewModelFromModel(const StatisticalModelType* model, const PointValueWithCovarianceListType& pointValuesWithCovariance,  bool computeScores=true) {
+		StatismoStatisticalModelType* model_statismo = model->GetstatismoImplObj();
+		StatismoStatisticalModelType* new_model_statismo = callstatismoImpl(std::tr1::bind(
+			static_cast<StatismoStatisticalModelType* (ImplType::*) (const StatismoStatisticalModelType* model, const PointValueWithCovarianceListType& pointValuesWithCovariance,  bool computeScores) const > (&ImplType::BuildNewModelFromModel),
+			this->m_impl, model_statismo, pointValuesWithCovariance, computeScores));    
+		typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
+		model_itk->SetstatismoImplObj(new_model_statismo);
+		return model_itk;
+	}
+
+	typename StatisticalModelType::Pointer BuildNewModel(const DataItemListType& DataItemList, const PointValueWithCovarianceListType& pointValuesWithCovariance, 	double noiseVariance) {
+		StatismoStatisticalModelType* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, pointValuesWithCovariance, noiseVariance));
+		typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
 		model_itk->SetstatismoImplObj(model_statismo);
 		return model_itk;
 	}

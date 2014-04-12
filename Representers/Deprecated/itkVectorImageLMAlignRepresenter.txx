@@ -38,6 +38,7 @@
 
 #include "itkVectorImageLMAlignRepresenter.h"
 #include "itkImageIterator.h"
+#include "itkImageRegionIteratorWithIndex.h"
 #include "itkImageRegionConstIterator.h"
 #include "itkImageRegionIterator.h"
 #include "itkImageDuplicator.h"
@@ -47,7 +48,6 @@
 #include "itkPoint.h"
 #include "itkVector.h"
 #include "itkLandmarkBasedTransformInitializer.h"
-#include "itkVectorResampleImageFilter.h"
 
 #include "statismo/HDF5Utils.h"
 #include "statismo/utils.h"
@@ -73,7 +73,14 @@ template <>
 struct TransformSelector<3> {
 	typedef itk::VersorRigid3DTransform<double> TransformType;
 };
-
+// There needs to be a case for 4D if this is compiled
+// for instance with elastix. I do not think the Affine
+// Transform makes a lot of sense, but this will have
+// to be rethunk for 4D anyway.
+template <>
+struct TransformSelector<4> {
+	typedef itk::AffineTransform<double,4> TransformType;
+};
 
 template <class TPixel, unsigned ImageDimension, unsigned VectorDimension>
 VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::VectorImageLMAlignRepresenter()
@@ -137,8 +144,6 @@ VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetT
 	typename TransformType::Pointer transform = TransformType::New();
 	typename TransformInitializerType::Pointer transformInitializer = TransformInitializerType::New();
 
-	typedef VectorResampleImageFilter<DatasetType, DatasetType, double> VectorResampleImageFilterType;
-
 	if (this->m_reference.GetPointer() == 0) {
 		itkExceptionMacro(<< "Reference must be set before the representer can be used");
 	}
@@ -161,23 +166,44 @@ VectorImageLMAlignRepresenter<TPixel, ImageDimension, VectorDimension>::DatasetT
 		}
 
 	transformInitializer->SetTransform(transform);
-	transformInitializer->SetFixedLandmarks(m_alignmentList);
-	transformInitializer->SetMovingLandmarks(targetLandmarks);
+	transformInitializer->SetMovingLandmarks(m_alignmentList);
+	transformInitializer->SetFixedLandmarks(targetLandmarks);
 	transformInitializer->InitializeTransform();
 
+	typedef itk::ImageDuplicator< DatasetType > DuplicatorType;
+	typename DuplicatorType::Pointer duplicator = DuplicatorType::New();
+	duplicator->SetInputImage(this->m_reference);
+	duplicator->Update();
+	DatasetPointerType outputImage = duplicator->GetOutput();
 
-	typename VectorResampleImageFilterType::Pointer resampler =  VectorResampleImageFilterType::New();
-	resampler->SetTransform(transform);
-	resampler->SetInput(vecImage);
-	resampler->SetOutputSpacing(this->m_reference->GetSpacing());
-	resampler->SetSize(this->m_reference->GetLargestPossibleRegion().GetSize());
-	resampler->SetOutputOrigin(this->m_reference->GetOrigin());
+	typedef typename itk::ImageRegionIteratorWithIndex<DatasetType> IteratorType;
+	typedef typename itk::ImageRegionConstIterator<DatasetType> ConstIteratorType;
 
-	resampler->Update();
+	IteratorType outputIt(outputImage, outputImage->GetRequestedRegion());
+	ConstIteratorType inputIt(vecImage, vecImage->GetRequestedRegion());
 
-	DatasetPointerType resampledDf = resampler->GetOutput();
+	PointType point;
+	PointType warpedPoint;
+	PointType transformedPoint;
+	ValueType outputVector;
 
-	return resampledDf;
+
+	// Calculating v(x) = T^{-1}(x + u(x)) - x
+	// for all x in Omega
+
+	for(inputIt.GoToBegin(), outputIt.GoToBegin(); !inputIt.IsAtEnd();
+			++inputIt, ++outputIt) {
+
+		typename DatasetType::IndexType idx = inputIt.GetIndex();
+		vecImage->TransformIndexToPhysicalPoint(idx, point);
+		warpedPoint = point + inputIt.Get();
+		transformedPoint = transform->TransformPoint( warpedPoint );
+		outputVector = transformedPoint - point;
+		outputIt.Set( outputVector );
+
+	}
+
+	return outputImage;
 }
 
 
