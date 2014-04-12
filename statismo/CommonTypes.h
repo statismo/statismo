@@ -93,16 +93,16 @@ const static unsigned DOUBLE      =   11;
 template <class T> unsigned GetDataTypeId() {
 	throw StatisticalModelException("The datatype that was provided is not a valid statismo data type ");
 }
-template <> unsigned GetDataTypeId<signed char>() { return SIGNED_CHAR; }
-template <> unsigned GetDataTypeId<unsigned char>() { return UNSIGNED_CHAR; }
-template <> unsigned GetDataTypeId<signed short>() { return SIGNED_SHORT; }
-template <> unsigned GetDataTypeId<unsigned short>() { return UNSIGNED_SHORT; }
-template <> unsigned GetDataTypeId<signed int>() { return SIGNED_INT; }
-template <> unsigned GetDataTypeId<unsigned int>() { return UNSIGNED_INT; }
-template <> unsigned GetDataTypeId<signed long>() { return SIGNED_LONG; }
-template <> unsigned GetDataTypeId<unsigned long>() { return UNSIGNED_LONG; }
-template <> unsigned GetDataTypeId<float>() { return FLOAT; }
-template <> unsigned GetDataTypeId<double>() { return DOUBLE; }
+template <> inline unsigned GetDataTypeId<signed char>() { return SIGNED_CHAR; }
+template <> inline unsigned GetDataTypeId<unsigned char>() { return UNSIGNED_CHAR; }
+template <> inline unsigned GetDataTypeId<signed short>() { return SIGNED_SHORT; }
+template <> inline unsigned GetDataTypeId<unsigned short>() { return UNSIGNED_SHORT; }
+template <> inline unsigned GetDataTypeId<signed int>() { return SIGNED_INT; }
+template <> inline unsigned GetDataTypeId<unsigned int>() { return UNSIGNED_INT; }
+template <> inline unsigned GetDataTypeId<signed long>() { return SIGNED_LONG; }
+template <> inline unsigned GetDataTypeId<unsigned long>() { return UNSIGNED_LONG; }
+template <> inline unsigned GetDataTypeId<float>() { return FLOAT; }
+template <> inline unsigned GetDataTypeId<double>() { return DOUBLE; }
 
 
 } //namespace statismo
