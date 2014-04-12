@@ -256,7 +256,7 @@ public:
 	 * In this case, this method would return for inputs ptId, componentId
 	 * the value ptId * 3 + componentId
 	 */
-	unsigned MapPointIdToInternalIdx(unsigned ptId,
+	virtual unsigned MapPointIdToInternalIdx(unsigned ptId,
 			unsigned componentInd) const {
 		return ptId * GetDimensions() + componentInd;
 	}
