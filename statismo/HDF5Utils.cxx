@@ -117,7 +117,7 @@ void HDF5Utils::readMatrixOfType(const H5::CommonFG& fg, const char* name, typen
 
 template <>
 inline
-void HDF5Utils::readMatrixOfType<unsigned int>(const H5::CommonFG& fg, const char* name, typename GenericEigenType<unsigned int>::MatrixType& matrix) {
+void HDF5Utils::readMatrixOfType<unsigned int>(const H5::CommonFG& fg, const char* name, GenericEigenType<unsigned int>::MatrixType& matrix) {
 	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[2];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
@@ -129,7 +129,7 @@ void HDF5Utils::readMatrixOfType<unsigned int>(const H5::CommonFG& fg, const cha
 
 template <>
 inline
-void HDF5Utils::readMatrixOfType<float>(const H5::CommonFG& fg, const char* name, typename GenericEigenType<float>::MatrixType& matrix) {
+void HDF5Utils::readMatrixOfType<float>(const H5::CommonFG& fg, const char* name, GenericEigenType<float>::MatrixType& matrix) {
 	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[2];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
@@ -141,7 +141,7 @@ void HDF5Utils::readMatrixOfType<float>(const H5::CommonFG& fg, const char* name
 
 template <>
 inline
-void HDF5Utils::readMatrixOfType<double>(const H5::CommonFG& fg, const char* name, typename GenericEigenType<double>::MatrixType& matrix) {
+void HDF5Utils::readMatrixOfType<double>(const H5::CommonFG& fg, const char* name, GenericEigenType<double>::MatrixType& matrix) {
 	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[2];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
@@ -257,7 +257,7 @@ void HDF5Utils::readVectorOfType(const H5::CommonFG& fg, const char* name, typen
 
 template <>
 inline
-void HDF5Utils::readVectorOfType<double>(const H5::CommonFG& fg, const char* name, typename GenericEigenType<double>::VectorType& vector) {
+void HDF5Utils::readVectorOfType<double>(const H5::CommonFG& fg, const char* name,  GenericEigenType<double>::VectorType& vector) {
 	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[1];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
@@ -267,7 +267,7 @@ void HDF5Utils::readVectorOfType<double>(const H5::CommonFG& fg, const char* nam
 
 template <>
 inline
-void HDF5Utils::readVectorOfType<float>(const H5::CommonFG& fg, const char* name, typename GenericEigenType<float>::VectorType& vector) {
+void HDF5Utils::readVectorOfType<float>(const H5::CommonFG& fg, const char* name,  GenericEigenType<float>::VectorType& vector) {
 	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[1];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
@@ -277,7 +277,7 @@ void HDF5Utils::readVectorOfType<float>(const H5::CommonFG& fg, const char* name
 
 template <>
 inline
-void HDF5Utils::readVectorOfType<int>(const H5::CommonFG& fg, const char* name, typename GenericEigenType<int>::VectorType& vector) {
+void HDF5Utils::readVectorOfType<int>(const H5::CommonFG& fg, const char* name,  GenericEigenType<int>::VectorType& vector) {
 	H5::DataSet ds = fg.openDataSet( name );
 	hsize_t dims[1];
 	ds.getSpace().getSimpleExtentDims(dims, NULL);
@@ -333,7 +333,7 @@ H5::DataSet HDF5Utils::writeVectorOfType(const H5::CommonFG& fg, const char* nam
 
 template <>
 inline
-H5::DataSet HDF5Utils::writeVectorOfType<double>(const H5::CommonFG& fg, const char* name, const typename GenericEigenType<double>::VectorType& vector) {
+H5::DataSet HDF5Utils::writeVectorOfType<double>(const H5::CommonFG& fg, const char* name, const GenericEigenType<double>::VectorType& vector) {
 	hsize_t dims[1] = {vector.size()};
 	H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_DOUBLE, H5::DataSpace(1, dims));
 	ds.write( vector.data(), H5::PredType::NATIVE_DOUBLE );
@@ -342,7 +342,7 @@ H5::DataSet HDF5Utils::writeVectorOfType<double>(const H5::CommonFG& fg, const c
 
 template <>
 inline
-H5::DataSet HDF5Utils::writeVectorOfType<float>(const H5::CommonFG& fg, const char* name, const typename GenericEigenType<float>::VectorType& vector) {
+H5::DataSet HDF5Utils::writeVectorOfType<float>(const H5::CommonFG& fg, const char* name, const GenericEigenType<float>::VectorType& vector) {
 	hsize_t dims[1] = {vector.size()};
 	H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_FLOAT, H5::DataSpace(1, dims));
 	ds.write( vector.data(), H5::PredType::NATIVE_FLOAT );
@@ -351,7 +351,7 @@ H5::DataSet HDF5Utils::writeVectorOfType<float>(const H5::CommonFG& fg, const ch
 
 template <>
 inline
-H5::DataSet HDF5Utils::writeVectorOfType<int>(const H5::CommonFG& fg, const char* name, const typename GenericEigenType<int>::VectorType& vector) {
+H5::DataSet HDF5Utils::writeVectorOfType<int>(const H5::CommonFG& fg, const char* name, const GenericEigenType<int>::VectorType& vector) {
 	hsize_t dims[1] = {vector.size()};
 	H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_INT, H5::DataSpace(1, dims));
 	ds.write( vector.data(), H5::PredType::NATIVE_INT );

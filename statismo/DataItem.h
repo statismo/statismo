@@ -41,6 +41,8 @@
 #include "Representer.h"
 #include "Preprocessor.h"
 #include "CommonTypes.h"
+#include "HDF5Utils.h"
+
 
 namespace statismo {
 /* \class DataItem
