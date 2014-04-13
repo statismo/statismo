@@ -204,7 +204,7 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(
 	// Todo: Maybe it is possible to do this with Q, so that we don"t need to get U as well.
 	MatrixType U_c = inputModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>();
 
-	StatisticalModelType* PosteriorModel = StatisticalModelType::Create(representer,0, mu_c, U_c, D_c, rho2);
+	StatisticalModelType* PosteriorModel = StatisticalModelType::Create(representer , mu_c, U_c, D_c, rho2);
 
 	// Write the parameters used to build the models into the builderInfo
 

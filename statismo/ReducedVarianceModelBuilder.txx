@@ -76,7 +76,6 @@ ReducedVarianceModelBuilder<Representer>::BuildNewModelFromModel(
 
 	  StatisticalModelType* reducedModel = StatisticalModelType::Create(
 			  inputModel->GetRepresenter(),
-			  inputModel->GetPreprocessor(),
 			  inputModel->GetMeanVector(),
 			  inputModel->GetOrthonormalPCABasisMatrix().leftCols(numComponentsToReachPrescribedVariance),
 			  inputModel->GetPCAVarianceVector().topRows(numComponentsToReachPrescribedVariance),

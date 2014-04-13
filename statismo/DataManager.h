@@ -46,7 +46,6 @@
 #include "ModelInfo.h"
 #include "DataItem.h"
 #include "Representer.h"
-#include "Preprocessor.h"
 #include <list>
 
 namespace statismo {
@@ -116,7 +115,6 @@ class DataManager {
 public:
 
 	typedef Representer<T> RepresenterType;
-	typedef Preprocessor<T> PreprocessorType;
 	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
 	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
@@ -130,21 +128,14 @@ public:
 	 * Factory method that creates a new instance of a DataManager class
 	 *
 	 */
-	static DataManager<T>* Create(const RepresenterType* representer, const PreprocessorType* preprocessor) {
-		return new DataManager<T>(representer, preprocessor);
-	}
-
 	static DataManager<T>* Create(const RepresenterType* representer) {
-		return Create(representer, 0);
+		return new DataManager<T>(representer);
 	}
 
 	/**
 	 * Create a new dataManager, with the data stored in the given hdf5 file
 	 */
 	static DataManager<T>* Load(Representer<T>* representer,
-			const std::string& filename);
-
-	static DataManager<T>* Load(Representer<T>* representer, Preprocessor<T>* preprocessor,
 			const std::string& filename);
 
 
@@ -209,13 +200,12 @@ public:
 	CrossValidationFoldListType GetLeaveOneOutCrossValidationFolds() const;
 
 protected:
-	DataManager(const RepresenterType* representer, const PreprocessorType* preprocessor);
+	DataManager(const RepresenterType* representer);
 
 	DataManager(const DataManager<T>& orig);
 	DataManager& operator=(const DataManager<T>& rhs);
 
 	RepresenterType* m_representer;
-	PreprocessorType* m_preprocessor;
 
 	// members
 	DataItemListType m_DataItemList;

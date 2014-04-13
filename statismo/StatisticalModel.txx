@@ -48,39 +48,27 @@
 namespace statismo {
 
 template <typename T>
-StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const PreprocessorType* preprocessor, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
+StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
 : m_representer(representer->Clone()),
-  m_preprocessor(0),
   m_mean(m),
   m_pcaVariance(pcaVariance),
   m_noiseVariance(noiseVariance),
   m_cachedValuesValid(false),
   m_modelLoaded(false)
   {
-    if (preprocessor != 0) {
-      m_preprocessor = preprocessor->Clone();
-    }
-	VectorType D = pcaVariance.array().sqrt();
+ 	VectorType D = pcaVariance.array().sqrt();
 	m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
   }
 
 template <typename T>
-StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const PreprocessorType* preprocessor)
-: m_representer(representer->Clone()), m_preprocessor(0),  m_noiseVariance(0), m_cachedValuesValid(0) {
-    if (preprocessor != 0) {
-      m_preprocessor = preprocessor->Clone();
-    }
+StatisticalModel<T>::StatisticalModel(const RepresenterType* representer)
+: m_representer(representer->Clone()),  m_noiseVariance(0), m_cachedValuesValid(0) {
 }
 
 
 template <typename T>
 StatisticalModel<T>::~StatisticalModel()
 {
-	if (m_preprocessor != 0) {
-		m_preprocessor->Delete();
-		m_preprocessor = 0;
-	}
-
 
 	if (m_representer != 0) {
 //		 not all representers can implement a const correct version of delete.
@@ -97,11 +85,7 @@ template <typename T>
 typename StatisticalModel<T>::DatasetPointerType
 StatisticalModel<T>::DatasetToSample(DatasetConstPointerType ds) const {
   DatasetPointerType sample;
-  if (m_preprocessor == 0) { 
-    sample = m_representer->CloneDataset(ds); 
-  } else {     
-    sample = m_preprocessor->Preprocess(ds);
-  }
+  sample = m_representer->CloneDataset(ds); 
   return sample;
 }
 
@@ -283,14 +267,10 @@ template <typename T>
 VectorType
 StatisticalModel<T>::ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const {
   DatasetPointerType sample;
-  if (m_preprocessor == 0) { 
-    sample = m_representer->CloneDataset(dataset);
-  } else { 
-    sample= m_preprocessor->Preprocess(dataset);
-  }
+  sample = m_representer->CloneDataset(dataset);
   VectorType v = ComputeCoefficientsForSample(sample);
-	m_representer->DeleteDataset(sample);
-	return v;
+  m_representer->DeleteDataset(sample);
+  return v;
 }
 
 template <typename T>
@@ -529,12 +509,6 @@ StatisticalModel<T>::GetJacobian(const PointType& pt) const {
 template <typename T>
 StatisticalModel<T>*
 StatisticalModel<T>::Load(Representer<T>* representer, const std::string& filename, unsigned maxNumberOfPCAComponents) {
-	return Load(representer, 0, filename, maxNumberOfPCAComponents);
-}
-
-template <typename T>
-StatisticalModel<T>*
-StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const std::string& filename, unsigned maxNumberOfPCAComponents) {
 
     StatisticalModel* newModel = 0;
 
@@ -549,7 +523,7 @@ StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preproce
 
     H5::Group modelRoot = file.openGroup("/");
 	
-	newModel =  Load(representer, preprocessor, modelRoot, maxNumberOfPCAComponents);
+	newModel =  Load(representer, modelRoot, maxNumberOfPCAComponents);
 
 	modelRoot.close();
 	file.close();
@@ -557,15 +531,10 @@ StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preproce
 
 }
 
-template <typename T>
-StatisticalModel<T>*
-StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
-	return Load(representer, 0, modelRoot, maxNumberOfPCAComponents);
-}
 
 template <typename T>
 StatisticalModel<T>*
-StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
+StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
 
     StatisticalModel* newModel = 0;
 
@@ -605,34 +574,7 @@ StatisticalModel<T>::Load(Representer<T>* representer, Preprocessor<T>* preproce
 		representer->Load(representerGroup);
 		representerGroup.close();
 
-		// loading preprocessor. To maintain compatibility with earlier formats, we have to handle the case,
-		// when no preprocessor is defined in the file. 
-		  std::string prep_name;
-
-		  if (HDF5Utils::existsObjectWithName(modelRoot,"preprocessor")) {
-			H5::Group preprocessorGroup = modelRoot.openGroup("preprocessor");
-			prep_name = HDF5Utils::readStringAttribute(preprocessorGroup,"name");
-
-			if (preprocessor != 0) { 
-			  if (prep_name != preprocessor->GetName()) {
-			    throw StatisticalModelException("A different preprocessor was used to create the file. Cannot load hdf5 file.");
-			  }
-			  preprocessor->Load(preprocessorGroup);
-			  preprocessorGroup.close();
-			}
-			else {
-			  throw StatisticalModelException("No preprocessor specified, but found one in file. Cannot load hdf5 file.");			  
-			}
-		  }
-		  else { 
-		    if (preprocessor != 0) { 
-		      throw StatisticalModelException("A preprocessor was specified, but could not find one in the file. Cannot load hdf5 file.");		      
-		    }
-		  }
-	
-
-
-		newModel = new StatisticalModel(representer, preprocessor);
+		newModel = new StatisticalModel(representer);
 
         H5::Group modelGroup = modelRoot.openGroup("./model");
 		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
@@ -703,16 +645,6 @@ StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
 
 		this->m_representer->Save(representerGroup);
 		representerGroup.close();
-
-		// saving preprocessor
-		if (m_preprocessor != 0) { 
-		Group preprocessorGroup = modelRoot.createGroup("./preprocessor");
-		HDF5Utils::writeStringAttribute(preprocessorGroup, "name",
-				m_preprocessor->GetName());
-
-		this->m_preprocessor->Save(preprocessorGroup);
-		preprocessorGroup.close();
-		}
 
 		Group modelGroup = modelRoot.createGroup( "./model" );
 		HDF5Utils::writeMatrix(modelGroup, "./pcaBasis", m_pcaBasisMatrix);

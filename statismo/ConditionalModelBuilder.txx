@@ -214,7 +214,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList
   	VectorType newPCAVariance = singularValues.topRows(numComponentsToKeep);
   	MatrixType newPCABasisMatrix = (pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).topLeftCorner(X.cols(), numComponentsToKeep);
 
-		StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(), pcaModel->GetPreprocessor(),  condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(),  condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance);
 
 		// add builder info and data info to the info list
 		MatrixType scores(0,0);

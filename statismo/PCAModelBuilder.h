@@ -104,7 +104,7 @@ private:
 	PCAModelBuilder(const PCAModelBuilder& orig);
 	PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
 
-	StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const Preprocessor<T>* preprocessor, const MatrixType& X, double noiseVariance) const;
+	StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const;
 
 
 };

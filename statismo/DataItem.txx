@@ -40,24 +40,19 @@
 
 namespace statismo {
 
-template <class T>
-DataItem<T>*
-DataItem<T>::Load(const RepresenterType* representer, const H5::Group& dsGroup) {
-	return Load(representer, 0, dsGroup);
-}
 
 template <class T>
 DataItem<T>*
-DataItem<T>::Load(const RepresenterType* representer, const PreprocessorType* preprocessor, const H5::Group& dsGroup)
+DataItem<T>::Load(const RepresenterType* representer, const H5::Group& dsGroup)
 {
 	VectorType dsVector;
 	std::string sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
 	DataItem* newSample = 0;
 	if (sampleType == "DataItem") {
-		newSample = new DataItem<T>(representer, preprocessor);
+		newSample = new DataItem<T>(representer);
 	}
 	else if (sampleType == "DataItemWithSurrogates") {
-		newSample = new DataItemWithSurrogates<T>(representer, preprocessor);
+		newSample = new DataItemWithSurrogates<T>(representer);
 	}
 	else {
 		throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") +sampleType).c_str());

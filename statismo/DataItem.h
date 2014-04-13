@@ -39,7 +39,6 @@
 #define __SAMPLE_DATA_H
 
 #include "Representer.h"
-#include "Preprocessor.h"
 #include "CommonTypes.h"
 #include "HDF5Utils.h"
 
@@ -54,15 +53,14 @@ template <typename T>
 class DataItem {
 public:
 	typedef Representer<T> RepresenterType;
-	typedef Preprocessor<T> PreprocessorType;
 	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
 
 	/**
 	 * Ctor. Usually not called from outside of the library
 	 */
-	static DataItem* Create(const RepresenterType* representer, const PreprocessorType* preprocessor, const std::string& URI, const VectorType& sampleVector)
+	static DataItem* Create(const RepresenterType* representer, const std::string& URI, const VectorType& sampleVector)
 	{
-		return new DataItem(representer, preprocessor, URI, sampleVector);
+		return new DataItem(representer, URI, sampleVector);
 	}
 
 	/**
@@ -74,7 +72,6 @@ public:
 	 * \param dsGroup. The group in the hdf5 file for this dataset
 	 */
 	static DataItem* Load(const RepresenterType* representer, const H5::Group& dsGroup);
-	static DataItem* Load(const RepresenterType* representer, const PreprocessorType* preprocessor, const H5::Group& dsGroup);
 	/**
 	 *  Save the sample data to the hdf5 group dsGroup.
 	 */
@@ -90,8 +87,6 @@ public:
 	 */
 	const RepresenterType* GetRepresenter() const { return m_representer; }
 
-	const PreprocessorType* GetPreprocessor() const { return m_preprocessor; }
-
 	/**
 	 * Get the vectorial representation of this sample
 	 */
@@ -105,12 +100,12 @@ public:
 
 protected:
 
-	DataItem(const RepresenterType* representer, const PreprocessorType* preprocessor, const std::string& URI, const VectorType& sampleVector)
-		: m_representer(representer), m_preprocessor(preprocessor), m_URI(URI), m_sampleVector(sampleVector)
+	DataItem(const RepresenterType* representer, const std::string& URI, const VectorType& sampleVector)
+		: m_representer(representer), m_URI(URI), m_sampleVector(sampleVector)
 	{
 	}
 
-	DataItem(const RepresenterType* representer, const PreprocessorType* preprocessor) : m_representer(representer), m_preprocessor(preprocessor)
+	DataItem(const RepresenterType* representer) : m_representer(representer)
 	{}
 
 	// loads the internal state from the hdf5 file
@@ -127,7 +122,6 @@ protected:
 
 
 	const RepresenterType* m_representer;
-	const PreprocessorType* m_preprocessor;
 	std::string m_URI;
 	VectorType m_sampleVector;
 };
@@ -150,7 +144,6 @@ class DataItemWithSurrogates : public DataItem<T>
 {
 	friend class DataItem<T>;
 	typedef Representer<T> RepresenterType;
-	typedef Preprocessor<T> PreprocessorType;
 
 public:
 
@@ -163,17 +156,9 @@ public:
 	typedef std::vector<SurrogateType>	SurrogateTypeVectorType;
 
 
-	static DataItemWithSurrogates* Create(const RepresenterType* representer,
-									 const std::string& datasetURI,
-									 const VectorType& sampleVector,
-									 const std::string& surrogateFilename,
-									 const VectorType& surrogateVector)
-	{
-		return new DataItemWithSurrogates(representer, 0, datasetURI, sampleVector, surrogateFilename, surrogateVector);
-	}
+
 
 	static DataItemWithSurrogates* Create(const RepresenterType* representer,
-								     const PreprocessorType* preprocessor,
 									 const std::string& datasetURI,
 									 const VectorType& sampleVector,
 									 const std::string& surrogateFilename,
@@ -193,18 +178,17 @@ public:
 private:
 
 	DataItemWithSurrogates(const RepresenterType* representer,
-							  const PreprocessorType* preprocessor,
 							const std::string& datasetURI,
 							const VectorType& sampleVector,
 							const std::string& surrogateFilename,
 							const VectorType& surrogateVector)
-	: DataItem<T>(representer, preprocessor, datasetURI, sampleVector),
+	: DataItem<T>(representer, datasetURI, sampleVector),
 	  m_surrogateFilename(surrogateFilename),
 	  m_surrogateVector(surrogateVector)
 	{
 	}
 
-	DataItemWithSurrogates(const RepresenterType* r, const PreprocessorType* p) : DataItem<T>(r, p) {}
+	DataItemWithSurrogates(const RepresenterType* r) : DataItem<T>(r) {}
 
 	// loads the internal state from the hdf5 file
 	virtual void LoadInternal(const H5::Group& dsGroup) {

@@ -46,13 +46,9 @@ namespace statismo {
 ////////////////////////////////////////////////
 
 template<typename T>
-DataManager<T>::DataManager(const RepresenterType* representer,
-		const PreprocessorType* preprocessor) :
-  m_representer(representer->Clone()), m_preprocessor(0) {
-		    if (m_preprocessor != 0) {
-		      m_preprocessor = preprocessor->Clone();
-		    }
-}
+DataManager<T>::DataManager(const RepresenterType* representer)
+	: m_representer(representer->Clone())
+{}
 
 template<typename T>
 DataManager<T>::~DataManager() {
@@ -66,23 +62,13 @@ DataManager<T>::~DataManager() {
 		m_representer->Delete();
 	}
 
-	if (m_preprocessor) {
-		m_preprocessor->Delete();
-	}
-
 }
+
 
 
 template<typename T>
 DataManager<T>*
-DataManager<T>::Load(Representer<T>* representer, const std::string& filename) {
-	return Load(representer, 0, filename);
-}
-
-
-template<typename T>
-DataManager<T>*
-DataManager<T>::Load(Representer<T>* representer, Preprocessor<T>* preprocessor,
+DataManager<T>::Load(Representer<T>* representer,
 		const std::string& filename) {
 	using namespace H5;
 
@@ -132,33 +118,7 @@ DataManager<T>::Load(Representer<T>* representer, Preprocessor<T>* preprocessor,
 
 		representer->Load(representerGroup);
 		representerGroup.close();
-
-		// loading preprocessor. To maintain compatibility with earlier formats, we have to handle the case,
-		// when no preprocessor is defined in the file. 
-
-		  std::string prep_name;
-		  if (HDF5Utils::existsObjectWithName(file,"preprocessor")) {
-			Group preprocessorGroup = file.openGroup("preprocessor");
-			prep_name = HDF5Utils::readStringAttribute(preprocessorGroup,"name");
-
-			if (preprocessor != 0) { 
-			  if (prep_name != preprocessor->GetName()) {
-			    throw StatisticalModelException("A different preprocessor was used to create the file. Cannot load hdf5 file.");
-			  }
-			  preprocessor->Load(preprocessorGroup);
-			  preprocessorGroup.close();
-			}
-			else {
-			  throw StatisticalModelException("No preprocessor specified, but found one in file. Cannot load hdf5 file.");			  
-			}
-		  }
-		  else { 
-		    if (preprocessor != 0) { 
-		      throw StatisticalModelException("A preprocessor was specified, but could not find one in the file. Cannot load hdf5 file.");		      
-		    }
-		  }
-	
-		newDataManager = new DataManager<T>(representer, preprocessor);
+		newDataManager = new DataManager<T>(representer);
 
 
 		Group publicGroup = file.openGroup("/data");
@@ -217,15 +177,6 @@ void DataManager<T>::Save(const std::string& filename) const {
 		this->m_representer->Save(representerGroup);
 		representerGroup.close();
 
-		if (m_preprocessor != 0) { 
-		  Group preprocessorGroup = file.createGroup("./preprocessor");
-		  HDF5Utils::writeStringAttribute(preprocessorGroup, "name",
-						  m_preprocessor->GetName());
-		this->m_preprocessor->Save(preprocessorGroup);
-		preprocessorGroup.close();
-
-		}
-
 
 		Group publicGroup = file.createGroup("./data");
 		HDF5Utils::writeInt(publicGroup, "./NumberOfDatasets",
@@ -260,13 +211,10 @@ void DataManager<T>::AddDataset(DatasetConstPointerType dataset,
 		const std::string& URI) {
 
   DatasetPointerType sample;
-  if (m_preprocessor == 0) { 
-    sample = m_representer->CloneDataset(dataset);
-  } else { 
-    sample = this->m_preprocessor->Preprocess(dataset);
-  }
-    m_DataItemList.push_back(
-			DataItemType::Create(m_representer, m_preprocessor, URI,
+  sample = m_representer->CloneDataset(dataset);
+
+  m_DataItemList.push_back(
+			DataItemType::Create(m_representer, URI,
 					m_representer->SampleToSampleVector(sample)));
 	m_representer->DeleteDataset(sample);
 }

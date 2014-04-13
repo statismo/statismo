@@ -47,8 +47,8 @@ namespace statismo {
 
 
 template <typename T>
-DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType* representer, const PreprocessorType* preprocessor, const std::string& filename)
-: DataManager<T>(representer, preprocessor)
+DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType* representer, const std::string& filename)
+: DataManager<T>(representer)
 {
 	LoadSurrogateTypes(filename);
 }
@@ -86,11 +86,7 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
 	if (static_cast<unsigned>(surrogateVector.size()) != m_typeInfo.types.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
 
 	DatasetPointerType sample;
-	if (this->m_preprocessor == 0) { 
 	  sample = this->m_representer->CloneDataset(ds);
-	} else { 
-	  sample  = this->m_preprocessor->Preprocess(ds);
-	}
 
 	this->m_DataItemList.push_back(DataItemWithSurrogatesType::Create(this->m_representer,
 																			datasetURI,

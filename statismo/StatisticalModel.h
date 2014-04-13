@@ -104,7 +104,6 @@ public:
     typedef typename RepresenterType::ValueType ValueType;
 	typedef typename RepresenterType::PointType PointType;
 
-	typedef Preprocessor<T> PreprocessorType ;
 
 	typedef Domain<PointType> DomainType;
 
@@ -144,13 +143,12 @@ public:
 	 * \param noiseVariance The variance of the (N(0,noiseVariance)) noise on each point
 	 */
 	static StatisticalModel* Create(const RepresenterType* representer,
-									 const PreprocessorType* preprocessor,
 									const VectorType& m,
 									const MatrixType& orthonormalPCABasis,
 									const VectorType& pcaVariance,
 									double noiseVariance)
 	{
-		return new StatisticalModel(representer, preprocessor, m, orthonormalPCABasis, pcaVariance, noiseVariance);
+		return new StatisticalModel(representer, m, orthonormalPCABasis, pcaVariance, noiseVariance);
 	}
 
 
@@ -163,14 +161,6 @@ public:
 	 */
 	static StatisticalModel* Load(Representer<T>* representer, const std::string& filename,  unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
-	/**
-	 * Returns a new statistical model, which is loaded from the given HDF5 file
-	 * \param filename The filename
-	 * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
-	 * to create the model.
-	 */
-	static StatisticalModel* Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const std::string& filename,  unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
-
 
 	/**
 	 * Returns a new statistical model, which is stored in the given HDF5 Group 
@@ -180,8 +170,6 @@ public:
 	 * to create the model.
 	 */
 	static StatisticalModel* Load(Representer<T>* representer, const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
-
-	static StatisticalModel* Load(Representer<T>* representer, Preprocessor<T>* preprocessor, const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
 
 
 
@@ -546,9 +534,6 @@ public:
 		return m_representer;
 	}
 
-	const PreprocessorType* GetPreprocessor() const {
-		return m_preprocessor;
-	}
 
 	/**
 	 * Return the domain of the statistical model
@@ -567,17 +552,16 @@ private:
 	 * Create an instance of the StatisticalModel
 	 * @param representer An instance of the representer, used to convert the samples to dataset of the represented type.
 	 */
-	StatisticalModel(const RepresenterType* representer, const PreprocessorType* preprocessor, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
+	StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
 
 	/** Create an empty model. This is only used for the load method, which then sets all the parameters manually */
-	StatisticalModel(const RepresenterType* representer, const PreprocessorType* preprocessor);
+	StatisticalModel(const RepresenterType* representer);
 
 	// to prevent use
 	StatisticalModel(const StatisticalModel& rhs);
 	StatisticalModel& operator=(const StatisticalModel& rhs);
 
 	const RepresenterType* m_representer;
-	const PreprocessorType* m_preprocessor;
 
 	VectorType m_mean;
 	MatrixType m_pcaBasisMatrix;

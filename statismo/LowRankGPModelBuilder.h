@@ -225,7 +225,7 @@ public:
 		RowVectorType mu = m_representer->SampleToSampleVector(mean);
 
 		StatisticalModelType* model = StatisticalModelType::Create(
-				m_representer, 0, mu, pcaBasis, pcaVariance, 0);
+				m_representer,  mu, pcaBasis, pcaVariance, 0);
 
 		// the model builder does not use any data. Hence the scores and the datainfo is emtpy
 		MatrixType scores; // no scores

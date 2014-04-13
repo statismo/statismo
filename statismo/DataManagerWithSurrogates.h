@@ -58,7 +58,6 @@ class DataManagerWithSurrogates : public DataManager<T> {
 public:
 
 	typedef Representer<T> RepresenterType;
-	typedef Preprocessor<T> PreprocessorType;
 
 	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
 	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
@@ -85,13 +84,10 @@ public:
 	*
 	*/
 	static DataManagerWithSurrogates<T>* Create(const RepresenterType* representer, const std::string& surrogTypeFilename) {
-		return new DataManagerWithSurrogates<T>(representer, 0, surrogTypeFilename);
+		return new DataManagerWithSurrogates<T>(representer, surrogTypeFilename);
 	}
 
 
-	static DataManagerWithSurrogates<T>* Create(const RepresenterType* representer, const PreprocessorType* preprocessor, const std::string& surrogTypeFilename) {
-		return new DataManagerWithSurrogates<T>(representer, preprocessor, surrogTypeFilename);
-	}
 
 
 	/**
@@ -126,7 +122,7 @@ protected:
 
 
 	// private - to prevent use
-	DataManagerWithSurrogates(const RepresenterType* r, const PreprocessorType* p, const std::string& filename);
+	DataManagerWithSurrogates(const RepresenterType* r, const std::string& filename);
 
 	DataManagerWithSurrogates(const DataManagerWithSurrogates& orig);
 	DataManagerWithSurrogates& operator=(const DataManagerWithSurrogates& rhs);

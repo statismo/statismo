@@ -65,7 +65,6 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
 
 	unsigned p = sampleDataList.front()->GetSampleVector().rows();
 	const Representer<T>* representer = sampleDataList.front()->GetRepresenter();
-	const Preprocessor<T>* preprocessor = sampleDataList.front()->GetPreprocessor();
 
 	// Build the sample matrix X
 	MatrixType X(n, p);
@@ -82,7 +81,7 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
 
 
 	// build the model
-	StatisticalModelType* model = BuildNewModelInternal(representer, preprocessor, X, noiseVariance);
+	StatisticalModelType* model = BuildNewModelInternal(representer, X, noiseVariance);
 	MatrixType scores;
 	if (computeScores) {
 		scores = this->ComputeScores(X, model);
@@ -119,7 +118,7 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
 
 template <typename T>
 typename PCAModelBuilder<T>::StatisticalModelType*
-PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const Preprocessor<T>* preprocessor, const MatrixType& X, double noiseVariance) const
+PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const
 {
 
 	typedef Eigen::JacobiSVD<MatrixType> SVDType;
@@ -172,7 +171,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
 		VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
 		VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
 
-		StatisticalModelType* model = StatisticalModelType::Create(representer, preprocessor, mu, pcaBasis, pcaVariance, noiseVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
 
 		return model;
 	}
@@ -189,7 +188,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
 
 		VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
 		VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
-		StatisticalModelType* model = StatisticalModelType::Create(representer, preprocessor, mu, pcaBasis, pcaVariance, noiseVariance);
+		StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
 		return model;
 	}
 }
