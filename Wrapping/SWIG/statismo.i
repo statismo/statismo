@@ -295,7 +295,6 @@ public:
     typedef typename RepresenterType::ValueType ValueType;
 	typedef typename RepresenterType::PointType PointType;
 
-	typedef statismo::Preprocessor<T> PreprocessorType ;
 
 	typedef Domain<PointType> DomainType;
 
@@ -309,8 +308,7 @@ public:
 	typedef std::list<PointIdValuePairType> PointIdValueListType;
 	
 	%newobject Create;
-     static StatisticalModel* Create(const RepresenterType* representer,
-     								 const PreprocessorType* preprocessor,
+     static StatisticalModel* Create(const RepresenterType* representer,     								 
 									 const statismo::VectorType& m,
 									 const statismo::MatrixType& orthonormalPCABasis,
 									 const statismo::VectorType& pcaVariance,
@@ -346,7 +344,7 @@ public:
 	 %rename("DrawSampleAtPointId") DrawSampleAtPoint(const statismo::VectorType&, unsigned) const;
 	 ValueType DrawSampleAtPoint(const statismo::VectorType& coeffs, unsigned ptId) const;
 
-   DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const; 
+       DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const;
 
 	 
 	 statismo::VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const;
