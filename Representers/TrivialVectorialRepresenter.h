@@ -147,9 +147,6 @@ public:
 	unsigned GetPointIdForPoint(const PointType& point) const {return point.ptId; }
 
 
-
-    static unsigned MapPointIdToInternalIdx(unsigned ptId, unsigned componentInd) { return ptId; }
-
 private:
     TrivialVectorialRepresenter() {}
 
