@@ -56,6 +56,7 @@
 #include "vtkUnsignedIntArray.h"
 #include "vtkFloatArray.h"
 #include "vtkCellArray.h"
+#include "vtkPolyDataReader.h"
 
 using statismo::VectorType;
 using statismo::HDF5Utils;
@@ -84,80 +85,112 @@ vtkStandardMeshRepresenter::Clone() const {
 
 inline
 void vtkStandardMeshRepresenter::Load(const H5::Group& fg) {
-	DatasetPointerType ref;
+    vtkPolyData* ref = 0;
 
-	statismo::MatrixType vertexMat;
-	HDF5Utils::readMatrix(fg, "./points", vertexMat);
-
-	typedef statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
-	UIntMatrixType cellsMat;
-	HDF5Utils::readMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
-
-	// create the reference from this information
-	ref = vtkPolyData::New();
-
-	unsigned nVertices = vertexMat.cols();
-	unsigned nCells = cellsMat.cols();
-
-	vtkFloatArray* pcoords = vtkFloatArray::New();
-	pcoords->SetNumberOfComponents(3);
-	pcoords->SetNumberOfTuples(nVertices);
-	for (unsigned i = 0; i < nVertices; i++) {
-		pcoords->SetTuple3(i, vertexMat(0, i), vertexMat(1, i),
-				vertexMat(2, i));
-	}
-	vtkPoints* points = vtkPoints::New();
-	points->SetData(pcoords);
-
-	ref->SetPoints(points);
-
-	vtkCellArray* cell = vtkCellArray::New();
-	unsigned cellDim = cellsMat.rows();
-	for (unsigned i = 0; i < nCells; i++) {
-		cell->InsertNextCell(cellDim);
-		for (unsigned d = 0; d < cellDim; d++) {
-			cell->InsertCellPoint(cellsMat(d, i));
-		}
-	}
-	if (cellDim == 2) {
-		ref->SetLines(cell);
-	} else {
-		ref->SetPolys(cell);
-	}
-
-	// read the point and cell data
-	assert(ref->GetPointData() != 0);
-	if (HDF5Utils::existsObjectWithName(fg, "pointData")) {
-		H5::Group pdGroup = fg.openGroup("./pointData");
-		if (HDF5Utils::existsObjectWithName(pdGroup, "scalars")) {
-			ref->GetPointData()->SetScalars(GetAsDataArray(pdGroup, "scalars"));
-		}
-		if (HDF5Utils::existsObjectWithName(pdGroup, "vectors")) {
-			ref->GetPointData()->SetVectors(GetAsDataArray(pdGroup, "vectors"));
-		}
-		if (HDF5Utils::existsObjectWithName(pdGroup, "normals")) {
-			ref->GetPointData()->SetNormals(GetAsDataArray(pdGroup, "normals"));
-		}
-		pdGroup.close();
-	}
-
-	if (HDF5Utils::existsObjectWithName(fg, "cellData")) {
-		H5::Group cdGroup = fg.openGroup("./cellData");
-		assert(ref->GetCellData() != 0);
-
-		if (HDF5Utils::existsObjectWithName(cdGroup, "scalars")) {
-			ref->GetPointData()->SetScalars(GetAsDataArray(cdGroup, "scalars"));
-		}
-		if (HDF5Utils::existsObjectWithName(cdGroup, "vectors")) {
-			ref->GetPointData()->SetVectors(GetAsDataArray(cdGroup, "vectors"));
-		}
-		if (HDF5Utils::existsObjectWithName(cdGroup, "normals")) {
-			ref->GetPointData()->SetNormals(GetAsDataArray(cdGroup, "normals"));
-		}
-		cdGroup.close();
-	}
+    std::string repName = HDF5Utils::readStringAttribute(fg, "name");
+    if (repName == "vtkPolyDataRepresenter" || repName == "itkMeshRepresenter") {
+        ref = LoadRefLegacy(fg);
+    }
+    else {
+        ref = LoadRef(fg);
+    }
 	this->SetReference(ref);
 }
+
+
+inline
+vtkPolyData* vtkStandardMeshRepresenter::LoadRef(const H5::Group& fg) const {
+
+    statismo::MatrixType vertexMat;
+    HDF5Utils::readMatrix(fg, "./points", vertexMat);
+
+    typedef statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
+    UIntMatrixType cellsMat;
+    HDF5Utils::readMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
+
+    // create the reference from this information
+    vtkPolyData* ref = vtkPolyData::New();
+
+    unsigned nVertices = vertexMat.cols();
+    unsigned nCells = cellsMat.cols();
+
+    vtkFloatArray* pcoords = vtkFloatArray::New();
+    pcoords->SetNumberOfComponents(3);
+    pcoords->SetNumberOfTuples(nVertices);
+    for (unsigned i = 0; i < nVertices; i++) {
+        pcoords->SetTuple3(i, vertexMat(0, i), vertexMat(1, i),
+                vertexMat(2, i));
+    }
+    vtkPoints* points = vtkPoints::New();
+    points->SetData(pcoords);
+
+    ref->SetPoints(points);
+
+    vtkCellArray* cell = vtkCellArray::New();
+    unsigned cellDim = cellsMat.rows();
+    for (unsigned i = 0; i < nCells; i++) {
+        cell->InsertNextCell(cellDim);
+        for (unsigned d = 0; d < cellDim; d++) {
+            cell->InsertCellPoint(cellsMat(d, i));
+        }
+    }
+    if (cellDim == 2) {
+        ref->SetLines(cell);
+    } else {
+        ref->SetPolys(cell);
+    }
+
+    // read the point and cell data
+    assert(ref->GetPointData() != 0);
+    if (HDF5Utils::existsObjectWithName(fg, "pointData")) {
+        H5::Group pdGroup = fg.openGroup("./pointData");
+        if (HDF5Utils::existsObjectWithName(pdGroup, "scalars")) {
+            ref->GetPointData()->SetScalars(GetAsDataArray(pdGroup, "scalars"));
+        }
+        if (HDF5Utils::existsObjectWithName(pdGroup, "vectors")) {
+            ref->GetPointData()->SetVectors(GetAsDataArray(pdGroup, "vectors"));
+        }
+        if (HDF5Utils::existsObjectWithName(pdGroup, "normals")) {
+            ref->GetPointData()->SetNormals(GetAsDataArray(pdGroup, "normals"));
+        }
+        pdGroup.close();
+    }
+
+    if (HDF5Utils::existsObjectWithName(fg, "cellData")) {
+        H5::Group cdGroup = fg.openGroup("./cellData");
+        assert(ref->GetCellData() != 0);
+
+        if (HDF5Utils::existsObjectWithName(cdGroup, "scalars")) {
+            ref->GetPointData()->SetScalars(GetAsDataArray(cdGroup, "scalars"));
+        }
+        if (HDF5Utils::existsObjectWithName(cdGroup, "vectors")) {
+            ref->GetPointData()->SetVectors(GetAsDataArray(cdGroup, "vectors"));
+        }
+        if (HDF5Utils::existsObjectWithName(cdGroup, "normals")) {
+            ref->GetPointData()->SetNormals(GetAsDataArray(cdGroup, "normals"));
+        }
+        cdGroup.close();
+    }
+    return ref;
+}
+
+inline
+vtkPolyData* vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group& fg) const {
+    std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+
+    HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
+    vtkPolyData* pd = vtkPolyData::New();
+    vtkPolyDataReader* reader = vtkPolyDataReader::New();
+    reader->SetFileName(tmpfilename.c_str());
+    reader->Update();
+    if (reader->GetErrorCode() != 0) {
+        throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
+    }
+    pd->ShallowCopy(reader->GetOutput());
+    reader->Delete();
+    return pd;
+}
+
 
 inline
 void vtkStandardMeshRepresenter::Save(const H5::Group& fg) const {

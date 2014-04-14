@@ -196,7 +196,8 @@ public:
 
 private:
 
-
+    typename MeshType::Pointer LoadRef(const H5::Group& fg) const;
+    typename MeshType::Pointer LoadRefLegacy(const H5::Group& fg) const;
 
     // returns the closest point for the given mesh
     unsigned FindClosestPoint(const MeshType* mesh, const PointType pt) const ;

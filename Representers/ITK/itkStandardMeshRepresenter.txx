@@ -79,10 +79,22 @@ StandardMeshRepresenter<TPixel, MeshDimension>::Clone() const {
 }
 
 
-
 template <class TPixel, unsigned MeshDimension>
 void
 StandardMeshRepresenter<TPixel, MeshDimension>::Load(const H5::Group& fg) {
+
+    std::string repName = HDF5Utils::readStringAttribute(fg, "name");
+    if (repName == "vtkPolyDataRepresenter" || repName == "itkMeshRepresenter") {
+        this->SetReference(LoadRefLegacy(fg));
+    }
+    else {
+       this->SetReference(LoadRef(fg));
+    }
+}
+
+template <class TPixel, unsigned MeshDimension>
+typename StandardMeshRepresenter<TPixel, MeshDimension>::MeshType::Pointer
+StandardMeshRepresenter<TPixel, MeshDimension>::LoadRef(const H5::Group& fg) const {
 
 	statismo::MatrixType vertexMat;
 	HDF5Utils::readMatrix(fg, "./points", vertexMat);
@@ -156,8 +168,31 @@ StandardMeshRepresenter<TPixel, MeshDimension>::Load(const H5::Group& fg) {
 		pdGroup.close();
 	}
 
+    return mesh;
+}
 
-	this->SetReference(mesh);
+
+template <class TPixel, unsigned MeshDimension>
+typename StandardMeshRepresenter<TPixel, MeshDimension>::MeshType::Pointer
+StandardMeshRepresenter<TPixel, MeshDimension>::LoadRefLegacy(const H5::Group& fg) const {
+
+    std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+    HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
+
+
+    typename itk::MeshFileReader<MeshType>::Pointer reader = itk::MeshFileReader<MeshType>::New();
+    reader->SetFileName(tmpfilename);
+    try {
+        reader->Update();
+    }
+    catch (itk::MeshFileReaderException& e) {
+        throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
+    }
+
+    typename MeshType::Pointer mesh = reader->GetOutput();
+    std::remove(tmpfilename.c_str());
+    return mesh;
+
 }
 
 
