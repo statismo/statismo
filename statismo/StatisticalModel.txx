@@ -540,46 +540,50 @@ StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoo
 
 	try {
         H5::Group representerGroup = modelRoot.openGroup("./representer");
-		std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
-		std::string repTypeStr = HDF5Utils::readStringAttribute(representerGroup, "datasetType");
-		std::string versionStr = HDF5Utils::readStringAttribute(representerGroup, "version");
-		typename RepresenterType::RepresenterDataType type = RepresenterType::TypeFromString(repTypeStr);
-		if (type == RepresenterType::CUSTOM || type == RepresenterType::UNKNOWN) {
-			if (rep_name != representer->GetName()) {
-				std::ostringstream os;
-				os << "A different representer was used to create the file and the representer is not of a standard type ";
-				os << ("(RepresenterName = ") << rep_name << " does not match required name = " << representer->GetName() << ")";
-				os << "Cannot load hdf5 file";
-				throw StatisticalModelException(os.str().c_str());
-			}
-			if (versionStr != representer->GetVersion()) {
-				std::ostringstream os;
-				os << "The version of the representers do not match ";
-				os << ("(Version = ") << versionStr << " != = " << representer->GetVersion() << ")";
-				os << "Cannot load hdf5 file";
-
-			}
-
-		}
-		if (type != representer->GetType()) {
-			std::ostringstream os;
-			os << "The representer that was provided cannot be used to load the dataset ";
-			os << "(" << type << " != " << representer->GetType() << ").";
-			os << "Cannot load hdf5 file.";
-			throw StatisticalModelException(os.str().c_str());
-		}
-
-
 
 		representer->Load(representerGroup);
 		representerGroup.close();
 
 		newModel = new StatisticalModel(representer);
 
+        int minorVersion = 0;
+        int majorVersion = 0;
+
+        if (HDF5Utils::existsObjectWithName(modelRoot, "version") == false) {
+            // this is an old statismo format, that had not been versioned. We set the version to 0.8 as this is the last version
+            // that stores the old format
+            std::cout << "Warning: version attribute does not exist in hdf5 file. Assuming version 0.8" <<std::endl;
+            minorVersion = 8;
+            majorVersion = 0;
+        } else {
+            H5::Group versionGroup = modelRoot.openGroup("./version");
+            minorVersion = HDF5Utils::readInt(versionGroup, "./minorVersion");
+            majorVersion = HDF5Utils::readInt(versionGroup, "./majorVersion");
+        }
+
         H5::Group modelGroup = modelRoot.openGroup("./model");
-		HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
-		HDF5Utils::readVector(modelGroup, "./mean", newModel->m_mean);
-		HDF5Utils::readVector(modelGroup, "./pcaVariance", maxNumberOfPCAComponents, newModel->m_pcaVariance);
+        HDF5Utils::readVector(modelGroup, "./mean", newModel->m_mean);
+        statismo::VectorType pcaVariance;
+        HDF5Utils::readVector(modelGroup, "./pcaVariance", maxNumberOfPCAComponents, pcaVariance);
+        newModel->m_pcaVariance = pcaVariance;
+
+        // Depending on the statismo version, the pcaBasis matrix was stored as U*D or U (where U are the orthonormal PCA Basis functions and D the standard deviations).
+        // Here we make sure that we fill the pcaBasisMatrix (which statismo stores as U*D) with the right values.
+        if (majorVersion == 0 && minorVersion == 8) {
+            HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
+        }
+        else if (majorVersion ==0 && minorVersion == 9) {
+            MatrixType orthonormalPCABasis;
+            HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, orthonormalPCABasis);
+
+            VectorType D = pcaVariance.array().sqrt();
+            newModel->m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
+        }
+        else {
+            std::ostringstream os;
+            os << "an invalid statismo version was provided (" << majorVersion << "." << minorVersion << ")";
+            throw StatisticalModelException(os.str().c_str());
+        }
 		newModel->m_noiseVariance = HDF5Utils::readFloat(modelGroup, "./noiseVariance");
 
 		modelGroup.close();
@@ -631,14 +635,13 @@ StatisticalModel<T>::Save(const std::string& filename) const {
 template <typename T>
 void
 StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
-	using namespace H5;
 
 	 try {
 		// create the group structure
 
 		 std::string dataTypeStr = RepresenterType::TypeToString(m_representer->GetType());
 
-		Group representerGroup = modelRoot.createGroup("./representer");
+        H5::Group representerGroup = modelRoot.createGroup("./representer");
 		HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
 		HDF5Utils::writeStringAttribute(representerGroup, "version", m_representer->GetVersion());
 		HDF5Utils::writeStringAttribute(representerGroup, "datasetType", dataTypeStr);
@@ -646,8 +649,8 @@ StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
 		this->m_representer->Save(representerGroup);
 		representerGroup.close();
 
-		Group modelGroup = modelRoot.createGroup( "./model" );
-		HDF5Utils::writeMatrix(modelGroup, "./pcaBasis", m_pcaBasisMatrix);
+        H5::Group modelGroup = modelRoot.createGroup( "./model" );
+        HDF5Utils::writeMatrix(modelGroup, "./pcaBasis", GetOrthonormalPCABasisMatrix());
 		HDF5Utils::writeVector(modelGroup, "./pcaVariance", m_pcaVariance);
 		HDF5Utils::writeVector(modelGroup, "./mean", m_mean);
 		HDF5Utils::writeFloat(modelGroup, "./noiseVariance", m_noiseVariance);
@@ -655,6 +658,10 @@ StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
 
 		m_modelInfo.Save(modelRoot);
 
+        H5::Group versionGroup = modelRoot.createGroup("/version");
+        HDF5Utils::writeInt(versionGroup, "./majorVersion", 0);
+        HDF5Utils::writeInt(versionGroup, "./minorVersion", 9);
+        versionGroup.close();
 
 	 } catch (H5::Exception& e) {
 		 std::string msg(std::string("an exception occurred while writing HDF5 file \n") + e.getCDetailMsg());

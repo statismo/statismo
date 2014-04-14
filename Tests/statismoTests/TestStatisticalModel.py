@@ -121,7 +121,9 @@ class Test(unittest.TestCase):
         newModel = statismo.StatisticalModel_vtkPD.Load(representer, tmpfile)
         self.assertTrue((self.model.GetPCAVarianceVector() == newModel.GetPCAVarianceVector()).all())
         self.assertTrue((self.model.GetMeanVector() == newModel.GetMeanVector()).all())
-        self.assertTrue((self.model.GetPCABasisMatrix() == newModel.GetPCABasisMatrix()).all())
+        P = self.model.GetPCABasisMatrix()
+        PNew = newModel.GetPCABasisMatrix()
+        self.assertTrue((abs(P - PNew) < 1e-5).all())
         
              
         # check model info
@@ -154,7 +156,7 @@ class Test(unittest.TestCase):
         newModelSub = statismo.StatisticalModel_vtkPD.Load(representer, tmpfile, 2)
         self.assertEqual(newModelSub.GetNumberOfPrincipalComponents(), 2)
         self.assertTrue((newModelSub.GetPCAVarianceVector()[0:1] == self.model.GetPCAVarianceVector()[0:1]).all)
-        self.assertTrue((newModelSub.GetPCABasisMatrix()[:,0:1] == self.model.GetPCABasisMatrix()[:,0:1]).all())
+        self.assertTrue((abs(newModelSub.GetPCABasisMatrix()[:,0:1] - self.model.GetPCABasisMatrix()[:,0:1]) < 1e-3).all())
   
   
   
