@@ -3,9 +3,9 @@ project(statismo)
 
 enable_testing()
 
-set(STATISMO_VERSION 0.8)
-set(STATISMO_MINOR_VERSION 1)
-
+set(STATISMO_MAJOR_VERSION 0)
+set(STATISMO_MINOR_VERSION 9)
+set(STATISMO_PATCH_VERSION 0)
 
 # Setup build locations.
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
@@ -116,7 +116,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo_ITK DESTINATION include)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION include)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake @ONLY)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_VERSION}${STATISMO_MINOR_VERSION})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION}.${STATISMO_PATCH_VERSION})
 
 #
 # copy the data
