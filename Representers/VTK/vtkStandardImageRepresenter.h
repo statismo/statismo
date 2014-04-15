@@ -125,6 +125,9 @@ public:
 
 private:
 
+    vtkStructuredPoints* LoadRefLegacy(const H5::Group& fg) const;
+    vtkStructuredPoints* LoadRef(const H5::Group& fg) const;
+
 	vtkStandardImageRepresenter(DatasetConstPointerType reference);
 	vtkStandardImageRepresenter() : m_reference(0) {}
 	void SetReference(DatasetConstPointerType reference);

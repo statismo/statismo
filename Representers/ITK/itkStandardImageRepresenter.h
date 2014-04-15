@@ -145,6 +145,9 @@ public:
 
 private:
 
+    typename ImageType::Pointer LoadRef(const H5::Group& fg) const;
+   typename ImageType::Pointer LoadRefLegacy(const H5::Group& fg) const;
+
 	DatasetConstPointerType m_reference;
 	DomainType m_domain;
 };

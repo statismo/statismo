@@ -85,6 +85,20 @@ template <class TPixel, unsigned ImageDimension>
 void
 StandardImageRepresenter<TPixel, ImageDimension>::Load(const H5::Group& fg) {
 
+    std::string repName = HDF5Utils::readStringAttribute(fg, "name");
+    if (repName == "vtkStructuredPointsRepresenter" || repName == "itkImageRepresenter" || repName == "itkVectorImageRepresenter") {
+        this->SetReference(LoadRefLegacy(fg));
+    }
+    else {
+        this->SetReference(LoadRef(fg));
+    }
+
+}
+
+
+template <class TPixel, unsigned ImageDimension>
+typename StandardImageRepresenter<TPixel, ImageDimension>::ImageType::Pointer
+StandardImageRepresenter<TPixel, ImageDimension>::LoadRef(const H5::Group& fg) const {
 
 
 	int readImageDimension = HDF5Utils::readInt(fg, "imageDimension");
@@ -157,9 +171,31 @@ StandardImageRepresenter<TPixel, ImageDimension>::Load(const H5::Group& fg) {
 		it.Set(v);
 	}
 
-	this->SetReference(newImage);
+    return newImage;
 }
 
+template <class TPixel, unsigned ImageDimension>
+typename StandardImageRepresenter<TPixel, ImageDimension>::ImageType::Pointer
+StandardImageRepresenter<TPixel, ImageDimension>::LoadRefLegacy(const H5::Group& fg) const {
+
+    std::string tmpfilename;
+    tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+    statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
+
+    typename itk::ImageFileReader<ImageType>::Pointer reader = itk::ImageFileReader<ImageType>::New();
+    reader->SetFileName(tmpfilename);
+    try {
+        reader->Update();
+    }
+    catch (itk::ImageFileReaderException& e) {
+        throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
+    }
+    typename DatasetType::Pointer img = reader->GetOutput();
+    img->Register();
+    std::remove(tmpfilename.c_str());
+    return img;
+
+}
 
 
 template <class TPixel, unsigned ImageDimension>

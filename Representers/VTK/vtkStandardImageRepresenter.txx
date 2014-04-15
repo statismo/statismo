@@ -75,11 +75,25 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::Clone() const {
 }
 
 template<class TScalar, unsigned PixelDimensions>
-void vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load(
-		const H5::Group& fg) {
+void vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load(const H5::Group& fg) {
+
+    vtkStructuredPoints* ref = 0;
+
+    std::string repName = HDF5Utils::readStringAttribute(fg, "name");
+    if (repName == "vtkStructuredPointsRepresenter" || repName == "itkImageRepresenter" || repName == "itkVectorImageRepresenter") {
+        ref = LoadRefLegacy(fg);
+    }
+    else {
+        ref = LoadRef(fg);
+    }
+    this->SetReference(ref);
+}
+
+template<class TScalar, unsigned PixelDimensions>
+vtkStructuredPoints* vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group& fg) const {
 
 	std::string type = HDF5Utils::readStringAttribute(fg, "datasetType");
-	if (type != "POLYGON_MESH") {
+    if (type != "IMAGE") {
 		throw StatisticalModelException(
 				(std::string("Cannot load representer data: The ")
 						+ "representer specified in the given hdf5 file is of the wrong type: ("
@@ -250,8 +264,36 @@ void vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load(
 		}
 	}
 
-	this->SetReference(newImage);
+    return newImage;
+
 }
+
+
+template<class TScalar, unsigned PixelDimensions>
+vtkStructuredPoints* vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRefLegacy(const H5::Group& fg) const {
+
+    vtkStructuredPoints* ref = vtkStructuredPoints::New();
+
+    std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+
+    statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
+
+    std::remove(tmpfilename.c_str());
+
+    vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
+    reader->SetFileName(tmpfilename.c_str());
+    reader->Update();
+    if (reader->GetErrorCode() != 0) {
+        throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
+    }
+
+    ref->DeepCopy(reader->GetOutput());
+    reader->Delete();
+    return ref;
+}
+
+
+
 
 template<class TScalar, unsigned PixelDimensions>
 statismo::VectorType vtkStandardImageRepresenter<TScalar, PixelDimensions>::PointToVector(
