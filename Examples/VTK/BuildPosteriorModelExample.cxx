@@ -48,22 +48,21 @@
 #include "statismo/DataManager.h"
 
 #include "Representers/VTK/vtkStandardMeshRepresenter.h"
-
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
+#include "vtkVersion.h"
 #include <iostream>
 #include <memory>
 
-using namespace statismo;
 using std::auto_ptr;
 
 
 typedef statismo::VectorType VectorType;
 typedef statismo::MatrixType MatrixType;
-typedef vtkStandardMeshRepresenter RepresenterType;
-typedef StatisticalModel<vtkPolyData> StatisticalModelType;
-typedef PosteriorModelBuilder<vtkPolyData> PosteriorModelBuilderType;
+typedef statismo::vtkStandardMeshRepresenter RepresenterType;
+typedef statismo::StatisticalModel<vtkPolyData> StatisticalModelType;
+typedef statismo::PosteriorModelBuilder<vtkPolyData> PosteriorModelBuilderType;
 typedef StatisticalModelType::DomainType DomainType;
 typedef DomainType::DomainPointsListType::const_iterator DomainPointsConstIterator;
 
@@ -83,9 +82,9 @@ vtkPolyData* loadVTKPolyData(const std::string& filename)
 /**
   * Computes the mahalanobis distance of the targetPt, to the model point with the given pointId.
   */
-double mahalanobisDistance(const StatisticalModelType* model, unsigned ptId, const vtkPoint& targetPt) {
-       MatrixType cov = model->GetCovarianceAtPoint(ptId, ptId);
-       vtkPoint meanPt = model->DrawMeanAtPoint(ptId);
+double mahalanobisDistance(const StatisticalModelType* model, unsigned ptId, const statismo::vtkPoint& targetPt) {
+       statismo::MatrixType cov = model->GetCovarianceAtPoint(ptId, ptId);
+       statismo::vtkPoint meanPt = model->DrawMeanAtPoint(ptId);
        unsigned pointDim = model->GetRepresenter()->GetDimensions();
     assert(pointDim <= 3);
 
@@ -119,7 +118,7 @@ int main(int argc, char** argv) {
 
         vtkPolyData* partialShape = loadVTKPolyData(partialShapeMeshName);
 
-        RepresenterType* representer = vtkStandardMeshRepresenter::Create();
+        RepresenterType* representer = RepresenterType::Create();
         auto_ptr<StatisticalModelType> inputModel(StatisticalModelType::Load(representer, inputModelName));
         vtkPolyData* refPd = const_cast<vtkPolyData*>(inputModel->GetRepresenter()->GetReference());
 
@@ -130,10 +129,10 @@ int main(int argc, char** argv) {
         // If it is close, we add it as a constraint, otherwise we ignore the remaining points.
         const DomainType::DomainPointsListType& domainPoints = inputModel->GetDomain().GetDomainPoints();
         for (unsigned ptId = 0; ptId < domainPoints.size(); ptId++) {
-            vtkPoint domainPoint = domainPoints[ptId];
+            statismo::vtkPoint domainPoint = domainPoints[ptId];
 
             unsigned closestPointId = ptId;
-            vtkPoint closestPointOnPartialShape = partialShape->GetPoint(closestPointId);
+            statismo::vtkPoint closestPointOnPartialShape = partialShape->GetPoint(closestPointId);
             double mhdist = mahalanobisDistance(inputModel.get(), ptId, closestPointOnPartialShape);
             if (mhdist < 5) {
                 StatisticalModelType::PointValuePairType ptWithTargetPt(domainPoint, closestPointOnPartialShape);
@@ -156,7 +155,11 @@ int main(int argc, char** argv) {
         // The mean of the constraint model is the optimal reconstruction
         vtkPolyData* pmean = constraintModel->DrawMean();
         vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
-        writer->SetInput(pmean);
+#if (VTK_MAJOR_VERSION == 5 )
+	        writer->SetInput(pmean);
+#else
+			writer->SetInputData(pmean);
+#endif
         writer->SetFileName(reconstructedShapeName.c_str());
         writer->Update();
 	}
