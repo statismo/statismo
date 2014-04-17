@@ -61,6 +61,13 @@ namespace statismo {
  */
 
 
+#ifdef _MSC_VER
+    #define is_deprecated __declspec(deprecated)
+#elif defined(__GNUC__)
+    #define is_deprecated __attribute__((deprecated))
+#else
+    #define is_deprecated  //uncommon compiler, don't bother
+#endif
 
 
 class Utils {
