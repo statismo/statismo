@@ -47,15 +47,50 @@ namespace statismo {
 
 
 
-template <typename Representer>
-ReducedVarianceModelBuilder<Representer>::ReducedVarianceModelBuilder()
+template <typename T>
+ReducedVarianceModelBuilder<T>::ReducedVarianceModelBuilder()
 : Superclass()
   {}
 
 
-template <typename Representer>
-typename ReducedVarianceModelBuilder<Representer>::StatisticalModelType*
-ReducedVarianceModelBuilder<Representer>::BuildNewModelFromModel(
+
+
+template <typename T>
+typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
+ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(
+        const StatisticalModelType* inputModel,
+        unsigned numberOfPrincipalComponents,
+        bool computeScores) const
+
+{
+    StatisticalModelType* reducedModel = StatisticalModelType::Create(
+            inputModel->GetRepresenter(),
+            inputModel->GetMeanVector(),
+            inputModel->GetOrthonormalPCABasisMatrix().leftCols(numberOfPrincipalComponents),
+            inputModel->GetPCAVarianceVector().topRows(numberOfPrincipalComponents),
+            inputModel->GetNoiseVariance());
+
+  // Write the parameters used to build the models into the builderInfo
+  typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
+
+  BuilderInfo::ParameterInfoList bi;
+  bi.push_back(BuilderInfo::KeyValuePair("NumberOfPincipalComponents ", Utils::toString(numberOfPrincipalComponents)));
+
+  BuilderInfo::DataInfoList di;
+
+  BuilderInfo builderInfo("ReducedVarianceModelBuilder", di, bi);
+  builderInfoList.push_back(builderInfo);
+
+  ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().topRows(numberOfPrincipalComponents), builderInfoList);
+  reducedModel->SetModelInfo(info);
+
+  return reducedModel;
+
+}
+
+template <typename T>
+typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
+ReducedVarianceModelBuilder<T>::BuildNewModelWithVariance(
 		const StatisticalModelType* inputModel,
 		double totalVariance,
 		bool computeScores) const
@@ -72,33 +107,21 @@ ReducedVarianceModelBuilder<Representer>::BuildNewModelFromModel(
 		  numComponentsToReachPrescribedVariance++;
 		  if (cumulatedVariance / modelVariance >= totalVariance)
 			  break;
-	  }
-
-	  StatisticalModelType* reducedModel = StatisticalModelType::Create(
-			  inputModel->GetRepresenter(),
-			  inputModel->GetMeanVector(),
-			  inputModel->GetOrthonormalPCABasisMatrix().leftCols(numComponentsToReachPrescribedVariance),
-			  inputModel->GetPCAVarianceVector().topRows(numComponentsToReachPrescribedVariance),
-			  inputModel->GetNoiseVariance());
-
-	// Write the parameters used to build the models into the builderInfo
-	typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
-
-	BuilderInfo::ParameterInfoList bi;
-	bi.push_back(BuilderInfo::KeyValuePair("totalVariance ", Utils::toString(totalVariance)));
-
-	BuilderInfo::DataInfoList di;
-
-
-	BuilderInfo builderInfo("ReducedVarianceModelBuilder", di, bi);
-	builderInfoList.push_back(builderInfo);
-
-	ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsToReachPrescribedVariance), builderInfoList);
-	reducedModel->SetModelInfo(info);
-
-	return reducedModel;
-
+      }
+    return BuildNewModelWithLeadingComponents(inputModel, numComponentsToReachPrescribedVariance, computeScores);
 }
+
+template <typename T>
+typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
+    ReducedVarianceModelBuilder<T>::BuildNewModelFromModel(
+            const StatisticalModelType* inputModel,
+            double totalVariance,
+            bool computeScores) const
+{
+
+       return BuildNewModelWithVariance(inputModel, totalVariance, computeScores);
+}
+
 
 
 } // namespace statismo

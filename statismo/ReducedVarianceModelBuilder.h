@@ -41,6 +41,7 @@
 #include "Config.h"
 #include "ModelInfo.h"
 #include "ModelBuilder.h"
+#include "utils.h"
 #include "DataManager.h"
 #include "StatisticalModel.h"
 #include "CommonTypes.h"
@@ -81,17 +82,31 @@ public:
 	 */
 	virtual ~ReducedVarianceModelBuilder() {}
 
-	/**
-	 * Build a new model from the given model, which retains only the specified variance
-	 *
-	 * \param model A statistical model.
-	 * \param totalVariance, The fraction of the variance to be retained
-	 * \param computeScores Determines whether the scores are computed and stored in the model.
-	 * \return a new statistical model
-	 *
-	 * \warning The returned model needs to be explicitly deleted by the user of this method.
-	 */
-	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const;
+    /**
+     * Build a new model from the given model, which retains only the leading principal components
+     *
+     * \param model A statistical model.
+     * \param numberOfPrincipalComponents,
+     * \param computeScores Determines whether the scores are computed and stored in the model.
+     * \return a new statistical model
+     *
+     * \warning The returned model needs to be explicitly deleted by the user of this method.
+     */
+    StatisticalModelType* BuildNewModelWithLeadingComponents(const StatisticalModelType* model, unsigned numberOfPrincipalComponents, bool computeScores = true) const;
+
+    /**
+     * Build a new model from the given model, which retains only the specified variance
+     *
+     * \param model A statistical model.
+     * \param totalVariance, The fraction of the variance to be retained
+     * \param computeScores Determines whether the scores are computed and stored in the model.
+     * \return a new statistical model
+     *
+     * \warning The returned model needs to be explicitly deleted by the user of this method.
+     */
+    StatisticalModelType* BuildNewModelWithVariance(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const;
+
+    StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const is_deprecated;
 
 
 private:

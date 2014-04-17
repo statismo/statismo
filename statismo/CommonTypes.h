@@ -107,5 +107,6 @@ template <> inline unsigned GetDataTypeId<double>() { return DOUBLE; }
 
 } //namespace statismo
 
+
 #endif
 

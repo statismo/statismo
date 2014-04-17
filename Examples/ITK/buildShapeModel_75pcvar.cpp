@@ -114,7 +114,7 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
     ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0);
     ReducedVarianceModelBuilderType::Pointer reducedVarianceModelBuilder = ReducedVarianceModelBuilderType::New();
-    StatisticalModelType::Pointer reducedModel = reducedVarianceModelBuilder->BuildNewModelFromModel(model, 0.75);
+    StatisticalModelType::Pointer reducedModel = reducedVarianceModelBuilder->BuildNewModelWithVariance(model, 0.75);
 
     std::cout<<"number of modes in the direct model: " <<model->GetNumberOfPrincipalComponents()
     		 <<", and in the reduced model: "<< reducedModel->GetNumberOfPrincipalComponents() << std::endl;

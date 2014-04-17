@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
 		auto_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
 
 		// build a model with only half the variance
-		auto_ptr<StatisticalModelType> reducedModel(reducedVarModelBuilder->BuildNewModelFromModel(model.get(), 0.5));
+        auto_ptr<StatisticalModelType> reducedModel(reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5));
 		std::cout << "new model has variance of " << reducedModel->GetPCAVarianceVector().sum()  << std::endl;
 
 		reducedModel->Save(outputModelName);

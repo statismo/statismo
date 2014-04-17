@@ -460,6 +460,8 @@ public:
 	static ReducedVarianceModelBuilder* Create();
 	virtual ~ReducedVarianceModelBuilder();
 
+        StatisticalModelType* BuildNewModelWithLeadingComponents(const StatisticalModelType* model, unsigned numberOfLeadingComponents, bool computeScores=true) const;
+        StatisticalModelType* BuildNewModelWithVariance(const StatisticalModelType* model,	double totalVariance, bool computeScores=true) const;
 	StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model,	double totalVariance, bool computeScores=true) const;
 
 	private:

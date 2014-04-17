@@ -391,6 +391,10 @@ class Test(unittest.TestCase):
         model = modelbuilder.BuildNewModel(self.dataManager.GetData(), 0.)
         reducedVarianceModelBuilder = statismo.ReducedVarianceModelBuilder_vtkPD.Create()
 
+        ncomponentsToKeep = model.GetNumberOfPrincipalComponents() / 2
+        newModelWithNComponents = reducedVarianceModelBuilder.BuildNewModelWithLeadingComponents(model, ncomponentsToKeep, True)
+        self.assertTrue(newModelWithNComponents.GetNumberOfPrincipalComponents() == ncomponentsToKeep)
+
         for totalVariance in [1.0, 0.8, 0.6, 0.4, 0.2, 0]:
             reducedModel = reducedVarianceModelBuilder.BuildNewModelFromModel(model, totalVariance)
 
@@ -398,8 +402,11 @@ class Test(unittest.TestCase):
             self.assertTrue(reducedModel.GetPCAVarianceVector().sum() >= totalVariance * model.GetPCAVarianceVector().sum())
 
         # check that there is a reduction (though we cannot say how much, as the specified variance is a lower bound)
-        reducedModel05 = reducedVarianceModelBuilder.BuildNewModelFromModel(model, 0.5)
+        reducedModel05 = reducedVarianceModelBuilder.BuildNewModelWithVariance(model, 0.5)
         self.assertTrue(reducedModel05.GetPCAVarianceVector().sum() <= model.GetPCAVarianceVector().sum())        
+
+
+
 
 
 suite = unittest.TestLoader().loadTestsFromTestCase(Test)
