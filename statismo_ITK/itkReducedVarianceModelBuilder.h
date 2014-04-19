@@ -106,7 +106,7 @@ public:
         return model_itk;
     }
 
-    typename StatisticalModel<Representer>::Pointer BuildNewModelFromModel(const StatisticalModel<Representer>* model, double totalVariance, bool computeScores=true) is_deprecated {
+    is_deprecated typename StatisticalModel<Representer>::Pointer BuildNewModelFromModel(const StatisticalModel<Representer>* model, double totalVariance, bool computeScores=true) {
 		statismo::StatisticalModel<Representer>* model_statismo = model->GetstatismoImplObj();
 		statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelFromModel, this->m_impl, model_statismo, totalVariance, computeScores));
 		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();

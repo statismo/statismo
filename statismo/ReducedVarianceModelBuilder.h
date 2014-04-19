@@ -106,7 +106,7 @@ public:
      */
     StatisticalModelType* BuildNewModelWithVariance(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const;
 
-    StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const is_deprecated;
+    is_deprecated StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const ;
 
 
 private:
