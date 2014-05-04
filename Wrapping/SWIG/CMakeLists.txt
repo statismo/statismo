@@ -9,10 +9,15 @@ FIND_PACKAGE(VTK REQUIRED)
 include (${VTK_USE_FILE})
 
 
-set (VTK_LIBRARIES_PYTHON
+if(VTK_MAJOR_VERSION EQUAL 5)
+    # VTK 5 needs additional libraries
+    set (VTK_LIBRARIES_PYTHON
         vtkCommonPythonD
         vtkPythonCore
         )
+else(VTK_MAJOR_VERSION EQUAL 5)
+    set (VTK_LIBRARIES_PYTHON "")
+endif(VTK_MAJOR_VERSION EQUAL 5)
 
 include_directories(${STATISMO_ROOT_DIR} ${STATISMO_INCLUDE_DIR} ${STATISMO_ROOT_DIR}/3rdParty 
 					${VTK_INCLUDE_DIR}  ${STATISMO_ROOT_DIR}/Representers/VTK ${STATISMO_ROOT_DIR}/Representers
