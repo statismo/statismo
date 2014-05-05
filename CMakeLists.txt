@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.5)
+cmake_minimum_required(VERSION 2.8.10)
 project(statismo)
 
 enable_testing()
@@ -33,7 +33,7 @@ if(NOT HDF5_USE_EXTERNAL)
 	ExternalProject_add(HDF5
 	  SOURCE_DIR ${CMAKE_BINARY_DIR}/HDF5
 	  BINARY_DIR ${CMAKE_BINARY_DIR}/HDF5-build
-	  URL "${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/hdf5-1.8.7.tar.gz"
+          URL http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.12/src/hdf5-1.8.12.tar.gz
 	  UPDATE_COMMAND ""
 	  CMAKE_ARGS
 	  -DCMAKE_BUILD_TYPE:STRING=${HDF5_BUILD_TYPE}
@@ -53,8 +53,6 @@ if(NOT HDF5_USE_EXTERNAL)
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/ DESTINATION lib/hdf5 FILES_MATCHING PATTERN "*hdf5*")
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/bin/ DESTINATION bin FILES_MATCHING PATTERN "*hdf5*")
 
-  set(STATISMO_LIBRARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/)
-
 else(NOT HDF5_USE_EXTERNAL)
 
  	find_path(HDF5_INCLUDE_DIR hdf5.h)
@@ -63,8 +61,6 @@ else(NOT HDF5_USE_EXTERNAL)
  	find_library(HDF5_CPP_LIBRARY hdf5_cpp)
 	get_filename_component(HDF5_LIBRARY_DIR ${HDF5_LIBRARY} PATH)
 	set(HDF5_LIBRARIES ${HDF5_LIBRARY} ${HDF5_CPP_LIBRARY})
-	set(STATISMO_LIBRARY_DIR ${HDF5_LIBRARY_DIR})
-
 endif(NOT HDF5_USE_EXTERNAL)
 
 # rpath settings
