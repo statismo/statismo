@@ -34,37 +34,29 @@ FindPackage(statismo) into your CMakeLists.txt file. This will set up the CMake 
 - STATISMO_INCLUDE_DIRS 
 - STATISMO_LIBRARY_DIR
 
-See the examples (in the Example folder) to see how statismo is used.
+Example programs are provided in the Example folder.
 To build the examples, set the options BUILD_VTK_EXAMPLES and BUILD_ITK_EXAMPLES with CMake and build statismo.
 
-Python Wrapping
----------------
-The C++ version of statismo can be used to create models from data that are represented in various different toolkits.  
-This flexibility is achieved by letting the user provide special template classes (called Representers), that abstract all the 
-aspects that are specific to a given toolkit. 
-For the VTK and ITK toolkits, Statismo already comes with a set of Representers. For these representers, Python Wrappings can be generated, 
-that enable to use of Statismo from Python.  
+An example CMakeLists file that shows how you can setup your own project to use statismo can be
+found on the [Wiki](https://github.com/statismo/statismo/wiki/compilation).
 
-To generate these Wrappers, you need to enable the options BUILD_PYTHON_WRAPPING_VTK and BUILD_PYTHON_WRAPPING_ITK in CMake. 
-Note that for generating the Wrappers for VTK, SWIG needs to be available, and VTK needs to be built with Python support. 
-For generating the ITK wrappings, ITK needs to be compiled with wrapITK enabled.
 
 Unit Tests
 ----------
 To test your basic installation, simply run 
 > make test 
 in your build directory. 
-Beside these basic tests, there is a larger set of unit tests available. These unit tests are written in Python, and consequently 
+Beside these basic tests, there is a larger set of unit tests available. These unit tests are written in Python, and
 require that Statismo has been compiled with the option BUILD_PYTHON_WRAPPING_VTK.
 
 To run the tests, write 
 > make unit_test
 
-Known issues
-------------
+Limitations and known issues
+----------------------------
 Statismo has been implemented and thoroughly tested on Linux.
-It also has been tested and used on Windows. Depending on your system, you may experience linking problems when building a debug configuration.   
-For more information regarding this issue and possible workarounds, see the project wiki. 
+It should also work on Windows (with Visual Studio 2008 and upwards) and MacOSX. However, some components, such as the Python Wrapping, have
+not been tested on Windows and will not be supported.
 
 
 Main Authors:
@@ -74,10 +66,12 @@ Main Authors:
 
 Contributors:
 ------------
-- Tobias Gass 
 - Thomas Albrecht 
-- Habib Bousleiman
 - Orcun Goksel
+- Arnaud Gelas
+- Christoph Jud
+- Sandro Schönborn
+- Tobias Gass
 
 License:
 --------
