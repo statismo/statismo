@@ -22,7 +22,7 @@ if(NOT HDF5_USE_EXTERNAL)
   # it seems that on linux only the shared libraries work, while on windows static seems to work fine
   if(WIN32)
 	  set(HDF5_BUILD_SHARED OFF)
-	  set(HDF5_LIBRARIES debug hdf5d debug hdf5_cppd optimized hdf5; optimized hdf5_cpp)
+	  set(HDF5_LIBRARIES debug libhdf5d debug libhdf5_cppd optimized libhdf5; optimized libhdf5_cpp)
 	  set(HDF5_BUILD_TYPE "RELEASE" CACHE STRING "Build type (RELEASE DEBUG) of the hdf5 library" )
   else(WIN32)
 	  set(HDF5_BUILD_SHARED ON)
