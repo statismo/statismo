@@ -22,11 +22,9 @@ if(NOT HDF5_USE_EXTERNAL)
   # it seems that on linux only the shared libraries work, while on windows static seems to work fine
   if(WIN32)
 	  set(HDF5_BUILD_SHARED OFF)
-	  set(HDF5_LIBRARIES debug hdf5d debug hdf5_cppd optimized hdf5; optimized hdf5_cpp)
 	  set(HDF5_BUILD_TYPE "RELEASE" CACHE STRING "Build type (RELEASE DEBUG) of the hdf5 library" )
   else(WIN32)
 	  set(HDF5_BUILD_SHARED ON)
-	  set(HDF5_LIBRARIES debug hdf5 debug hdf5_cpp optimized hdf5; optimized hdf5_cpp)
 	  set(HDF5_BUILD_TYPE "RELEASE")
   endif(WIN32)
 
@@ -52,6 +50,7 @@ if(NOT HDF5_USE_EXTERNAL)
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/cpp/ DESTINATION include/hdf5/cpp FILES_MATCHING PATTERN "*.h")
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/ DESTINATION lib/hdf5 FILES_MATCHING PATTERN "*hdf5*")
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/bin/ DESTINATION bin FILES_MATCHING PATTERN "*hdf5*")
+  SET(STATISMO_HDF5_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/hdf5/cpp ${CMAKE_INSTALL_PREFIX}/include/hdf5)
 
 else(NOT HDF5_USE_EXTERNAL)
 
@@ -60,8 +59,18 @@ else(NOT HDF5_USE_EXTERNAL)
  	find_library(HDF5_LIBRARY hdf5)
  	find_library(HDF5_CPP_LIBRARY hdf5_cpp)
 	get_filename_component(HDF5_LIBRARY_DIR ${HDF5_LIBRARY} PATH)
-	set(HDF5_LIBRARIES ${HDF5_LIBRARY} ${HDF5_CPP_LIBRARY})
+
+  SET(STATISMO_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})
+
 endif(NOT HDF5_USE_EXTERNAL)
+
+
+if(WIN32)
+     set(HDF5_LIBRARIES debug hdf5d debug hdf5_cppd optimized hdf5; optimized hdf5_cpp)
+else(WIN32)
+     set(HDF5_LIBRARIES hdf5 hdf5_cpp)
+endif(WIN32)
+
 
 # rpath settings
 set(CMAKE_SKIP_BUILD_RPATH  FALSE)
@@ -110,6 +119,7 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/Eigen DESTINATION include
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo DESTINATION include)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/statismo_ITK DESTINATION include)
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Representers DESTINATION include)
+
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/statismo-config.cmake.in  ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake @ONLY)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo-config.cmake DESTINATION lib/cmake/statismo-${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION}.${STATISMO_PATCH_VERSION})
