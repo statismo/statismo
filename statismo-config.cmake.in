@@ -3,6 +3,13 @@ SET (STATISMO_MAJOR_VERSION  @STATISMO_MAJOR_VERSION@)
 SET (STATISMO_MINOR_VERSION  @STATISMO_MINOR_VERSION@)
 SET (STATISMO_PATCH_VERSION  @STATISMO_PATCH_VERSION@)
 
+IF(MSVC11) #i.e. Visual Studio 2012 
+  # Fix for VS2012 that has _VARIADIC_MAX set to 5. Don't set too high because it increases compiler memory usage / compile-time.
+  add_definitions( -D_VARIADIC_MAX=10 )
+  # Fix for another VS2012 problem: not all TR1 options are automatically detected, therefore we force them here.
+  ADD_DEFINITIONS( -D BOOST_HAS_TR1 )
+ENDIF()
+
 SET(STATISMO_DIR @CMAKE_INSTALL_PREFIX@)
 SET(STATISMO_INCLUDE_DIRS  @CMAKE_INSTALL_PREFIX@/include
                            @CMAKE_INSTALL_PREFIX@/include/Representers/ITK @CMAKE_INSTALL_PREFIX@/include/Representers/VTK
@@ -15,3 +22,4 @@ SET(STATISMO_HDF5_LIBRARY_DIR @HDF5_LIBRARY_DIR@)
 
 
 	
+
