@@ -86,6 +86,7 @@ IF(MSVC11) #i.e. Visual Studio 2012
   add_definitions( -D_VARIADIC_MAX=10 )
   # Fix for another VS2012 problem: not all TR1 options are automatically detected, therefore we force them here.
   ADD_DEFINITIONS( -D BOOST_HAS_TR1 )
+  ADD_DEFINITIONS( -D BOOST_NO_0X_HDR_INITIALIZER_LIST )  
 ENDIF()
 
 #
