@@ -202,7 +202,19 @@ class Test(unittest.TestCase):
             lp = self.model.ComputeLogProbabilityOfDataset(s)
             self.assertTrue(log(p) -lp < 0.05, "Log probability should roughtly equal the log of the probability")
          
+    def testMahalanobisDistanceComputation(self):
+    	mean = self.model.DrawMean()
+    	mdMean = self.model.ComputeMahalanobisDistanceForDataset(mean)
+    	self.assertEqual(mdMean, 0)
          
+    	coeffs = zeros(self.model.GetNumberOfPrincipalComponents())
+    	coeffs[0] = 3
+    	s = self.model.DrawSample(coeffs)
+    	mdSample = self.model.ComputeMahalanobisDistanceForDataset(s)
+    	self.assertAlmostEqual(mdSample, 3, places=3)
+
+
+
     def testCoefficientsGenerateCorrectDataset(self):
         coeffs = randn(self.model.GetNumberOfPrincipalComponents())
         s = self.model.DrawSample(coeffs)

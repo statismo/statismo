@@ -356,6 +356,15 @@ StatisticalModel<T>::ComputeProbabilityOfDataset(DatasetConstPointerType ds) con
     return pow(2 * PI, - 0.5 * this->GetNumberOfPrincipalComponents()) * exp(- 0.5 * alpha.squaredNorm());
 }
 
+template <typename T>
+double
+StatisticalModel<T>::ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
+    VectorType alpha = ComputeCoefficientsForDataset(ds);
+    return std::sqrt(alpha.squaredNorm());
+}
+
+
+
 
 template <typename T>
 VectorType

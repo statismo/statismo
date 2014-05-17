@@ -355,7 +355,8 @@ public:
 
 	 double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const;
 	 double ComputeProbabilityOfDataset(DatasetConstPointerType ds) const;
-	 
+         double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const;
+
 	 statismo::MatrixType GetCovarianceAtPoint(const PointType& pt1, const PointType& pt2) const;
 	 statismo::MatrixType GetCovarianceAtPoint(unsigned ptId1, unsigned ptId2) const;
 

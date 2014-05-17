@@ -212,6 +212,10 @@ public:
 		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeProbabilityOfDataset, this->m_impl, ds));
 	}
 
+    double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::ComputeMahalanobisDistanceForDataset, this->m_impl, ds));
+    }
+
 	VectorType ComputeCoefficientsForPointValues(const PointValueListType& pvlist, double variance) const {
 	  typedef statismo::VectorType (ImplType::*functype)(const PointValueListType&, double) const;
 	  return toVnlVector(callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::ComputeCoefficientsForPointValues), this->m_impl, pvlist, variance)));

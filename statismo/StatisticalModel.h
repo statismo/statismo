@@ -397,6 +397,12 @@ public:
 	 */
 	double ComputeLogProbabilityOfDataset(DatasetConstPointerType dataset) const ;
 
+
+    /**
+      * Returns the mahalonoibs distance for the given dataset.
+      */
+    double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType dataset) const;
+
 	/**
 	 *
 	 * Converts the given dataset to a sample of the model and compute the latent variable
