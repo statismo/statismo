@@ -346,14 +346,14 @@ template <typename T>
 double
 StatisticalModel<T>::ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
 	VectorType alpha = ComputeCoefficientsForDataset(ds);
-	return log(pow(2 * PI, -0.5 * this->GetNumberOfPrincipalComponents())) - alpha.squaredNorm();
+    return log(pow(2 * PI, -0.5 * this->GetNumberOfPrincipalComponents())) - 0.5 * alpha.squaredNorm();
 }
 
 template <typename T>
 double
 StatisticalModel<T>::ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
 	VectorType alpha = ComputeCoefficientsForDataset(ds);
-	return pow(2 * PI, - 0.5 * this->GetNumberOfPrincipalComponents()) * exp(- alpha.squaredNorm());
+    return pow(2 * PI, - 0.5 * this->GetNumberOfPrincipalComponents()) * exp(- 0.5 * alpha.squaredNorm());
 }
 
 

@@ -37,8 +37,8 @@
 import unittest
 from os import listdir
 from os.path import join
-from scipy import zeros, randn, log
-
+from scipy import zeros, randn, log, eye
+from scipy.stats import norm as normdist
 import statismo
 
 from statismoTestUtils import buildPolyDataModel, DATADIR, getPDPointWithId
@@ -175,19 +175,22 @@ class Test(unittest.TestCase):
           
       
     def testProbabilityOfDatasetPlausibility(self):
-        # do a monte carlo sampling and see whether the intergral over the distribution
-        # evaluates roughly to 1
         num_samples = 100
- 
+        nComps = self.model.GetNumberOfPrincipalComponents()
         p_mean = self.model.ComputeProbabilityOfDataset(self.model.DrawMean())
         for i in xrange(0, num_samples):
-            coeffs = randn(self.model.GetNumberOfPrincipalComponents())
+            coeffs = randn(nComps)
             s = self.model.DrawSample(coeffs)
             p = self.model.ComputeProbabilityOfDataset(s)
-            self.assertTrue(p < p_mean, "Probability cannot be larger than the probabliity of the mean")
-            self.assertTrue(p > 0, "Probablity must be positive")
-            self.assertTrue(p < 1, "Probability must be smaller 1")
-         
+
+            # as the distribution we are looking for is just a standard mv normal, all the
+            # components are independent. We can thus use a 1d normal distribution to compute the
+            # probability of the full pdf.
+            pScipy = 1;
+            for c in coeffs:
+                pScipy *= normdist(0, 1).pdf(c)
+            self.assertTrue(p, pScipy)
+
     def testLogProbabilityOfDatasetPlausibility(self):
  
         num_samples = 100
