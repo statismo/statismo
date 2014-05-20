@@ -234,7 +234,7 @@ int main(int argc, char* argv[]) {
 
 	typedef itk::Image<float, 2> ImageType;
 	typedef itk::Image< itk::Vector<float, 2>, 2 > VectorImageType;
-	typedef itk::StandardImageRepresenter<typename VectorImageType::PixelType, 2> RepresenterType;
+	typedef itk::StandardImageRepresenter<VectorImageType::PixelType, 2> RepresenterType;
 	typedef itk::StatisticalModel<VectorImageType> StatisticalModelType;
 	typedef itk::MeanSquaresImageToImageMetric<ImageType, ImageType> MeanSquaresMetricType;
 	
