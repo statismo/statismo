@@ -17,7 +17,7 @@ mkdir $RESDIR
 ./vtkCrossValidationExample $DATADIR/hand_polydata/ $RESDIR/
 
 # Build a partially fixed model
-./vtkBuildPosteriorModelExample $RESDIR/vtkShapeModel.h5 $RESDIR/vtkPosteriorModel.h5
+./vtkBuildPosteriorModelExample $RESDIR/vtkShapeModel.h5 $DATADIR/hand_polydata/partial/hand-0-part.vtk $RESDIR/vtkPosteriorModel.h5 $RESDIR/hand-0-reconstruction.vtk
 
 # Build a conditional model
 ./vtkBuildConditionalModelExample $DATADIR/hand_images $RESDIR/vtkConditionalModel.h5
