@@ -1,6 +1,8 @@
 #ifndef __LOW_RANK_GP_MODEL_BUILDER_H
 #define __LOW_RANK_GP_MODEL_BUILDER_H
 
+
+#include "Representer.h"
 #include "statismo/Config.h"
 #include "statismo/ModelInfo.h"
 #include "statismo/ModelBuilder.h"
@@ -13,11 +15,13 @@
 #include <memory>
 #include "RandSVD.h"
 
+
 #ifdef HAS_CXX11_ASYNC
 #include <future>
 #endif
 
 namespace statismo {
+
 
 /*
  * This class holds the result of the eigenfunction computation for
@@ -25,7 +29,9 @@ namespace statismo {
  */
 struct ResEigenfunctionPointComputations {
 
-	ResEigenfunctionPointComputations() : lowerInd(0), upperInd(0) {}
+	// needs an explicit default constructor, as otherwise the visual Studio compiler complains
+	ResEigenfunctionPointComputations() : lowerInd(0), upperInd(0) {
+	}
 
 	ResEigenfunctionPointComputations(unsigned _lowerInd, unsigned _upperInd,
 			const MatrixType& _resMat) :
@@ -37,6 +43,7 @@ struct ResEigenfunctionPointComputations {
 	MatrixType resMatrix;
 };
 
+
 /**
  * A model builder for building statistical models that are specified by an arbitrary Gaussian Process.
  * For details on the theoretical basis for this type of model builder, see the paper
@@ -47,13 +54,16 @@ struct ResEigenfunctionPointComputations {
  * LNCS 8184, pp.66-73 Nagoya, Japan, September 2013
  *
  */
-template<typename TRepresenter>
-class LowRankGPModelBuilder: public ModelBuilder<TRepresenter> {
+
+template<typename T>
+class LowRankGPModelBuilder: public ModelBuilder<T> {
 
 public:
-	typedef TRepresenter RepresenterType;
-	typedef ModelBuilder<TRepresenter> Superclass;
-	typedef typename Superclass::DataManagerType DataManagerType;
+
+	typedef Representer<T> RepresenterType;
+	typedef ModelBuilder<T> Superclass;
+
+
 	typedef typename Superclass::StatisticalModelType StatisticalModelType;
 
 	typedef statismo::Domain<typename RepresenterType::PointType> DomainType;
@@ -78,13 +88,13 @@ public:
 	}
 
 	/**
-	 * The destructor
+	 * The desctructor
 	 */
 	virtual ~LowRankGPModelBuilder() {
 	}
 
 
-	/**
+	/*
 	 * Build a new model using a zero-mean Gaussian process with given  kernel.
 	 * \param kernel: A kernel (or covariance) function
 	 * \param numComponents The number of components used for the low rank approximation.
@@ -125,17 +135,17 @@ public:
 		// convert all the points in the domain to a vector representation
 		std::vector<PointType> domainPoints;
 		std::vector<PointType> shuffledDomainPoints;
+
 		for (typename DomainPointsListType::const_iterator it =
 				domain.GetDomainPoints().begin();
 				it != domain.GetDomainPoints().end(); ++it) {
-
 			domainPoints.push_back(*it);
 			shuffledDomainPoints.push_back(*it);
 		}
 		assert(domainPoints.size() == n);
 
-		std::random_shuffle(shuffledDomainPoints.begin(),
-				shuffledDomainPoints.end());
+		std::random_shuffle ( shuffledDomainPoints.begin(), shuffledDomainPoints.end() );
+
 
 		// select a subset of the points for computing the nystrom approximation.
 		std::vector<PointType> xs;
@@ -153,7 +163,6 @@ public:
 		MatrixType U; // will hold the eigenvectors (principal components)
 		VectorType D; // will hold the eigenvalues (variance)
 		computeKernelMatrixDecomposition(&kernel, xs, numComponents, U, D);
-
 		MatrixType pcaBasis = MatrixType::Zero(n * kernelDim, numComponents);
 
 		// we precompute the value of the eigenfunction for each domain point
@@ -162,9 +171,9 @@ public:
 		// To save time, we parallelize over the rows
 
 #ifdef HAS_CXX11_ASYNC
-		std::vector < std::future<ResEigenfunctionPointComputations> > resvec;
+		std::vector < std::future<ResEigenfunctionPointComputations>* > resvec;
 #else
-		std::vector<ResEigenfunctionPointComputations> resvec;
+		std::vector<ResEigenfunctionPointComputations*> resvec;
 #endif
 		// precompute the part of the nystrom approximation, which is independent of the domain point
 		MatrixType M = sqrt(m / float(n))
@@ -183,34 +192,37 @@ public:
 					(i + 1) * chunkSize);
 			if (lowerInd >= upperInd)
 				break;
+
+
 #ifdef HAS_CXX11_ASYNC
-       
+
       typename std::vector<PointType> chunkPoints(&domainPoints[lowerInd], &domainPoints[upperInd]);
 
-			resvec.push_back(
+
+			resvec.push_back(new std::future<ResEigenfunctionPointComputations>(
 					std::async(std::launch::async,
-							&LowRankGPModelBuilder<TRepresenter>::computeEigenfunctionsForPoints,
+							&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
 							this, &kernel, numComponents, n, xs, chunkPoints, M,
-							lowerInd, upperInd));
+							lowerInd, upperInd)));
+
 #else
-			resvec.push_back(LowRankGPModelBuilder<TRepresenter>::computeEigenfunctionsForPoints(
+			resvec.push_back(new ResEigenfunctionPointComputations(LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints(
 							&kernel, numComponents, n, xs, domainPoints,
-							M, lowerInd, upperInd));
-
+							M, lowerInd, upperInd)));
 #endif
-
 		}
 
 		// collect the result
 		for (unsigned i = 0; i < resvec.size(); i++) {
 #ifdef HAS_CXX11_ASYNC
-			ResEigenfunctionPointComputations res = resvec[i].get();
+			ResEigenfunctionPointComputations res = resvec[i]->get();
 #else
-			ResEigenfunctionPointComputations res = resvec[i];
+			ResEigenfunctionPointComputations res = *(resvec[i]);
 #endif
 			pcaBasis.block(res.lowerInd * kernelDim, 0,
 					(res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
 					res.resMatrix;
+			delete resvec[i];
 		}
 
 		MatrixType pcaVariance = n / float(m) * D.topRows(numComponents);
@@ -218,19 +230,16 @@ public:
 		RowVectorType mu = m_representer->SampleToSampleVector(mean);
 
 		StatisticalModelType* model = StatisticalModelType::Create(
-				m_representer, mu, pcaBasis, pcaVariance, 0);
+				m_representer,  mu, pcaBasis, pcaVariance, 0);
 
 		// the model builder does not use any data. Hence the scores and the datainfo is emtpy
 		MatrixType scores; // no scores
 		typename BuilderInfo::DataInfoList dataInfo;
 
+
 		typename BuilderInfo::ParameterInfoList bi;
-		bi.push_back(
-				BuilderInfo::KeyValuePair("NoiseVariance ",
-						Utils::toString(0)));
-		bi.push_back(
-				BuilderInfo::KeyValuePair("KernelInfo",
-						kernel.GetKernelInfo()));
+		bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ",		Utils::toString(0)));
+		bi.push_back(BuilderInfo::KeyValuePair("KernelInfo", kernel.GetKernelInfo()));
 
 		// finally add meta data to the model info
 		BuilderInfo builderInfo("LowRankGPModelBuilder", dataInfo, bi);
@@ -244,7 +253,9 @@ public:
 		return model;
 	}
 
+
 private:
+
 
 
 	/*
@@ -291,6 +302,7 @@ private:
 
 		return ResEigenfunctionPointComputations(lowerInd, upperInd, resMat);
 	}
+
 
 
 
