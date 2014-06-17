@@ -180,8 +180,8 @@ public:
 				* (U.leftCols(numComponents)
 						* D.topRows(numComponents).asDiagonal().inverse());
 
-		// we split it in 256 chunks, which should be more than most machines have cores. so we keep all cores busy
-		unsigned numChunks = 256;
+		// we split it in 1000 chunks, which should be more than most machines have cores. so we keep all cores busy
+		unsigned numChunks = 1000;
 		for (unsigned i = 0; i <= numChunks; i++) {
 
 			unsigned int chunkSize = ceil(
@@ -195,16 +195,11 @@ public:
 
 
 #ifdef HAS_CXX11_ASYNC
-
-      typename std::vector<PointType> chunkPoints(&domainPoints[lowerInd], &domainPoints[upperInd]);
-
-
 			resvec.push_back(new std::future<ResEigenfunctionPointComputations>(
 					std::async(std::launch::async,
 							&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
-							this, &kernel, numComponents, n, xs, chunkPoints, M,
+							this, &kernel, numComponents, n, xs, domainPoints, M,
 							lowerInd, upperInd)));
-
 #else
 			resvec.push_back(new ResEigenfunctionPointComputations(LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints(
 							&kernel, numComponents, n, xs, domainPoints,
@@ -273,7 +268,7 @@ private:
 
 		unsigned kernelDim = kernel->GetDimension();
 
-		//assert(upperInd <= domainPts.size());
+		assert(upperInd <= domainPts.size());
 
 		// holds the results of the computation
 		MatrixType resMat = MatrixType::Zero((upperInd - lowerInd) * kernelDim,
@@ -281,7 +276,7 @@ private:
 
 		// compute the nystrom extension for each point i in domainPts, for which
 		// i is in the right range
-		for (unsigned i = 0; i < domainPts.size(); i++) {
+		for (unsigned i = lowerInd; i < upperInd; i++) {
 
 			// for every domain point x in the list, we compute the kernel vector
 			// kx = (k(x, x1), ... k(x, xm))
@@ -295,7 +290,7 @@ private:
 
 			for (unsigned j = 0; j < numEigenfunctions; j++) {
 				MatrixType x = (kxi * M.col(j));
-				resMat.block((i) * kernelDim, j, kernelDim, 1) = x;
+				resMat.block((i - lowerInd) * kernelDim, j, kernelDim, 1) = x;
 			}
 
 		}

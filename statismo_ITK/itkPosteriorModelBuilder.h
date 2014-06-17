@@ -74,7 +74,7 @@ public:
 	template <class F>
 	typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {
 		try {
-				return f();
+			  return f();
 		}
 		 catch (statismo::StatisticalModelException& s) {
 			itkExceptionMacro(<< s.what());

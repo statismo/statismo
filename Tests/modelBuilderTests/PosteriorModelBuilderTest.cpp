@@ -59,7 +59,7 @@ int main(int argc, char** argv) {
 	const std::string testDatasetFilename4 = datadir + "/hand_polydata/hand-4.vtk";
 
 
-  typedef vtkStandardMeshRepresenter RepresenterType;
+    typedef vtkStandardMeshRepresenter RepresenterType;
   typedef statismo::DataManager<vtkPolyData> DataManagerType;
   typedef vtkStandardMeshRepresenter::PointType PointType;
   typedef vtkStandardMeshRepresenter::DomainType DomainType;
@@ -70,7 +70,6 @@ int main(int argc, char** argv) {
 	typedef  PosteriorModelBuilderType::PointValuePairType PointValuePairType;
 	typedef  PosteriorModelBuilderType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
 	typedef  PosteriorModelBuilderType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
-
 	typedef statismo::MatrixType MatrixType;
 
   unsigned nPointsFixed = 100;
