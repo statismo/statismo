@@ -14,7 +14,7 @@ ENDIF()
 SET(STATISMO_DIR @CMAKE_INSTALL_PREFIX@)
 SET(STATISMO_INCLUDE_DIRS  @CMAKE_INSTALL_PREFIX@/include
                            @CMAKE_INSTALL_PREFIX@/include/Representers/ITK @CMAKE_INSTALL_PREFIX@/include/Representers/VTK
-                           @CMAKE_INSTALL_PREFIX@/include/statismo_ITK)
+                           @CMAKE_INSTALL_PREFIX@/include/statismo_ITK @CMAKE_INSTALL_PREFIX@/include/statismo)
 
 SET(STATISMO_HDF5_INCLUDE_DIRS @STATISMO_HDF5_INCLUDE_DIRS@)
 

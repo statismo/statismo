@@ -55,14 +55,14 @@ namespace itk
 *
  * \ingroup Transforms
  */
-template <class TRepresenter, class TScalarType,  unsigned int TDimension >
+template <class TDataSet, class TScalarType,  unsigned int TDimension >
 class ITK_EXPORT StatisticalDeformationModelTransform :
-public itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>
+public itk::StatisticalModelTransformBase< TDataSet, TScalarType , TDimension>
 {
 public:
 	/* Standard class typedefs. */
 	typedef StatisticalDeformationModelTransform            Self;
-	typedef itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>	 Superclass;
+	typedef itk::StatisticalModelTransformBase< TDataSet, TScalarType , TDimension>	 Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 
