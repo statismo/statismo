@@ -421,6 +421,7 @@ void vtkStandardMeshRepresenter::FillDataArray(
 	delete[] tuple;
 }
 
+inline
 void vtkStandardMeshRepresenter::SetReference(const vtkPolyData* reference) {
 	// whta happens if m_refrnece is reference?
 	m_reference = vtkPolyData::New();
