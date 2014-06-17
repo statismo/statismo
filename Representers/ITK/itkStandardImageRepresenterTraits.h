@@ -6,7 +6,7 @@ namespace statismo {
 template<>
 struct RepresenterTraits<itk::Image<itk::Vector<float, 4u>, 4u> > {
 
-	typedef itk::Image<itk::Vector<float, 3u>, 3u> VectorImageType;
+	typedef itk::Image<itk::Vector<float, 4u>, 4u> VectorImageType;
 	typedef VectorImageType::Pointer DatasetPointerType;
 	typedef VectorImageType::Pointer DatasetConstPointerType;
 	typedef VectorImageType::PointType PointType;
