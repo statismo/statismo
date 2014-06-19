@@ -77,7 +77,7 @@ public:
 
 
 	static vtkStandardImageRepresenter* Create(const vtkStructuredPoints* reference) { return new vtkStandardImageRepresenter(reference); }
-	static vtkStandardImageRepresenter* Create() { return new vtkStandardImageRepresenter(); }
+    static vtkStandardImageRepresenter* Create() { return new vtkStandardImageRepresenter(); }
 
 	void Load(const H5::Group& fg);
 	vtkStandardImageRepresenter* Clone() const;

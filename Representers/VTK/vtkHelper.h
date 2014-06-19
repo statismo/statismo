@@ -93,7 +93,9 @@ public:
 
 	vtkNDPixel	& operator=(const vtkNDPixel& rhs) {
 		if (this != &rhs) {
-			for (unsigned d = 0; d < m_dimensions; d++) {
+            m_dimensions = rhs.m_dimensions;
+            m_pixel = new double[rhs.m_dimensions];
+            for (unsigned d = 0; d < rhs.m_dimensions; d++) {
 				m_pixel[d] = rhs.m_pixel[d];
 			}
 

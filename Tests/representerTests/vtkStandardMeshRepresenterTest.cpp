@@ -5,12 +5,14 @@
  *      Author: luethi
  */
 
-#include "vtkPolyDataRepresenter.h"
+#include "vtkStandardMeshRepresenter.h"
 #include "genericRepresenterTest.hxx"
 
 
+using statismo::vtkStandardMeshRepresenter;
+using statismo::vtkPoint;
 
-typedef GenericRepresenterTest<vtkPolyDataRepresenter> RepresenterTestType;
+typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
 
 vtkPolyData* loadPolyData(const std::string& filename) {
 	vtkPolyDataReader* reader = vtkPolyDataReader::New();
@@ -33,7 +35,7 @@ int main(int argc, char** argv) {
 	const std::string testDatasetFilename = datadir + "/hand_polydata/hand-1.vtk";
 
 	vtkPolyData* reference = loadPolyData(referenceFilename);
-	vtkPolyDataRepresenter* representer = vtkPolyDataRepresenter::Create(reference, vtkPolyDataRepresenter::NONE);
+    vtkStandardMeshRepresenter* representer = vtkStandardMeshRepresenter::Create(reference);
 
 	// choose a test dataset, a point (on the reference) and the associated point on the test example
 

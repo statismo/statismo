@@ -5,7 +5,7 @@
  *      Author: luethi
  */
 
-#include "itkMeshRepresenter.h"
+#include "itkStandardMeshRepresenter.h"
 #include "itkMeshFileReader.h"
 #include "genericRepresenterTest.hxx"
 
@@ -13,7 +13,7 @@
 
 const unsigned Dimensions = 3;
 typedef itk::Mesh<float, Dimensions  > MeshType;
-typedef itk::MeshRepresenter<float, Dimensions> RepresenterType;
+typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
 
 
 typedef GenericRepresenterTest<RepresenterType> RepresenterTestType;

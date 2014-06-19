@@ -196,7 +196,8 @@ inline
 void vtkStandardMeshRepresenter::Save(const H5::Group& fg) const {
 	using namespace H5;
 
-	statismo::MatrixType vertexMat = statismo::MatrixType::Zero(3,
+
+    statismo::MatrixType vertexMat = statismo::MatrixType::Zero(3,
 			m_reference->GetNumberOfPoints());
 
 	for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
