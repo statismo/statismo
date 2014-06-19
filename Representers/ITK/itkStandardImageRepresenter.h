@@ -83,6 +83,7 @@ public:
 	typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
 	typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
 
+    static StandardImageRepresenter* Create() { return new StandardImageRepresenter(); }
 	void Load(const H5::Group& fg);
 	StandardImageRepresenter* Clone() const;
 
