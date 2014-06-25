@@ -116,6 +116,9 @@ public:
 	/** Run-time type information (and related methods). */
 	itkTypeMacro( StandardMeshRepresenter, Object );
 
+
+    static StandardMeshRepresenter* Create() {return new StandardMeshRepresenter(); }
+
 	void Load(const H5::Group& fg);
 	StandardMeshRepresenter* Clone() const;
 

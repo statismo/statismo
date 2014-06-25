@@ -57,6 +57,11 @@ using statismo::HDF5Utils;
 using statismo::StatisticalModelException;
 
 
+typedef statismo::GenericEigenType<double>::MatrixType DoubleMatrixType;
+typedef statismo::GenericEigenType<double>::VectorType DoubleVectorType;
+
+
+
 template <class TPixel, unsigned MeshDimension>
 StandardMeshRepresenter<TPixel, MeshDimension>::StandardMeshRepresenter()
   : m_reference(0)
@@ -153,13 +158,14 @@ StandardMeshRepresenter<TPixel, MeshDimension>::LoadRef(const H5::Group& fg) con
 			if (type != PixelConversionTrait<TPixel>::GetDataType()) {
 				std::cout << "Warning: The datatype specified for the scalars does not match the TPixel template argument used in this representer." << std::endl;
 			}
-			DoubleMatrixType m;
-			HDF5Utils::readMatrixOfType<double>(pdGroup, "scalars", m);
-			assert(static_cast<unsigned>(m.cols()) == mesh->GetNumberOfPoints());
+            DoubleMatrixType scalarMatDouble;
+            HDF5Utils::readMatrixOfType<double>(pdGroup, "scalars", scalarMatDouble);
+            statismo::MatrixType scalarMat = scalarMatDouble.cast<statismo::ScalarType>();
+            assert(static_cast<unsigned>(scalarMatDouble.cols()) == mesh->GetNumberOfPoints());
 			typename MeshType::PointDataContainerPointer pd = MeshType::PointDataContainer::New();
 
-			for (unsigned i = 0; i < m.cols(); i++) {
-				TPixel v = PixelConversionTrait<TPixel>::FromVector(m.col(i));
+            for (unsigned i = 0; i < scalarMatDouble.cols(); i++) {
+                TPixel v = PixelConversionTrait<TPixel>::FromVector(scalarMat.col(i));
 				pd->InsertElement(i, v);
 			}
 			mesh->SetPointData(pd);
@@ -362,11 +368,12 @@ StandardMeshRepresenter<TPixel, MeshDimension>::Save(const H5::Group& fg) const 
 	if (pd.IsNotNull() && pd->Size() == m_reference->GetNumberOfPoints()) {
 		unsigned numComponents = PixelConversionTrait<TPixel>::ToVector(pd->GetElement(0)).rows();
 
-		DoubleMatrixType scalarsMat = DoubleMatrixType::Zero(numComponents, m_reference->GetNumberOfPoints());
+        statismo::MatrixType scalarsMat = statismo::MatrixType::Zero(numComponents, m_reference->GetNumberOfPoints());
 		for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
 			scalarsMat.col(i) = PixelConversionTrait<TPixel>::ToVector(pd->GetElement(i));
 		}
-		H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup, "scalars", scalarsMat);
+        DoubleMatrixType scalarsMatDouble = scalarsMat.cast<double>();
+        H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup, "scalars", scalarsMatDouble);
 		HDF5Utils::writeIntAttribute(ds, "datatype", PixelConversionTrait<TPixel>::GetDataType());
 	}
 

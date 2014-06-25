@@ -36,6 +36,7 @@
  */
 
 #include "statismo/CommonTypes.h"
+#include "statismo/HDF5Utils.h"
 #include <iostream>
 
 
@@ -55,8 +56,6 @@ class GenericRepresenterTest {
 	typedef typename Representer::PointType PointType;
 	typedef typename Representer::ValueType ValueType;
 
-	typedef typename Representer::DatasetInfo DatasetInfo;
-
 	typedef typename Representer::DomainType DomainType;
 
 public:
@@ -72,14 +71,14 @@ public:
 
 
 	bool testSamplePointEvaluation() const {
-		DatasetConstPointerType sample = m_representer->DatasetToSample(m_testDataset, 0);
+        DatasetConstPointerType sample = m_testDataset;
 		unsigned id = m_representer->GetPointIdForPoint(m_testPoint);
 		ValueType val = m_representer->PointSampleFromSample(sample, id);
 		VectorType valVec = m_representer->PointSampleToPointSampleVector(val);
 
 		// the obtained value should correspond to the value that is obtained by obtaining the sample vector, and evaluating it at the given position
 		VectorType sampleVector = m_representer->SampleToSampleVector(sample);
-		for (unsigned i = 0; i < Representer::GetDimensions(); ++i) {
+        for (unsigned i = 0; i < m_representer->GetDimensions(); ++i) {
 			unsigned idx = m_representer->MapPointIdToInternalIdx(id, i);
 			if (sampleVector(i) != valVec(i)) {
 				return false;
@@ -104,9 +103,9 @@ public:
 		}
 		// if we convert a dataset to a samplevector, the resulting vector needs to have
 		// as many entries as there are points * dimensions
-		DatasetConstPointerType sample = m_representer->DatasetToSample(m_testDataset, 0);
+        DatasetConstPointerType sample = m_testDataset;
 		VectorType sampleVector = m_representer->SampleToSampleVector(sample);
-		if (sampleVector.rows() != Representer::GetDimensions() * domain.GetNumberOfPoints()) {
+        if (sampleVector.rows() != m_representer->GetDimensions() * domain.GetNumberOfPoints()) {
 			std::cout << "the dimension of the sampleVector does not agree with the number of points in the domain (#points * dimensionality)" << std::endl;
 			return false;
 		}
@@ -158,7 +157,7 @@ public:
 
 		VectorType valVec = m_representer->PointSampleToPointSampleVector(m_testValue);
 
-		if (valVec.rows() != Representer::GetDimensions()) {
+        if (valVec.rows() != m_representer->GetDimensions()) {
 			std::cout << "Error: The dimensionality of the pointSampleVector is not the same as the Dimensionality of the representer" << std::endl;
 			return false;
 		}
@@ -225,9 +224,18 @@ public:
 			 std::cout << msg << std::endl;
 			 return false;
 		 }
+        H5::Group representerGroup = file.createGroup("/representer");
 
-		m_representer->Save(file);
+        m_representer->Save(representerGroup);
 
+        // We add the required attributes, which are usually written by the StatisticalModel class.
+        // This is needed, as some representers check on these values.
+
+        statismo::HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
+        std::string dataTypeStr = Representer::TypeToString(m_representer->GetType());
+        statismo::HDF5Utils::writeStringAttribute(representerGroup, "datasetType", dataTypeStr);
+
+        file.close();
 		try {
 			file = H5File(filename.c_str(), H5F_ACC_RDONLY);
 		}
@@ -237,10 +245,14 @@ public:
 			 return false;
 		}
 
-		Representer* newRep = Representer::Load(file);
+        representerGroup.close();
+        representerGroup = file.openGroup("/representer");
 
-		bool isOkay = assertRepresenterEqual(newRep, m_representer);
-		newRep->Delete();
+        Representer* newRep = Representer::Create();
+        newRep->Load(representerGroup);
+
+        bool isOkay = assertRepresenterEqual(newRep, m_representer);
+        newRep->Delete();
 
 		return isOkay;
 
@@ -265,11 +277,11 @@ public:
 		std::cout << "testSampleVectorDimensions()" << std::endl;
 		VectorType testSampleVec = getSampleVectorFromTestDataset();
 
-		bool isOk =  Representer::GetDimensions() * m_representer->GetNumberOfPoints() == testSampleVec.rows();
+        bool isOk =  m_representer->GetDimensions() * m_representer->GetNumberOfPoints() == testSampleVec.rows();
 		if (!isOk) {
 			std::cout << "Error: Dimensionality of the sample vector does not agree with the representer parameters "
 					  << "dimension and numberOfPoints" << std::endl;
-			std::cout << testSampleVec.rows() << " != " << Representer::GetDimensions() << " * " << m_representer->GetNumberOfPoints() << std::endl;
+            std::cout << testSampleVec.rows() << " != " << m_representer->GetDimensions() << " * " << m_representer->GetNumberOfPoints() << std::endl;
 		}
 		return isOk;
 	}
@@ -289,7 +301,7 @@ public:
 	bool testDimensions() const {
 		std::cout << "testDimensions " << std::endl;
 
-		if (Representer::GetDimensions() <= 0)  {
+        if (m_representer->GetDimensions() <= 0)  {
 			std::cout << "Error: Dimensionality of representer has to be > 0" << std::endl;
 			return false;
 		}
@@ -300,16 +312,16 @@ public:
 	bool runAllTests() {
 		bool ok = true;
 		ok = testPointSampleDimension() && ok;
-		ok = testSamplePointEvaluation() && ok;
-		ok = testDomainValid() && ok;
-		ok = testPointSampleToPointSampleVectorAndBack() && ok;
-		ok = testSampleVectorHasCorrectValueAtPoint() && ok;
-		ok = testSampleToVectorAndBack() && ok;
-		ok = testSaveLoad() && ok;
-		ok = testClone() && ok;
-		ok = testSampleVectorDimensions() && ok;
-		ok = testGetName() && ok;
-		ok = testDimensions() && ok;
+        ok = testSamplePointEvaluation() && ok;
+        ok = testDomainValid() && ok;
+        ok = testPointSampleToPointSampleVectorAndBack() && ok;
+        ok = testSampleVectorHasCorrectValueAtPoint() && ok;
+        ok = testSampleToVectorAndBack() && ok;
+        ok = testSaveLoad() && ok;
+        ok = testClone() && ok;
+        ok = testSampleVectorDimensions() && ok;
+        ok = testGetName() && ok;
+        ok = testDimensions() && ok;
         return ok;
 	}
 
@@ -355,9 +367,8 @@ private:
 	}
 
 	VectorType getSampleVectorFromTestDataset(const Representer* representer) const {
-		DatasetPointerType sample = representer->DatasetToSample(m_testDataset, 0);
+        DatasetConstPointerType sample = m_testDataset;
 		VectorType sampleVec = representer->SampleToSampleVector(sample);
-		Representer::DeleteDataset(sample);
 		return sampleVec;
 	}
 

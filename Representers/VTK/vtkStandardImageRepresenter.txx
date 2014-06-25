@@ -105,18 +105,12 @@ vtkStructuredPoints* vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load
 
 	unsigned imageDimension = static_cast<unsigned>(HDF5Utils::readInt(fg,
 			"imageDimension"));
-	unsigned pixelDimension = static_cast<unsigned>(HDF5Utils::readInt(fg,
-			"pixelDimension"));
 
 	if (imageDimension > 3) {
 		throw StatisticalModelException(
 				"this representer does not support images of dimensionality > 3");
 	}
 
-	if (pixelDimension != PixelDimensions) {
-		throw statismo::StatisticalModelException(
-				"the pixel dimension specified in the statismo file does not match the one specified as template parameter");
-	}
 
 	double origin[3] = { 0, 0, 0 };
 	for (unsigned i = 0; i < imageDimension; i++) {
@@ -138,16 +132,6 @@ vtkStructuredPoints* vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load
 	}
 
 	H5::Group pdGroup = fg.openGroup("./pointData");
-	unsigned int readPixelDimension = static_cast<unsigned>(HDF5Utils::readInt(
-			pdGroup, "pixelDimension"));
-	if (readPixelDimension != pixelDimension) {
-		std::ostringstream os;
-		os
-				<< "The pixel dimension that was specified does not match the pixel dimension in the file"
-				<< " (" << readPixelDimension << " != " << pixelDimension
-				<< ")";
-		throw StatisticalModelException(os.str().c_str());
-	}
 
 	typename statismo::GenericEigenType<double>::MatrixType pixelMat;
 	HDF5Utils::readMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
@@ -174,74 +158,74 @@ vtkStructuredPoints* vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load
 	case statismo::SIGNED_CHAR:
 #if (VTK_MAJOR_VERSION == 5 )
 		newImage->SetScalarTypeToSignedChar();
-		newImage->SetNumberOfScalarComponents( pixelDimension );
+        newImage->SetNumberOfScalarComponents( PixelDimensions );
 		newImage->AllocateScalars();
 #else
-		newImage->AllocateScalars(VTK_SIGNED_CHAR, pixelDimension);
+        newImage->AllocateScalars(VTK_SIGNED_CHAR, PixelDimensions);
 #endif
 		break;
 	case statismo::UNSIGNED_CHAR:
 #if (VTK_MAJOR_VERSION == 5 )
 		newImage->SetScalarTypeToUnsignedChar();
-		newImage->SetNumberOfScalarComponents( pixelDimension );
+        newImage->SetNumberOfScalarComponents( PixelDimensions );
 		newImage->AllocateScalars();
 #else
-		newImage->AllocateScalars(VTK_UNSIGNED_CHAR, pixelDimension);
+        newImage->AllocateScalars(VTK_UNSIGNED_CHAR, PixelDimensions);
 #endif
 		break;
 	case statismo::SIGNED_SHORT:
 #if (VTK_MAJOR_VERSION == 5 )
 		newImage->SetScalarTypeToShort();
-		newImage->SetNumberOfScalarComponents( pixelDimension );
+        newImage->SetNumberOfScalarComponents( PixelDimensions );
 		newImage->AllocateScalars();
 #else
-		newImage->AllocateScalars(VTK_SHORT, pixelDimension);
+        newImage->AllocateScalars(VTK_SHORT, PixelDimensions);
 #endif
 		break;
 	case statismo::UNSIGNED_SHORT:
 #if (VTK_MAJOR_VERSION == 5 )
 		newImage->SetScalarTypeToUnsignedChar();
-		newImage->SetNumberOfScalarComponents( pixelDimension );
+        newImage->SetNumberOfScalarComponents( PixelDimensions );
 		newImage->AllocateScalars();
 #else
-		newImage->AllocateScalars(VTK_UNSIGNED_SHORT, pixelDimension);
+        newImage->AllocateScalars(VTK_UNSIGNED_SHORT, PixelDimensions);
 #endif
 		break;
 	case statismo::SIGNED_INT:
 #if (VTK_MAJOR_VERSION == 5 )
 		newImage->SetScalarTypeToInt();
-		newImage->SetNumberOfScalarComponents( pixelDimension );
+        newImage->SetNumberOfScalarComponents( PixelDimensions );
 		newImage->AllocateScalars();
 #else
-		newImage->AllocateScalars(VTK_INT, pixelDimension);
+        newImage->AllocateScalars(VTK_INT, PixelDimensions);
 #endif
 		break;
 	case statismo::UNSIGNED_INT:
 #if (VTK_MAJOR_VERSION == 5 )
 		newImage->SetScalarTypeToUnsignedInt();
-		newImage->SetNumberOfScalarComponents( pixelDimension );
+        newImage->SetNumberOfScalarComponents( PixelDimensions );
 		newImage->AllocateScalars();
 #else
-		newImage->AllocateScalars(VTK_UNSIGNED_INT, pixelDimension);
+        newImage->AllocateScalars(VTK_UNSIGNED_INT, PixelDimensions);
 #endif
 		break;
 	case statismo::FLOAT:
 #if (VTK_MAJOR_VERSION == 5 )
 		newImage->SetScalarTypeToFloat();
-		newImage->SetNumberOfScalarComponents( pixelDimension );
+        newImage->SetNumberOfScalarComponents( PixelDimensions );
 		newImage->AllocateScalars();
 #else
-		newImage->AllocateScalars(VTK_FLOAT, pixelDimension);
+        newImage->AllocateScalars(VTK_FLOAT, PixelDimensions);
 #endif
 
 		break;
 	case statismo::DOUBLE:
 #if (VTK_MAJOR_VERSION == 5 )
 		newImage->SetScalarTypeToDouble();
-		newImage->SetNumberOfScalarComponents( pixelDimension );
+        newImage->SetNumberOfScalarComponents( PixelDimensions );
 		newImage->AllocateScalars();
 #else
-		newImage->AllocateScalars(VTK_DOUBLE, pixelDimension);
+        newImage->AllocateScalars(VTK_DOUBLE, PixelDimensions);
 #endif
 
 		break;
@@ -257,7 +241,7 @@ vtkStructuredPoints* vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load
 				TScalar* scalarPtr =
 						static_cast<TScalar*>(newImage->GetScalarPointer(k, j,
 								i));
-				for (unsigned d = 0; d < pixelDimension; d++) {
+                for (unsigned d = 0; d < PixelDimensions; d++) {
 					scalarPtr[d] = pixelMat(d, index);
 				}
 			}
@@ -481,7 +465,6 @@ void vtkStandardImageRepresenter<TScalar, Dimensions>::Save(
 	}
 
 	H5::Group pdGroup = fg.createGroup("pointData");
-	HDF5Utils::writeInt(pdGroup, "pixelDimension", GetDimensions());
 
 	H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup,
 			"pixelValues", pixelMat);
@@ -499,7 +482,11 @@ unsigned vtkStandardImageRepresenter<TScalar, Dimensions>::GetNumberOfPoints() c
 template<class TScalar, unsigned Dimensions>
 void vtkStandardImageRepresenter<TScalar, Dimensions>::SetReference(
 		const vtkStructuredPoints* reference) {
-	m_reference->DeepCopy(const_cast<vtkStructuredPoints*>(reference));
+
+    if (m_reference == 0) {
+        m_reference = vtkStructuredPoints::New();
+    }
+    m_reference->DeepCopy(const_cast<vtkStructuredPoints*>(reference));
 	// set the domain
 	DomainType::DomainPointsListType ptList;
 	for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {

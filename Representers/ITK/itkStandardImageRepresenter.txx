@@ -143,9 +143,10 @@ StandardImageRepresenter<TPixel, ImageDimension>::LoadRef(const H5::Group& fg) c
 		throw statismo::StatisticalModelException("the pixel dimension specified in the statismo file does not match the one specified as template parameter");
 	}
 
-	typename statismo::GenericEigenType<double>::MatrixType pixelMat;
-	HDF5Utils::readMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
-	typename ImageType::Pointer newImage = ImageType::New();
+    typename statismo::GenericEigenType<double>::MatrixType pixelMatDouble;
+    HDF5Utils::readMatrixOfType<double>(pdGroup, "pixelValues", pixelMatDouble);
+    statismo::MatrixType pixelMat = pixelMatDouble.cast<statismo::ScalarType>();
+    typename ImageType::Pointer newImage = ImageType::New();
 	typename ImageType::IndexType start;
 	start.Fill(0);
 
@@ -165,9 +166,9 @@ StandardImageRepresenter<TPixel, ImageDimension>::LoadRef(const H5::Group& fg) c
 
 
 	itk::ImageRegionIterator<DatasetType> it(newImage, newImage->GetLargestPossibleRegion());
-	it.GoToBegin();
+    it.GoToBegin();
 	for (unsigned i  = 0;  !it.IsAtEnd(); ++it, i++) {
-		TPixel v = PixelConversionTrait<TPixel>::FromVector(pixelMat.col(i));
+        TPixel v = PixelConversionTrait<TPixel>::FromVector(pixelMat.col(i));
 		it.Set(v);
 	}
 
@@ -249,7 +250,7 @@ template <class TPixel, unsigned ImageDimension>
 VectorType
 StandardImageRepresenter<TPixel, ImageDimension>::SampleToSampleVector(DatasetConstPointerType image) const
 {
-	VectorType sample(this->GetNumberOfPoints() * GetDimensions());
+    VectorType sample(this->GetNumberOfPoints() * GetDimensions());
 	itk::ImageRegionConstIterator<DatasetType> it(image, image->GetLargestPossibleRegion());
 
 	it.GoToBegin();
@@ -257,9 +258,11 @@ StandardImageRepresenter<TPixel, ImageDimension>::SampleToSampleVector(DatasetCo
 			it.IsAtEnd() == false;
 			++i)
 	{
-		for (unsigned j = 0; j < GetDimensions(); j++) {
+
+        statismo::VectorType sampleAtPt =  PixelConversionTrait<TPixel>::ToVector(it.Value());
+        for (unsigned j = 0; j < GetDimensions(); j++) {
 			unsigned idx = this->MapPointIdToInternalIdx(i, j);
-			sample[idx] = it.Value()[j];
+            sample[idx] = sampleAtPt[j];
 		}
 		++it;
 	}
@@ -281,11 +284,13 @@ StandardImageRepresenter<TPixel, ImageDimension>::SampleVectorToSample(const Vec
 	itk::ImageRegionIterator<DatasetType> it(clonedImage, clonedImage->GetLargestPossibleRegion());
 	it.GoToBegin();
 	for (unsigned i  = 0;  !it.IsAtEnd(); ++it, i++) {
-		ValueType v;
+
+        statismo::VectorType valAtPoint(GetDimensions());
 		for (unsigned d = 0; d < GetDimensions(); d++) {
 			unsigned idx = this->MapPointIdToInternalIdx(i, d);
-			v[d] = sample[idx];
+            valAtPoint[d] = sample[idx];
 		}
+        ValueType v = PixelConversionTrait<TPixel>::FromVector(valAtPoint);
 		it.Set(v);
 	}
 	return clonedImage;
@@ -313,22 +318,14 @@ template <class TPixel, unsigned ImageDimension>
 typename StandardImageRepresenter<TPixel, ImageDimension>::ValueType
 StandardImageRepresenter<TPixel, ImageDimension>::PointSampleVectorToPointSample(const VectorType& pointSample) const
 {
-	ValueType value;
-	for (unsigned i = 0; i < GetDimensions(); i++) {
-		value[i] = pointSample[i];
-	}
-	return value;
+    return PixelConversionTrait<TPixel>::FromVector(pointSample);
 }
 
 template <class TPixel, unsigned ImageDimension>
 statismo::VectorType
 StandardImageRepresenter<TPixel, ImageDimension>::PointSampleToPointSampleVector(const ValueType& v) const
 {
-	VectorType vec(GetDimensions());
-	for (unsigned i = 0; i < vec.size(); i++) {
-		vec[i] = v[i];
-	}
-	return vec;
+    return PixelConversionTrait<TPixel>::ToVector(v);
 }
 
 
@@ -336,7 +333,6 @@ template <class TPixel, unsigned ImageDimension>
 void
 StandardImageRepresenter<TPixel, ImageDimension>::Save(const H5::Group& fg) const {
 	using namespace H5;
-
 
 	typename ImageType::PointType origin = m_reference->GetOrigin();
 	statismo::VectorType originVec(ImageDimension);
@@ -375,7 +371,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::Save(const H5::Group& fg) cons
 
 
 	typedef statismo::GenericEigenType<double>::MatrixType DoubleMatrixType;
-	DoubleMatrixType pixelMat(GetDimensions(), GetNumberOfPoints());
+    statismo::MatrixType pixelMat(GetDimensions(), GetNumberOfPoints());
 
 	itk::ImageRegionIterator<DatasetType> it(m_reference, m_reference->GetLargestPossibleRegion());
 	it.GoToBegin();
@@ -386,7 +382,8 @@ StandardImageRepresenter<TPixel, ImageDimension>::Save(const H5::Group& fg) cons
 		pixelMat.col(i) = PixelConversionTrait<TPixel>::ToVector(it.Get());
 		++it;
 	}
-	H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
+    DoubleMatrixType pixelMatDouble = pixelMat.cast<double>();
+    H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup, "pixelValues", pixelMatDouble);
 	HDF5Utils::writeIntAttribute(ds, "datatype", PixelConversionTrait<TPixel>::GetDataType());
 	pdGroup.close();
 }
