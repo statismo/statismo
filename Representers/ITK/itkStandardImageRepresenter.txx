@@ -401,9 +401,29 @@ unsigned
 StandardImageRepresenter<TPixel, ImageDimension>::GetPointIdForPoint(const PointType& pt) const {
 	// itks organization is slice row col
 	typename DatasetType::IndexType idx;
-	this->m_reference->TransformPhysicalPointToIndex(pt, idx);
+	bool ptInImage = this->m_reference->TransformPhysicalPointToIndex(pt, idx);
 
 	typename DatasetType::SizeType size = this->m_reference->GetLargestPossibleRegion().GetSize();
+
+  // It does not make sense to allow points outside the image, because only the inside is modeled.
+  // However, some discretization artifacts of image and surface operations may produce points that
+  // are just on the boundary of the image, but mathematically outside. We accept these points and
+  // return the iD of the closest image point.
+  // Any points further out will trigger an exception.
+  if(!ptInImage)
+  {
+    for (unsigned int i=0;i<ImageType::ImageDimension;++i){
+      // As soon as one coordinate is further away than one pixel, we throw an exception.
+      if(idx[i] < -1 || idx[i] > size[i]) {
+        throw statismo::StatisticalModelException("GetPointIdForPoint computed invalid ptId. Make sure that the point is within the reference you chose ");
+      }
+      // If it is on the boundary, we set it to the nearest boundary coordinate.
+      if(idx[i] == -1) idx[i] = 0;
+      if(idx[i] == size[i]) idx[i] = size[i] - 1;
+    }  
+  }
+
+
 	// in itk, idx 0 is by convention the fastest moving index
     unsigned int index=0;
     for (unsigned int i=0;i<ImageType::ImageDimension;++i){
