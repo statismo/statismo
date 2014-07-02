@@ -398,6 +398,29 @@ public:
 	double ComputeLogProbabilityOfDataset(DatasetConstPointerType dataset) const ;
 
 
+	/**
+	 * Returns the probability of observing the given coefficients under this model.
+	 * If the coefficients \f$\alpha \in \mathbf{R}^n\f$ define the dataset, the probability is
+	 * \f$
+	 * (2 \pi)^{- \frac{n}{2}} \exp(||\alpha||)
+	 * \f$
+	 *
+	 *
+	 * \param coefficients The coefficients \f$\alpha \in \mathbf{R}^n\f$
+	 * \return The probability
+	 */
+	double ComputeProbabilityOfCoefficients(const VectorType& coefficients) const ;
+
+	/**
+	 * Returns the log probability of observing given coefficients.
+	 *
+	 * \param dataset The coefficients \f$\alpha \in \mathbf{R}^n\f$
+	 * \return The log probability
+	 *
+	 */
+	double ComputeLogProbabilityOfCoefficients(const VectorType& coefficients) const ;
+
+
     /**
       * Returns the mahalonoibs distance for the given dataset.
       */
