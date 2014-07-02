@@ -340,21 +340,33 @@ StatisticalModel<T>::ComputeCoefficientsForPointIDValues(const PointIdValueListT
 }
 
 
-
-
 template <typename T>
 double
 StatisticalModel<T>::ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
 	VectorType alpha = ComputeCoefficientsForDataset(ds);
-    return log(pow(2 * PI, -0.5 * this->GetNumberOfPrincipalComponents())) - 0.5 * alpha.squaredNorm();
+    return ComputeLogProbabilityOfCoefficients(alpha);
 }
 
 template <typename T>
 double
 StatisticalModel<T>::ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
 	VectorType alpha = ComputeCoefficientsForDataset(ds);
-    return pow(2 * PI, - 0.5 * this->GetNumberOfPrincipalComponents()) * exp(- 0.5 * alpha.squaredNorm());
+    return ComputeProbabilityOfCoefficients(alpha);
 }
+
+
+template <typename T>
+double
+StatisticalModel<T>::ComputeLogProbabilityOfCoefficients(const VectorType& coefficents) const {
+    return log(pow(2 * PI, -0.5 * this->GetNumberOfPrincipalComponents())) - 0.5 * coefficents.squaredNorm();
+}
+
+template <typename T>
+double
+StatisticalModel<T>::ComputeProbabilityOfCoefficients(const VectorType& coefficients) const {
+    return pow(2 * PI, - 0.5 * this->GetNumberOfPrincipalComponents()) * exp(- 0.5 * coefficients.squaredNorm());
+}
+
 
 template <typename T>
 double
@@ -362,8 +374,6 @@ StatisticalModel<T>::ComputeMahalanobisDistanceForDataset(DatasetConstPointerTyp
     VectorType alpha = ComputeCoefficientsForDataset(ds);
     return std::sqrt(alpha.squaredNorm());
 }
-
-
 
 
 template <typename T>
