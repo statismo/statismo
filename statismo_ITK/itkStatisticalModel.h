@@ -213,16 +213,16 @@ public:
 	}
 
 	double ComputeLogProbabilityOfCoefficients(const VectorType& coeffs) const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfDataset, this->m_impl, fromVnlVector(coeffs)));
+		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfCoefficients, this->m_impl, fromVnlVector(coeffs)));
 	}
 
 	double ComputeProbabilityOfCoefficients(const VectorType& coeffs) const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeProbabilityOfDataset, this->m_impl, fromVnlVector(coeffs)));
-	}
+		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeProbabilityOfCoefficients, this->m_impl, fromVnlVector(coeffs)));
+  }
 
-    double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
-        return callstatismoImpl(std::tr1::bind(&ImplType::ComputeMahalanobisDistanceForDataset, this->m_impl, ds));
-    }
+  double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
+    return callstatismoImpl(std::tr1::bind(&ImplType::ComputeMahalanobisDistanceForDataset, this->m_impl, ds));
+  }
 
 	VectorType ComputeCoefficientsForPointValues(const PointValueListType& pvlist, double variance) const {
 	  typedef statismo::VectorType (ImplType::*functype)(const PointValueListType&, double) const;
