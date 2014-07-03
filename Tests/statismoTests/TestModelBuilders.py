@@ -395,11 +395,15 @@ class Test(unittest.TestCase):
         newModelWithNComponents = reducedVarianceModelBuilder.BuildNewModelWithLeadingComponents(model, ncomponentsToKeep, True)
         self.assertTrue(newModelWithNComponents.GetNumberOfPrincipalComponents() == ncomponentsToKeep)
 
-        for totalVariance in [1.0, 0.8, 0.6, 0.4, 0.2, 0]:
-            reducedModel = reducedVarianceModelBuilder.BuildNewModelFromModel(model, totalVariance)
+        for percentOfTotalVar in [1.0, 0.9, 0.8, 0.7, 0.6, 0.4, 0.2, 0.1]:
+            reducedModel = reducedVarianceModelBuilder.BuildNewModelFromModel(model, percentOfTotalVar)
 
             # we keep at least the required percentage of total variance
-            self.assertTrue(reducedModel.GetPCAVarianceVector().sum() >= totalVariance * model.GetPCAVarianceVector().sum())
+            self.assertTrue(reducedModel.GetPCAVarianceVector().sum() / model.GetPCAVarianceVector().sum() >= percentOfTotalVar)
+
+            # make sure that one component less would not reach the variance
+            self.assertTrue(reducedModel.GetPCAVarianceVector()[0:-1].sum() / model.GetPCAVarianceVector().sum() < percentOfTotalVar)
+            
 
         # check that there is a reduction (though we cannot say how much, as the specified variance is a lower bound)
         reducedModel05 = reducedVarianceModelBuilder.BuildNewModelWithVariance(model, 0.5)
