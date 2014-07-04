@@ -9,6 +9,7 @@ a fully probabilistic interpretation.
 
 How to build Statismo: 
 ----------------------
+
 Statismo is a header only library. There is no need to compile statismo. You simply include the necessary 
 header files into your application and statismo is compiled together with  your application. 
 However, statismo depends on some third-party libraries (such as HDF5) and to use it from your applications, 
@@ -17,15 +18,24 @@ you need to correctly specify all the path to the different include directories 
 To simplify this process, we have provided a CMake file that takes care of this process. 
 
 To install statismo use the usual CMake workflow (here demonstrated for linux):
-1) Create a directory that  holds your binary data and change into that directory
-> mkdir build_dir
-> cd build_dir
-2) Configure the project. 
-> ccmake path_to_statismo
+
+1- Create a directory that  holds your binary data and change into that directory:
+```bash
+$ mkdir build_dir
+$ cd build_dir
+```
+
+2- Configure the project.
+```bash
+$ ccmake path_to_statismo
+```
 Make sure that you set the CMAKE_INSTALL_PREFIX to the path where you want to install statismo 
-3) Compile and install statismo
-> make 
-> make install
+
+3- Compile and install statismo
+```bash
+$ make 
+$ make install
+```
 
 This builds the dependencies and copies the necessary files to the installation directory. 
 In particular, it generates the file statismo-config.cmake, that holds the correct configuration. 
@@ -45,14 +55,17 @@ found on the [Wiki](https://github.com/statismo/statismo/wiki/compilation).
 
 Unit Tests
 ----------
-To test your basic installation, simply run 
-> make test 
-in your build directory. 
+To test your basic installation, simply run in your build directory. 
+```bash
+$ make test 
+```
 Beside these basic tests, there is a larger set of unit tests available. These unit tests are written in Python, and
 require that Statismo has been compiled with the option BUILD_PYTHON_WRAPPING_VTK.
 
 To run the tests, write 
-> make unit_test
+```bash
+$ make unit_test
+```
 
 Limitations and known issues
 ----------------------------
