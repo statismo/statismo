@@ -22,13 +22,13 @@ if(NOT HDF5_USE_EXTERNAL)
   # it seems that on linux only the shared libraries work, while on windows static seems to work fine
   if(WIN32)
 	  set(HDF5_BUILD_SHARED OFF)
-     set(HDF5_LIBRARIES debug libhdf5_d debug libhdf5_cpp_d optimized libhdf5; optimized libhdf5_cpp)
+    set(HDF5_LIBRARIES debug libhdf5_d debug libhdf5_cpp_d optimized libhdf5; optimized libhdf5_cpp)
 	  set(HDF5_BUILD_TYPE ${CMAKE_CFG_INTDIR} CACHE STRING "Build type (RELEASE DEBUG) of the hdf5 library" )
-  else(WIN32)
+  else()
 	  set(HDF5_BUILD_SHARED ON)
-     set(HDF5_LIBRARIES hdf5 hdf5_cpp)
+    set(HDF5_LIBRARIES hdf5 hdf5_cpp)
 	  set(HDF5_BUILD_TYPE "RELEASE")
-  endif(WIN32)
+  endif()
 
 	ExternalProject_add(HDF5
 	  SOURCE_DIR ${CMAKE_BINARY_DIR}/HDF5
@@ -52,9 +52,9 @@ if(NOT HDF5_USE_EXTERNAL)
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/include/cpp/ DESTINATION include/hdf5/cpp FILES_MATCHING PATTERN "*.h")
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/lib/ DESTINATION lib/hdf5 FILES_MATCHING PATTERN "*hdf5*")
   install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/3rdParty/HDF5/bin/ DESTINATION bin FILES_MATCHING PATTERN "*hdf5*")
-  SET(STATISMO_HDF5_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/hdf5/cpp ${CMAKE_INSTALL_PREFIX}/include/hdf5)
+  set(STATISMO_HDF5_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/hdf5/cpp ${CMAKE_INSTALL_PREFIX}/include/hdf5)
   set(STATISMO_HDF5_LIBRARY_DIR ${CMAKE_INSTALL_PREFIX}/lib/hdf5)
-else(NOT HDF5_USE_EXTERNAL)
+else()
 
  	find_path(HDF5_INCLUDE_DIR hdf5.h)
  	find_path(HDF5_INCLUDE_DIR_CPP H5Cpp.h)
@@ -62,18 +62,14 @@ else(NOT HDF5_USE_EXTERNAL)
  	find_library(HDF5_CPP_LIBRARY hdf5_cpp)
 	get_filename_component(HDF5_LIBRARY_DIR ${HDF5_LIBRARY} PATH)
 
-  SET(STATISMO_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})
+  set(STATISMO_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP})
   set(STATISMO_HDF5_LIBRARY_DIR ${HDF5_LIBRARY_DIR})
-   if(WIN32)
-        set(HDF5_LIBRARIES debug hdf5d debug hdf5_cppd optimized hdf5; optimized hdf5_cpp)
-   else(WIN32)
-        set(HDF5_LIBRARIES hdf5 hdf5_cpp)
-   endif(WIN32)
-
-
-endif(NOT HDF5_USE_EXTERNAL)
-
-
+  if(WIN32)
+    set(HDF5_LIBRARIES debug hdf5d debug hdf5_cppd optimized hdf5; optimized hdf5_cpp)
+  else()
+    set(HDF5_LIBRARIES hdf5 hdf5_cpp)
+  endif()
+endif()
 
 # rpath settings
 set(CMAKE_SKIP_BUILD_RPATH  FALSE)
@@ -81,13 +77,13 @@ set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib;${STATISMO_LIBRARY_DIR}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-IF(MSVC11) #i.e. Visual Studio 2012 
+if(MSVC11) #i.e. Visual Studio 2012 
   # Fix for VS2012 that has _VARIADIC_MAX set to 5. Don't set too high because it increases compiler memory usage / compile-time.
   add_definitions( -D_VARIADIC_MAX=10 )
   # Fix for another VS2012 problem: not all TR1 options are automatically detected, therefore we force them here.
-  ADD_DEFINITIONS( -D BOOST_HAS_TR1 )
-  ADD_DEFINITIONS( -D BOOST_NO_0X_HDR_INITIALIZER_LIST )
-ENDIF()
+  add_definitions( -D BOOST_HAS_TR1 )
+  add_definitions( -D BOOST_NO_0X_HDR_INITIALIZER_LIST )
+endif()
 
 #
 #optional examples and wrapping
@@ -147,7 +143,7 @@ if(BUILD_STATISMO_TESTS)
 endif()
 
 if(BUILD_REPRESENTER_TESTS)
-add_subdirectory(Tests/representerTests)
+  add_subdirectory(Tests/representerTests)
 endif()
 
 if(BUILD_STATISMO_TESTS_PYTHON)
