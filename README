@@ -1,4 +1,4 @@
-https://travis-ci.org/statismo/statismo.svg?branch=travis
+![Travis status](https://travis-ci.org/statismo/statismo.svg?branch=travis "Travis status")
 
 Statismo is a C++ library for generating and manipulating Statistical
 Shape and Image Models. It supports all commonly known types of
