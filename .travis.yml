@@ -8,7 +8,7 @@ branches:
     - travis
 
 before_install:
-  - sudo apt-get install -y cmake libboost-all-dev libhdf5-dev libeigen3-dev
+  - sudo apt-get install -y cmake libboost-all-dev libeigen3-dev libhdf5-serial-dev
 
 script:
   - mkdir -p build
