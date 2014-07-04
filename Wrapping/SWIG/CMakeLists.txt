@@ -1,11 +1,11 @@
 cmake_minimum_required (VERSION 2.6)
 
-SET(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
-FIND_PACKAGE(PythonLibs)
-INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+find_package(PythonLibs)
+include_directories(${PYTHON_INCLUDE_PATH})
 
-FIND_PACKAGE(VTK REQUIRED)
+find_package(VTK REQUIRED)
 include (${VTK_USE_FILE})
 
 
@@ -26,17 +26,17 @@ include_directories(${STATISMO_ROOT_DIR} ${STATISMO_INCLUDE_DIR} ${STATISMO_ROOT
 link_directories (${STATISMO_LIBRARY_DIR} ${HDF5_LIBRARY_DIR})   
 
 
-FIND_PACKAGE(SWIG REQUIRED)
-INCLUDE(${SWIG_USE_FILE})
+find_package(SWIG REQUIRED)
+include(${SWIG_USE_FILE})
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-SET_SOURCE_FILES_PROPERTIES(statismo.i PROPERTIES CPLUSPLUS ON)
-SET_SOURCE_FILES_PROPERTIES(statismo.i PROPERTIES SWIG_FLAGS "-includeall")
+set_source_files_properties(statismo.i PROPERTIES CPLUSPLUS ON)
+set_source_files_properties(statismo.i PROPERTIES SWIG_FLAGS "-includeall")
 
-SWIG_ADD_MODULE(statismo python statismo.i  )
-ADD_DEPENDENCIES(_statismo HDF5)
-SWIG_LINK_LIBRARIES(statismo ${PYTHON_LIBRARIES}  ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${VTK_LIBRARIES_PYTHON} ${HDF5_LIBRARIES})
+swig_add_module(statismo python statismo.i  )
+add_dependencies(_statismo HDF5)
+swig_link_libraries(statismo ${PYTHON_LIBRARIES}  ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${VTK_LIBRARIES_PYTHON} ${HDF5_LIBRARIES})
 
-INSTALL(TARGETS _statismo  LIBRARY DESTINATION lib/Python)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo.py DESTINATION lib/Python)
+install(TARGETS _statismo  LIBRARY DESTINATION lib/Python)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/statismo.py DESTINATION lib/Python)
