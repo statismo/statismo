@@ -15,5 +15,8 @@ before_install:
 script:
   - mkdir -p build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
+  - cmake -DCMAKE_BUILD_TYPE:STRING=Release -DBUILD_STATISMO_TESTS:BOOL=ON ..
   - make -j4
+  - make install -j4
+  - make test -j4
+  - make unit_test -j4
