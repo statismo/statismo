@@ -1,0 +1,16 @@
+language: cpp
+
+compiler:
+  - gcc
+
+branches:
+  only:
+    - travis
+
+before_install:
+  - sudo apt-get install -y cmake libboost-all-dev libhdf5-dev libeigen3-dev
+
+script:
+  - mkdir -p build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE:STRING=Release
