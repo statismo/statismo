@@ -13,4 +13,5 @@ before_install:
 script:
   - mkdir -p build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE:STRING=Release
+  - cmake -DCMAKE_BUILD_TYPE:STRING=Release ..
+  - make -j4
