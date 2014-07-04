@@ -323,12 +323,15 @@ VectorType vtkStandardImageRepresenter<TScalar, PixelDimensions>::SampleToSample
 	VectorType sample = VectorType::Zero(
 			m_reference->GetNumberOfPoints() * PixelDimensions);
 
-	vtkDataArray* scalars = sp->GetPointData()->GetScalars();
-	// TODO make this more efficient using SetVoidArray of vtk
+	vtkDataArray* dataArray = sp->GetPointData()->GetArray(0);
+
+	// TODO: Make this more efficient using SetVoidArray of vtk
+  // HOWEVER: This is only possible, if we enforce VectorType and 
+  // vtkStructuredPoints to have the same data type, e.g. float or int.
 	for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
 
 		double val[PixelDimensions];
-		scalars->GetTuple(i, val);
+		dataArray->GetTuple(i, val);
 		for (unsigned d = 0; d < PixelDimensions; d++) {
 			unsigned idx = MapPointIdToInternalIdx(i, d);
 			sample(idx) = val[d];
@@ -346,16 +349,16 @@ typename vtkStandardImageRepresenter<TScalar, PixelDimensions>::DatasetPointerTy
 			const_cast<vtkStructuredPoints*>(m_reference);
 	sp->DeepCopy(reference);
 
-	vtkDataArray* scalars = sp->GetPointData()->GetScalars();
+	vtkDataArray* dataArray = sp->GetPointData()->GetArray(0);
 	for (unsigned i = 0; i < GetNumberOfPoints(); i++) {
 		double val[PixelDimensions];
 		for (unsigned d = 0; d < PixelDimensions; d++) {
 			unsigned idx = MapPointIdToInternalIdx(i, d);
 			val[d] = sample(idx);
 		}
-		scalars->SetTuple(i, val);
+		dataArray->SetTuple(i, val);
 	}
-	sp->GetPointData()->SetScalars(scalars);
+	//sp->GetPointData()->SetScalars(scalars);
 	return sp;
 }
 
