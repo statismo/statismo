@@ -52,6 +52,13 @@
 
 /**
  * \brief Representer class for vtkStructuredPoints of arbitrary scalar type and PixelDimension
+ *
+ * The pixel values used for the shape model are stored in the vtkPointData object of the vtkStructuredPoints.
+ * They can be either scalars (cf. sp->GetPointData()->GetScalars()) or vectors (cf. sp->GetPointData()->GetVectors()).
+ * 
+ * If you supply vtkStructuredPoints images with several arrays (e.g. scalars, vectors, tensors etc.), you need to ensure that
+ * the array relevant to the shape model is the first array, i.e. the one returned by sp->GetPointData()->GetArray(0).
+ *
  * \sa Representer
  */
 
