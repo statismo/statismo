@@ -5,7 +5,6 @@ compiler:
 
 branches:
   only:
-    - travis
     - Superbuild
 
 before_install:
@@ -16,8 +15,6 @@ before_install:
 script:
   - mkdir -p build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE:STRING=Release -DBUILD_STATISMO_TESTS:BOOL=ON ..
+  - cmake -DCMAKE_BUILD_TYPE:STRING=Release ../superbuild
   - make -j4
   - make install -j4
-  - make test -j4
-  - make unit_test -j4
