@@ -14,7 +14,7 @@ endif()
 
 set( VTK_DEPENDENCIES )
 
-if( ${External_HDF5} MATCHES "ON" )
+if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
   set( VTK_DEPENDENCIES HDF5 )
 endif()
 

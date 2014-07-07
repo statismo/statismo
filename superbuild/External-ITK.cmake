@@ -1,4 +1,4 @@
-sage( "External project - ITK" )
+message( "External project - ITK" )
 
 find_package(Git)
 if(NOT GIT_FOUND)
@@ -12,9 +12,9 @@ if(NOT USE_GIT_PROTOCOL)
   set(git_protocol "http")
 endif()
 
-set( ITK_DEPENDENCIES HDF5 VTK )
+set( ITK_DEPENDENCIES VTK )
 
-if( ${External_HDF5} MATCHES "ON" )
+if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
   set( ITK_DEPENDENCIES HDF5 ${ITK_DEPENDENCIES} )
 endif()
 
@@ -38,7 +38,7 @@ ExternalProject_Add(ITK
     -DModule_ITKReview:BOOL=ON
     -DITK_LEGACY_REMOVE:BOOL=ON
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
-    -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPECENCIES_DIR¶
+    -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPECENCIES_DIR}
     -DITK_USE_SYSTEM_HDF5:BOOL=ON
     -DHDF5_DIR:PATH=${HDF5_DIR}
     -DVTK_DIR:PATH=${VTK_DIR}
