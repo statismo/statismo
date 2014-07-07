@@ -1,0 +1,22 @@
+language: cpp
+
+compiler:
+  - gcc
+
+branches:
+  only:
+    - travis
+
+before_install:
+  - sudo add-apt-repository ppa:kalakris/cmake -y
+  - sudo apt-get update -qq
+  - sudo apt-get install -y cmake libboost-all-dev libeigen3-dev libhdf5-serial-dev
+
+script:
+  - mkdir -p build
+  - cd build
+  - cmake -DCMAKE_BUILD_TYPE:STRING=Release -DBUILD_STATISMO_TESTS:BOOL=ON ..
+  - make -j4
+  - make install -j4
+  - make test -j4
+  - make unit_test -j4
