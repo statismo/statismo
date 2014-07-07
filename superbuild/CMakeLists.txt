@@ -59,6 +59,8 @@ else()
   find_package( ITK REQUIRED )
 endif()
 
+message( "HDF5_DIR: ${HDF5_DIR}" )
+
 ExternalProject_Add( Statismo
   DEPENDS ${Statismo_DEPENDENCIES}
   DOWNLOAD_COMMAND ""

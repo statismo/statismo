@@ -1,3 +1,5 @@
+message( "External project - Eigen" )
+
 set( Eigen3_VERSION "3.2.0" )
 
 ExternalProject_Add( Eigen3

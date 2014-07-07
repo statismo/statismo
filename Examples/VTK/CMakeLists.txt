@@ -19,7 +19,7 @@ if(WIN32)
 endif()
 
 add_executable (vtkBuildShapeModelExample BuildShapeModelExample.cxx)
-target_link_libraries (vtkBuildShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} )# ${HDF5_LIBRARIES})
+target_link_libraries (vtkBuildShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
 
 add_executable (vtkBasicSamplingExample BasicSamplingExample.cxx)
 target_link_libraries (vtkBasicSamplingExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})

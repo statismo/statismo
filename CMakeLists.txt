@@ -32,16 +32,13 @@ find_package( Boost REQUIRED )
 include( ${Boost_INCLUDE_DIRS} )
 
 find_package( HDF5 COMPONENTS C CXX )
-include_directories( ${HDF5_INCLUDE_DIR} ${HDF5_INCLUDE_DIR_CPP} )
+include_directories( ${HDF5_INCLUDE_DIRS} )
 
 set( HDF5_LIBRARY_DIR )
 foreach( _library ${HDF5_LIBRARIES} )
   get_filename_component( _tempDir${_library} ${_library} PATH )
   list( APPEND HDF5_LIBRARY_DIR ${_tempDir${_library}} )
 endforeach()
-
-list( REMOVE_DUPLICATES HDF5_LIBRARY_DIR )
-
 
 option( ITK_SUPPORT "Build ITK Support" ON )
 

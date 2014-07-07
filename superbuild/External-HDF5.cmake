@@ -1,3 +1,5 @@
+message( "External project - HDF5" )
+
 ExternalProject_add(HDF5
   SOURCE_DIR ${CMAKE_BINARY_DIR}/HDF5
   BINARY_DIR ${CMAKE_BINARY_DIR}/HDF5-build
@@ -13,4 +15,4 @@ ExternalProject_add(HDF5
   INSTALL_DIR ${INSTALL_DEPECENCIES_DIR}
 )
 
-set( HDF5_DIR ${INSTALL_DEPENDENCIES_DIR}/share/cmake/hdf5/ )
+set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/share/cmake/hdf5/ )
