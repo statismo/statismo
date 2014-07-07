@@ -6,6 +6,7 @@ include( ExternalProject )
 
 set( BUILD_TYPE Release )
 set( INSTALL_DEPECENCIES_DIR ${CMAKE_BINARY_DIR}/INSTALL )
+set( Patches_DIR ${CMAKE_CURRENT_SOURCE_DIR}/patches )
 set( Statismo_DEPENDENCIES )
 
 option( USE_SYSTEM_Boost "Use system libraries for Boost" OFF )
