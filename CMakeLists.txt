@@ -3,6 +3,8 @@ project(statismo)
 
 enable_testing()
 
+set( STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+
 set(STATISMO_MAJOR_VERSION 0)
 set(STATISMO_MINOR_VERSION 9)
 set(STATISMO_PATCH_VERSION 0)
@@ -50,7 +52,13 @@ if( ${ITK_SUPPORT} MATCHES "ON" )
   add_subdirectory( Examples/ITK )
 endif()
 
-#
-# Compile and Install HDF5
-#
+option( VTK_SUPPORT "Build VTK Support" ON )
+
+if( ${VTK_SUPPORT} MATCHES "ON" )
+  find_package( VTK REQUIRED )
+  include( ${VTK_USE_FILE} )
+
+  add_subdirectory( Examples/VTK )
+endif()
+
 
