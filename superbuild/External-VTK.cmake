@@ -18,6 +18,11 @@ if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
   set( VTK_DEPENDENCIES HDF5 )
 endif()
 
+set( _vtkOptions )
+if( APPLE )
+  set( _vtkOptions -DVTK_REQUIRED_OBJCXX_FLAGS:STRING="" )
+endif()
+
 ExternalProject_Add(VTK
   DEPENDS ${VTK_DEPENDENCIES}
   GIT_REPOSITORY ${git_protocol}://vtk.org/VTK.git
@@ -29,6 +34,7 @@ ExternalProject_Add(VTK
   CMAKE_GENERATOR ${EP_CMAKE_GENERATOR}
   CMAKE_ARGS
     ${ep_common_args}
+    ${_vtkOptions}
     -DBUILD_EXAMPLES:BOOL=OFF
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DBUILD_TESTING:BOOL=OFF

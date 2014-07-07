@@ -1,7 +1,7 @@
 ExternalProject_add(HDF5
   SOURCE_DIR ${CMAKE_BINARY_DIR}/HDF5
   BINARY_DIR ${CMAKE_BINARY_DIR}/HDF5-build
-  URL http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.12/src/hdf5-1.8.12.tar.gz
+  URL http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.8.13/src/hdf5-1.8.13.tar.gz
   UPDATE_COMMAND ""
   CMAKE_ARGS
     -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
@@ -13,3 +13,4 @@ ExternalProject_add(HDF5
   INSTALL_DIR ${INSTALL_DEPECENCIES_DIR}
 )
 
+set( HDF5_DIR ${INSTALL_DEPENDENCIES_DIR}/share/cmake/hdf5/ )
