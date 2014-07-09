@@ -59,8 +59,7 @@ template <typename T>
 typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
 ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(
         const StatisticalModelType* inputModel,
-        unsigned numberOfPrincipalComponents,
-        bool computeScores) const
+        unsigned numberOfPrincipalComponents) const
 
 {
     StatisticalModelType* reducedModel = StatisticalModelType::Create(
@@ -81,19 +80,24 @@ ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(
   BuilderInfo builderInfo("ReducedVarianceModelBuilder", di, bi);
   builderInfoList.push_back(builderInfo);
 
-  ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().topRows(numberOfPrincipalComponents), builderInfoList);
+  // If the scores matrix is not set, or if we have for some reasons not as many score entries as the number of principal components,
+  // we simply work with what is there.
+  unsigned numComponentsForScores = std::min(static_cast<unsigned>(inputModel->GetModelInfo().GetScoresMatrix().rows()), numberOfPrincipalComponents);
+
+  ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsForScores), builderInfoList);
   reducedModel->SetModelInfo(info);
 
   return reducedModel;
 
 }
 
+
+
 template <typename T>
 typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
 ReducedVarianceModelBuilder<T>::BuildNewModelWithVariance(
 		const StatisticalModelType* inputModel,
-		double totalVariance,
-		bool computeScores) const
+        double totalVariance) const
 {
 
 	VectorType pcaVariance = inputModel->GetPCAVarianceVector();
@@ -108,18 +112,17 @@ ReducedVarianceModelBuilder<T>::BuildNewModelWithVariance(
 		  if (cumulatedVariance / modelVariance >= totalVariance)
 			  break;
       }
-    return BuildNewModelWithLeadingComponents(inputModel, numComponentsToReachPrescribedVariance, computeScores);
+    return BuildNewModelWithLeadingComponents(inputModel, numComponentsToReachPrescribedVariance);
 }
 
 template <typename T>
 typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
     ReducedVarianceModelBuilder<T>::BuildNewModelFromModel(
             const StatisticalModelType* inputModel,
-            double totalVariance,
-            bool computeScores) const
+            double totalVariance) const
 {
 
-       return BuildNewModelWithVariance(inputModel, totalVariance, computeScores);
+       return BuildNewModelWithVariance(inputModel, totalVariance);
 }
 
 

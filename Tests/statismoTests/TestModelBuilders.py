@@ -392,7 +392,7 @@ class Test(unittest.TestCase):
         reducedVarianceModelBuilder = statismo.ReducedVarianceModelBuilder_vtkPD.Create()
 
         ncomponentsToKeep = model.GetNumberOfPrincipalComponents() / 2
-        newModelWithNComponents = reducedVarianceModelBuilder.BuildNewModelWithLeadingComponents(model, ncomponentsToKeep, True)
+        newModelWithNComponents = reducedVarianceModelBuilder.BuildNewModelWithLeadingComponents(model, ncomponentsToKeep)
         self.assertTrue(newModelWithNComponents.GetNumberOfPrincipalComponents() == ncomponentsToKeep)
 
         for percentOfTotalVar in [1.0, 0.9, 0.8, 0.7, 0.6, 0.4, 0.2, 0.1]:
@@ -408,6 +408,20 @@ class Test(unittest.TestCase):
         # check that there is a reduction (though we cannot say how much, as the specified variance is a lower bound)
         reducedModel05 = reducedVarianceModelBuilder.BuildNewModelWithVariance(model, 0.5)
         self.assertTrue(reducedModel05.GetPCAVarianceVector().sum() <= model.GetPCAVarianceVector().sum())        
+
+
+    def testReducedVarianceModelBuilderHandlesModelWithoutScores(self):
+        # check that a model can also be reduced when no scores are present
+        modelbuilder = statismo.PCAModelBuilder_vtkPD.Create()
+
+        model = modelbuilder.BuildNewModel(self.dataManager.GetData(), 0., False)
+        reducedVarianceModelBuilder = statismo.ReducedVarianceModelBuilder_vtkPD.Create()
+
+        ncomponentsToKeep = model.GetNumberOfPrincipalComponents() / 2
+        newModelWithNComponents = reducedVarianceModelBuilder.BuildNewModelWithLeadingComponents(model, ncomponentsToKeep)
+        self.assertTrue(newModelWithNComponents.GetNumberOfPrincipalComponents() == ncomponentsToKeep)
+        self.assertTrue(newModelWithNComponents.GetModelInfo().GetScoresMatrix().shape[0] == 0)
+
 
 
 

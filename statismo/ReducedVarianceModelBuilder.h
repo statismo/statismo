@@ -87,26 +87,26 @@ public:
      *
      * \param model A statistical model.
      * \param numberOfPrincipalComponents,
-     * \param computeScores Determines whether the scores are computed and stored in the model.
      * \return a new statistical model
      *
      * \warning The returned model needs to be explicitly deleted by the user of this method.
      */
-    StatisticalModelType* BuildNewModelWithLeadingComponents(const StatisticalModelType* model, unsigned numberOfPrincipalComponents, bool computeScores = true) const;
+    StatisticalModelType* BuildNewModelWithLeadingComponents(const StatisticalModelType* model, unsigned numberOfPrincipalComponents) const;
+
 
     /**
      * Build a new model from the given model, which retains only the specified variance
      *
      * \param model A statistical model.
      * \param totalVariance, The fraction of the variance to be retained
-     * \param computeScores Determines whether the scores are computed and stored in the model.
      * \return a new statistical model
      *
      * \warning The returned model needs to be explicitly deleted by the user of this method.
      */
-    StatisticalModelType* BuildNewModelWithVariance(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const;
+    StatisticalModelType* BuildNewModelWithVariance(const StatisticalModelType* model, double totalVariance) const;
 
-    is_deprecated StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance, bool computeScores=true) const ;
+
+    is_deprecated StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance) const ;
 
 
 private:
