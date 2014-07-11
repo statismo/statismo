@@ -90,25 +90,25 @@ public:
 
 
 
-    typename StatisticalModel<Representer>::Pointer BuildNewModelWithLeadingComponents(const StatisticalModel<Representer>* model, unsigned numberOfPrincipalComponents, bool computeScores=true) {
+    typename StatisticalModel<Representer>::Pointer BuildNewModelWithLeadingComponents(const StatisticalModel<Representer>* model, unsigned numberOfPrincipalComponents) {
         statismo::StatisticalModel<Representer>* model_statismo = model->GetstatismoImplObj();
-        statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelWithLeadingComponents, this->m_impl, model_statismo, numberOfPrincipalComponents, computeScores));
+        statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelWithLeadingComponents, this->m_impl, model_statismo, numberOfPrincipalComponents));
         typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
         model_itk->SetstatismoImplObj(new_model_statismo);
         return model_itk;
     }
 
-    typename StatisticalModel<Representer>::Pointer BuildNewModelWithVariance(const StatisticalModel<Representer>* model, double totalVariance, bool computeScores=true) {
+    typename StatisticalModel<Representer>::Pointer BuildNewModelWithVariance(const StatisticalModel<Representer>* model, double totalVariance) {
         statismo::StatisticalModel<Representer>* model_statismo = model->GetstatismoImplObj();
-        statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelWithVariance, this->m_impl, model_statismo, totalVariance, computeScores));
+        statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelWithVariance, this->m_impl, model_statismo, totalVariance));
         typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
         model_itk->SetstatismoImplObj(new_model_statismo);
         return model_itk;
     }
 
-    is_deprecated typename StatisticalModel<Representer>::Pointer BuildNewModelFromModel(const StatisticalModel<Representer>* model, double totalVariance, bool computeScores=true) {
+    is_deprecated typename StatisticalModel<Representer>::Pointer BuildNewModelFromModel(const StatisticalModel<Representer>* model, double totalVariance) {
 		statismo::StatisticalModel<Representer>* model_statismo = model->GetstatismoImplObj();
-		statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelFromModel, this->m_impl, model_statismo, totalVariance, computeScores));
+        statismo::StatisticalModel<Representer>* new_model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModelFromModel, this->m_impl, model_statismo, totalVariance));
 		typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
 		model_itk->SetstatismoImplObj(new_model_statismo);
 		return model_itk;

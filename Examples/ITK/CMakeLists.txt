@@ -18,11 +18,19 @@ set(ITK_STATISTICAL_MODEL_INCLUDE_DIR ${STATISMO_ROOT_DIR}/ITKstatismo)
 file(GLOB INCLUDE_FILES *.h)
 file(GLOB SOURCE_FILES  *.txx )
 
+# ITK comes with its own version of HDF5. As we want to use the version that comes with ITK,
+# we have to find the directories where the include files are located and set the inlcude dir accordingly
+find_path(ITK_HDF5_INCLUDE_DIR hdf5.h PATHS ${ITK_INCLUDE_DIRS} PATH_SUFFIXES itkhdf5 itkhdf5/cpp )
+find_path(ITK_HDF5_INCLUDE_DIR_CPP H5Cpp.h PATHS ${ITK_INCLUDE_DIRS} PATH_SUFFIXES itkhdf5 itkhdf5/cpp )
+
 include_directories(
   ${STATISMO_ROOT_DIR}
   ${STATISMO_ROOT_DIR}/statismo_ITK
   ${STATISMO_INCLUDE_DIR}
- ${STATISMO_ROOT_DIR}/Representers/ITK
+  ${ITK_INCLUDE_DIRS}
+  ${ITK_HDF5_INCLUDE_DIR}
+  ${ITK_HDF5_INCLUDE_DIR_CPP}
+  ${STATISMO_ROOT_DIR}/Representers/ITK
 )
 
 

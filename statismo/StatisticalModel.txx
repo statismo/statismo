@@ -645,7 +645,13 @@ StatisticalModel<T>::Save(const std::string& filename) const {
 	 }
 
 
-	 H5::Group modelRoot = file.openGroup("/");
+     H5::Group modelRoot = file.openGroup("/");
+
+     H5::Group versionGroup = modelRoot.createGroup("version");
+     HDF5Utils::writeInt(versionGroup, "majorVersion", 0);
+     HDF5Utils::writeInt(versionGroup, "minorVersion", 9);
+     versionGroup.close();
+
 	 Save(modelRoot);
 	 modelRoot.close();
      file.close();
@@ -677,10 +683,6 @@ StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
 
 		m_modelInfo.Save(modelRoot);
 
-        H5::Group versionGroup = modelRoot.createGroup("./version");
-        HDF5Utils::writeInt(versionGroup, "./majorVersion", 0);
-        HDF5Utils::writeInt(versionGroup, "./minorVersion", 9);
-        versionGroup.close();
 
 	 } catch (H5::Exception& e) {
 		 std::string msg(std::string("an exception occurred while writing HDF5 file \n") + e.getCDetailMsg());
