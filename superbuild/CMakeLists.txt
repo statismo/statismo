@@ -14,7 +14,7 @@ endif()
 
 include( ExternalProject )
 
-set( BUILD_TYPE Release )
+set( BUILD_TYPE ${CMAKE_BUILD_TYPE} )
 set( INSTALL_DEPECENCIES_DIR ${CMAKE_BINARY_DIR}/INSTALL )
 set( Patches_DIR ${CMAKE_CURRENT_SOURCE_DIR}/patches )
 set( Statismo_DEPENDENCIES )
@@ -71,6 +71,7 @@ ExternalProject_Add( Statismo
   CMAKE_GENERATOR ${EP_CMAKE_GENERATOR}
   CMAKE_ARGS
     ${ep_common_args}
+    -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
     -DBoost_INCLUDE_DIR:PATH=${Boost_INCLUDE_DIR}
     -DITK_DIR:PATH=${ITK_DIR}
     -DVTK_DIR:PATH=${VTK_DIR}
