@@ -15,6 +15,6 @@ before_install:
 script:
   - mkdir -p build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE:STRING=Release ../superbuild
+  - cmake -DCMAKE_BUILD_TYPE:STRING=Release -DUSE_SYSTEM_Boost:BOOL=ON -DUSE_SYSTEM_Eigen:BOOL=ON -DUSE_SYSTEM_HDF5:BOOL=ON ../superbuild
   - make -j4
   - make install -j4
