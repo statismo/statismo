@@ -25,6 +25,8 @@ if( APPLE )
   include( CMakeOSXVariables )
 endif()
 
+include( CTest )
+
 find_package( Eigen3 REQUIRED )
 include_directories( ${EIGEN3_INCLUDE_DIR} )
 
@@ -58,4 +60,6 @@ if( ${VTK_SUPPORT} MATCHES "ON" )
   add_subdirectory( Examples/VTK )
 endif()
 
-
+if( ${BUILD_TESTING} )
+  add_subdirectory( Tests )
+endif()
