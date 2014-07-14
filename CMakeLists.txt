@@ -25,6 +25,24 @@ if( APPLE )
   include( CMakeOSXVariables )
 endif()
 
+if( CMAKE_HOST_WIN32 )
+  string( LENGTH "${CMAKE_CURRENT_SOURCE_DIR}" n )
+  if( n GREATER 50 )
+    message( FATAL_ERROR
+      "Statismo source code directory path length is too long (${n} > 50)."
+      "Please move the Statismo source code directory to a directory with a shorter path."
+    )
+  endif()
+
+  string( LENGTH "${CMAKE_CURRENT_BINARY_DIR}" n )
+  if( n GREATER 50 )
+    message( FATAL_ERROR
+      "Statismo build directory path length is too long (${n} > 50)."
+      "Please move the Statismo build directory to a directory with a shorter path."
+    )
+  endif()
+endif()
+
 include( CTest )
 
 find_package( Eigen3 REQUIRED )
