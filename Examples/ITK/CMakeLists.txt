@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
-project(ssm_itk)
-set(CMAKE_VERBOSE_MAKEFILE ON)
 
+project(ssm_itk)
 
 find_package(ITK 4.1 REQUIRED)
 include (${ITK_USE_FILE})
@@ -27,7 +26,6 @@ find_path(ITK_HDF5_INCLUDE_DIR_CPP H5Cpp.h PATHS ${ITK_INCLUDE_DIRS} PATH_SUFFIX
 include_directories(
   ${STATISMO_ROOT_DIR}
   ${STATISMO_ROOT_DIR}/statismo_ITK
-  ${STATISMO_ROOT_DIR}/3rdParty
   ${STATISMO_INCLUDE_DIR}
   ${ITK_INCLUDE_DIRS}
   ${ITK_HDF5_INCLUDE_DIR}
