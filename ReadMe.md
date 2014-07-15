@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/arnaudgelas/statismo.svg?branch=travis)](https://travis-ci.org/arnaudgelas/statismo)
+[![Build Status](https://travis-ci.org/statismo/statismo.svg?branch=arnaudgelas-Superbuild)](https://travis-ci.org/statismo/statismo)
 
 Statismo is a C++ library for generating and manipulating Statistical
 Shape and Image Models. It supports all commonly known types of
