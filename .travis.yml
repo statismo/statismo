@@ -5,7 +5,7 @@ compiler:
 
 branches:
   only:
-    - Superbuild
+    - arnaudgelas-Superbuild
 
 before_install:
   - sudo add-apt-repository ppa:kalakris/cmake -y
