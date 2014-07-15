@@ -7,15 +7,15 @@ Intensity Models. The implementation and interpretation is based on
 Probabilistic PCA, which generalizes the standard PCA models and gives
 a fully probabilistic interpretation.
 
-How to build Statismo: 
+How to build Statismo:
 ----------------------
 
-Statismo is a header only library. There is no need to compile statismo. You simply include the necessary 
-header files into your application and statismo is compiled together with  your application. 
-However, statismo depends on some third-party libraries (such as HDF5) and to use it from your applications, 
-you need to correctly specify all the path to the different include directories and libraries. 
+Statismo is a header only library. There is no need to compile statismo. You simply include the necessary
+header files into your application and statismo is compiled together with  your application.
+However, statismo depends on some third-party libraries (such as HDF5) and to use it from your applications,
+you need to correctly specify all the path to the different include directories and libraries.
 
-To simplify this process, we have provided a CMake file that takes care of this process. 
+To simplify this process, we have provided a CMake file that takes care of this process.
 
 To install statismo use the usual CMake workflow (here demonstrated for linux):
 
@@ -29,21 +29,21 @@ $ cd build_dir
 ```bash
 $ ccmake path_to_statismo
 ```
-Make sure that you set the CMAKE_INSTALL_PREFIX to the path where you want to install statismo 
+Make sure that you set the CMAKE_INSTALL_PREFIX to the path where you want to install statismo
 
 3- Compile and install statismo
 ```bash
-$ make 
+$ make
 $ make install
 ```
 
-This builds the dependencies and copies the necessary files to the installation directory. 
-In particular, it generates the file statismo-config.cmake, that holds the correct configuration. 
+This builds the dependencies and copies the necessary files to the installation directory.
+In particular, it generates the file statismo-config.cmake, that holds the correct configuration.
 To use statismo from your application, you can now simply include the command
-FindPackage(statismo) into your CMakeLists.txt file. This will set up the CMake variables 
-- STATISMO_DIR 
-- STATISMO_LIBRARIES 
-- STATISMO_INCLUDE_DIRS 
+FindPackage(statismo) into your CMakeLists.txt file. This will set up the CMake variables
+- STATISMO_DIR
+- STATISMO_LIBRARIES
+- STATISMO_INCLUDE_DIRS
 - STATISMO_LIBRARY_DIR
 
 Example programs are provided in the Example folder.
@@ -55,14 +55,14 @@ found on the [Wiki](https://github.com/statismo/statismo/wiki/compilation).
 
 Unit Tests
 ----------
-To test your basic installation, simply run in your build directory. 
+To test your basic installation, simply run in your build directory.
 ```bash
-$ make test 
+$ make test
 ```
 Beside these basic tests, there is a larger set of unit tests available. These unit tests are written in Python, and
 require that Statismo has been compiled with the option BUILD_PYTHON_WRAPPING_VTK.
 
-To run the tests, write 
+To run the tests, write
 ```bash
 $ make unit_test
 ```
@@ -81,7 +81,7 @@ Main Authors:
 
 Contributors:
 ------------
-- Thomas Albrecht 
+- Thomas Albrecht
 - Orcun Goksel
 - Arnaud Gelas
 - Christoph Jud
