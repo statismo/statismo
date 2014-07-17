@@ -15,7 +15,7 @@ ExternalProject_add(HDF5
   INSTALL_DIR ${INSTALL_DEPECENCIES_DIR}
 )
 if (WIN32)
-set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/cmake/hdf5/ )
+  set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/cmake/hdf5/ )
 else ()
-set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/share/cmake/hdf5/ )
+  set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/share/cmake/hdf5/ )
 endif ()
