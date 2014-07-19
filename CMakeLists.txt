@@ -51,21 +51,21 @@ include_directories( ${EIGEN3_INCLUDE_DIR} )
 find_package( Boost REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
-find_package( HDF5  COMPONENTS C CXX NO_MODULE )
+find_package( HDF5  COMPONENTS C CXX)
+
 include_directories( ${HDF5_INCLUDE_DIRS} )
-set( HDF5_LIBRARY_DIR )
+
+# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding 
+# the dlls instead of the libs. We are setting the variables directly
+if(WIN32)
+ SET(HDF5_LIBRARY_DIRS ${INSTALL_DEPECENCIES_DIR}/lib)
+ SET(HDF5_LIBRARIES hdf5.lib hdf5_cpp.lib)
+endif()
+
 foreach( _library ${HDF5_LIBRARIES} )
   get_filename_component( _tempDir${_library} ${_library} PATH )
   list( APPEND HDF5_LIBRARY_DIR ${_tempDir${_library}} )
 endforeach()
-
-# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding 
-# the dlls instead of the libs. So setting the variables explicitly for
-# dependent projects
-if(WIN32)
- SET(cmake_hdf5_c_lib -DHDF5_C_LIBRARY:FILEPATH=${INSTALL_DEPECENCIES_DIR}/lib/hdf5.lib)
- SET(cmake_hdf5_cxx_lib -DHDF5_CXX_LIBRARY:FILEPATH=${INSTALL_DEPECENCIES_DIR}/lib/hdf5_cpp.lib)
-endif()
 
 option( ITK_SUPPORT "Build ITK Support" ON )
 
