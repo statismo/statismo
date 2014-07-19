@@ -16,6 +16,13 @@ ExternalProject_add(HDF5
 )
 if (WIN32)
   set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/cmake/hdf5/ )
+  add_custom_command(TARGET HDF5
+                   POST_BUILD
+				   COMMAND ${CMAKE_COMMAND} 
+				   -D INSTALL_DEPECENCIES_DIR=${INSTALL_DEPECENCIES_DIR}
+				   -P ${CMAKE_CURRENT_SOURCE_DIR}/normalize_hdf5_lib_names.cmake
+                   COMMENT "normalizing hdf5 library filename")
 else ()
   set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/share/cmake/hdf5/ )
 endif ()
+

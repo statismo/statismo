@@ -4,7 +4,6 @@ project(ssm_vtk)
 file(GLOB INCLUDE_FILES *.h)
 file(GLOB SOURCE_FILES  *.txx *.cpp)
 
-
 include_directories(${STATISMO_ROOT_DIR}
 					${STATISMO_ROOT_DIR}/Representers/VTK
 					${HDF5_INCLUDE_DIRS}
