@@ -55,6 +55,7 @@ else()
   find_package( Eigen3 REQUIRED )
 endif()
 
+set( cmake_hdf5_libs )
 option( USE_SYSTEM_HDF5 "Use system libraries for HDF5" OFF )
 if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
   include( External-HDF5.cmake )
@@ -89,9 +90,10 @@ ExternalProject_Add( Statismo
   CMAKE_GENERATOR ${EP_CMAKE_GENERATOR}
   CMAKE_ARGS
     ${ep_common_args}
+    ${cmake_hdf5_libs}
     -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
     -DBoost_INCLUDE_DIR:PATH=${Boost_INCLUDE_DIR}
-	-DINSTALL_DEPECENCIES_DIR=${INSTALL_DEPECENCIES_DIR}
+  	-DINSTALL_DEPECENCIES_DIR:PATH=${INSTALL_DEPECENCIES_DIR}
     -DITK_DIR:PATH=${ITK_DIR}
     -DVTK_DIR:PATH=${VTK_DIR}
     -DHDF5_DIR:PATH=${HDF5_DIR}

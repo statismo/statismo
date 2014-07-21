@@ -23,14 +23,6 @@ if( APPLE )
   set( _vtkOptions -DVTK_REQUIRED_OBJCXX_FLAGS:STRING="" )
 endif()
 
-# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding 
-# the dlls instead of the libs. So setting the variables explicitly for
-# dependent projects.
-if(WIN32)
- SET(cmake_hdf5_c_lib -DHDF5_C_LIBRARY:FILEPATH=${INSTALL_DEPECENCIES_DIR}/lib/hdf5.lib)
- SET(cmake_hdf5_cxx_lib -DHDF5_CXX_LIBRARY:FILEPATH=${INSTALL_DEPECENCIES_DIR}/lib/hdf5_cpp.lib)
-endif()
-
 ExternalProject_Add(VTK
   DEPENDS ${VTK_DEPENDENCIES}
   GIT_REPOSITORY ${git_protocol}://vtk.org/VTK.git
@@ -43,8 +35,7 @@ ExternalProject_Add(VTK
   CMAKE_ARGS
     ${ep_common_args}
     ${_vtkOptions}
-	${cmake_hdf5_c_lib}
-		${cmake_hdf5_cxx_lib}
+  	${cmake_hdf5_libs}
     -DBUILD_EXAMPLES:BOOL=OFF
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DBUILD_TESTING:BOOL=OFF

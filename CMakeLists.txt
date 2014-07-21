@@ -58,8 +58,8 @@ include_directories( ${HDF5_INCLUDE_DIRS} )
 # On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding 
 # the dlls instead of the libs. We are setting the variables directly
 if(WIN32)
- SET(HDF5_LIBRARY_DIRS ${INSTALL_DEPECENCIES_DIR}/lib)
- SET(HDF5_LIBRARIES hdf5.lib hdf5_cpp.lib)
+ set(HDF5_LIBRARY_DIRS ${INSTALL_DEPECENCIES_DIR}/lib)
+ set(HDF5_LIBRARIES hdf5.lib hdf5_cpp.lib)
 endif()
 
 foreach( _library ${HDF5_LIBRARIES} )
