@@ -88,3 +88,11 @@ endif()
 if( ${BUILD_TESTING} )
   add_subdirectory( Tests )
 endif()
+
+# --------------------------------------------------
+# Wrapping
+option( BUILD_WRAPPING "Build Python Wrappers" OFF )
+
+if( ${BUILD_WRAPPING} )
+  add_subdirectory( Wrapping )
+endif()
