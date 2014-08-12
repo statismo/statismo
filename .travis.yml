@@ -3,10 +3,6 @@ language: cpp
 compiler:
   - gcc
 
-branches:
-  only:
-    - arnaudgelas-Superbuild
-
 before_install:
   - sudo add-apt-repository ppa:kalakris/cmake -y
   - sudo apt-get update -qq
