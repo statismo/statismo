@@ -29,7 +29,7 @@ set( _examples
 )
 
 foreach( _e ${_examples} )
-  add_executable( ${_e} ${_e}.cxx )
+  add_executable( ${_e} ${_e}.cpp )
   target_link_libraries( ${_e} ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES} )
 endforeach()
 
