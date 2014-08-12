@@ -53,7 +53,7 @@ foreach( e ${_examples} )
 	  ${INCLUDE_FILES}
   )
 
-  target_link_libraries( ${e}${ITK_LIBRARIES} )
+  target_link_libraries( ${e} ${ITK_LIBRARIES} )
 endforeach()
 
 install( TARGETS ${_examples}
