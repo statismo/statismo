@@ -13,8 +13,6 @@ if(MSVC11) #i.e. Visual Studio 2012
   add_definitions( -D BOOST_NO_0X_HDR_INITIALIZER_LIST )
 endif()
 
-set(ITK_STATISTICAL_MODEL_INCLUDE_DIR ${STATISMO_ROOT_DIR}/ITKstatismo)
-
 file(GLOB INCLUDE_FILES *.h)
 file(GLOB SOURCE_FILES  *.txx )
 
