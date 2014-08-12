@@ -48,12 +48,12 @@ set( _examples
 )
 
 foreach( e ${_examples} )
-  add_executable( ${_e} ${_e}.cpp
+  add_executable( ${e} ${e}.cpp
   	${SOURCE_FILES}
 	  ${INCLUDE_FILES}
   )
 
-  target_link_libraries( ${_e}${ITK_LIBRARIES} )
+  target_link_libraries( ${e}${ITK_LIBRARIES} )
 endforeach()
 
 install( TARGETS ${_examples}

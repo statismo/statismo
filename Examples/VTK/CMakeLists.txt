@@ -28,9 +28,9 @@ set( _examples
   vtkReduceModelVarianceExample
 )
 
-foreach( _e ${_examples} )
-  add_executable( ${_e} ${_e}.cpp )
-  target_link_libraries( ${_e} ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES} )
+foreach( e ${_examples} )
+  add_executable( ${e} ${e}.cpp )
+  target_link_libraries( ${e} ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES} )
 endforeach()
 
 install( TARGETS ${_examples}
