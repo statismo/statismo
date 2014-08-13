@@ -17,40 +17,26 @@ if(WIN32)
   add_definitions( -D_VARIADIC_MAX=9 )
 endif()
 
-add_executable (vtkBuildShapeModelExample BuildShapeModelExample.cxx)
-target_link_libraries (vtkBuildShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+set( _examples
+  vtkBasicSamplingExample
+  vtkBuildConditionalModelExample
+  vtkBuildGaussianProcessShapeModelExample
+  vtkBuildIntensityModelExample
+  vtkBuildPosteriorModelExample
+  vtkBuildShapeModelExample
+  vtkCrossValidationExample
+  vtkReduceModelVarianceExample
+)
 
-add_executable (vtkBasicSamplingExample BasicSamplingExample.cxx)
-target_link_libraries (vtkBasicSamplingExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+foreach( e ${_examples} )
+  add_executable( ${e} ${e}.cpp )
+  target_link_libraries( ${e} ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES} )
+endforeach()
 
-add_executable (vtkCrossValidationExample CrossValidationExample.cxx)
-target_link_libraries (vtkCrossValidationExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
+install( TARGETS ${_examples}
+  RUNTIME DESTINATION bin
+)
 
-add_executable (vtkBuildIntensityModelExample BuildIntensityModelExample.cxx)
-target_link_libraries (vtkBuildIntensityModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
-
-add_executable (vtkReduceModelVarianceExample ReduceModelVarianceExample.cxx)
-target_link_libraries (vtkReduceModelVarianceExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
-
-
-add_executable (vtkBuildPosteriorModelExample BuildPosteriorModelExample.cxx)
-target_link_libraries (vtkBuildPosteriorModelExample ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
-
-
-add_executable (vtkBuildConditionalModelExample BuildConditionalModelExample.cxx)
-target_link_libraries (vtkBuildConditionalModelExample  ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
-
-add_executable (vtkBuildGaussianProcessShapeModelExample BuildGaussianProcessShapeModelExample.cxx)
-target_link_libraries (vtkBuildGaussianProcessShapeModelExample ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES})
-
-install(TARGETS
-vtkBuildShapeModelExample
-vtkBasicSamplingExample
-vtkCrossValidationExample
-vtkBuildIntensityModelExample
-vtkBuildPosteriorModelExample
-vtkBuildConditionalModelExample
-vtkBuildGaussianProcessShapeModelExample
-RUNTIME DESTINATION bin)
-
-install(PROGRAMS runVTKExamples.sh DESTINATION  bin)
+install( PROGRAMS runVTKExamples.sh
+  DESTINATION bin
+)
