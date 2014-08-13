@@ -40,11 +40,11 @@
 #ifndef ITK_STANDARD_MESH_REPRESENTER_H
 #define ITK_STANDARD_MESH_REPRESENTER_H
 
+#include "statismo_ITK/statismoITKConfig.h" // this needs to be the first include file
 #include "statismo/Representer.h"
 #include "itkMesh.h"
 #include "itkObject.h"
 #include "itkMesh.h"
-#include "statismo_ITK/statismoITKConfig.h"
 #include "statismo/CommonTypes.h"
 #include "statismo/Exceptions.h"
 #include <boost/unordered_map.hpp>
