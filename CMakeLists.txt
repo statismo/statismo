@@ -52,10 +52,9 @@ find_package( Boost REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 find_package( HDF5  COMPONENTS C CXX)
-
 include_directories( ${HDF5_INCLUDE_DIRS} )
 
-# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding 
+# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding
 # the dlls instead of the libs. We are setting the variables directly
 if(WIN32)
  set(HDF5_LIBRARY_DIRS ${INSTALL_DEPECENCIES_DIR}/lib)
@@ -97,3 +96,20 @@ if( ${BUILD_WRAPPING_VTK} )
   add_subdirectory( Wrapping/VTK )
 endif()
 
+file( GLOB statismo_hdrs
+  statismo/*.h statismo/*.hxx statismo/*.hpp statismo/*.txx  statismo/*.tpp
+)
+install( FILES ${statismo_hdrs}
+  DESTINATION include/statismo/statismo
+)
+
+file( GLOB statismo_itk_hdrs
+  statismo_ITK/*.h statismo_ITK/*.hxx statismo_ITK/*.hpp statismo_ITK/*.txx  statismo_ITK/*.tpp
+)
+install( FILES ${statismo_itk_hdrs}
+  DESTINATION include/statismo/statismo_ITK
+)
+
+install( FILES ${Statismo_BINARY_DIR}/statismo-config.cmake
+  DESTINATION lib/cmake/statismo
+)
