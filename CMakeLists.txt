@@ -91,8 +91,9 @@ endif()
 
 # --------------------------------------------------
 # Wrapping
-option( BUILD_WRAPPING "Build Python Wrappers" OFF )
+option( BUILD_WRAPPING_VTK "Build Python Wrappers for VTK" OFF )
 
-if( ${BUILD_WRAPPING} )
-  add_subdirectory( Wrapping )
+if( ${BUILD_WRAPPING_VTK} )
+  add_subdirectory( Wrapping/VTK )
 endif()
+
