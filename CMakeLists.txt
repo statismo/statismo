@@ -96,6 +96,11 @@ if( ${BUILD_WRAPPING_VTK} )
   add_subdirectory( Wrapping/VTK )
 endif()
 
+configure_file( ${statismo_SOURCE_DIR}/statismo-config.cmake.in
+  ${statismo_BINARY_DIR}/statismo-config.cmake
+  @ONLY
+)
+
 file( GLOB statismo_hdrs
   statismo/*.h statismo/*.hxx statismo/*.hpp statismo/*.txx  statismo/*.tpp
 )
@@ -110,6 +115,29 @@ install( FILES ${statismo_itk_hdrs}
   DESTINATION include/statismo/statismo_ITK
 )
 
-install( FILES ${Statismo_BINARY_DIR}/statismo-config.cmake
+install( FILES ${statismo_BINARY_DIR}/statismo-config.cmake
   DESTINATION lib/cmake/statismo
 )
+
+file( GLOB statismo_rep
+  Representers/*.h Representers/*.hxx Representers/*.hpp Representers/*.txx  Representers/*.tpp
+)
+install( FILES ${statismo_rep}
+  DESTINATION include/statismo/Representers/
+)
+
+file( GLOB statismo_rep_itk
+  Representers/ITK/*.h Representers/ITK/*.hxx Representers/ITK/*.hpp Representers/ITK/*.txx  Representers/ITK/*.tpp
+)
+
+install( FILES ${statismo_rep_itk}
+  DESTINATION include/statismo/Representers/ITK
+)
+
+file( GLOB statismo_rep_vtk
+  Representers/VTK/*.h Representers/VTK/*.hxx Representers/VTK/*.hpp Representers/VTK/*.txx  Representers/VTK/*.tpp
+)
+install( FILES ${statismo_rep_vtk}
+  DESTINATION include/statismo/Representers/VTK
+)
+
