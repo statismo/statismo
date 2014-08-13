@@ -35,7 +35,6 @@ include_directories(
 link_directories( ${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR} )
 
 set( _examples
-#  itkBuildImageIntensityModelOnROI
   itkBuildGaussianProcessDeformationModel
   itkBuildShapeModel_75pcvar
   itkLandmarkConstrainedShapeModelFitting
