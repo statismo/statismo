@@ -29,10 +29,10 @@ target_link_libraries(itkStandardMeshRepresenterTest   ${ITK_LIBRARIES} )
 
 
 add_executable(vtkStandardMeshRepresenterTest vtkStandardMeshRepresenterTest.cpp)
-target_link_libraries(vtkStandardMeshRepresenterTest ${VTK_LIBRARIES}  ${ITK_LIBRARIES})
+target_link_libraries(vtkStandardMeshRepresenterTest ${VTK_LIBRARIES}  ${HDF5_LIBRARIES})
 
 add_executable(vtkStandardImageRepresenterTest vtkStandardImageRepresenterTest.cpp)
-target_link_libraries(vtkStandardImageRepresenterTest ${VTK_LIBRARIES}  ${ITK_LIBRARIES})
+target_link_libraries(vtkStandardImageRepresenterTest ${VTK_LIBRARIES}  ${HDF5_LIBRARIES})
 
 
 add_test(itkStandardImageRepresenterTest  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/itkStandardImageRepresenterTest ${STATISMO_ROOT_DIR}/data)
