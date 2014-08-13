@@ -88,3 +88,12 @@ endif()
 if( ${BUILD_TESTING} )
   add_subdirectory( Tests )
 endif()
+
+# --------------------------------------------------
+# Wrapping
+option( BUILD_WRAPPING_VTK "Build Python Wrappers for VTK" OFF )
+
+if( ${BUILD_WRAPPING_VTK} )
+  add_subdirectory( Wrapping/VTK )
+endif()
+
