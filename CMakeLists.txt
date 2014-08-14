@@ -102,7 +102,7 @@ configure_file( ${statismo_SOURCE_DIR}/statismo-config.cmake.in
 )
 
 file( GLOB statismo_hdrs
-  statismo/*.h statismo/*.hxx statismo/*.hpp statismo/*.txx  statismo/*.tpp
+  statismo/*.h statismo/*.hxx statismo/*.hpp statismo/*.txx  statismo/*.tpp statismo/*.cpp statismo/*.cxx
 )
 install( FILES ${statismo_hdrs}
   DESTINATION include/statismo/statismo
