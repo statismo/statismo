@@ -5,13 +5,14 @@ Statismo is a c++ framework for statistical shape modeling. It supports all shap
 
 ## Getting Started and Documentation
 
-The best way to get started is to check the main concepts on the [Wiki](wiki) page and then look at the 
+The best way to get started is to check the main concepts on the [Wiki](https://github.com/statismo/statismo/wiki) page and then look at the 
 [example code](https://github.com/statismo/statismo/tree/master/Examples) that is provided with statismo.
 These example programs are kept simple to illustrate the main principles and meant as a starting point for more complicated applications. Nevertheless, the examples are all working programs and can directly be used for simple shape modeling tasks.
 
 More detailed documentation and links to presentations and articles that describe the underlying theory can be found in the 
-[documentation section](wiki/Documentation).
+[documentation section](https://github.com/statismo/statismo/wiki/Documentation).
 
+There is also the [statismo-users](https://groups.google.com/forum/#!forum/statismo-users) google group for general questions and discussion regarding statismo and shape models in general.
 
 ## How to build Statismo:
 
@@ -58,7 +59,7 @@ found on the [Wiki](https://github.com/statismo/statismo/wiki/compilation).
 
 ## Tools
 
-Statismo (shape) models are best viewed using the [Statismo model viewer](http://statismo.cs.unibas.ch/statismo-ui.jar).
+Statismo (shape) models are best viewed using the [Statismo model viewer](https://github.com/statismo/statismo/wiki/Statismo%20Viewer).
 Sometimes it is useful to look at the statismo file itself. [Hdfview](http://www.hdfgroup.org/products/java/hdfview/) provides a graphical interface  to explore the structure and data within a hdf5 file.
 
 History
@@ -82,4 +83,4 @@ The main development is currently done by the [Graphics and Vision Research Grou
 
 License:
 --------
-Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. Most notably, these are [Eigen](http://eigen.tuxfamily.org), [Boost](http://www.boost.org) and [HDF5](http://www.hdfgroup.org). 
+Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. Most notably, these are [Eigen](http://eigen.tuxfamily.org), [Boost](http://www.boost.org) and [HDF5](http://www.hdfgroup.org) and, depending on the configuration [ITK](http://www.itk.org) and [VTK](http://www.vtk.org)
