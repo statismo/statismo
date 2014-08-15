@@ -1,3 +1,6 @@
 Unit tests for statismo. 
-To be able to run the unittest, you need to build the Python (SWIG) Wrapping
-(see Wrapping/SWIG)
+
+To be able to run the unittest, you need to enable the CMake option BUILD_STATISMO_TESTS and BUILD_TESTING. 
+
+As most unit tests are written in Python you need to build the Python (SWIG) Wrapping for VTK, 
+which can be enabled with the CMake option BUILD_WRAPPING_VTK. 

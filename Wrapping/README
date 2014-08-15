@@ -1,6 +1,3 @@
-Code to generate the Python Wrappers for Statismo. 
-Wrappers have been written the use of Statismo with VTK and ITK. 
-The Wrapping for VTK is generated using SWIG, while the ITK Wrapping
-uses the wrapITK. 
+Code to generate the Python Wrappers to use Statismo with VTK or ITK from Python. Note that this requires that VTK and ITK have been compiled with Python support enabled. 
 
-To build the wrappings, enable it in the main cmake build options.
+*The wrappers are experimental and may not work on your system. Furthermore, they may not be supported in future version of statismo.*

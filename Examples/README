@@ -1,26 +1,17 @@
-C++ example programs that illustrate the basic functionality of Statismo. 
-The examples illustrate the use of Statismo together with VTK and ITK: 
+C++ example programs to illustrate Statismo's basic functionality and how it can be used together with ITK or VTK. 
 
 Compiling the examples:
 -----------------------
-The examples can be built using CMake by setting the BUILD_{ITK,VTK} options in your build tree.
-The executables are then placed into the "bin" subdirectory in your build tree.
+The examples are built if the option BUILD_{ITK,VTK}_EXAMPLES is enabled for your build.
 
-Depending on which examples you build, you will also have to have VTK (www.vtk.org) or ITK (www.itk.org) installed. 
+Example data
+------------
+Statismo comes with simple 2D example datasets (2D images, deformation fields and contours of hands), which can be used to try out the example programs. 
 
-Running the examples
---------------------
-Once you have compiled the examples, you can run them on the example data
-provided in the STATISMO_DIR/data folder.
+More interesting 3D example data (Face scans and Femur images) can be downloaded [here](https://github.com/downloads/statismo/statismo/statismo-data.zip).
 
 Visualization of the results
 ----------------------------
-To view the results (samples drawn from the model) we suggest the use of paraview, which is available at
-www.paraview.org. 
-The HDF5 file, which stores the model information, can for example be viewed using hdfview (http://www.hdfgroup.org/hdf-java-html/hdfview/)
+Shape models are most easily visualized using the [Statismo model viewer](https://github.com/statismo/statismo/wiki/Statismo%20Viewer). To visualize the image or deformation models, we suggest to draw samples from the model and visualize these with [paraview](http://www.paraview.org]
 
-Building models of more interesting structures
-----------------------------------------------
-For simplicity all the examples have been written for the simple example datasets that are provided with statismo (2D images of the hand). 
-Example data  (Faces scans and Femur images) for building more interesting models can be downloaded directly from the projects website.
  
