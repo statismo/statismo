@@ -12,6 +12,6 @@ More interesting 3D example data (Face scans and Femur images) can be downloaded
 
 Visualization of the results
 ----------------------------
-Shape models are most easily visualized using the [Statismo model viewer](https://github.com/statismo/statismo/wiki/Statismo%20Viewer). To visualize the image or deformation models, we suggest to draw samples from the model and visualize these with [paraview](http://www.paraview.org]
+Shape models are most easily visualized using the [Statismo model viewer](https://github.com/statismo/statismo/wiki/Statismo%20Viewer). To visualize the image or deformation models, we suggest to draw samples from the model and visualize these with [paraview](http://www.paraview.org).
 
  
