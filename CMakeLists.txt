@@ -52,10 +52,9 @@ find_package( Boost REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 find_package( HDF5  COMPONENTS C CXX)
-
 include_directories( ${HDF5_INCLUDE_DIRS} )
 
-# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding 
+# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding
 # the dlls instead of the libs. We are setting the variables directly
 if(WIN32)
  set(HDF5_LIBRARY_DIRS ${INSTALL_DEPECENCIES_DIR}/lib)
@@ -96,4 +95,49 @@ option( BUILD_WRAPPING_VTK "Build Python Wrappers for VTK" OFF )
 if( ${BUILD_WRAPPING_VTK} )
   add_subdirectory( Wrapping/VTK )
 endif()
+
+configure_file( ${statismo_SOURCE_DIR}/statismo-config.cmake.in
+  ${statismo_BINARY_DIR}/statismo-config.cmake
+  @ONLY
+)
+
+file( GLOB statismo_hdrs
+  statismo/*.h statismo/*.hxx statismo/*.hpp statismo/*.txx  statismo/*.tpp statismo/*.cpp statismo/*.cxx
+)
+install( FILES ${statismo_hdrs}
+  DESTINATION include/statismo/statismo
+)
+
+file( GLOB statismo_itk_hdrs
+  statismo_ITK/*.h statismo_ITK/*.hxx statismo_ITK/*.hpp statismo_ITK/*.txx  statismo_ITK/*.tpp
+)
+install( FILES ${statismo_itk_hdrs}
+  DESTINATION include/statismo/statismo_ITK
+)
+
+install( FILES ${statismo_BINARY_DIR}/statismo-config.cmake
+  DESTINATION lib/cmake/statismo
+)
+
+file( GLOB statismo_rep
+  Representers/*.h Representers/*.hxx Representers/*.hpp Representers/*.txx  Representers/*.tpp
+)
+install( FILES ${statismo_rep}
+  DESTINATION include/statismo/Representers/
+)
+
+file( GLOB statismo_rep_itk
+  Representers/ITK/*.h Representers/ITK/*.hxx Representers/ITK/*.hpp Representers/ITK/*.txx  Representers/ITK/*.tpp
+)
+
+install( FILES ${statismo_rep_itk}
+  DESTINATION include/statismo/Representers/ITK
+)
+
+file( GLOB statismo_rep_vtk
+  Representers/VTK/*.h Representers/VTK/*.hxx Representers/VTK/*.hpp Representers/VTK/*.txx  Representers/VTK/*.tpp
+)
+install( FILES ${statismo_rep_vtk}
+  DESTINATION include/statismo/Representers/VTK
+)
 
