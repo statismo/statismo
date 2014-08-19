@@ -7,7 +7,7 @@ before_install:
   - sudo add-apt-repository ppa:kalakris/cmake -y
   - sudo add-apt-repository ppa:boost-latest/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y cmake libboost1.53-dev libboost1.53 libeigen3-dev libhdf5-serial-dev
+  - sudo apt-get install -y cmake libboost1.55-dev libboost1.55 libeigen3-dev libhdf5-serial-dev
 
 script:
   - mkdir -p build
