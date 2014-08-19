@@ -11,6 +11,8 @@ if(MSVC11) #i.e. Visual Studio 2012
   add_definitions( -D BOOST_NO_0X_HDR_INITIALIZER_LIST )
 endif()
 
+add_definitions( -D BOOST_THREAD_VERSION=3 )
+
 set(STATISMO_DIR @CMAKE_INSTALL_PREFIX@)
 set(STATISMO_INCLUDE_DIRS  @CMAKE_INSTALL_PREFIX@/include
                            @CMAKE_INSTALL_PREFIX@/include/statismo/Representers/ITK @CMAKE_INSTALL_PREFIX@/include/statismo/Representers/VTK

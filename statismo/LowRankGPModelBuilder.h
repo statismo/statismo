@@ -14,7 +14,6 @@
 #include <cmath>
 #include <memory>
 #include "RandSVD.h"
-#define BOOST_THREAD_VERSION 3
 #include "boost/thread.hpp"
 #include "boost/thread/future.hpp"
 
@@ -26,9 +25,9 @@ namespace statismo {
  * This class holds the result of the eigenfunction computation for
  * the points with index entries (lowerInd to upperInd)
  */
-struct EigenfunctionValuesForPts {
+struct EigenfunctionValuesForPoints {
 
-    EigenfunctionValuesForPts(unsigned _lowerInd, unsigned _upperInd,
+    EigenfunctionValuesForPoints(unsigned _lowerInd, unsigned _upperInd,
 			const MatrixType& _resMat) :
 			lowerInd(_lowerInd), upperInd(_upperInd), resMatrix(_resMat) {
 	}
@@ -40,7 +39,7 @@ struct EigenfunctionValuesForPts {
 
 
      // emulate move semantics, as boost::async seems to depend on it.
-    EigenfunctionValuesForPts& operator=(BOOST_COPY_ASSIGN_REF(EigenfunctionValuesForPts) rhs) // Copy assignment
+    EigenfunctionValuesForPoints& operator=(BOOST_COPY_ASSIGN_REF(EigenfunctionValuesForPoints) rhs) // Copy assignment
     {
         if (&rhs != this) {
             copyMembers(rhs);
@@ -48,12 +47,12 @@ struct EigenfunctionValuesForPts {
         return *this;
     }
 
-    EigenfunctionValuesForPts(BOOST_RV_REF(EigenfunctionValuesForPts) that)            //Move constructor
+    EigenfunctionValuesForPoints(BOOST_RV_REF(EigenfunctionValuesForPoints) that)            //Move constructor
     {
         copyMembers(that);
     }
 
-    EigenfunctionValuesForPts& operator=(BOOST_RV_REF(EigenfunctionValuesForPts) rhs) //Move assignment
+    EigenfunctionValuesForPoints& operator=(BOOST_RV_REF(EigenfunctionValuesForPoints) rhs) //Move assignment
     {
         if (&rhs != this) {
             copyMembers(rhs);
@@ -63,10 +62,10 @@ struct EigenfunctionValuesForPts {
 
 private:
 
-  BOOST_COPYABLE_AND_MOVABLE(EigenfunctionValuesForPts)
+  BOOST_COPYABLE_AND_MOVABLE(EigenfunctionValuesForPoints)
 
 
-  void copyMembers(const EigenfunctionValuesForPts& that) {
+  void copyMembers(const EigenfunctionValuesForPoints& that) {
       lowerInd = that.lowerInd;
       upperInd = that.upperInd;
       resMatrix = that.resMatrix;
@@ -202,7 +201,7 @@ public:
 		// a standard statismo model.
 		// To save time, we parallelize over the rows
 
-        std::vector<boost::future<EigenfunctionValuesForPts>* > futvec;
+        std::vector<boost::future<EigenfunctionValuesForPoints>* > futvec;
 
         // precompute the part of the nystrom approximation, which is independent of the domain point
 		MatrixType M = sqrt(m / float(n))
@@ -221,7 +220,7 @@ public:
 			if (lowerInd >= upperInd)
 				break;
 
-            boost::future<EigenfunctionValuesForPts>* fut = new boost::future<EigenfunctionValuesForPts>(
+            boost::future<EigenfunctionValuesForPoints>* fut = new boost::future<EigenfunctionValuesForPoints>(
                         boost::async(boost::launch::async, boost::bind(
                                          &LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
                                          this, &kernel, numComponents, n, xs, domainPoints, M,
@@ -231,7 +230,7 @@ public:
 
 		// collect the result
 	    for (unsigned i = 0; i < futvec.size(); i++) {
-            EigenfunctionValuesForPts res = futvec[i]->get();
+            EigenfunctionValuesForPoints res = futvec[i]->get();
             pcaBasis.block(res.lowerInd * kernelDim, 0,
 	      		     (res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
                       res.resMatrix;
@@ -276,7 +275,7 @@ private:
 	 * Return a result object with the given values.
 	 * This method is used to be able to parallelize the computations.
 	 */
-    EigenfunctionValuesForPts computeEigenfunctionsForPoints(
+    EigenfunctionValuesForPoints computeEigenfunctionsForPoints(
 			const MatrixValuedKernelType* kernel, unsigned numEigenfunctions,
 			unsigned numDomainPoints, const std::vector<PointType>& xs,
 			const std::vector<PointType> & domainPts, const MatrixType& M,
@@ -312,7 +311,7 @@ private:
 
 		}
 
-        return EigenfunctionValuesForPts(lowerInd, upperInd, resMat);
+        return EigenfunctionValuesForPoints(lowerInd, upperInd, resMat);
 	}
 
 

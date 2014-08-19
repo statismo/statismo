@@ -48,10 +48,11 @@ include( CTest )
 find_package( Eigen3 REQUIRED )
 include_directories( ${EIGEN3_INCLUDE_DIR} )
 
-find_package( Boost REQUIRED )
+find_package( Boost 1.50 COMPONENTS thread system REQUIRED  )
 include_directories( ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS})
-set(Boost_LIBRARIES boost_thread boost_system)
+add_definitions( -D BOOST_THREAD_VERSION=3 )
+
 
 find_package( HDF5  COMPONENTS C CXX)
 include_directories( ${HDF5_INCLUDE_DIRS} )
