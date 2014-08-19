@@ -27,15 +27,10 @@ ExternalProject_Add(Boost
   URL_MD5 efbfbff5a85a9330951f243d0a46e4b9
   UPDATE_COMMAND ""
   PATCH_COMMAND ${Boost_Patch_Command}
-  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPENDENCIES_DIR}/lib --with-libraries=thread --with-libraries=system
-  BUILD_COMMAND ${Boost_b2_Command}
-  INSTALL_COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_BINARY_DIR}/Boost-prefix/src/Boost/boost
-    ${INSTALL_DEPECENCIES_DIR}/include/boost
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_BINARY_DIR}/Boost-prefix/src/Boost/stage/lib
-    ${INSTALL_DEPECENCIES_DIR}/lib/
+  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib --with-libraries=thread --with-libraries=system
+  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR}
+  INSTALL_COMMAND ""
 )
 
 set(Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include )
-set(Boost_LIBRARY_DIR ${INSTALL_DEPENDENCIES_DIR}/lib )
+set(Boost_LIBRARY_DIR ${INSTALL_DEPECENCIES_DIR}/lib )
