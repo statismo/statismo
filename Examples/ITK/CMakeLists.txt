@@ -32,7 +32,7 @@ include_directories(
 )
 
 
-link_directories( ${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR} )
+link_directories( ${ITK_LIBRARY_DIRS} ${STATISMO_LIBRARY_DIR}  ${Boost_LIBRARY_DIRS})
 
 set( _examples
   itkBuildGaussianProcessDeformationModel
@@ -52,7 +52,7 @@ foreach( e ${_examples} )
 	  ${INCLUDE_FILES}
   )
 
-  target_link_libraries( ${e} ${ITK_LIBRARIES} )
+  target_link_libraries( ${e} ${ITK_LIBRARIES} ${Boost_LIBRARIES})
 endforeach()
 
 install( TARGETS ${_examples}
