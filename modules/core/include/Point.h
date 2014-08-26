@@ -1,6 +1,7 @@
 #include <vector>
 
-class Point<unsigned Dimension> {
+template<unsigned Dimension>
+class Point {
 public:
 	Point() : m_ptdata(Dimension){}
 

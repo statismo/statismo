@@ -35,9 +35,13 @@
  *
  */
 
+#ifndef __PCAModelBuilder_TXX
+#define __PCAModelBuilder_TXX
+
 #include <Eigen/SVD>
 #include "CommonTypes.h"
 #include "Exceptions.h"
+#include "PCAModelBuilder.h"
 #include <iostream>
 
 
@@ -195,3 +199,5 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
 
 
 } // namespace statismo
+
+#endif

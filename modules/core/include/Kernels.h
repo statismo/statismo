@@ -5,6 +5,9 @@
 #include "Config.h"
 #include "ModelInfo.h"
 #include "CommonTypes.h"
+#include "Representer.h"
+#include "StatisticalModel.h"
+
 #include <vector>
 #include <cmath>
 #include <memory>
