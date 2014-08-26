@@ -10,3 +10,5 @@ if( ${BUILD_TESTING} )
 endif()
 
 add_subdirectory( examples )
+
+module_headertest( VTK )
