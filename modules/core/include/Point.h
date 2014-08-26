@@ -1,3 +1,6 @@
+#ifndef __Point_h
+#define __Point_h
+
 #include <vector>
 
 template<unsigned Dimension>
@@ -36,3 +39,5 @@ public:
 private:
 	std::vector<float> m_ptdata;
 };
+
+#endif

@@ -40,6 +40,7 @@
 #define __COME_SSM_EXCEPTIONS__
 
 #include <exception>
+#include <string>
 
 namespace statismo {
 

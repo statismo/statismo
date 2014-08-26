@@ -55,12 +55,12 @@ namespace itk
  * \see statismo::DataManager for detailed documentation.
  */
 template <class Representer>
-class DataManagerWithSurrogates : public DataManager<Representer> {
+class DataManagerWithSurrogates : public statismo::DataManager<Representer> {
 public:
 
 
 	typedef DataManagerWithSurrogates            Self;
-	typedef DataManager<Representer>	Superclass;
+	typedef statismo::DataManager<Representer>	Superclass;
 	typedef SmartPointer<Self>                Pointer;
 	typedef SmartPointer<const Self>          ConstPointer;
 

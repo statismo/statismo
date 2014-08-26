@@ -40,6 +40,9 @@
 #define __ITK_TYPE_CONVERSION_TRAIT
 
 #include "Exceptions.h"
+#include "CommonTypes.h"
+
+#include "itkVector.h"
 
 namespace itk {
 

@@ -41,6 +41,7 @@
 
 #include <fstream>
 #include "Exceptions.h"
+#include "CommonTypes.h"
 #include <boost/random.hpp>
 #include <cstdlib>
 #include <algorithm>
