@@ -2,9 +2,9 @@
 #ifndef __KERNELS_H
 #define __KERNELS_H
 
-#include "statismo/Config.h"
-#include "statismo/ModelInfo.h"
-#include "statismo/CommonTypes.h"
+#include "Config.h"
+#include "ModelInfo.h"
+#include "CommonTypes.h"
 #include <vector>
 #include <cmath>
 #include <memory>

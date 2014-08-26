@@ -3,13 +3,13 @@
 
 
 #include "Representer.h"
-#include "statismo/Config.h"
-#include "statismo/ModelInfo.h"
-#include "statismo/ModelBuilder.h"
-#include "statismo/DataManager.h"
-#include "statismo/StatisticalModel.h"
-#include "statismo/CommonTypes.h"
-#include "statismo/Kernels.h"
+#include "Config.h"
+#include "ModelInfo.h"
+#include "ModelBuilder.h"
+#include "DataManager.h"
+#include "StatisticalModel.h"
+#include "CommonTypes.h"
+#include "Kernels.h"
 #include <vector>
 #include <cmath>
 #include <memory>

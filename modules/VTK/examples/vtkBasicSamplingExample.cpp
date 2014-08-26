@@ -35,16 +35,15 @@
  *
  */
 
-
-#include "statismo/StatisticalModel.h"
-#include "Representers/VTK/vtkStandardMeshRepresenter.h"
-
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
 #include "vtkVersion.h"
 #include <iostream>
 #include <memory>
+
+#include "StatisticalModel.h"
+#include "vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 using std::auto_ptr;

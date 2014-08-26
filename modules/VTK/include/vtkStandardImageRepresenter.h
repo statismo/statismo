@@ -35,18 +35,16 @@
  *
  */
 
-
-
 #ifndef VTKSTANDARDIMAGERESENTER_H_
 #define VTKSTANDARDIMAGERESENTER_H_
 
-
-#include "vtkStructuredPoints.h"
-#include "statismo/Representer.h"
-#include "vtkHelper.h"
-#include "statismo/CommonTypes.h"
-#include "statismo/Domain.h"
 #include "vtkSmartPointer.h"
+#include "vtkStructuredPoints.h"
+
+#include "Representer.h"
+#include "vtkHelper.h"
+#include "CommonTypes.h"
+#include "Domain.h"
 
 #include <H5Cpp.h>
 

@@ -43,11 +43,11 @@
 // case, a more sophisticated method for establishing correspondence needs to be used.
 //
 
-#include "statismo/PosteriorModelBuilder.h"
-#include "statismo/StatisticalModel.h"
-#include "statismo/DataManager.h"
+#include "PosteriorModelBuilder.h"
+#include "StatisticalModel.h"
+#include "DataManager.h"
 
-#include "Representers/VTK/vtkStandardMeshRepresenter.h"
+#include "vtkStandardMeshRepresenter.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"

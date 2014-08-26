@@ -36,9 +36,9 @@
  */
 
 
-#include "statismo/PCAModelBuilder.h"
-#include "statismo/StatisticalModel.h"
-#include "statismo/DataManager.h"
+#include "PCAModelBuilder.h"
+#include "StatisticalModel.h"
+#include "DataManager.h"
 #include "vtkStructuredPoints.h"
 #include "vtkStructuredPointsReader.h"
 #include "vtkStandardImageRepresenter.h"

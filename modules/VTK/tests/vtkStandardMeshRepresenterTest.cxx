@@ -5,6 +5,9 @@
  *      Author: luethi
  */
 
+#include "vtkSmartPointer.h"
+#include "vtkPolyDataReader.h"
+
 #include "vtkStandardMeshRepresenter.h"
 #include "genericRepresenterTest.hxx"
 
@@ -15,12 +18,11 @@ using statismo::vtkPoint;
 typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
 
 vtkPolyData* loadPolyData(const std::string& filename) {
-	vtkPolyDataReader* reader = vtkPolyDataReader::New();
+	vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
 	reader->SetFileName(filename.c_str());
 	reader->Update();
 	vtkPolyData* pd = vtkPolyData::New();
 	pd->ShallowCopy(reader->GetOutput());
-	reader->Delete();
 	return pd;
 }
 

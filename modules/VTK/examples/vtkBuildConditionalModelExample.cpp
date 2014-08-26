@@ -36,9 +36,9 @@
  */
 
 
-#include "statismo/ConditionalModelBuilder.h"
-#include "statismo/StatisticalModel.h"
-#include "statismo/DataManager.h"
+#include "ConditionalModelBuilder.h"
+#include "StatisticalModel.h"
+#include "DataManager.h"
 
 #include "vtkStandardImageRepresenter.h"
 

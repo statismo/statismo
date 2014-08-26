@@ -35,8 +35,9 @@
  *
  */
 
-#include "statismo/CommonTypes.h"
-#include "statismo/HDF5Utils.h"
+#include "CommonTypes.h"
+#include "HDF5Utils.h"
+#include "utils.h"
 #include <iostream>
 
 

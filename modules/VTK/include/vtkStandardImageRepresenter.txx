@@ -41,9 +41,9 @@
 #include "vtkPointData.h"
 #include "vtkDataArray.h"
 #include "vtkVersion.h"
-#include "statismo/HDF5Utils.h"
-#include "statismo/utils.h"
-#include "statismo/CommonTypes.h"
+#include "HDF5Utils.h"
+#include "utils.h"
+#include "CommonTypes.h"
 
 using statismo::VectorType;
 using statismo::HDF5Utils;

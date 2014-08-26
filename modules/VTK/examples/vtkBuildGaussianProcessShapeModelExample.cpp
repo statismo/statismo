@@ -36,8 +36,8 @@
  */
 
 
-#include "statismo/LowRankGPModelBuilder.h"
-#include "statismo/StatisticalModel.h"
+#include "LowRankGPModelBuilder.h"
+#include "StatisticalModel.h"
 #include "vtkPolyDataReader.h"
 #include "vtkStandardMeshRepresenter.h"
 

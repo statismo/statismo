@@ -36,9 +36,9 @@
  */
 
 
-#include "statismo/StatisticalModel.h"
-#include "statismo/ReducedVarianceModelBuilder.h"
-#include "Representers/VTK/vtkStandardMeshRepresenter.h"
+#include "StatisticalModel.h"
+#include "ReducedVarianceModelBuilder.h"
+#include "vtkStandardMeshRepresenter.h"
 
 #include "vtkPolyData.h"
 #include "vtkPolyDataReader.h"

@@ -5,13 +5,13 @@
  *      Author: luethi
  */
 
-#include "Representers/VTK/vtkStandardMeshRepresenter.h"
-#include "../representerTests/genericRepresenterTest.hxx"
-#include "statismo/DataManager.h"
-#include "statismo/PosteriorModelBuilder.h"
-#include "statismo/PCAModelBuilder.h"
-#include "statismo/CommonTypes.h"
-#include "statismo/Domain.h"
+#include "vtkStandardMeshRepresenter.h"
+#include "genericRepresenterTest.hxx"
+#include "DataManager.h"
+#include "PosteriorModelBuilder.h"
+#include "PCAModelBuilder.h"
+#include "CommonTypes.h"
+#include "Domain.h"
 #include "vtkPolyDataReader.h"
 #include "vtkPolyDataWriter.h"
 #include <Eigen/Geometry>
