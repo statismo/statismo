@@ -35,6 +35,8 @@
  *
  */
 
+#ifndef __itkStandardMeshRepresenter_txx
+#include __itkStandardMeshRepresenter_txx
 
 #include "itkIndex.h"
 #include "itkPoint.h"
@@ -47,7 +49,7 @@
 #include "itkTransformMeshFilter.h"
 #include "itkIdentityTransform.h"
 
-
+#include "itkStandardMeshRepresenter.h"
 
 
 namespace itk {
@@ -437,3 +439,5 @@ StandardMeshRepresenter<TPixel, MeshDimension>::FindClosestPoint(const MeshType*
 }
 
 } // namespace itk
+
+#endif

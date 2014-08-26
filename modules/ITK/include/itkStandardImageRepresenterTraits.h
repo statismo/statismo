@@ -1,5 +1,6 @@
 #include "itkImage.h"
 #include "itkVector.h"
+#include "Representer.h"
 
 namespace statismo {
 

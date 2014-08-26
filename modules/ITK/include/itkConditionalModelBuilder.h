@@ -45,7 +45,7 @@
 #include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
-#include "statismo/ConditionalModelBuilder.h"
+#include "ConditionalModelBuilder.h"
 
 namespace itk
 {

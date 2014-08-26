@@ -39,6 +39,7 @@
 #ifndef __COME_SSM_EXCEPTIONS__
 #define __COME_SSM_EXCEPTIONS__
 
+#include <exception>
 
 namespace statismo {
 

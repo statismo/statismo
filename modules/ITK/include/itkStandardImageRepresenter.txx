@@ -35,6 +35,9 @@
  *
  */
 
+#ifndef __itkStandardImageRepresenter_txx
+#define __itkStandardImageRepresenter_txx
+
 
 #include "itkImageIterator.h"
 #include "itkImageRegionConstIterator.h"
@@ -450,3 +453,5 @@ StandardImageRepresenter<TPixel, ImageDimension>::CloneDataset(DatasetConstPoint
 }
 
 } // namespace itk
+
+#endif
