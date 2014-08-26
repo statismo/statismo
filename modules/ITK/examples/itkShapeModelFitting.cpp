@@ -40,8 +40,8 @@
  */
 
 #include "itkStandardMeshRepresenter.h"
-#include "statismo_ITK/itkStatisticalModel.h"
-#include "statismo_ITK/itkStatisticalShapeModelTransform.h"
+#include "itkStatisticalModel.h"
+#include "itkStatisticalShapeModelTransform.h"
 #include "itkEuclideanDistancePointMetric.h"
 #include "itkLevenbergMarquardtOptimizer.h"
 #include "itkPointSetToPointSetRegistrationMethod.h"

@@ -45,7 +45,7 @@
 #include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
-#include "statismo/PCAModelBuilder.h"
+#include "PCAModelBuilder.h"
 
 namespace itk
 {

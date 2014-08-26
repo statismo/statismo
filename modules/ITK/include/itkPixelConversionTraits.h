@@ -39,7 +39,7 @@
 #ifndef __ITK_TYPE_CONVERSION_TRAIT
 #define __ITK_TYPE_CONVERSION_TRAIT
 
-#include "statismo/Exceptions.h"
+#include "Exceptions.h"
 
 namespace itk {
 

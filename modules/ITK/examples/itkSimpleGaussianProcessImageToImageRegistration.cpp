@@ -41,10 +41,10 @@
 
 
 #include "itkStandardImageRepresenter.h"
-#include "statismo_ITK/itkStatisticalModel.h"
-#include "statismo_ITK/itkLowRankGPModelBuilder.h"
-#include "statismo_ITK/itkDataManager.h"
-#include "statismo_ITK/itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "itkStatisticalModel.h"
+#include "itkLowRankGPModelBuilder.h"
+#include "itkDataManager.h"
+#include "itkInterpolatingStatisticalDeformationModelTransform.h"
 #include "itkMeanSquaresImageToImageMetric.h"
 #include "itkLBFGSOptimizer.h"
 #include "itkLinearInterpolateImageFunction.h"

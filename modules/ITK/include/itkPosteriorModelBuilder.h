@@ -43,7 +43,7 @@
 #include "statismoITKConfig.h"
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
-#include "statismo/PosteriorModelBuilder.h"
+#include "PosteriorModelBuilder.h"
 
 
 namespace itk

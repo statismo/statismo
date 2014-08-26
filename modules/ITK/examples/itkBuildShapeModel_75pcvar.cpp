@@ -37,10 +37,10 @@
 
 
 #include "itkStandardMeshRepresenter.h"
-#include "statismo_ITK/itkStatisticalModel.h"
-#include "statismo_ITK/itkPCAModelBuilder.h"
-#include "statismo_ITK/itkReducedVarianceModelBuilder.h"
-#include "statismo_ITK/itkDataManager.h"
+#include "itkStatisticalModel.h"
+#include "itkPCAModelBuilder.h"
+#include "itkReducedVarianceModelBuilder.h"
+#include "itkDataManager.h"
 #include "itkDirectory.h"
 #include "itkMesh.h"
 #include "itkMeshFileWriter.h"

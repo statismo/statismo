@@ -43,9 +43,9 @@
 
 #include "statismoITKConfig.h"
 #include "itkStatisticalModel.h"
-#include "statismo/Representer.h"
-#include "statismo/Kernels.h"
-#include "statismo/LowRankGPModelBuilder.h"
+#include "Representer.h"
+#include "Kernels.h"
+#include "LowRankGPModelBuilder.h"
 
 namespace itk {
 

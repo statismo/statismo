@@ -38,7 +38,7 @@
 #ifndef __ItkInterpolatingStatisticalDeformationModelTransform
 #define __ItkInterpolatingStatisticalDeformationModelTransform
 
-#include "statismo/Representer.h"
+#include "Representer.h"
 #include <iostream>
 #include "itkStatisticalModelTransformBase.h"
 #include "itkVectorLinearInterpolateImageFunction.h"

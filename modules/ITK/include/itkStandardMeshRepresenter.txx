@@ -39,8 +39,8 @@
 #include "itkIndex.h"
 #include "itkPoint.h"
 #include "itkVector.h"
-#include "statismo/HDF5Utils.h"
-#include "statismo/utils.h"
+#include "HDF5Utils.h"
+#include "utils.h"
 #include <iostream>
 #include "itkMeshFileReader.h"
 #include "itkMeshFileWriter.h"

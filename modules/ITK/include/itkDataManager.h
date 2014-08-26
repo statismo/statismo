@@ -44,7 +44,7 @@
 #include "itkObject.h"
 #include "itkObjectFactory.h"
 #include "statismoITKConfig.h"
-#include "statismo/DataManager.h"
+#include "DataManager.h"
 
 namespace itk
 {

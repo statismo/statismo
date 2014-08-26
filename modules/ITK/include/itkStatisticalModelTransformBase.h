@@ -38,7 +38,7 @@
 #ifndef __itkStatisticalModelTransform_h
 #define __itkStatisticalModelTransform_h
 
-#include "statismo/Representer.h"
+#include "Representer.h"
 #include <iostream>
 #include "itkTransform.h"
 #include "itkStatisticalModel.h"

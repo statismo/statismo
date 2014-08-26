@@ -38,10 +38,10 @@
 #ifndef ITK_STANDARDIMAGE_REPRESENTER_H_
 #define ITK_STANDARDIMAGE_REPRESENTER_H_
 
-#include "statismo_ITK/statismoITKConfig.h" // this needs to be the first include
-#include "statismo/Representer.h"
+#include "statismoITKConfig.h" // this needs to be the first include
+#include "Representer.h"
 #include "itkImage.h"
-#include "statismo/CommonTypes.h"
+#include "CommonTypes.h"
 #include "itkObject.h"
 #include <H5Cpp.h>
 #include "itkPixelConversionTraits.h"

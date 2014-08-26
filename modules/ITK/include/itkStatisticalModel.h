@@ -45,9 +45,9 @@
 #include <vnl/vnl_vector.h>
 
 #include "statismoITKConfig.h"
-#include "statismo/StatisticalModel.h"
-#include "statismo/ModelInfo.h"
-#include "statismo/Representer.h"
+#include "StatisticalModel.h"
+#include "ModelInfo.h"
+#include "Representer.h"
 #include <boost/tr1/functional.hpp>
 
 namespace itk
