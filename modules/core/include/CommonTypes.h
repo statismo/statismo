@@ -62,11 +62,11 @@ typedef float ScalarType;
 
 // wrapper struct that allows us to easily select matrix and vectors of an arbitrary
 // type, wich has the same traits as the standard matrix / vector traits
-template <typename ScalarType> struct GenericEigenType {
-	typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
-	typedef Eigen::DiagonalMatrix<ScalarType, Eigen::Dynamic> DiagMatrixType;
-	typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, 1> VectorType;
-	typedef Eigen::Matrix<ScalarType, 1 , Eigen::Dynamic> RowVectorType;
+template <typename TScalar> struct GenericEigenType {
+	typedef Eigen::Matrix<TScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
+	typedef Eigen::DiagonalMatrix<TScalar, Eigen::Dynamic> DiagMatrixType;
+	typedef Eigen::Matrix<TScalar, Eigen::Dynamic, 1> VectorType;
+	typedef Eigen::Matrix<TScalar, 1 , Eigen::Dynamic> RowVectorType;
 
 };
 typedef GenericEigenType<ScalarType>::MatrixType MatrixType;
@@ -81,12 +81,12 @@ typedef GenericEigenType<ScalarType>::RowVectorType RowVectorType;
 const static unsigned Void = 0; // not capitalized, as windows defines: #define VOID void, which causes trouble
 const static unsigned SIGNED_CHAR = 2;
 const static unsigned UNSIGNED_CHAR  = 3;
-const static unsigned  SIGNED_SHORT     =  4;
+const static unsigned SIGNED_SHORT     =  4;
 const static unsigned UNSIGNED_SHORT = 5;
 const static unsigned SIGNED_INT             = 6;
 const static unsigned UNSIGNED_INT   = 7;
-const static unsigned  SIGNED_LONG          =  8;
-const static unsigned  UNSIGNED_LONG  = 9;
+const static unsigned SIGNED_LONG          =  8;
+const static unsigned UNSIGNED_LONG  = 9;
 const static unsigned FLOAT =         10;
 const static unsigned DOUBLE      =   11;
 

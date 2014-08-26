@@ -64,38 +64,26 @@ public:
 	typedef std::vector<BuilderInfo> BuilderInfoList;
 
 	/// create an new, empty model info object
-	ModelInfo()
-	{}
+	ModelInfo();
 
 	/**
 	 * Creates a new ModelInfo object with the given information
 	 * \param scores A matrix holding the scores
 	 * \param builderInfos A list of BuilderInfo objects
 	 */
-	ModelInfo(const MatrixType& scores, const BuilderInfoList& builderInfos)
-	: m_scores(scores), m_builderInfo(builderInfos)
-	{}
+	ModelInfo(const MatrixType& scores, const BuilderInfoList& builderInfos);
 
 	/**
 	 * Create a ModelInfo object without specifying any BuilderInfos
 	 * \param scores A matrix holding the scores
 	 */
-	ModelInfo(const MatrixType& scores)
-	: m_scores(scores)
-	{}
+	ModelInfo(const MatrixType& scores);
 
 
 	/// destructor
-	virtual ~ModelInfo() {}
+	virtual ~ModelInfo();
 
-	ModelInfo& operator=(const ModelInfo& rhs) {
-		if (this == &rhs) {
-			return *this;
-		}
-		this->m_builderInfo = rhs.m_builderInfo;
-		this->m_scores = rhs.m_scores;
-		return *this;
-	}
+	ModelInfo& operator=(const ModelInfo& rhs);
 
 	ModelInfo(const ModelInfo& orig) {
 		operator=(orig);
@@ -104,13 +92,13 @@ public:
 	/**
 	 * Returns a list with BuilderInfos
 	 */
-	BuilderInfoList GetBuilderInfoList() const { return m_builderInfo;}
+	BuilderInfoList GetBuilderInfoList() const;
 
 	/**
 	 * Returns the scores matrix. That is, a matrix where the i-th column corresponds to the
 	 * coefficients of the i-th dataset in the model
 	 */
-	const MatrixType& GetScoresMatrix() const { return m_scores; }
+	const MatrixType& GetScoresMatrix() const;
 
 	/**
 	 * Saves the model info to the given group in the HDF5 file
@@ -150,47 +138,21 @@ public:
 	/**
 	 * Creates a new BuilderInfo object with the given information
 	 */
-	BuilderInfo(const std::string& modelBuilderName, const std::string& buildTime, const DataInfoList& di,  const ParameterInfoList& pi)
-	: m_modelBuilderName(modelBuilderName), m_buildtime(buildTime), m_dataInfo(di), m_parameterInfo(pi)
-	{
-	}
+	BuilderInfo(const std::string& modelBuilderName, const std::string& buildTime, const DataInfoList& di,  const ParameterInfoList& pi);
 
-	BuilderInfo(const std::string& modelBuilderName, const DataInfoList& di, const ParameterInfoList& pi)
-	: m_modelBuilderName(modelBuilderName), m_dataInfo(di), m_parameterInfo(pi)
-	{
-
-		// get time and date
-		time_t rawtime;
-		struct tm * timeinfo;
-
-		std::time ( &rawtime );
-		timeinfo = std::localtime ( &rawtime );
-		m_buildtime = std::asctime (timeinfo);
-
-	}
+	BuilderInfo(const std::string& modelBuilderName, const DataInfoList& di, const ParameterInfoList& pi);
 
 	/**
 	 * Create a new, empty BilderInfo object
 	 */
-	BuilderInfo() {}
+	BuilderInfo();
 
 	/// destructor
-	virtual ~BuilderInfo() {}
+	virtual ~BuilderInfo();
 
-	BuilderInfo& operator=(const BuilderInfo& rhs) {
-		if (this == &rhs) {
-			return *this;
-		}
-		this->m_modelBuilderName =rhs.m_modelBuilderName;
-		this->m_buildtime = rhs.m_buildtime;
-		this->m_dataInfo = rhs.m_dataInfo;
-		this->m_parameterInfo = rhs.m_parameterInfo;
-		return *this;
-	}
+	BuilderInfo& operator=(const BuilderInfo& rhs);
 
-	BuilderInfo(const BuilderInfo& orig) {
-		operator=(orig);
-	}
+	BuilderInfo(const BuilderInfo& orig);
 
 
 	/**
@@ -206,12 +168,12 @@ public:
 	/**
 	 * Returns the data info
 	 */
-	const DataInfoList& GetDataInfo() const { return m_dataInfo; }
+	const DataInfoList& GetDataInfo() const;
 
 	/**
 	 * Returns the parameter info
 	 */
-	const ParameterInfoList& GetParameterInfo() const { return m_parameterInfo; }
+	const ParameterInfoList& GetParameterInfo() const;
 
 private:
 
@@ -225,10 +187,6 @@ private:
 	ParameterInfoList m_parameterInfo;
 };
 
-
-
 } // namespace statismo
-
-#include "ModelInfo.cxx"
 
 #endif /* MODELINFO_H_ */

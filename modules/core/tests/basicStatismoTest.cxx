@@ -37,9 +37,9 @@
 
 
 #include "TrivialVectorialRepresenter.h"
-#include "statismo/StatisticalModel.h"
-#include "statismo/PCAModelBuilder.h"
-#include "statismo/DataManager.h"
+#include "StatisticalModel.h"
+#include "PCAModelBuilder.h"
+#include "DataManager.h"
 
 typedef statismo::TrivialVectorialRepresenter RepresenterType;
 

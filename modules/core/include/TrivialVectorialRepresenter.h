@@ -39,10 +39,10 @@
 #ifndef TRIVIALVECTORIALREPRESENTER_H
 #define TRIVIALVECTORIALREPRESENTER_H
 
-#include "statismo/Representer.h"
-#include "statismo/CommonTypes.h"
-#include "statismo/Domain.h"
-#include "statismo/HDF5Utils.h"
+#include "Representer.h"
+#include "CommonTypes.h"
+#include "Domain.h"
+#include "HDF5Utils.h"
 #include <H5Cpp.h>
 #include <memory>
 

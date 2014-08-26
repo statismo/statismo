@@ -71,8 +71,6 @@ option( ITK_SUPPORT "Build ITK Support" ON )
 if( ${ITK_SUPPORT} MATCHES "ON" )
   find_package( ITK REQUIRED )
   include( ${ITK_USE_FILE} )
-
-  add_subdirectory( Examples/ITK )
 endif()
 
 option( VTK_SUPPORT "Build VTK Support" ON )
@@ -80,22 +78,13 @@ option( VTK_SUPPORT "Build VTK Support" ON )
 if( ${VTK_SUPPORT} MATCHES "ON" )
   find_package( VTK REQUIRED )
   include( ${VTK_USE_FILE} )
-
-  add_subdirectory( Examples/VTK )
 endif()
 
-if( ${BUILD_TESTING} )
-  add_subdirectory( Tests )
-endif()
+option( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
-# --------------------------------------------------
-# Wrapping
-option( BUILD_WRAPPING_VTK "Build Python Wrappers for VTK" OFF )
+add_subdirectory( modules )
 
-if( ${BUILD_WRAPPING_VTK} )
-  add_subdirectory( Wrapping/VTK )
-endif()
-
+# -------------------------------------------------------------
 configure_file( ${statismo_SOURCE_DIR}/statismo-config.cmake.in
   ${statismo_BINARY_DIR}/statismo-config.cmake
   @ONLY

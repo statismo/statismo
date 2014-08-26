@@ -267,10 +267,6 @@ public:
 
 } // namespace statismo
 
-#include "HDF5Utils.cxx"
-
-
+#include "HDF5Utils.txx"
 
 #endif /* HDF5UTILS_H_ */
-
-

@@ -35,11 +35,6 @@
  *
  */
 
-#ifndef __MODEL_INFO_H
-#define __MODEL_INFO_H
-
-
-
 #include "ModelInfo.h"
 #include "HDF5Utils.h"
 #include "Exceptions.h"
@@ -53,16 +48,45 @@ namespace statismo {
 
 
 
-inline
-void
-ModelInfo::Save(const H5::CommonFG& publicFg) const {
-	using namespace H5;
+  ModelInfo::ModelInfo()
+  {}
 
-	// get time and date
-	time_t rawtime;
-	struct tm * timeinfo;
-	std::time ( &rawtime );
-	timeinfo = std::localtime ( &rawtime );
+  ModelInfo::ModelInfo(const MatrixType &scores, const ModelInfo::BuilderInfoList &builderInfos)
+    : m_scores(scores), m_builderInfo(builderInfos)
+  {}
+
+  ModelInfo::ModelInfo(const MatrixType &scores)
+    : m_scores(scores)
+  {}
+
+  ModelInfo::~ModelInfo() {}
+
+  ModelInfo &ModelInfo::operator=(const ModelInfo &rhs) {
+    if (this == &rhs) {
+        return *this;
+      }
+    this->m_builderInfo = rhs.m_builderInfo;
+    this->m_scores = rhs.m_scores;
+    return *this;
+  }
+
+  ModelInfo::BuilderInfoList ModelInfo::GetBuilderInfoList() const {
+    return m_builderInfo;
+  }
+
+  const MatrixType &ModelInfo::GetScoresMatrix() const {
+    return m_scores;
+  }
+
+  void
+  ModelInfo::Save(const H5::CommonFG& publicFg) const {
+    using namespace H5;
+
+    // get time and date
+    time_t rawtime;
+    struct tm * timeinfo;
+    std::time ( &rawtime );
+    timeinfo = std::localtime ( &rawtime );
 
 
 	 try {
@@ -94,7 +118,6 @@ ModelInfo::Save(const H5::CommonFG& publicFg) const {
 
 }
 
-inline
 void
 ModelInfo::Load(const H5::CommonFG& publicFg) {
 	using namespace H5;
@@ -177,17 +200,54 @@ ModelInfo::LoadDataInfoOldStatismoFormat(const H5::CommonFG& publicModelGroup) c
 // BuilderInfo
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline
+BuilderInfo::BuilderInfo(const std::string &modelBuilderName, const std::string &buildTime, const BuilderInfo::DataInfoList &di, const BuilderInfo::ParameterInfoList &pi)
+  : m_modelBuilderName(modelBuilderName), m_buildtime(buildTime), m_dataInfo(di), m_parameterInfo(pi)
+{
+}
+
+BuilderInfo::BuilderInfo(const std::string &modelBuilderName, const BuilderInfo::DataInfoList &di, const BuilderInfo::ParameterInfoList &pi)
+  : m_modelBuilderName(modelBuilderName), m_dataInfo(di), m_parameterInfo(pi)
+{
+
+  // get time and date
+  time_t rawtime;
+  struct tm * timeinfo;
+
+  std::time ( &rawtime );
+  timeinfo = std::localtime ( &rawtime );
+  m_buildtime = std::asctime (timeinfo);
+
+}
+
+BuilderInfo::BuilderInfo() {}
+
+BuilderInfo::~BuilderInfo() {}
+
+BuilderInfo &BuilderInfo::operator=(const BuilderInfo &rhs) {
+  if (this == &rhs) {
+      return *this;
+    }
+  this->m_modelBuilderName =rhs.m_modelBuilderName;
+  this->m_buildtime = rhs.m_buildtime;
+  this->m_dataInfo = rhs.m_dataInfo;
+  this->m_parameterInfo = rhs.m_parameterInfo;
+  return *this;
+}
+
+BuilderInfo::BuilderInfo(const BuilderInfo &orig) {
+  operator=(orig);
+}
+
 void
 BuilderInfo::Save(const H5::CommonFG& modelBuilderGroup) const {
-	using namespace H5;
+  using namespace H5;
 
-	 try {
-	     HDF5Utils::writeString(modelBuilderGroup, "./builderName", m_modelBuilderName);
-		 HDF5Utils::writeString(modelBuilderGroup, "./buildTime", m_buildtime);
+  try {
+    HDF5Utils::writeString(modelBuilderGroup, "./builderName", m_modelBuilderName);
+    HDF5Utils::writeString(modelBuilderGroup, "./buildTime", m_buildtime);
 
-		 Group dataInfoGroup = modelBuilderGroup.createGroup("./dataInfo");
-		 for (DataInfoList::const_iterator it = m_dataInfo.begin();it != m_dataInfo.end(); ++it)
+    Group dataInfoGroup = modelBuilderGroup.createGroup("./dataInfo");
+    for (DataInfoList::const_iterator it = m_dataInfo.begin();it != m_dataInfo.end(); ++it)
 		 {
 			HDF5Utils::writeString(dataInfoGroup, it->first.c_str(), it->second.c_str());
 		 }
@@ -210,7 +270,6 @@ BuilderInfo::Save(const H5::CommonFG& modelBuilderGroup) const {
 
 }
 
-inline
 void
 BuilderInfo::Load(const H5::CommonFG& modelBuilderGroup) {
 
@@ -232,6 +291,10 @@ BuilderInfo::Load(const H5::CommonFG& modelBuilderGroup) {
 
 }
 
+const BuilderInfo::DataInfoList &BuilderInfo::GetDataInfo() const { return m_dataInfo; }
+
+const BuilderInfo::ParameterInfoList &BuilderInfo::GetParameterInfo() const { return m_parameterInfo; }
+
 inline
 void
 BuilderInfo::FillKeyValueListFromInfoGroup(const H5::CommonFG& group, KeyValueList& keyValueList) {
@@ -246,5 +309,3 @@ BuilderInfo::FillKeyValueListFromInfoGroup(const H5::CommonFG& group, KeyValueLi
 
 
 } // end namespace
-
-#endif
