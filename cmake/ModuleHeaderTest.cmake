@@ -11,7 +11,7 @@ find_package(PythonInterp)
 # The maximum number of headers in a test.  This helps limit memory issues,
 # and the cppcheck tests.  However, if this is not unity, there is a slight
 # chance that problems may be hidden.  For a complete header check, set to "1".
-set( MAXIMUM_NUMBER_OF_HEADERS 35
+set( MAXIMUM_NUMBER_OF_HEADERS 5
   CACHE STRING "The number of headers in a HeaderTest code." )
 mark_as_advanced( MAXIMUM_NUMBER_OF_HEADERS )
 
