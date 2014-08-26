@@ -35,12 +35,16 @@
  *
  */
 
+#ifndef __ConditionalModelBuilder_txx
+#define __ConditionalModelBuilder_txx
+
 #include "CommonTypes.h"
 #include "Exceptions.h"
 #include <iostream>
 
 #include <Eigen/SVD>
 #include "PCAModelBuilder.h"
+#include "ConditionalModelBuilder.h"
 
 namespace statismo {
 
@@ -266,5 +270,6 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList
 
 }
 
-
 } // namespace statismo
+
+#endif

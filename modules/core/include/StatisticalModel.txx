@@ -35,6 +35,9 @@
  *
  */
 
+#ifndef __StatisticalModel_txx
+#define __StatisticalModel_txx
+
 
 #include "ModelBuilder.h"
 #include "StatisticalModel.h"
@@ -706,3 +709,5 @@ StatisticalModel<T>::CheckAndUpdateCachedParameters() const {
 }
 
 } // namespace statismo
+
+#endif

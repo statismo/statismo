@@ -2,7 +2,7 @@
 #define __RANDSVD_H
 
 #include <iostream>
-
+#include <Eigen/Dense>
 
 /**
  * TODO comment and add reference to paper

@@ -35,6 +35,9 @@
  *
  */
 
+#ifndef __DataManager_txx
+#define __DataManager_txx
+
 #include "DataManager.h"
 #include "HDF5Utils.h"
 #include <iostream>
@@ -295,3 +298,5 @@ typename DataManager<T>::CrossValidationFoldListType DataManager<T>::GetLeaveOne
 }
 
 } // Namespace statismo
+
+#endif

@@ -34,6 +34,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+
+#ifndef __DataManagerWithSurrogates_txx
+#define __DataManagerWithSurrogates_txx
+
 #include "DataManagerWithSurrogates.h"
 #include "HDF5Utils.h"
 #include <iostream>
@@ -98,3 +102,5 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
 
 
 } // Namespace statismo
+
+#endif

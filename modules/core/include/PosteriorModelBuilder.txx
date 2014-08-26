@@ -35,9 +35,13 @@
  *
  */
 
+#ifndef __PosteriorModelBuilder_txx
+#define __PosteriorModelBuilder_txx
+
 #include <Eigen/SVD>
 #include "CommonTypes.h"
 #include "PCAModelBuilder.h"
+#include "PosteriorModelBuilder.h"
 
 #include <iostream>
 
@@ -261,3 +265,5 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(
 }
 
 } // namespace statismo
+
+#endif

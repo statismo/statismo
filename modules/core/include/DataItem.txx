@@ -38,6 +38,8 @@
 #ifndef __SAMPLE_DATA_TXX
 #define __SAMPLE_DATA_TXX
 
+#include "DataItem.h"
+
 namespace statismo {
 
 
