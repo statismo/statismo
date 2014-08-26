@@ -35,12 +35,15 @@
  *
  */
 
+#ifndef __ReducedVarianceModelBuilder_txx
+#define __ReducedVarianceModelBuilder_txx
+
 #include <Eigen/SVD>
 #include "CommonTypes.h"
 #include "Exceptions.h"
 #include <iostream>
 
-
+#include "ReducedVarianceModelBuilder.h"
 
 namespace statismo {
 
@@ -125,6 +128,6 @@ typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
        return BuildNewModelWithVariance(inputModel, totalVariance);
 }
 
-
-
 } // namespace statismo
+
+#endif
