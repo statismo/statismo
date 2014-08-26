@@ -41,8 +41,9 @@
 
 #include <iostream>
 #include <sstream>
-#include "statismo/Exceptions.h"
-#include "statismo/CommonTypes.h"
+
+#include "Exceptions.h"
+#include "CommonTypes.h"
 
 
 using statismo::StatisticalModelException;
@@ -200,5 +201,5 @@ public:
 	}
 };
 
-}; // namespace statismo
+} // namespace statismo
 #endif // __VTK_HELPER_H

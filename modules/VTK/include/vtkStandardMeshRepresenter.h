@@ -42,9 +42,9 @@
 
 #include "vtkPolyData.h"
 #include "vtkHelper.h"
-#include "statismo/Representer.h"
-#include "statismo/CommonTypes.h"
-#include "statismo/Domain.h"
+#include "Representer.h"
+#include "CommonTypes.h"
+#include "Domain.h"
 #include "vtkSmartPointer.h"
 #include <H5Cpp.h>
 
@@ -148,7 +148,5 @@ private:
 };
 
 } // namespace statismo
-
-#include "vtkStandardMeshRepresenter.cpp"
 
 #endif /* VTK_STANDARD_MESH_REPRESENTER_H_ */

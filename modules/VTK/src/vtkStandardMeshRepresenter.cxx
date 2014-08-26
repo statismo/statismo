@@ -35,12 +35,7 @@
  *
  */
 
-#ifndef __VTK_STANDARD_MESH_REPRESENTER_CPP
-#define __VTK_STANDARD_MESH_REPRESENTER_CPP
-
 #include "vtkPoints.h"
-#include "statismo/HDF5Utils.h"
-#include "statismo/utils.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
 #include "vtkDataSetAttributes.h"
@@ -58,18 +53,23 @@
 #include "vtkCellArray.h"
 #include "vtkPolyDataReader.h"
 
+#include "HDF5Utils.h"
+#include "utils.h"
+
+#include "vtkStandardMeshRepresenter.h"
+
 using statismo::VectorType;
 using statismo::HDF5Utils;
 using statismo::StatisticalModelException;
 
 namespace statismo {
 
-inline vtkStandardMeshRepresenter::vtkStandardMeshRepresenter(
+vtkStandardMeshRepresenter::vtkStandardMeshRepresenter(
 		DatasetConstPointerType reference) : m_reference(0) {
 	this->SetReference(reference);
 }
 
-inline vtkStandardMeshRepresenter::~vtkStandardMeshRepresenter() {
+vtkStandardMeshRepresenter::~vtkStandardMeshRepresenter() {
 
 	if (m_reference != 0) {
 		m_reference->Delete();
@@ -77,13 +77,13 @@ inline vtkStandardMeshRepresenter::~vtkStandardMeshRepresenter() {
 	}
 }
 
-inline vtkStandardMeshRepresenter*
+vtkStandardMeshRepresenter*
 vtkStandardMeshRepresenter::Clone() const {
 	// this works since Create deep copies the reference
 	return Create(m_reference);
 }
 
-inline
+
 void vtkStandardMeshRepresenter::Load(const H5::Group& fg) {
     vtkPolyData* ref = 0;
 
@@ -98,7 +98,7 @@ void vtkStandardMeshRepresenter::Load(const H5::Group& fg) {
 }
 
 
-inline
+
 vtkPolyData* vtkStandardMeshRepresenter::LoadRef(const H5::Group& fg) const {
 
     statismo::MatrixType vertexMat;
@@ -174,7 +174,7 @@ vtkPolyData* vtkStandardMeshRepresenter::LoadRef(const H5::Group& fg) const {
     return ref;
 }
 
-inline
+
 vtkPolyData* vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group& fg) const {
     std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
@@ -192,7 +192,7 @@ vtkPolyData* vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group& fg) cons
 }
 
 
-inline
+
 void vtkStandardMeshRepresenter::Save(const H5::Group& fg) const {
 	using namespace H5;
 
@@ -262,7 +262,7 @@ void vtkStandardMeshRepresenter::Save(const H5::Group& fg) const {
 
 }
 
-inline statismo::VectorType vtkStandardMeshRepresenter::PointToVector(const PointType& pt) const {
+statismo::VectorType vtkStandardMeshRepresenter::PointToVector(const PointType& pt) const {
 	// a vtk point is always 3 dimensional
 	VectorType v(3);
 	for (unsigned i = 0; i < 3; i++) {
@@ -274,7 +274,7 @@ inline statismo::VectorType vtkStandardMeshRepresenter::PointToVector(const Poin
 
 
 
-inline statismo::VectorType vtkStandardMeshRepresenter::SampleToSampleVector(
+statismo::VectorType vtkStandardMeshRepresenter::SampleToSampleVector(
 		DatasetConstPointerType _sample) const {
 	assert(m_reference != 0);
 
@@ -292,7 +292,7 @@ inline statismo::VectorType vtkStandardMeshRepresenter::SampleToSampleVector(
 	return sampleVec;
 }
 
-inline vtkStandardMeshRepresenter::DatasetPointerType vtkStandardMeshRepresenter::SampleVectorToSample(
+vtkStandardMeshRepresenter::DatasetPointerType vtkStandardMeshRepresenter::SampleVectorToSample(
 		const VectorType& sample) const {
 
 	assert(m_reference != 0);
@@ -314,7 +314,7 @@ inline vtkStandardMeshRepresenter::DatasetPointerType vtkStandardMeshRepresenter
 	return pd;
 }
 
-inline vtkStandardMeshRepresenter::ValueType vtkStandardMeshRepresenter::PointSampleFromSample(
+vtkStandardMeshRepresenter::ValueType vtkStandardMeshRepresenter::PointSampleFromSample(
 		DatasetConstPointerType sample_, unsigned ptid) const {
 	vtkPolyData* sample = const_cast<DatasetPointerType>(sample_);
 	if (ptid >= sample->GetNumberOfPoints()) {
@@ -324,7 +324,7 @@ inline vtkStandardMeshRepresenter::ValueType vtkStandardMeshRepresenter::PointSa
 	return vtkPoint(sample->GetPoints()->GetPoint(ptid));
 }
 
-inline statismo::VectorType vtkStandardMeshRepresenter::PointSampleToPointSampleVector(
+statismo::VectorType vtkStandardMeshRepresenter::PointSampleToPointSampleVector(
 		const ValueType& v) const {
 	VectorType vec(GetDimensions());
 	for (unsigned i = 0; i < GetDimensions(); i++) {
@@ -333,7 +333,7 @@ inline statismo::VectorType vtkStandardMeshRepresenter::PointSampleToPointSample
 	return vec;
 }
 
-inline vtkStandardMeshRepresenter::ValueType vtkStandardMeshRepresenter::PointSampleVectorToPointSample(
+vtkStandardMeshRepresenter::ValueType vtkStandardMeshRepresenter::PointSampleVectorToPointSample(
 		const VectorType& v) const {
 	ValueType value;
 	for (unsigned i = 0; i < GetDimensions(); i++) {
@@ -342,21 +342,21 @@ inline vtkStandardMeshRepresenter::ValueType vtkStandardMeshRepresenter::PointSa
 	return value;
 }
 
-inline
+
 unsigned vtkStandardMeshRepresenter::GetPointIdForPoint(
 		const PointType& pt) const {
 	assert(m_reference != 0);
 	return this->m_reference->FindPoint(const_cast<double*>(pt.data()));
 }
 
-inline
+
 unsigned vtkStandardMeshRepresenter::GetNumberOfPoints() const {
 	assert(m_reference != 0);
 
 	return this->m_reference->GetNumberOfPoints();
 }
 
-inline vtkDataArray* vtkStandardMeshRepresenter::GetAsDataArray(
+vtkDataArray* vtkStandardMeshRepresenter::GetAsDataArray(
 		const H5::Group& group, const std::string& name) {
 	vtkDataArray* dataArray = 0;
 
@@ -407,7 +407,7 @@ inline vtkDataArray* vtkStandardMeshRepresenter::GetAsDataArray(
 	return dataArray;
 }
 
-inline
+
 void vtkStandardMeshRepresenter::FillDataArray(
 		const statismo::GenericEigenType<double>::MatrixType& m,
 		vtkDataArray* dataArray) {
@@ -422,7 +422,7 @@ void vtkStandardMeshRepresenter::FillDataArray(
 	delete[] tuple;
 }
 
-inline
+
 void vtkStandardMeshRepresenter::SetReference(const vtkPolyData* reference) {
 	// whta happens if m_refrnece is reference?
 	m_reference = vtkPolyData::New();
@@ -437,7 +437,7 @@ void vtkStandardMeshRepresenter::SetReference(const vtkPolyData* reference) {
 	m_domain = DomainType(ptList);
 }
 
-inline
+
 void vtkStandardMeshRepresenter::WriteDataArray(const H5::CommonFG& group,
 		const std::string& name, const vtkDataArray* _dataArray) const {
 	vtkDataArray* dataArray = const_cast<vtkDataArray*>(_dataArray);
@@ -462,5 +462,3 @@ void vtkStandardMeshRepresenter::WriteDataArray(const H5::CommonFG& group,
 }
 
 } // namespace statismo
-
-#endif // __vtkStandardMeshRepRESENTER_CPP

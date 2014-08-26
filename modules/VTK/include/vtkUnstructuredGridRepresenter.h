@@ -39,17 +39,17 @@
 #ifndef vtkUnstructuredGridREPRESENTER_H_
 #define vtkUnstructuredGridREPRESENTER_H_
 
+#include <H5Cpp.h>
+
+#include "vtkSmartPointer.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkLandmarkTransform.h"
 #include "vtkTransform.h"
 #include "vtkTransformPolyDataFilter.h"
-#include "vtkPoint.h"
-#include "statismo/CommonTypes.h"
-#include "statismo/Domain.h"
-#include "vtkSmartPointer.h"
-#include <H5Cpp.h>
 
-
+#include "vtkHelper.h"
+#include "CommonTypes.h"
+#include "Domain.h"
 
 /**
  * \brief A representer for vtkUnstructuredGrid using Procrustes alignment to align the datasets
@@ -72,8 +72,8 @@ public:
 	typedef vtkUnstructuredGrid* DatasetPointerType;
 	typedef const vtkUnstructuredGrid* DatasetConstPointerType;
 
-	typedef vtkPoint PointType;
-	typedef vtkPoint ValueType;
+	typedef statismo::vtkPoint PointType;
+	typedef statismo::vtkPoint ValueType;
 
 	typedef statismo::Domain<PointType> DomainType;
 
@@ -155,7 +155,5 @@ private:
 	AlignmentType m_alignment;
 	DomainType m_domain;
 };
-
-#include "vtkUnstructuredGridRepresenter.cpp"
 
 #endif /* vtkUnstructuredGridREPRESENTER_H_ */
