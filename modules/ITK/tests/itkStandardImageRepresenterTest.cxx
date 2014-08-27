@@ -2,7 +2,7 @@
 
 
 /*
- * itkVectorImageRepresenterTest.cpp
+ * itkVectorImageRepresenterTest.cxx
  *
  *  Created on: May 3, 2012
  *      Author: luethi

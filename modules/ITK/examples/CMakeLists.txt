@@ -19,7 +19,7 @@ set( _examples
 )
 
 foreach( e ${_examples} )
-  add_executable( ${e} ${e}.cpp
+  add_executable( ${e} ${e}.cxx
   )
   target_link_libraries( ${e} statismo-core ${ITK_LIBRARIES} )
 endforeach()
