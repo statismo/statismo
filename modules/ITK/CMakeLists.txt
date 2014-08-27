@@ -10,3 +10,10 @@ endif()
 add_subdirectory( examples )
 
 module_headertest( ITK )
+
+file( GLOB _ITK_hdrs
+  include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
+)
+install( FILES ${_ITK_hdrs}
+  DESTINATION include/statismo/ITK
+)
