@@ -37,7 +37,7 @@
 
 #include "CommonTypes.h"
 #include "HDF5Utils.h"
-#include "utils.h"
+#include "StatismoUtils.h"
 #include <iostream>
 
 

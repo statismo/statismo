@@ -42,7 +42,7 @@
 #include "vtkXMLUnstructuredGridWriter.h"
 
 #include "HDF5Utils.h"
-#include "utils.h"
+#include "StatismoUtils.h"
 
 #include "vtkUnstructuredGridRepresenter.h"
 

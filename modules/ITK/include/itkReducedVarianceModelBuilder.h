@@ -44,7 +44,7 @@
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
 #include "ReducedVarianceModelBuilder.h"
-#include "utils.h"
+#include "StatismoUtils.h"
 
 namespace itk
 {

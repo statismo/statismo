@@ -42,7 +42,7 @@
 #include "itkPoint.h"
 #include "itkVector.h"
 #include "HDF5Utils.h"
-#include "utils.h"
+#include "StatismoUtils.h"
 #include <iostream>
 #include "itkMeshFileReader.h"
 #include "itkMeshFileWriter.h"

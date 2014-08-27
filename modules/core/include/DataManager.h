@@ -40,7 +40,7 @@
 
 #include "Config.h"
 #include "CommonTypes.h"
-#include "utils.h"
+#include "StatismoUtils.h"
 #include "Exceptions.h"
 #include "HDF5Utils.h"
 #include "ModelInfo.h"

@@ -42,7 +42,7 @@
 #include "vtkDataArray.h"
 #include "vtkVersion.h"
 #include "HDF5Utils.h"
-#include "utils.h"
+#include "StatismoUtils.h"
 #include "CommonTypes.h"
 
 using statismo::VectorType;

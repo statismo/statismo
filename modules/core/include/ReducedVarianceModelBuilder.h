@@ -41,7 +41,7 @@
 #include "Config.h"
 #include "ModelInfo.h"
 #include "ModelBuilder.h"
-#include "utils.h"
+#include "StatismoUtils.h"
 #include "DataManager.h"
 #include "StatisticalModel.h"
 #include "CommonTypes.h"
