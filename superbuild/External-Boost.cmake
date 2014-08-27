@@ -32,5 +32,9 @@ ExternalProject_Add(Boost
   INSTALL_COMMAND ""
 )
 
-set(Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include )
+if( WIN32 )
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include/boost-1_54 )
+else()
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include )
+endif()
 set(Boost_LIBRARY_DIR ${INSTALL_DEPECENCIES_DIR}/lib )
