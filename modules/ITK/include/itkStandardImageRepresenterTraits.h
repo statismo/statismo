@@ -1,3 +1,6 @@
+#ifndef __itkStandardImageRepresenterTraits_h
+#define __itkStandardImageRepresenterTraits_h
+
 #include "itkImage.h"
 #include "itkVector.h"
 #include "Representer.h"
@@ -126,3 +129,5 @@ struct RepresenterTraits<itk::Image<unsigned char, 2u> > {
 
 
 } // namespace statismo
+
+#endif
