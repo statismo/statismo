@@ -154,14 +154,14 @@ file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
    "${INSTALL_INCLUDE_DIR}")
 
 set( CONF_INCLUDE_DIRS
-  "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/core"
+  "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/core"
 )
 if( ${VTK_SUPPORT} )
-  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/VTK" )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/VTK" )
 endif()
 
 if( ${ITK_SUPPORT} )
-  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/ITK" )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/ITK" )
 endif()
 
 configure_file( ${statismo_SOURCE_DIR}/statismoConfig.cmake.in
