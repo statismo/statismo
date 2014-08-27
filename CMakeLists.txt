@@ -48,6 +48,13 @@ include( CTest )
 find_package( Eigen3 REQUIRED )
 include_directories( ${EIGEN3_INCLUDE_DIR} )
 
+if ( WIN32 )
+  set( BOOST_ROOT ${INSTALL_DEPECENCIES_DIR} )
+  set( Boost_USE_STATIC_LIBS ON )
+  set( BOOST_INCLUDEDIR ${INSTALL_DEPECENCIES_DIR}/include/boost-1_54 )
+  set( Boost_DEBUG ON )
+endif()
+
 find_package( Boost 1.50 COMPONENTS thread system REQUIRED  )
 include_directories( ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS})
