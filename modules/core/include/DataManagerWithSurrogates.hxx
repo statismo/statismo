@@ -1,5 +1,5 @@
 /*
- * DataManagerWithSurrogates.txx
+ * DataManagerWithSurrogates.hxx
  *
  * Created by: Marcel Luethi and  Remi Blanc
  *
@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __DataManagerWithSurrogates_txx
-#define __DataManagerWithSurrogates_txx
+#ifndef __DataManagerWithSurrogates_hxx
+#define __DataManagerWithSurrogates_hxx
 
 #include "DataManagerWithSurrogates.h"
 #include "HDF5Utils.h"

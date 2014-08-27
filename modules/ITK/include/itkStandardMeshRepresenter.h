@@ -215,6 +215,6 @@ private:
 
 
 
-#include "itkStandardMeshRepresenter.txx"
+#include "itkStandardMeshRepresenter.hxx"
 
 #endif /* ITK_STANDARD_MESH_REPRESENTER */

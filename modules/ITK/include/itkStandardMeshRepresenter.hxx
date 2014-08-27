@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __itkStandardMeshRepresenter_txx
-#define __itkStandardMeshRepresenter_txx
+#ifndef __itkStandardMeshRepresenter_hxx
+#define __itkStandardMeshRepresenter_hxx
 
 #include "itkIndex.h"
 #include "itkPoint.h"

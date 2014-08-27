@@ -213,6 +213,6 @@ protected:
 
 }
 
-#include "DataManager.txx"
+#include "DataManager.hxx"
 
 #endif /* __DATAMANAGER_H_ */

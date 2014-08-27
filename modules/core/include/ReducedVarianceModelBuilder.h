@@ -122,6 +122,6 @@ private:
 
 } // namespace statismo
 
-#include "ReducedVarianceModelBuilder.txx"
+#include "ReducedVarianceModelBuilder.hxx"
 
 #endif /* __ReducedVarianceModelBuilder_H_ */

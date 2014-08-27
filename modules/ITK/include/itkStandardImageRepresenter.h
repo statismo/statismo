@@ -155,6 +155,6 @@ private:
 
 } // namespace itk
 
-#include "itkStandardImageRepresenter.txx"
+#include "itkStandardImageRepresenter.hxx"
 
 #endif /* itkStandardImageREPRESENTER_H_ */

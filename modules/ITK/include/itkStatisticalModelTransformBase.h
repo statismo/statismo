@@ -217,7 +217,7 @@ protected:
 
 
 #ifndef ITK_MANUAL_INSTANTIATION
-# include "itkStatisticalModelTransformBase.txx"
+# include "itkStatisticalModelTransformBase.hxx"
 #endif
 
 #endif /* __itkStatisticalModelTransform_h */

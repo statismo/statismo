@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __DataManager_txx
-#define __DataManager_txx
+#ifndef __DataManager_hxx
+#define __DataManager_hxx
 
 #include "DataManager.h"
 #include "HDF5Utils.h"

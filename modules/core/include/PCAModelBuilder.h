@@ -109,10 +109,8 @@ private:
 
 };
 
-
-
 } // namespace statismo
 
-#include "PCAModelBuilder.txx"
+#include "PCAModelBuilder.hxx"
 
 #endif /* __PCAMODELBUILDER_H_ */

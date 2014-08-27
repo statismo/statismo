@@ -132,7 +132,6 @@ protected:
 
 }
 
-#include "DataManagerWithSurrogates.txx"
-
+#include "DataManagerWithSurrogates.hxx"
 
 #endif /* __DATAMANAGERWITHSURROGATES_H_ */

@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __StatisticalModel_txx
-#define __StatisticalModel_txx
+#ifndef __StatisticalModel_hxx
+#define __StatisticalModel_hxx
 
 
 #include "ModelBuilder.h"

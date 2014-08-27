@@ -192,10 +192,6 @@ public:
 	PointValueWithCovarianceListType TrivialPointValueWithCovarianceListWithUniformNoise(const PointValueListType& pointValues,
 			double pointValueNoiseVariance) const;
 
-
-protected:
-	
-
 private:
 	PosteriorModelBuilder();
 	PosteriorModelBuilder(const PosteriorModelBuilder& orig);
@@ -206,6 +202,6 @@ private:
 
 } // namespace statismo
 
-#include "PosteriorModelBuilder.txx"
+#include "PosteriorModelBuilder.hxx"
 
 #endif /* __POSTERIORMODELBUILDER_H_ */

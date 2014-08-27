@@ -1,5 +1,5 @@
 /*
- * Representer.txx
+ * Representer.hxx
  *
  * Created by Remi Blanc, Marcel Luethi
  *
@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __ConditionalModelBuilder_txx
-#define __ConditionalModelBuilder_txx
+#ifndef __ConditionalModelBuilder_hxx
+#define __ConditionalModelBuilder_hxx
 
 #include "CommonTypes.h"
 #include "Exceptions.h"

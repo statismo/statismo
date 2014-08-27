@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __itkStatisticalModelTransformBase_txx
-#define __itkStatisticalModelTransformBase_txx
+#ifndef __itkStatisticalModelTransformBase_hxx
+#define __itkStatisticalModelTransformBase_hxx
 
 #include "itkStatisticalModelTransformBase.h"
 

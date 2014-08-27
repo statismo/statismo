@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __ReducedVarianceModelBuilder_txx
-#define __ReducedVarianceModelBuilder_txx
+#ifndef __ReducedVarianceModelBuilder_hxx
+#define __ReducedVarianceModelBuilder_hxx
 
 #include <Eigen/SVD>
 #include "CommonTypes.h"

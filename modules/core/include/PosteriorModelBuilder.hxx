@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __PosteriorModelBuilder_txx
-#define __PosteriorModelBuilder_txx
+#ifndef __PosteriorModelBuilder_hxx
+#define __PosteriorModelBuilder_hxx
 
 #include <Eigen/SVD>
 #include "CommonTypes.h"

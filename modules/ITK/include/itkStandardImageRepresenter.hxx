@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __itkStandardImageRepresenter_txx
-#define __itkStandardImageRepresenter_txx
+#ifndef __itkStandardImageRepresenter_hxx
+#define __itkStandardImageRepresenter_hxx
 
 
 #include "itkImageIterator.h"

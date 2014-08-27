@@ -143,6 +143,6 @@ private:
 
 } // namespace statismo
 
-#include "vtkStandardImageRepresenter.txx"
+#include "vtkStandardImageRepresenter.hxx"
 
 #endif /* VTKStandardImageRepRESENTER_H_ */

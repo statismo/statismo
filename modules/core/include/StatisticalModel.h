@@ -610,6 +610,6 @@ private:
 
 } // namespace statismo
 
-#include "StatisticalModel.txx"
+#include "StatisticalModel.hxx"
 
 #endif /* STATISTICALMODEL_H_ */
