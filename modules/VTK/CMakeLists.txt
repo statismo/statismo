@@ -17,5 +17,5 @@ file( GLOB _VTK_hdrs
   include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
 )
 install( FILES ${_VTK_hdrs}
-  DESTINATION include/statismo/VTK
+  DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/VTK
 )

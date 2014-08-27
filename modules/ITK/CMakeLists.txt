@@ -15,5 +15,5 @@ file( GLOB _ITK_hdrs
   include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
 )
 install( FILES ${_ITK_hdrs}
-  DESTINATION include/statismo/ITK
+  DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/ITK
 )

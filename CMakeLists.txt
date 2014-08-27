@@ -47,6 +47,27 @@ if( CMAKE_HOST_WIN32 )
   endif()
 endif()
 
+# installation
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+set(INSTALL_INCLUDE_DIR include CACHE PATH
+  "Installation directory for header files")
+if(WIN32 AND NOT CYGWIN)
+  set(DEF_INSTALL_CMAKE_DIR CMake)
+else()
+  set(DEF_INSTALL_CMAKE_DIR lib/cmake/statismo)
+endif()
+set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
+  "Installation directory for CMake files")
+
+# Make relative paths absolute (needed later on)
+foreach(p LIB BIN INCLUDE CMAKE)
+  set(var INSTALL_${p}_DIR)
+  if(NOT IS_ABSOLUTE "${${var}}")
+    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+  endif()
+endforeach()
+
 include( CTest )
 
 include( ModuleHeaderTest )
@@ -91,48 +112,70 @@ option( BUILD_SHARED_LIBS "Build shared libraries" ON )
 add_subdirectory( modules )
 
 # -------------------------------------------------------------
-configure_file( ${statismo_SOURCE_DIR}/statismo-config.cmake.in
-  ${statismo_BINARY_DIR}/statismo-config.cmake
+
+# Add all targets to the build-tree export set
+set( _targets statismo-core )
+
+if( VTK_SUPPORT )
+  set( _targets ${_targets} statismo-VTK )
+endif()
+
+export( TARGETS ${_targets}
+  FILE "${statismo_BINARY_DIR}/statismoTargets.cmake"
+)
+
+# Export the package for use from the build-tree
+# (this registers the build-tree with a global CMake-registry)
+export(PACKAGE statismo)
+
+# -------------------------------------------------------------
+# for the build tree
+set( CONF_INCLUDE_DIRS
+  "${statismo_SOURCE_DIR}/modules/core/include"
+)
+set( statismo_LIBRARIES statismo-core )
+
+if( ${VTK_SUPPORT} )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/VTK/include" )
+  set( statismo_LIBRARIES ${statismo_LIBRARIES} statismo-VTK )
+endif()
+
+if( ${ITK_SUPPORT} )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/ITK/include" )
+endif()
+
+configure_file( ${statismo_SOURCE_DIR}/statismoConfig.cmake.in
+  ${statismo_BINARY_DIR}/statismoConfig.cmake
   @ONLY
 )
 
-file( GLOB statismo_hdrs
-  statismo/*.h statismo/*.hxx statismo/*.hpp statismo/*.txx  statismo/*.tpp statismo/*.cpp statismo/*.cxx
-)
-install( FILES ${statismo_hdrs}
-  DESTINATION include/statismo/statismo
-)
+# for the install tree
+file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
+   "${INSTALL_INCLUDE_DIR}")
 
-file( GLOB statismo_itk_hdrs
-  statismo_ITK/*.h statismo_ITK/*.hxx statismo_ITK/*.hpp statismo_ITK/*.txx  statismo_ITK/*.tpp
+set( CONF_INCLUDE_DIRS
+  "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/core"
 )
-install( FILES ${statismo_itk_hdrs}
-  DESTINATION include/statismo/statismo_ITK
-)
+if( ${VTK_SUPPORT} )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/VTK" )
+endif()
 
-install( FILES ${statismo_BINARY_DIR}/statismo-config.cmake
-  DESTINATION lib/cmake/statismo
-)
+if( ${ITK_SUPPORT} )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/ITK" )
+endif()
 
-file( GLOB statismo_rep
-  Representers/*.h Representers/*.hxx Representers/*.hpp Representers/*.txx  Representers/*.tpp
+configure_file( ${statismo_SOURCE_DIR}/statismoConfig.cmake.in
+  ${statismo_BINARY_DIR}/cmake/statismoConfig.cmake
+  @ONLY
 )
-install( FILES ${statismo_rep}
-  DESTINATION include/statismo/Representers/
+configure_file( ${statismo_SOURCE_DIR}/statismoConfigVersion.cmake.in
+  ${statismo_BINARY_DIR}/statismoConfigVersion.cmake
+  @ONLY
 )
-
-file( GLOB statismo_rep_itk
-  Representers/ITK/*.h Representers/ITK/*.hxx Representers/ITK/*.hpp Representers/ITK/*.txx  Representers/ITK/*.tpp
+install( FILES
+    "${statismo_BINARY_DIR}/cmake/statismoConfig.cmake"
+    "${statismo_BINARY_DIR}/statismoConfigVersion.cmake"
+  DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT dev
 )
-
-install( FILES ${statismo_rep_itk}
-  DESTINATION include/statismo/Representers/ITK
-)
-
-file( GLOB statismo_rep_vtk
-  Representers/VTK/*.h Representers/VTK/*.hxx Representers/VTK/*.hpp Representers/VTK/*.txx  Representers/VTK/*.tpp
-)
-install( FILES ${statismo_rep_vtk}
-  DESTINATION include/statismo/Representers/VTK
-)
+install(EXPORT statismoTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
