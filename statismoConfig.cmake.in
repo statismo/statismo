@@ -11,13 +11,25 @@ endif()
 
 set( Boost_INCLUDE_DIR @Boost_INCLUDE_DIR@ )
 set( HDF5_DIR @HDF5_DIR@ )
+set( EIGEN3_INCLUDE_DIR @EIGEN3_INCLUDE_DIR@ )
+
+include_directories(
+  ${Boost_INCLUDE_DIR}
+  ${HDF5_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIR}
+)
+
+set( VTK_SUPPORT @VTK_SUPPORT@ )
+set( ITK_SUPPORT @ITK_SUPPORT@ )
 
 if( VTK_SUPPORT )
   set( VTK_DIR @VTK_DIR@ )
+  find_package( VTK )
 endif()
 
 if( ITK_SUPPORT )
   set( ITK_DIR @ITK_DIR@ )
+  find_package( ITK )
 endif()
 
 set( statismo_LIBRARIES "@statismo_LIBRARIES@" )
@@ -29,3 +41,4 @@ if(MSVC11) #i.e. Visual Studio 2012
   add_definitions( -D BOOST_HAS_TR1 )
   add_definitions( -D BOOST_NO_0X_HDR_INITIALIZER_LIST )
 endif()
+
