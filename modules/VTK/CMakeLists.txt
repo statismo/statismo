@@ -12,3 +12,10 @@ endif()
 add_subdirectory( examples )
 
 module_headertest( VTK )
+
+file( GLOB _VTK_hdrs
+  include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
+)
+install( FILES ${_VTK_hdrs}
+  DESTINATION include/statismo/VTK
+)

@@ -9,3 +9,10 @@ if( ${BUILD_TESTING} )
 endif()
 
 module_headertest( core )
+
+file( GLOB _core_hdrs
+  include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
+)
+install( FILES ${_core_hdrs}
+  DESTINATION include/statismo/core
+)
