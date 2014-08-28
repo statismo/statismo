@@ -49,7 +49,6 @@ find_package( Eigen3 REQUIRED )
 include_directories( ${EIGEN3_INCLUDE_DIR} )
 
 if ( WIN32 )
-  set( BOOST_ROOT ${INSTALL_DEPECENCIES_DIR} )
   set( Boost_USE_STATIC_LIBS ON )
 endif()
 
