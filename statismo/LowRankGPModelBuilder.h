@@ -111,8 +111,11 @@ public:
 						* m_representer->GetDimensions());
 		typename RepresenterType::DatasetConstPointerType zeroMean =
 				m_representer->SampleVectorToSample(zeroVec);
-		return BuildNewModel(zeroMean, kernel, numComponents,
+
+        StatisticalModelType* newModel = BuildNewModel(zeroMean, kernel, numComponents,
 				numPointsForNystrom);
+        m_representer->DeleteDataset(zeroMean);
+        return newModel;
 	}
 
 	/**
