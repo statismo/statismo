@@ -14,15 +14,12 @@ else()
   set( VTK_LIBRARIES_PYTHON "" )
 endif()
 
+
 include_directories(
-  ${STATISMO_ROOT_DIR}
-  ${STATISMO_INCLUDE_DIR}
-  ${VTK_INCLUDE_DIR}
-  ${STATISMO_ROOT_DIR}/Representers/VTK
-  ${STATISMO_ROOT_DIR}/Representers
-  ${HDF5_INCLUDE_DIR}
-  ${HDF5_INCLUDE_DIR_CPP}
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${statismo_SOURCE_DIR}/modules/core/include
 )
+
 link_directories(
   ${STATISMO_LIBRARY_DIR}
   ${HDF5_LIBRARY_DIR}
@@ -37,7 +34,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 set_source_files_properties(statismo.i PROPERTIES CPLUSPLUS ON)
 set_source_files_properties(statismo.i PROPERTIES SWIG_FLAGS "-includeall")
 
-swig_add_module( statismo python statismo.i )
+file( GLOB _Statismo_src
+  ${statismo_SOURCE_DIR}/modules/VTK/src/*.cxx ${statismo_SOURCE_DIR}/modules/core/src/*.cxx
+)
+
+# copy data and test scripts to the build tree
+file(COPY ${statismo_SOURCE_DIR}/data DESTINATION ${statismo_BINARY_DIR}/modules/VTK/wrapping/tests)
+file(COPY ${statismo_SOURCE_DIR}/modules/VTK/wrapping/tests/statismoTests DESTINATION ${statismo_BINARY_DIR}/modules/VTK/wrapping/tests)
+
+
+
+swig_add_module( statismo python statismo.i ${_Statismo_src})
 add_dependencies( _statismo HDF5 )
 swig_link_libraries( statismo ${PYTHON_LIBRARIES}  ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${VTK_LIBRARIES_PYTHON} ${HDF5_LIBRARIES} )
 

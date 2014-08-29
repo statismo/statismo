@@ -36,11 +36,12 @@
 #
 
 import statismo
+import os
 from os import listdir
-from os.path import join
+from os.path import join, realpath
 import vtk
 
-DATADIR = join("..", "..", "data", "hand_polydata")
+DATADIR = join("..", "data", "hand_polydata")
 
 def read_vtkpd(filename):
     reader = vtk.vtkPolyDataReader()
