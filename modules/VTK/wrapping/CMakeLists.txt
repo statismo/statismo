@@ -15,10 +15,6 @@ else()
 endif()
 
 
-include_directories(
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${statismo_SOURCE_DIR}/modules/core/include
-)
 
 link_directories(
   ${STATISMO_LIBRARY_DIR}
@@ -35,7 +31,7 @@ set_source_files_properties(statismo.i PROPERTIES CPLUSPLUS ON)
 set_source_files_properties(statismo.i PROPERTIES SWIG_FLAGS "-includeall")
 
 file( GLOB _Statismo_src
-  ${statismo_SOURCE_DIR}/modules/VTK/src/*.cxx ${statismo_SOURCE_DIR}/modules/core/src/*.cxx
+  ${statismo_SOURCE_DIR}/modules/VTK/src/*.cxx
 )
 
 # copy data and test scripts to the build tree
