@@ -1,4 +1,4 @@
-add_library( statismo-core
+add_library( statismo-core ${statismo_LIB_TYPE}
   ModelInfo.cxx
 )
 target_link_libraries( statismo-core ${HDF5_LIBRARIES} )

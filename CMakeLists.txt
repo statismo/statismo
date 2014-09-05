@@ -12,6 +12,7 @@ set(STATISMO_VERSION ${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION}.${STATI
 
 set( statismo_LIB_VERSION ${STATISMO_VERSION} )
 set( statismo_LIB_SOVERSION ${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION} )
+set( statismo_LIB_TYPE SHARED )
 
 
 # Setup build locations.
@@ -81,11 +82,20 @@ include_directories( ${Boost_INCLUDE_DIRS} )
 find_package( HDF5  COMPONENTS C CXX)
 include_directories( ${HDF5_INCLUDE_DIRS} )
 
-# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding
-# the dlls instead of the libs. We are setting the variables directly
 if(WIN32)
+ # On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding
+ # the dlls instead of the libs. We are setting the variables directly
  set(HDF5_LIBRARY_DIRS ${INSTALL_DEPECENCIES_DIR}/lib)
  set(HDF5_LIBRARIES hdf5.lib hdf5_cpp.lib)
+
+ # Help Windows to find the HDF5 libraries
+ link_directories(${HDF5_LIBRARY_DIRS})
+
+ # On Windows, we can only build static libraries, as the dynamic libraries would be
+ # missing the accompanying .lib (unless the code is entirely rewritten with __declspec(dllexport) etc.)
+ # See http://www.cmake.org/Wiki/BuildingWinDLL
+
+ set(statismo_LIB_TYPE STATIC)
 endif()
 
 foreach( _library ${HDF5_LIBRARIES} )

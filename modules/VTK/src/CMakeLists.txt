@@ -1,4 +1,4 @@
-add_library( statismo-VTK
+add_library( statismo-VTK ${statismo_LIB_TYPE}
   vtkStandardMeshRepresenter.cxx
   vtkUnstructuredGridRepresenter.cxx
 )
