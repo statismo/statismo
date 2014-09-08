@@ -3,6 +3,8 @@ include_directories( BEFORE
   ${statismo_SOURCE_DIR}/modules/core/include
 )
 
+find_package( VTK REQUIRED )
+include( ${VTK_USE_FILE} )
 add_subdirectory( src )
 
 if( ${BUILD_TESTING} )
@@ -10,6 +12,11 @@ if( ${BUILD_TESTING} )
 endif()
 
 add_subdirectory( examples )
+
+if( ${BUILD_WRAPPING} )
+ add_subdirectory( wrapping )
+endif()
+
 
 module_headertest( VTK )
 

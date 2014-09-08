@@ -122,7 +122,7 @@
 		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 1, 1);
 		unsigned dim = array->dimensions[0];
 		
-		VectorType* v = new VectorType(dim);
+                statismo::VectorType* v = new statismo::VectorType(dim);
 		for (unsigned i = 0; i < dim; i++) { 
 			(*v)(i) = (float) ((double*) array->data)[i];
 		}		 
@@ -135,7 +135,7 @@
 		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 1, 1);
 		unsigned dim = array->dimensions[0];
 		
-		VectorType* v = new VectorType(dim);
+                statismo::VectorType* v = new statismo::VectorType(dim);
 		for (unsigned i = 0; i < dim; i++) { 
 			(*v)(i) = (float) ((double*) array->data)[i];
 		}		 

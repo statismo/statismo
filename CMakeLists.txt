@@ -119,6 +119,9 @@ endif()
 
 option( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
+option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
+mark_as_advanced(BUILD_WRAPPING)
+
 add_subdirectory( modules )
 
 # -------------------------------------------------------------

@@ -35,7 +35,7 @@
  *
  */
  
-%module statismo
+%module statismo_VTK
 
 %include "typemaps.i"
 %include "std_string.i"
@@ -54,15 +54,15 @@
 
   
 %{
-#include "statismo/Representer.h"
-#include "statismo/DataManager.h"
-#include "statismo/DataManagerWithSurrogates.h"
-#include "statismo/StatisticalModel.h"
-#include "statismo/PosteriorModelBuilder.h"
-#include "statismo/ReducedVarianceModelBuilder.h"
-#include "statismo/PCAModelBuilder.h"
-#include "statismo/Exceptions.h"
-#include "statismo/CommonTypes.h"
+#include "Representer.h"
+#include "DataManager.h"
+#include "DataManagerWithSurrogates.h"
+#include "StatisticalModel.h"
+#include "PosteriorModelBuilder.h"
+#include "ReducedVarianceModelBuilder.h"
+#include "PCAModelBuilder.h"
+#include "Exceptions.h"
+#include "CommonTypes.h"
 #include <list>
 #include <string>
 %}
@@ -107,12 +107,12 @@ struct DataItem {
 	const  statismo::VectorType& GetSampleVector() const;
 	virtual ~DataItem();
 private:
-	DataItem(const Representer<T>* representer, const std::string& filename, const VectorType& sampleVector);
+        DataItem(const Representer<T>* representer, const std::string& filename, const statismo::VectorType& sampleVector);
 };
 
 template <typename T>
 struct DataItemWithSurrogates : public DataItem<T> { 
-	const VectorType& GetSurrogateVector() const;
+        const statismo::VectorType& GetSurrogateVector() const;
 	const std::string& GetSurrogateFilename() const;
 };
 }
