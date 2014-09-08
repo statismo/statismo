@@ -29,7 +29,7 @@ file( GLOB _Statismo_src
 
 swig_add_module( statismo_VTK python statismo.i ${_Statismo_src})
 
-swig_link_libraries( statismo_VTK ${PYTHON_LIBRARIES}  statismo-core ${VTK_LIBRARIES} ${VTK_LIBRARIES_PYTHON} ${HDF5_LIBRARIES} )
+swig_link_libraries( statismo_VTK ${PYTHON_LIBRARIES}  statismo_core ${VTK_LIBRARIES} ${VTK_LIBRARIES_PYTHON} ${HDF5_LIBRARIES} )
 
 set_target_properties( _statismo_VTK PROPERTIES
   DEBUG_POSTFIX "-d"

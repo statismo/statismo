@@ -4,7 +4,7 @@ set( _CoreTests
 
 foreach( _test ${_CoreTests} )
   add_executable( ${_test} ${_test}.cxx )
-  target_link_libraries( ${_test} statismo-core )
+  target_link_libraries( ${_test} statismo_core )
 endforeach()
 
 add_test( NAME basicStatismoTest

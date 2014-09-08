@@ -6,7 +6,7 @@ set( _VTKTests
 
 foreach( _test ${_VTKTests} )
   add_executable( ${_test} ${_test}.cxx )
-  target_link_libraries( ${_test} statismo-VTK )
+  target_link_libraries( ${_test} statismo_VTK )
 endforeach()
 
 add_test( NAME PosteriorModelBuilderTest

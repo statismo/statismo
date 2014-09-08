@@ -127,10 +127,10 @@ add_subdirectory( modules )
 # -------------------------------------------------------------
 
 # Add all targets to the build-tree export set
-set( _targets statismo-core )
+set( _targets statismo_core )
 
 if( VTK_SUPPORT )
-  set( _targets ${_targets} statismo-VTK )
+  set( _targets ${_targets} statismo_VTK )
 endif()
 
 export( TARGETS ${_targets}
@@ -146,11 +146,11 @@ export(PACKAGE statismo)
 set( CONF_INCLUDE_DIRS
   "${statismo_SOURCE_DIR}/modules/core/include"
 )
-set( statismo_LIBRARIES statismo-core )
+set( statismo_LIBRARIES statismo_core )
 
 if( ${VTK_SUPPORT} )
   set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/VTK/include" )
-  set( statismo_LIBRARIES ${statismo_LIBRARIES} statismo-VTK )
+  set( statismo_LIBRARIES ${statismo_LIBRARIES} statismo_VTK )
 endif()
 
 if( ${ITK_SUPPORT} )
