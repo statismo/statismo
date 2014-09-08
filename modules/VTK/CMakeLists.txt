@@ -13,10 +13,7 @@ endif()
 
 add_subdirectory( examples )
 
-option( BUILD_WRAPPING_VTK "Build Python Wrappers for VTK (experimental)" OFF )
-mark_as_advanced(BUILD_WRAPPING_VTK)
-
-if( ${BUILD_WRAPPING_VTK} )
+if( ${BUILD_WRAPPING} )
  add_subdirectory( wrapping )
 endif()
 
