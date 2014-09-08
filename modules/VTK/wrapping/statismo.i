@@ -35,7 +35,7 @@
  *
  */
  
-%module statismo
+%module statismo_VTK
 
 %include "typemaps.i"
 %include "std_string.i"
