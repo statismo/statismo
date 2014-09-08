@@ -14,13 +14,9 @@ else()
   set( VTK_LIBRARIES_PYTHON "" )
 endif()
 
-
-
 link_directories(
-  ${STATISMO_LIBRARY_DIR}
   ${HDF5_LIBRARY_DIR}
 )
-
 
 find_package( SWIG REQUIRED )
 include( ${SWIG_USE_FILE} )
@@ -34,15 +30,10 @@ file( GLOB _Statismo_src
   ${statismo_SOURCE_DIR}/modules/VTK/src/*.cxx
 )
 
-# copy data and test scripts to the build tree
-file(COPY ${statismo_SOURCE_DIR}/data DESTINATION ${statismo_BINARY_DIR}/modules/VTK/wrapping/tests)
-file(COPY ${statismo_SOURCE_DIR}/modules/VTK/wrapping/tests/statismoTests DESTINATION ${statismo_BINARY_DIR}/modules/VTK/wrapping/tests)
-
-
-
 swig_add_module( statismo python statismo.i ${_Statismo_src})
 add_dependencies( _statismo HDF5 )
-swig_link_libraries( statismo ${PYTHON_LIBRARIES}  ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${VTK_LIBRARIES_PYTHON} ${HDF5_LIBRARIES} )
+
+swig_link_libraries( statismo ${PYTHON_LIBRARIES}  statismo-core ${VTK_LIBRARIES} ${VTK_LIBRARIES_PYTHON} ${HDF5_LIBRARIES} )
 
 install( TARGETS _statismo
   LIBRARY DESTINATION lib/Python
