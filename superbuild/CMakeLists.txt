@@ -43,6 +43,7 @@ option( USE_SYSTEM_Boost "Use system libraries for Boost" OFF )
 if( ${USE_SYSTEM_Boost} MATCHES "OFF" )
   include( External-Boost.cmake )
   set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} Boost )
+  set( BOOST_ROOT ${INSTALL_DEPECENCIES_DIR} )
 else()
   find_package( Boost REQUIRED )
 endif()
@@ -93,7 +94,7 @@ ExternalProject_Add( Statismo
     ${cmake_hdf5_libs}
     -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
     -DBoost_INCLUDE_DIR:PATH=${Boost_INCLUDE_DIR}
-  	-DINSTALL_DEPECENCIES_DIR:PATH=${INSTALL_DEPECENCIES_DIR}
+    -DINSTALL_DEPECENCIES_DIR:PATH=${INSTALL_DEPECENCIES_DIR}
     -DITK_DIR:PATH=${ITK_DIR}
     -DVTK_DIR:PATH=${VTK_DIR}
     -DHDF5_DIR:PATH=${HDF5_DIR}

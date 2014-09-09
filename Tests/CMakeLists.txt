@@ -1,3 +1,5 @@
+set( CMAKE_INCLUDE_CURRENT_DIR ON )
+
 include_directories(
   ${STATISMO_ROOT_DIR}
   ${STATISMO_ROOT_DIR}/Representers

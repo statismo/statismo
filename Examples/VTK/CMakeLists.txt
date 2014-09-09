@@ -9,7 +9,7 @@ include_directories(${STATISMO_ROOT_DIR}
 					${HDF5_INCLUDE_DIRS}
   )
 
-link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} ${HDF5_LIBRARY_DIRS})
+link_directories(${STATISMO_LIBRARY_DIR} ${VTK_LIBRARY_DIR} ${HDF5_LIBRARY_DIRS} ${Boost_LIBRARY_DIRS})
 
 if(WIN32)
   # Fix for VS2012 that has _VARIADIC_MAX set to 5. For some of the examples, this does not seem to be sufficient.
@@ -30,7 +30,7 @@ set( _examples
 
 foreach( e ${_examples} )
   add_executable( ${e} ${e}.cpp )
-  target_link_libraries( ${e} ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES} )
+  target_link_libraries( ${e} ${STATISMO_LIBRARIES} ${VTK_LIBRARIES} ${HDF5_LIBRARIES} ${Boost_LIBRARIES})
 endforeach()
 
 install( TARGETS ${_examples}

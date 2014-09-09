@@ -14,11 +14,9 @@
 #include <cmath>
 #include <memory>
 #include "RandSVD.h"
+#include "boost/thread.hpp"
+#include "boost/thread/future.hpp"
 
-
-#ifdef HAS_CXX11_ASYNC
-#include <future>
-#endif
 
 namespace statismo {
 
@@ -27,13 +25,9 @@ namespace statismo {
  * This class holds the result of the eigenfunction computation for
  * the points with index entries (lowerInd to upperInd)
  */
-struct ResEigenfunctionPointComputations {
+struct EigenfunctionValuesForPoints {
 
-	// needs an explicit default constructor, as otherwise the visual Studio compiler complains
-	ResEigenfunctionPointComputations() : lowerInd(0), upperInd(0) {
-	}
-
-	ResEigenfunctionPointComputations(unsigned _lowerInd, unsigned _upperInd,
+    EigenfunctionValuesForPoints(unsigned _lowerInd, unsigned _upperInd,
 			const MatrixType& _resMat) :
 			lowerInd(_lowerInd), upperInd(_upperInd), resMatrix(_resMat) {
 	}
@@ -41,6 +35,41 @@ struct ResEigenfunctionPointComputations {
 	unsigned lowerInd;
 	unsigned upperInd;
 	MatrixType resMatrix;
+
+
+
+     // emulate move semantics, as boost::async seems to depend on it.
+    EigenfunctionValuesForPoints& operator=(BOOST_COPY_ASSIGN_REF(EigenfunctionValuesForPoints) rhs) // Copy assignment
+    {
+        if (&rhs != this) {
+            copyMembers(rhs);
+        }
+        return *this;
+    }
+
+    EigenfunctionValuesForPoints(BOOST_RV_REF(EigenfunctionValuesForPoints) that)            //Move constructor
+    {
+        copyMembers(that);
+    }
+
+    EigenfunctionValuesForPoints& operator=(BOOST_RV_REF(EigenfunctionValuesForPoints) rhs) //Move assignment
+    {
+        if (&rhs != this) {
+            copyMembers(rhs);
+        }
+        return *this;
+    }
+
+private:
+
+  BOOST_COPYABLE_AND_MOVABLE(EigenfunctionValuesForPoints)
+
+
+  void copyMembers(const EigenfunctionValuesForPoints& that) {
+      lowerInd = that.lowerInd;
+      upperInd = that.upperInd;
+      resMatrix = that.resMatrix;
+  }
 };
 
 
@@ -132,6 +161,8 @@ public:
 			const MatrixValuedKernelType& kernel, unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 
+
+
 		DomainType domain = m_representer->GetDomain();
 		unsigned n = domain.GetNumberOfPoints();
 
@@ -173,19 +204,15 @@ public:
 		// a standard statismo model.
 		// To save time, we parallelize over the rows
 
-#ifdef HAS_CXX11_ASYNC
-		std::vector < std::future<ResEigenfunctionPointComputations>* > resvec;
-#else
-		std::vector<ResEigenfunctionPointComputations*> resvec;
-#endif
-		// precompute the part of the nystrom approximation, which is independent of the domain point
+        std::vector<boost::future<EigenfunctionValuesForPoints>* > futvec;
+
+        // precompute the part of the nystrom approximation, which is independent of the domain point
 		MatrixType M = sqrt(m / float(n))
 				* (U.leftCols(numComponents)
 						* D.topRows(numComponents).asDiagonal().inverse());
 
-		// we split it in 1000 chunks, which should be more than most machines have cores. so we keep all cores busy
-		unsigned numChunks = 1000;
-		for (unsigned i = 0; i <= numChunks; i++) {
+        unsigned numChunks = boost::thread::hardware_concurrency() + 1;
+        for (unsigned i = 0; i <= numChunks; i++) {
 
 			unsigned int chunkSize = ceil(
 					domainPoints.size() / float(numChunks));
@@ -196,32 +223,22 @@ public:
 			if (lowerInd >= upperInd)
 				break;
 
-
-#ifdef HAS_CXX11_ASYNC
-			resvec.push_back(new std::future<ResEigenfunctionPointComputations>(
-					std::async(std::launch::async,
-							&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
-							this, &kernel, numComponents, n, xs, domainPoints, M,
-							lowerInd, upperInd)));
-#else
-			resvec.push_back(new ResEigenfunctionPointComputations(LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints(
-							&kernel, numComponents, n, xs, domainPoints,
-							M, lowerInd, upperInd)));
-#endif
-		}
+            boost::future<EigenfunctionValuesForPoints>* fut = new boost::future<EigenfunctionValuesForPoints>(
+                        boost::async(boost::launch::async, boost::bind(
+                                         &LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
+                                         this, &kernel, numComponents, n, xs, domainPoints, M,
+                                         lowerInd, upperInd)));
+            futvec.push_back(fut);
+	}
 
 		// collect the result
-		for (unsigned i = 0; i < resvec.size(); i++) {
-#ifdef HAS_CXX11_ASYNC
-			ResEigenfunctionPointComputations res = resvec[i]->get();
-#else
-			ResEigenfunctionPointComputations res = *(resvec[i]);
-#endif
-			pcaBasis.block(res.lowerInd * kernelDim, 0,
-					(res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
-					res.resMatrix;
-			delete resvec[i];
-		}
+	    for (unsigned i = 0; i < futvec.size(); i++) {
+            EigenfunctionValuesForPoints res = futvec[i]->get();
+            pcaBasis.block(res.lowerInd * kernelDim, 0,
+	      		     (res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
+                      res.resMatrix;
+		      delete futvec[i];
+	    }
 
 		MatrixType pcaVariance = n / float(m) * D.topRows(numComponents);
 
@@ -261,14 +278,13 @@ private:
 	 * Return a result object with the given values.
 	 * This method is used to be able to parallelize the computations.
 	 */
-	ResEigenfunctionPointComputations computeEigenfunctionsForPoints(
+    EigenfunctionValuesForPoints computeEigenfunctionsForPoints(
 			const MatrixValuedKernelType* kernel, unsigned numEigenfunctions,
 			unsigned numDomainPoints, const std::vector<PointType>& xs,
 			const std::vector<PointType> & domainPts, const MatrixType& M,
 			unsigned lowerInd, unsigned upperInd) const {
 
 		unsigned m = xs.size();
-
 		unsigned kernelDim = kernel->GetDimension();
 
 		assert(upperInd <= domainPts.size());
@@ -298,7 +314,7 @@ private:
 
 		}
 
-		return ResEigenfunctionPointComputations(lowerInd, upperInd, resMat);
+        return EigenfunctionValuesForPoints(lowerInd, upperInd, resMat);
 	}
 
 
