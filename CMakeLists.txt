@@ -135,7 +135,7 @@ install( FILES ${statismo_rep_itk}
 )
 
 file( GLOB statismo_rep_vtk
-  Representers/VTK/*.h Representers/VTK/*.hxx Representers/VTK/*.hpp Representers/VTK/*.txx  Representers/VTK/*.tpp
+  Representers/VTK/*.h Representers/VTK/*.hxx Representers/VTK/*.hpp Representers/VTK/*.txx  Representers/VTK/*.tpp Representers/VTK/*.cpp
 )
 install( FILES ${statismo_rep_vtk}
   DESTINATION include/statismo/Representers/VTK
