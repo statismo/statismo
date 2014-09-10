@@ -13,9 +13,17 @@ if(NOT USE_GIT_PROTOCOL)
 endif()
 
 set( ITK_DEPENDENCIES )
+set( _vtkoptions )
 
 if( ${USE_SYSTEM_VTK} MATCHES "OFF" )
   set( ITK_DEPENDENCIES VTK ${ITK_DEPENDENCIES} )
+else()
+  if( ${VTK_MAJOR_VERSION} EQUAL 6 )
+    set( _vtkoptions
+      -DModule_ITKVtkGlue:BOOL=ON
+      -DVTK_DIR:PATH=${VTK_DIR}
+    )
+  endif()
 endif()
 
 if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
@@ -39,13 +47,12 @@ ExternalProject_Add(ITK
     -DBUILD_TESTING:BOOL=OFF
     -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
     -DITK_BUILD_DEFAULT_MODULES:BOOL=ON
-    -DModule_ITKVtkGlue:BOOL=ON
     -DModule_ITKReview:BOOL=ON
     -DITK_LEGACY_REMOVE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPECENCIES_DIR}
     -DITK_USE_SYSTEM_HDF5:BOOL=ON
     -DHDF5_DIR:PATH=${HDF5_DIR}
-    -DVTK_DIR:PATH=${VTK_DIR}
+    ${_vtkoptions}
 )
 
 set( ITK_DIR ${INSTALL_DEPECENCIES_DIR}/lib/cmake/ITK-4.5/ )

@@ -70,6 +70,7 @@ if( ${USE_SYSTEM_VTK} MATCHES "OFF" )
   set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} VTK )
 else()
   find_package( VTK REQUIRED )
+  include( ${VTK_USE_FILE} )
 endif()
 
 option( USE_SYSTEM_ITK "Use system libraries for ITK" OFF )
@@ -78,6 +79,7 @@ if( ${USE_SYSTEM_ITK} MATCHES "OFF" )
   set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} ITK )
 else()
   find_package( ITK REQUIRED )
+  include( ${ITK_USE_FILE} )
 endif()
 
 ExternalProject_Add( Statismo
