@@ -10,6 +10,10 @@ if(NOT TARGET statismo_core AND NOT statismo_BINARY_DIR)
 endif()
 
 set( Boost_INCLUDE_DIR @Boost_INCLUDE_DIR@ )
+set( Boost_LIBRARY_DIRS @Boost_LIBRARY_DIRS@ )
+set( Boost_LIBRARIES @Boost_LIBRARIES@ )
+add_definitions( -DBOOST_THREAD_VERSION=3 )
+
 set( HDF5_DIR @HDF5_DIR@ )
 set( EIGEN3_INCLUDE_DIR @EIGEN3_INCLUDE_DIR@ )
 
@@ -18,6 +22,8 @@ include_directories(
   ${HDF5_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIR}
 )
+
+link_directories( ${Boost_LIBRARY_DIRS} )
 
 set( VTK_SUPPORT @VTK_SUPPORT@ )
 set( ITK_SUPPORT @ITK_SUPPORT@ )

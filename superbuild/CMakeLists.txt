@@ -70,6 +70,7 @@ if( ${USE_SYSTEM_VTK} MATCHES "OFF" )
   set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} VTK )
 else()
   find_package( VTK REQUIRED )
+  include( ${VTK_USE_FILE} )
 endif()
 
 option( USE_SYSTEM_ITK "Use system libraries for ITK" OFF )
@@ -78,6 +79,7 @@ if( ${USE_SYSTEM_ITK} MATCHES "OFF" )
   set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} ITK )
 else()
   find_package( ITK REQUIRED )
+  include( ${ITK_USE_FILE} )
 endif()
 
 ExternalProject_Add( Statismo
@@ -95,7 +97,8 @@ ExternalProject_Add( Statismo
     -DITK_SUPPORT:BOOL=ON
     -DVTK_SUPPORT:BOOL=ON
     -DBoost_INCLUDE_DIR:PATH=${Boost_INCLUDE_DIR}
-  	-DINSTALL_DEPECENCIES_DIR:PATH=${INSTALL_DEPECENCIES_DIR}
+    -DBOOST_ROOT:PATH=${BOOST_ROOT}
+    -DINSTALL_DEPECENCIES_DIR:PATH=${INSTALL_DEPECENCIES_DIR}
     -DITK_DIR:PATH=${ITK_DIR}
     -DVTK_DIR:PATH=${VTK_DIR}
     -DHDF5_DIR:PATH=${HDF5_DIR}

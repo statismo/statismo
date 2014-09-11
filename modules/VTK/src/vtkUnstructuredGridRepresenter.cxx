@@ -157,7 +157,12 @@ vtkUnstructuredGridRepresenter::DatasetToSample(DatasetConstPointerType _pd, Dat
 	  transform->SetTargetLandmarks(m_reference->GetPoints());
 	  transform->SetMode(m_alignment);
 
-	  m_pdTransform->SetInputData(pd);
+#if (VTK_MAJOR_VERSION == 5 )
+    m_pdTransform->SetInput(pd);
+#else
+    m_pdTransform->SetInputData(pd);
+#endif
+
 	  m_pdTransform->SetTransform(transform);
 	  m_pdTransform->Update();
 
@@ -292,7 +297,11 @@ vtkUnstructuredGridRepresenter::ReadDataset(const std::string& filename) {
 void vtkUnstructuredGridRepresenter::WriteDataset(const std::string& filename,DatasetConstPointerType pd) {
     vtkXMLUnstructuredGridWriter* writer = vtkXMLUnstructuredGridWriter::New();
     writer->SetFileName(filename.c_str());
+#if (VTK_MAJOR_VERSION == 5 )
+    writer->SetInput(const_cast<vtkUnstructuredGrid*>(pd));
+#else
     writer->SetInputData(const_cast<vtkUnstructuredGrid*>(pd));
+#endif
     writer->Update();
     if (writer->GetErrorCode() != 0) {
         throw StatisticalModelException((std::string("Could not read file ") + filename).c_str());
