@@ -263,12 +263,10 @@ void vtkStandardMeshRepresenter::Save(const H5::Group& fg) const {
 }
 
 statismo::VectorType vtkStandardMeshRepresenter::PointToVector(const PointType& pt) const {
-	// a vtk point is always 3 dimensional
-	VectorType v(3);
-	for (unsigned i = 0; i < 3; i++) {
-		v(i) = pt[i];
-	}
-	return v;
+
+    // a vtk point is always 3 dimensional
+    const VectorType& v = Eigen::Map<const VectorTypeDoublePrecision>(pt.data(), 3).cast<float>();
+    return v;
 }
 
 
