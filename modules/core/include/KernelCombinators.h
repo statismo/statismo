@@ -174,6 +174,127 @@ public:
     virtual ~TemperingFunction() {}
 };
 
+/**
+ * spatially-varing kernel, as described in the paper:
+ *
+ * T. Gerig, K. Shahim, M. Reyes, T. Vetter, M. Luethi
+ * Spatially varying registration using gaussian processes
+ * Miccai 2014
+ */
+template<class T>
+class SpatiallyVaryingKernel : public MatrixValuedKernel<typename Representer<T>::PointType> {
+
+    typedef Representer<T> RepresenterType;
+    typedef typename RepresenterType::PointType PointType;
+    typedef boost::unordered_map<statismo::VectorType, statismo::MatrixType> CacheType;
+
+public:
+
+    /**
+     * @brief Make a given kernel spatially varying according to the given tempering function
+     * @param representer, A representer which defines the domain over which the approximation is done
+     * @param kernel The kernel that is made spatially adaptive
+     * @param eta The tempering function that defines the amount of tempering for each point in the domain
+     * @param numEigenfunctions The number of eigenfunctions to be used for the approximation
+     * @param numberOfPointsForApproximation The number of points used for the nystrom approximation
+     * @param cacheValues Cache result of eigenfunction computations. Greatly speeds up the computation.
+     */
+    SpatiallyVaryingKernel(const RepresenterType* representer, const MatrixValuedKernel<PointType>& kernel, const TemperingFunction<PointType>& eta, unsigned numEigenfunctions, unsigned numberOfPointsForApproximation = 0, bool cacheValues = true)
+        : m_representer(representer),
+          m_eta(eta),
+          m_nystrom(Nystrom<T>::Create(representer, kernel, numEigenfunctions, numberOfPointsForApproximation == 0 ? numEigenfunctions * 2 : numberOfPointsForApproximation)),
+          m_eigenvalues(m_nystrom->getEigenvalues()),
+          m_cacheValues(cacheValues),
+          MatrixValuedKernel<PointType>(kernel.GetDimension())
+    {
+    }
+
+    inline MatrixType operator()(const PointType& x, const PointType& y) const {
+
+        MatrixType sum = MatrixType::Zero(this->m_dimension, this->m_dimension);
+
+        float eta_x = m_eta(x);
+        float eta_y = m_eta(y);
+
+
+        statismo::MatrixType phisAtX = phiAtPoint(x);
+        statismo::MatrixType phisAtY = phiAtPoint(y);
+
+        double largestTemperedEigenvalue = std::pow(m_eigenvalues(0), (eta_x + eta_y)/2);
+
+        for (unsigned i = 0; i < m_eigenvalues.size(); ++i) {
+
+            float temperedEigenvalue = std::pow(m_eigenvalues(i), (eta_x + eta_y)/2);
+
+            // ignore too small eigenvalues, as they don't contribute much.
+            // (the eigenvalues are ordered, all the following are smaller and can also be ignored)
+            if (temperedEigenvalue / largestTemperedEigenvalue < 1e-6)  {
+                break;
+            } else {
+                sum += phisAtX.col(i) * phisAtY.col(i).transpose() * temperedEigenvalue;
+            }
+        }
+        // normalize such that the largest eigenvalue is unaffected by the tempering
+        float normalizationFactor = largestTemperedEigenvalue / m_eigenvalues(0);
+        sum *= 1.0 / normalizationFactor;
+        return sum;
+    }
+
+
+    virtual ~SpatiallyVaryingKernel() {
+    }
+
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << "SpatiallyVaryingKernel";
+        return os.str();
+    }
+
+
+
+
+private:
+
+    // returns a d x n matrix holding the value of all n eigenfunctions evaluated at the given point.
+    const statismo::MatrixType phiAtPoint(const PointType& pt) const {
+
+        statismo::MatrixType v;
+        if (m_cacheValues) {
+            // we need to convert the point to a vector, as the function hash_value (required by boost)
+            // is not defined for an arbitrary point.
+            const VectorType ptAsVec = this->m_representer->PointToVector(pt);
+            _phiCacheLock.lock();
+            typename CacheType::const_iterator got = m_phiCache.find (ptAsVec);
+                _phiCacheLock.unlock();
+            if (got == m_phiCache.end()) {
+                v = m_nystrom->computeEigenfunctionsAtPoint(pt);
+                _phiCacheLock.lock();
+                m_phiCache.insert(std::make_pair(ptAsVec, v));
+                _phiCacheLock.unlock();
+            }
+            else {
+                v = got->second;
+            }
+        }
+        else {
+            v = m_nystrom->computeEigenfunctionsAtPoint(pt);
+       }
+        return v;
+    }
+
+
+    //
+    // members
+
+    const RepresenterType* m_representer;
+    std::auto_ptr<Nystrom<T> > m_nystrom;
+    statismo::VectorType m_eigenvalues;
+    const  TemperingFunction<PointType>& m_eta;
+    bool m_cacheValues;
+    mutable CacheType m_phiCache;
+    mutable boost::mutex _phiCacheLock;
+};
+
 
 
 }
