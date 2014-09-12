@@ -41,6 +41,9 @@
 #include "vtkPolyDataReader.h"
 #include "vtkStandardMeshRepresenter.h"
 
+#include "Kernels.h"
+#include "KernelCombinators.h"
+
 #include <iostream>
 #include <memory>
 
