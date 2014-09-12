@@ -47,9 +47,9 @@
 #include <string>
 #include <list>
 #include <vector>
-
 #include <Eigen/Dense>
 
+#include <boost/functional/hash.hpp>
 
 
 namespace statismo {
@@ -105,8 +105,22 @@ template <> inline unsigned GetDataTypeId<float>() { return FLOAT; }
 template <> inline unsigned GetDataTypeId<double>() { return DOUBLE; }
 
 
+
 } //namespace statismo
 
+// If we want to store a vector in a boost map, boost requires this function to be present.
+// We define it here once and for all.
+// Because of the way boost looksup the values, it needs to be defined in the namespace Eigen
+namespace Eigen {
+inline int hash_value(const statismo::VectorType& v) {
+
+    size_t value = 0;
+    for (unsigned i = 0; i < v.size(); i++) {
+        boost::hash_combine(value, v(i));
+    }
+    return value;
+}
+}
 
 #endif
 
