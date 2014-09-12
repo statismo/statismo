@@ -94,15 +94,15 @@ class LowRankGPModelBuilder: public ModelBuilder<T> {
 
 public:
 
-	typedef Representer<T> RepresenterType;
-	typedef ModelBuilder<T> Superclass;
+	typedef Representer<T>                      RepresenterType;
+  typedef typename RepresenterType::PointType PointType;
 
-
+  typedef ModelBuilder<T>                           Superclass;
 	typedef typename Superclass::StatisticalModelType StatisticalModelType;
 
-	typedef statismo::Domain<typename RepresenterType::PointType> DomainType;
+	typedef Domain<PointType>                         DomainType;
 	typedef typename DomainType::DomainPointsListType DomainPointsListType;
-	typedef typename RepresenterType::PointType PointType;
+
 	typedef MatrixValuedKernel<PointType> MatrixValuedKernelType;
 
 	/**
@@ -143,8 +143,10 @@ public:
 		VectorType zeroVec = VectorType::Zero(
 				m_representer->GetDomain().GetNumberOfPoints()
 						* m_representer->GetDimensions());
+
 		typename RepresenterType::DatasetConstPointerType zeroMean =
 				m_representer->SampleVectorToSample(zeroVec);
+
 		return BuildNewModel(zeroMean, kernel, numComponents,
 				numPointsForNystrom);
 	}
@@ -160,7 +162,8 @@ public:
 	 */
 	StatisticalModelType* BuildNewModel(
 			typename RepresenterType::DatasetConstPointerType mean,
-			const MatrixValuedKernelType& kernel, unsigned numComponents,
+			const MatrixValuedKernelType& kernel,
+      unsigned numComponents,
 			unsigned numPointsForNystrom = 500) const {
 
 
@@ -182,12 +185,11 @@ public:
 
 		for (unsigned i = 0; i <= numChunks; i++) {
 
-			unsigned int chunkSize = ceil(
-                    numDomainPoints / float(numChunks));
+			unsigned int chunkSize = ceil(numDomainPoints / float(numChunks));
 			unsigned int lowerInd = i * chunkSize;
-			unsigned int upperInd = std::min(
-                    static_cast<unsigned>(numDomainPoints),
-					(i + 1) * chunkSize);
+			unsigned int upperInd =
+        std::min( static_cast<unsigned>(numDomainPoints),
+                  (i + 1) * chunkSize);
 			if (lowerInd >= upperInd)
 				break;
 
@@ -212,9 +214,6 @@ public:
 
         VectorType pcaVariance = nystrom->getEigenvalues();
 
-
-
-
 		RowVectorType mu = m_representer->SampleToSampleVector(mean);
 
 		StatisticalModelType* model = StatisticalModelType::Create(
@@ -237,8 +236,6 @@ public:
 
 		ModelInfo info(scores, biList);
 		model->SetModelInfo(info);
-
-
 
 		return model;
 	}
