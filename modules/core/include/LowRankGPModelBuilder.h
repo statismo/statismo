@@ -190,9 +190,9 @@ public:
 			unsigned int upperInd =
         std::min( static_cast<unsigned>(numDomainPoints),
                   (i + 1) * chunkSize);
-			if (lowerInd >= upperInd)
+            if (lowerInd >= upperInd) {
 				break;
-
+            }
 
            boost::future<EigenfunctionComputationResult>* fut = new boost::future<EigenfunctionComputationResult>(
                 boost::async(boost::launch::async, boost::bind(&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
@@ -225,7 +225,7 @@ public:
 
 
 		typename BuilderInfo::ParameterInfoList bi;
-		bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ",		Utils::toString(0)));
+        bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance",		Utils::toString(0)));
 		bi.push_back(BuilderInfo::KeyValuePair("KernelInfo", kernel.GetKernelInfo()));
 
 		// finally add meta data to the model info
