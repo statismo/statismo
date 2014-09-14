@@ -31,12 +31,14 @@ namespace statismo {
  */
 template<class TPoint>
 class SumKernel: public MatrixValuedKernel<TPoint> {
-
 public:
 
-    SumKernel(const MatrixValuedKernel<TPoint>* lhs,
-            const MatrixValuedKernel<TPoint>* rhs) :
-            MatrixValuedKernel<TPoint>(lhs->GetDimension()),
+    typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
+
+
+    SumKernel(const MatrixValuedKernelType* lhs,
+            const MatrixValuedKernelType* rhs) :
+            MatrixValuedKernelType(lhs->GetDimension()),
             m_lhs(lhs),
             m_rhs(rhs) {
         if (lhs->GetDimension() != rhs->GetDimension()) {
@@ -56,8 +58,8 @@ public:
     }
 
 private:
-    const MatrixValuedKernel<TPoint>* m_lhs;
-    const MatrixValuedKernel<TPoint>* m_rhs;
+    const MatrixValuedKernelType* m_lhs;
+    const MatrixValuedKernelType* m_rhs;
 };
 
 
@@ -68,11 +70,14 @@ private:
 
 template<class TPoint>
 class ProductKernel: public MatrixValuedKernel<TPoint> {
+
 public:
 
-    ProductKernel(const MatrixValuedKernel<TPoint>* lhs,
-            const MatrixValuedKernel<TPoint>* rhs) :
-            MatrixValuedKernel<TPoint>(lhs->GetDimension()), m_lhs(lhs), m_rhs(
+    typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
+
+    ProductKernel(const MatrixValuedKernelType* lhs,
+            const MatrixValuedKernelType* rhs) :
+            MatrixValuedKernelType(lhs->GetDimension()), m_lhs(lhs), m_rhs(
                     rhs) {
         if (lhs->GetDimension() != rhs->GetDimension()) {
             throw StatisticalModelException(
@@ -92,8 +97,8 @@ public:
     }
 
 private:
-    const MatrixValuedKernel<TPoint>* m_lhs;
-    const MatrixValuedKernel<TPoint>* m_rhs;
+    const MatrixValuedKernelType* m_lhs;
+    const MatrixValuedKernelType* m_rhs;
 };
 
 
@@ -105,9 +110,13 @@ template<class TPoint>
 class ScaledKernel: public MatrixValuedKernel<TPoint> {
 public:
 
-    ScaledKernel(const MatrixValuedKernel<TPoint>* kernel,
+
+    typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
+
+
+    ScaledKernel(const MatrixValuedKernelType* kernel,
             double scalingFactor) :
-            MatrixValuedKernel<TPoint>(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {
+            MatrixValuedKernelType(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {
     }
 
     MatrixType operator()(const TPoint& x, const TPoint& y) const {
@@ -120,7 +129,7 @@ public:
     }
 
 private:
-    const MatrixValuedKernel<TPoint>* m_kernel;
+    const MatrixValuedKernelType* m_kernel;
     double m_scalingFactor;
 };
 
@@ -134,10 +143,12 @@ template<class TPoint>
 class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel<TPoint> {
 public:
 
+    typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
+
     UncorrelatedMatrixValuedKernel(
             const ScalarValuedKernel<TPoint>* scalarKernel,
             unsigned dimension) :
-            MatrixValuedKernel<TPoint>(	dimension), m_kernel(scalarKernel),
+            MatrixValuedKernelType(	dimension), m_kernel(scalarKernel),
             m_ident(MatrixType::Identity(dimension, dimension)) {
     }
 
@@ -168,7 +179,7 @@ private:
  * Base class for defining a tempering function for the SpatiallyVaryingKernel
  */
 template <class TPoint>
-class TemperingFunction : public std::unary_function<TPoint, double> {
+class TemperingFunction {
 public:
     virtual double operator()(const TPoint& pt) const = 0;
     virtual ~TemperingFunction() {}
@@ -184,11 +195,13 @@ public:
 template<class T>
 class SpatiallyVaryingKernel : public MatrixValuedKernel<typename Representer<T>::PointType> {
 
-    typedef Representer<T> RepresenterType;
-    typedef typename RepresenterType::PointType PointType;
     typedef boost::unordered_map<statismo::VectorType, statismo::MatrixType> CacheType;
 
 public:
+
+    typedef Representer<T> RepresenterType;
+    typedef typename RepresenterType::PointType PointType;
+
 
     /**
      * @brief Make a given kernel spatially varying according to the given tempering function

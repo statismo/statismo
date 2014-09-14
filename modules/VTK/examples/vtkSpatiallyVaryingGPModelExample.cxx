@@ -23,7 +23,6 @@
 
 
 using namespace statismo;
-using std::auto_ptr;
 
 
 /*
@@ -32,18 +31,18 @@ using std::auto_ptr;
 class MultiscaleGaussianKernel: public MatrixValuedKernel<vtkPoint> {
 public:
 
-    MultiscaleGaussianKernel(double baseWidth, double baseScale, unsigned nLevels) : m_baseWidth(baseWidth), m_baseScale(baseScale), m_nLevels(nLevels), MatrixValuedKernel<vtkPoint>(3){
+    MultiscaleGaussianKernel(float baseWidth, float baseScale, unsigned nLevels) : m_baseWidth(baseWidth), m_baseScale(baseScale), m_nLevels(nLevels), MatrixValuedKernel<vtkPoint>(3){
 	}
 
     inline statismo::MatrixType operator()(const vtkPoint& x, const vtkPoint& y) const {
 		VectorType r(3);
 		r << x[0] - y[0], x[1] - y[1], x[2] - y[2];
 
-        double kernelValue = 0;
+        float kernelValue = 0;
         for (unsigned l = 1 ; l <= m_nLevels; ++l) {
             float widthOnLevel = m_baseWidth / l;
             float scaleOnLevel = m_baseScale / l;
-            kernelValue += scaleOnLevel * exp(-r.dot(r) / (widthOnLevel * widthOnLevel));
+            kernelValue += scaleOnLevel * std::exp(-r.dot(r) / (widthOnLevel * widthOnLevel));
         }
         return statismo::MatrixType::Identity(3,3) * kernelValue;
 	}
@@ -56,8 +55,8 @@ public:
 
 private:
 
-    double m_baseWidth;
-    double m_baseScale;
+    float m_baseWidth;
+    float m_baseScale;
     unsigned m_nLevels;
 };
 
@@ -69,14 +68,15 @@ vtkPolyData* loadVTKPolyData(const std::string& filename)
 	reader->Update();
 	vtkPolyData* pd = vtkPolyData::New();
 	pd->ShallowCopy(reader->GetOutput());
-	return pd;
+    reader->Delete();
+    return pd;
 }
 
 // As an example of a tempering function, we use the sigmoid function in x direction. This implies that
 // any point whose x coordinate is smaller than 0 will be unchanged, while values larger than 0 will be tempered (with value 2).
 // How smooth the transition between the values is, is defined by the variable a.
 struct SigmoidFunction : public TemperingFunction<vtkPoint> {
-  const double a = 0.5;
+  static const double a = 0.5;
   double operator() (const vtkPoint& pt) const {return  (1.0 / ( 1 + std::exp(-pt[0] * a)) + 1.0) ; }
 };
 
@@ -116,9 +116,6 @@ int main(int argc, char** argv) {
         vtkPolyData* referenceMesh = loadVTKPolyData(refFilename);
         vtkStandardMeshRepresenter* representer = vtkStandardMeshRepresenter::Create(referenceMesh);
 
-        vtkStandardMeshRepresenter* representer = vtkStandardMeshRepresenter::Create();
-        StatisticalModelType* model = StatisticalModelType::Load(representer, refFilename);
-
         MultiscaleGaussianKernel gk = MultiscaleGaussianKernel(baseKernelWidth, baseScale, numLevels);
 
         SigmoidFunction temperingFun;
@@ -126,13 +123,18 @@ int main(int argc, char** argv) {
         const MatrixValuedKernelType& temperedKernel = SpatiallyVaryingKernel<RepresenterType::DatasetType>(representer, gk, temperingFun , numberOfComponents,  numberOfComponents * 2, true);
 
         // We create a new model using the combined kernel. The new model will be more flexible than the original statistical model.
-        auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create(representer));
+        ModelBuilderType* modelBuilder = ModelBuilderType::Create(representer);
 
-        auto_ptr<StatisticalModelType> newdModel(modelBuilder->BuildNewModel(referenceMesh, temperedKernel, numberOfComponents));
+        StatisticalModelType* newModel = modelBuilder->BuildNewModel(referenceMesh, temperedKernel, numberOfComponents);
 
         // Once we have built the model, we can save it to disk.
         newModel->Save(outputModelFilename);
 		std::cout << "Successfully saved shape model as " << outputModelFilename << std::endl;
+
+        referenceMesh->Delete();
+        representer->Delete();
+        modelBuilder->Delete();
+        newModel->Delete();
 
 	}
 	catch (StatisticalModelException& e) {

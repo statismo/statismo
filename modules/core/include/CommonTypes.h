@@ -112,7 +112,7 @@ template <> inline unsigned GetDataTypeId<double>() { return DOUBLE; }
 // We define it here once and for all.
 // Because of the way boost looksup the values, it needs to be defined in the namespace Eigen
 namespace Eigen {
-inline int hash_value(const statismo::VectorType& v) {
+inline size_t hash_value(const statismo::VectorType& v) {
 
     size_t value = 0;
     for (unsigned i = 0; i < v.size(); i++) {
