@@ -19,25 +19,25 @@ namespace statismo {
  */
 template<class TPoint>
 class ScalarValuedKernel {
-public:
+  public:
 
-	/**
-	 * Create a new scalar valued kernel.
-	 */
-	ScalarValuedKernel(){	}
+    /**
+     * Create a new scalar valued kernel.
+     */
+    ScalarValuedKernel() {	}
 
-	virtual ~ScalarValuedKernel() {
-	}
+    virtual ~ScalarValuedKernel() {
+    }
 
-	/**
-	 * Evaluate the kernel function at the points x and y
-	 */
-	virtual double operator()(const TPoint& x, const TPoint& y) const = 0;
+    /**
+     * Evaluate the kernel function at the points x and y
+     */
+    virtual double operator()(const TPoint& x, const TPoint& y) const = 0;
 
-	/**
-	 * Return a description of this kernel
-	 */
-	virtual std::string GetKernelInfo() const = 0;
+    /**
+     * Return a description of this kernel
+     */
+    virtual std::string GetKernelInfo() const = 0;
 
 };
 
@@ -47,38 +47,38 @@ public:
  */
 template<class TPoint>
 class MatrixValuedKernel {
-public:
+  public:
 
-	/**
-	 * Create a new MatrixValuedKernel
-	 */
-	MatrixValuedKernel(unsigned dim) :
-			m_dimension(dim) {
-	}
+    /**
+     * Create a new MatrixValuedKernel
+     */
+    MatrixValuedKernel(unsigned dim) :
+        m_dimension(dim) {
+    }
 
-	/**
-	 * Evaluate the kernel at the points x and y
-	 */
-	virtual MatrixType operator()(const TPoint& x,
-			const TPoint& y) const = 0;
+    /**
+     * Evaluate the kernel at the points x and y
+     */
+    virtual MatrixType operator()(const TPoint& x,
+                                  const TPoint& y) const = 0;
 
-	/**
-	 * Return the dimensionality of the kernel (i.e. the size of the matrix)
-	 */
-	virtual unsigned GetDimension() const {
-		return m_dimension;
-	}
-	;
-	virtual ~MatrixValuedKernel() {
-	}
+    /**
+     * Return the dimensionality of the kernel (i.e. the size of the matrix)
+     */
+    virtual unsigned GetDimension() const {
+        return m_dimension;
+    }
+    ;
+    virtual ~MatrixValuedKernel() {
+    }
 
-	/**
-	 * Return a description of this kernel.
-	 */
-	virtual std::string GetKernelInfo() const = 0;
+    /**
+     * Return a description of this kernel.
+     */
+    virtual std::string GetKernelInfo() const = 0;
 
-protected:
-	unsigned m_dimension;
+  protected:
+    unsigned m_dimension;
 
 };
 
@@ -88,32 +88,32 @@ protected:
 template<class TPoint>
 class SumKernel: public MatrixValuedKernel<TPoint> {
 
-public:
+  public:
 
-	SumKernel(const MatrixValuedKernel<TPoint>* lhs,
-			const MatrixValuedKernel<TPoint>* rhs) :
-			MatrixValuedKernel<TPoint>(lhs->GetDimension()),
-			m_lhs(lhs),
-			m_rhs(rhs) {
-		if (lhs->GetDimension() != rhs->GetDimension()) {
-			throw StatisticalModelException(
-					"Kernels in SumKernel must have the same dimensionality");
-		}
-	}
+    SumKernel(const MatrixValuedKernel<TPoint>* lhs,
+              const MatrixValuedKernel<TPoint>* rhs) :
+        MatrixValuedKernel<TPoint>(lhs->GetDimension()),
+        m_lhs(lhs),
+        m_rhs(rhs) {
+        if (lhs->GetDimension() != rhs->GetDimension()) {
+            throw StatisticalModelException(
+                "Kernels in SumKernel must have the same dimensionality");
+        }
+    }
 
-	MatrixType operator()(const TPoint& x, const TPoint& y) const {
-		return (*m_lhs)(x, y) + (*m_rhs)(x, y);
-	}
+    MatrixType operator()(const TPoint& x, const TPoint& y) const {
+        return (*m_lhs)(x, y) + (*m_rhs)(x, y);
+    }
 
-	std::string GetKernelInfo() const {
-		std::ostringstream os;
-		os << m_lhs->GetKernelInfo() << " + " << m_rhs->GetKernelInfo();
-		return os.str();
-	}
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << m_lhs->GetKernelInfo() << " + " << m_rhs->GetKernelInfo();
+        return os.str();
+    }
 
-private:
-	const MatrixValuedKernel<TPoint>* m_lhs;
-	const MatrixValuedKernel<TPoint>* m_rhs;
+  private:
+    const MatrixValuedKernel<TPoint>* m_lhs;
+    const MatrixValuedKernel<TPoint>* m_rhs;
 };
 
 
@@ -124,32 +124,32 @@ private:
 
 template<class TPoint>
 class ProductKernel: public MatrixValuedKernel<TPoint> {
-public:
+  public:
 
-	ProductKernel(const MatrixValuedKernel<TPoint>* lhs,
-			const MatrixValuedKernel<TPoint>* rhs) :
-			MatrixValuedKernel<TPoint>(lhs->GetDimension()), m_lhs(lhs), m_rhs(
-					rhs) {
-		if (lhs->GetDimension() != rhs->GetDimension()) {
-			throw StatisticalModelException(
-					"Kernels in SumKernel must have the same dimensionality");
-		}
+    ProductKernel(const MatrixValuedKernel<TPoint>* lhs,
+                  const MatrixValuedKernel<TPoint>* rhs) :
+        MatrixValuedKernel<TPoint>(lhs->GetDimension()), m_lhs(lhs), m_rhs(
+            rhs) {
+        if (lhs->GetDimension() != rhs->GetDimension()) {
+            throw StatisticalModelException(
+                "Kernels in SumKernel must have the same dimensionality");
+        }
 
-	}
+    }
 
-	MatrixType operator()(const TPoint& x, const TPoint& y) const {
-		return (*m_lhs)(x, y) * (*m_rhs)(x, y);
-	}
+    MatrixType operator()(const TPoint& x, const TPoint& y) const {
+        return (*m_lhs)(x, y) * (*m_rhs)(x, y);
+    }
 
-	std::string GetKernelInfo() const {
-		std::ostringstream os;
-		os << m_lhs->GetKernelInfo() << " * " << m_rhs->GetKernelInfo();
-		return os.str();
-	}
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << m_lhs->GetKernelInfo() << " * " << m_rhs->GetKernelInfo();
+        return os.str();
+    }
 
-private:
-	const MatrixValuedKernel<TPoint>* m_lhs;
-	const MatrixValuedKernel<TPoint>* m_rhs;
+  private:
+    const MatrixValuedKernel<TPoint>* m_lhs;
+    const MatrixValuedKernel<TPoint>* m_rhs;
 };
 
 
@@ -159,25 +159,25 @@ private:
 
 template<class TPoint>
 class ScaledKernel: public MatrixValuedKernel<TPoint> {
-public:
+  public:
 
-	ScaledKernel(const MatrixValuedKernel<TPoint>* kernel,
-			double scalingFactor) :
-			MatrixValuedKernel<TPoint>(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {
-	}
+    ScaledKernel(const MatrixValuedKernel<TPoint>* kernel,
+                 double scalingFactor) :
+        MatrixValuedKernel<TPoint>(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {
+    }
 
-	MatrixType operator()(const TPoint& x, const TPoint& y) const {
-		return (*m_kernel)(x, y) * m_scalingFactor;
-	}
-	std::string GetKernelInfo() const {
-		std::ostringstream os;
-		os << (*m_kernel).GetKernelInfo() << " * " << m_scalingFactor;
-		return os.str();
-	}
+    MatrixType operator()(const TPoint& x, const TPoint& y) const {
+        return (*m_kernel)(x, y) * m_scalingFactor;
+    }
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << (*m_kernel).GetKernelInfo() << " * " << m_scalingFactor;
+        return os.str();
+    }
 
-private:
-	const MatrixValuedKernel<TPoint>* m_kernel;
-	double m_scalingFactor;
+  private:
+    const MatrixValuedKernel<TPoint>* m_kernel;
+    double m_scalingFactor;
 };
 
 
@@ -188,64 +188,64 @@ private:
  */
 template<class TPoint>
 class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel<TPoint> {
-public:
+  public:
 
-	UncorrelatedMatrixValuedKernel(
-			const ScalarValuedKernel<TPoint>* scalarKernel,
-			unsigned dimension) :
-			MatrixValuedKernel<TPoint>(	dimension), m_kernel(scalarKernel),
-			m_ident(MatrixType::Identity(dimension, dimension)) {
-	}
+    UncorrelatedMatrixValuedKernel(
+        const ScalarValuedKernel<TPoint>* scalarKernel,
+        unsigned dimension) :
+        MatrixValuedKernel<TPoint>(	dimension), m_kernel(scalarKernel),
+        m_ident(MatrixType::Identity(dimension, dimension)) {
+    }
 
-	MatrixType operator()(const TPoint& x, const TPoint& y) const {
+    MatrixType operator()(const TPoint& x, const TPoint& y) const {
 
-		return m_ident * (*m_kernel)(x, y);
-	}
+        return m_ident * (*m_kernel)(x, y);
+    }
 
-	virtual ~UncorrelatedMatrixValuedKernel() {
-	}
+    virtual ~UncorrelatedMatrixValuedKernel() {
+    }
 
-	std::string GetKernelInfo() const {
-		std::ostringstream os;
-		os << "UncorrelatedMatrixValuedKernel(" << (*m_kernel).GetKernelInfo()
-				<< ", " << this->m_dimension << ")";
-		return os.str();
-	}
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << "UncorrelatedMatrixValuedKernel(" << (*m_kernel).GetKernelInfo()
+           << ", " << this->m_dimension << ")";
+        return os.str();
+    }
 
-private:
+  private:
 
-	const ScalarValuedKernel<TPoint>* m_kernel;
-	MatrixType m_ident;
+    const ScalarValuedKernel<TPoint>* m_kernel;
+    MatrixType m_ident;
 
 };
 
 
 template<class T>
 class StatisticalModelKernel: public MatrixValuedKernel<typename Representer<T>::PointType > {
-public:
+  public:
 
-	typedef Representer<T> RepresenterType;
-	typedef typename RepresenterType::PointType PointType;
-	typedef StatisticalModel<T> StatisticalModelType;
+    typedef Representer<T> RepresenterType;
+    typedef typename RepresenterType::PointType PointType;
+    typedef StatisticalModel<T> StatisticalModelType;
 
-	StatisticalModelKernel(const StatisticalModelType* model) :
-			MatrixValuedKernel<PointType>(model->GetRepresenter()->GetDimensions()), m_statisticalModel(model) {
-	}
+    StatisticalModelKernel(const StatisticalModelType* model) :
+        MatrixValuedKernel<PointType>(model->GetRepresenter()->GetDimensions()), m_statisticalModel(model) {
+    }
 
-	virtual ~StatisticalModelKernel() {
-	}
+    virtual ~StatisticalModelKernel() {
+    }
 
-	inline MatrixType operator()(const PointType& x, const PointType& y) const {
-		MatrixType m = m_statisticalModel->GetCovarianceAtPoint(x, y);
-		return m;
-	}
+    inline MatrixType operator()(const PointType& x, const PointType& y) const {
+        MatrixType m = m_statisticalModel->GetCovarianceAtPoint(x, y);
+        return m;
+    }
 
-	std::string GetKernelInfo() const {
-		return "StatisticalModelKernel";
-	}
+    std::string GetKernelInfo() const {
+        return "StatisticalModelKernel";
+    }
 
-private:
-	const StatisticalModelType* m_statisticalModel;
+  private:
+    const StatisticalModelType* m_statisticalModel;
 };
 
 } // namespace statismo

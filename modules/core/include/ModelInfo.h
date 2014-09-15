@@ -59,64 +59,64 @@ class BuilderInfo; // forward declaration
  *
  */
 class ModelInfo {
-public:
+  public:
 
-	typedef std::vector<BuilderInfo> BuilderInfoList;
+    typedef std::vector<BuilderInfo> BuilderInfoList;
 
-	/// create an new, empty model info object
-	ModelInfo();
+    /// create an new, empty model info object
+    ModelInfo();
 
-	/**
-	 * Creates a new ModelInfo object with the given information
-	 * \param scores A matrix holding the scores
-	 * \param builderInfos A list of BuilderInfo objects
-	 */
-	ModelInfo(const MatrixType& scores, const BuilderInfoList& builderInfos);
+    /**
+     * Creates a new ModelInfo object with the given information
+     * \param scores A matrix holding the scores
+     * \param builderInfos A list of BuilderInfo objects
+     */
+    ModelInfo(const MatrixType& scores, const BuilderInfoList& builderInfos);
 
-	/**
-	 * Create a ModelInfo object without specifying any BuilderInfos
-	 * \param scores A matrix holding the scores
-	 */
-	ModelInfo(const MatrixType& scores);
+    /**
+     * Create a ModelInfo object without specifying any BuilderInfos
+     * \param scores A matrix holding the scores
+     */
+    ModelInfo(const MatrixType& scores);
 
 
-	/// destructor
-	virtual ~ModelInfo();
+    /// destructor
+    virtual ~ModelInfo();
 
-	ModelInfo& operator=(const ModelInfo& rhs);
+    ModelInfo& operator=(const ModelInfo& rhs);
 
-	ModelInfo(const ModelInfo& orig) {
-		operator=(orig);
-	}
+    ModelInfo(const ModelInfo& orig) {
+        operator=(orig);
+    }
 
-	/**
-	 * Returns a list with BuilderInfos
-	 */
-	BuilderInfoList GetBuilderInfoList() const;
+    /**
+     * Returns a list with BuilderInfos
+     */
+    BuilderInfoList GetBuilderInfoList() const;
 
-	/**
-	 * Returns the scores matrix. That is, a matrix where the i-th column corresponds to the
-	 * coefficients of the i-th dataset in the model
-	 */
-	const MatrixType& GetScoresMatrix() const;
+    /**
+     * Returns the scores matrix. That is, a matrix where the i-th column corresponds to the
+     * coefficients of the i-th dataset in the model
+     */
+    const MatrixType& GetScoresMatrix() const;
 
-	/**
-	 * Saves the model info to the given group in the HDF5 file
-	 */
-	virtual void Save(const H5::CommonFG& publicFg) const;
+    /**
+     * Saves the model info to the given group in the HDF5 file
+     */
+    virtual void Save(const H5::CommonFG& publicFg) const;
 
-	/**
-	 * Loads the model info from the given group in the HDF5 file.
-	 */
-	virtual void Load(const H5::CommonFG& publicFg);
-	
+    /**
+     * Loads the model info from the given group in the HDF5 file.
+     */
+    virtual void Load(const H5::CommonFG& publicFg);
 
-private:
 
-	BuilderInfo LoadDataInfoOldStatismoFormat(const H5::CommonFG& publicFg) const;
+  private:
 
-	MatrixType m_scores;
-	BuilderInfoList m_builderInfo;
+    BuilderInfo LoadDataInfoOldStatismoFormat(const H5::CommonFG& publicFg) const;
+
+    MatrixType m_scores;
+    BuilderInfoList m_builderInfo;
 };
 
 /**
@@ -124,67 +124,67 @@ private:
  */
 class BuilderInfo {
 
-	friend class ModelInfo;
+    friend class ModelInfo;
 
-public:
-	typedef std::pair<std::string, std::string> KeyValuePair;
-	typedef std::list<KeyValuePair> KeyValueList;
+  public:
+    typedef std::pair<std::string, std::string> KeyValuePair;
+    typedef std::list<KeyValuePair> KeyValueList;
 
-	// Currently all the info entries are just simple list of string pairs.
-	// We  don't want to use maps, as this would sort the items according to the key.
-	typedef KeyValueList DataInfoList;
-	typedef KeyValueList ParameterInfoList;
+    // Currently all the info entries are just simple list of string pairs.
+    // We  don't want to use maps, as this would sort the items according to the key.
+    typedef KeyValueList DataInfoList;
+    typedef KeyValueList ParameterInfoList;
 
-	/**
-	 * Creates a new BuilderInfo object with the given information
-	 */
-	BuilderInfo(const std::string& modelBuilderName, const std::string& buildTime, const DataInfoList& di,  const ParameterInfoList& pi);
+    /**
+     * Creates a new BuilderInfo object with the given information
+     */
+    BuilderInfo(const std::string& modelBuilderName, const std::string& buildTime, const DataInfoList& di,  const ParameterInfoList& pi);
 
-	BuilderInfo(const std::string& modelBuilderName, const DataInfoList& di, const ParameterInfoList& pi);
+    BuilderInfo(const std::string& modelBuilderName, const DataInfoList& di, const ParameterInfoList& pi);
 
-	/**
-	 * Create a new, empty BilderInfo object
-	 */
-	BuilderInfo();
+    /**
+     * Create a new, empty BilderInfo object
+     */
+    BuilderInfo();
 
-	/// destructor
-	virtual ~BuilderInfo();
+    /// destructor
+    virtual ~BuilderInfo();
 
-	BuilderInfo& operator=(const BuilderInfo& rhs);
+    BuilderInfo& operator=(const BuilderInfo& rhs);
 
-	BuilderInfo(const BuilderInfo& orig);
-
-
-	/**
-	 * Saves the builder info to the given group in the HDF5 file
-	 */
-	virtual void Save(const H5::CommonFG& publicFg) const;
-
-	/**
-	 * Loads the builder info from the given group in the HDF5 file.
-	 */
-	virtual void Load(const H5::CommonFG& publicFg);
-
-	/**
-	 * Returns the data info
-	 */
-	const DataInfoList& GetDataInfo() const;
-
-	/**
-	 * Returns the parameter info
-	 */
-	const ParameterInfoList& GetParameterInfo() const;
-
-private:
+    BuilderInfo(const BuilderInfo& orig);
 
 
+    /**
+     * Saves the builder info to the given group in the HDF5 file
+     */
+    virtual void Save(const H5::CommonFG& publicFg) const;
 
-	static void FillKeyValueListFromInfoGroup(const H5::CommonFG& group, KeyValueList& keyValueList);
+    /**
+     * Loads the builder info from the given group in the HDF5 file.
+     */
+    virtual void Load(const H5::CommonFG& publicFg);
 
-	std::string m_modelBuilderName;
-	std::string m_buildtime;
-	DataInfoList m_dataInfo;
-	ParameterInfoList m_parameterInfo;
+    /**
+     * Returns the data info
+     */
+    const DataInfoList& GetDataInfo() const;
+
+    /**
+     * Returns the parameter info
+     */
+    const ParameterInfoList& GetParameterInfo() const;
+
+  private:
+
+
+
+    static void FillKeyValueListFromInfoGroup(const H5::CommonFG& group, KeyValueList& keyValueList);
+
+    std::string m_modelBuilderName;
+    std::string m_buildtime;
+    DataInfoList m_dataInfo;
+    ParameterInfoList m_parameterInfo;
 };
 
 } // namespace statismo

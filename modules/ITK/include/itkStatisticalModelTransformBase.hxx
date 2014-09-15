@@ -41,8 +41,7 @@
 #include "itkStatisticalModelTransformBase.h"
 
 
-namespace itk
-{
+namespace itk {
 
 /*!
  * Constructor with default arguments.
@@ -50,15 +49,14 @@ namespace itk
 template <class TRepresenter, class TScalarType, unsigned int TInputDimension, unsigned int TOutputDimension >
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>
 ::StatisticalModelTransformBase() :
-	Superclass(0), // we don't know the number of parameters at this point.
-	m_StatisticalModel(0),
-	m_coeff_vector(0),
-	m_usedNumberCoefficients(10000) // something large
-	{
-	itkDebugMacro( << "Constructor MorphableModelTransform()");
+    Superclass(0), // we don't know the number of parameters at this point.
+    m_StatisticalModel(0),
+    m_coeff_vector(0),
+    m_usedNumberCoefficients(10000) { // something large
+    itkDebugMacro( << "Constructor MorphableModelTransform()");
 
-	this->m_FixedParameters.SetSize(0);
-	}
+    this->m_FixedParameters.SetSize(0);
+}
 
 
 
@@ -68,26 +66,24 @@ StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutp
 template <class TRepresenter, class TScalarType, unsigned int TInputDimension, unsigned int TOutputDimension >
 void
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>
-::SetStatisticalModel(const StatisticalModelType* model)
-{
-	itkDebugMacro( << "Setting statistical model ");
-	m_StatisticalModel = model;
+::SetStatisticalModel(const StatisticalModelType* model) {
+    itkDebugMacro( << "Setting statistical model ");
+    m_StatisticalModel = model;
 
 
-	this->m_Parameters.SetSize(model->GetNumberOfPrincipalComponents());
-	this->m_Parameters.Fill(0.0);
+    this->m_Parameters.SetSize(model->GetNumberOfPrincipalComponents());
+    this->m_Parameters.Fill(0.0);
 
-	this->m_coeff_vector.set_size(model->GetNumberOfPrincipalComponents());
+    this->m_coeff_vector.set_size(model->GetNumberOfPrincipalComponents());
 
 }
 
 template <class TRepresenter, class TScalarType, unsigned int TInputDimension, unsigned int TOutputDimension >
 typename StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>::StatisticalModelType::ConstPointer
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>
-::GetStatisticalModel() const
-{
-	itkDebugMacro( << "Getting statistical model ");
-	return m_StatisticalModel;
+::GetStatisticalModel() const {
+    itkDebugMacro( << "Getting statistical model ");
+    return m_StatisticalModel;
 }
 
 
@@ -97,38 +93,35 @@ StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutp
 template <class TRepresenter, class TScalarType, unsigned int TInputDimension, unsigned int TOutputDimension >
 void
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>
-::SetIdentity( )
-{
-	itkDebugMacro( << "Setting Identity");
+::SetIdentity( ) {
+    itkDebugMacro( << "Setting Identity");
 
-	for (unsigned i = 0; i  < this->GetNumberOfParameters(); i++)
-		this->m_coeff_vector[i] = 0;
+    for (unsigned i = 0; i  < this->GetNumberOfParameters(); i++)
+        this->m_coeff_vector[i] = 0;
 
 
-	this->Modified();
+    this->Modified();
 }
 
 template <class TRepresenter, class TScalarType, unsigned int TInputDimension, unsigned int TOutputDimension >
 void
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>
-::SetParameters( const ParametersType & parameters )
-{
-  itkDebugMacro( << "Setting parameters " << parameters );
+::SetParameters( const ParametersType & parameters ) {
+    itkDebugMacro( << "Setting parameters " << parameters );
 
-  // Set angle
-  for(unsigned int i=0; i < std::min(m_usedNumberCoefficients, (unsigned) this->GetNumberOfParameters()); i++)
-    {
-	m_coeff_vector[i] = parameters[i];
+    // Set angle
+    for(unsigned int i=0; i < std::min(m_usedNumberCoefficients, (unsigned) this->GetNumberOfParameters()); i++) {
+        m_coeff_vector[i] = parameters[i];
     }
-  for (unsigned int i = std::min(m_usedNumberCoefficients, (unsigned) this->GetNumberOfParameters()); i <  this->GetNumberOfParameters(); i++) {
-	  m_coeff_vector[i] = 0;
-  }
+    for (unsigned int i = std::min(m_usedNumberCoefficients, (unsigned) this->GetNumberOfParameters()); i <  this->GetNumberOfParameters(); i++) {
+        m_coeff_vector[i] = 0;
+    }
 
-  // Modified is always called since we just have a pointer to the
-  // parameters and cannot know if the parameters have changed.
-  this->Modified();
+    // Modified is always called since we just have a pointer to the
+    // parameters and cannot know if the parameters have changed.
+    this->Modified();
 
-  itkDebugMacro(<<"After setting parameters ");
+    itkDebugMacro(<<"After setting parameters ");
 }
 
 
@@ -139,19 +132,17 @@ StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutp
 template <class TRepresenter, class TScalarType, unsigned int TInputDimension, unsigned int TOutputDimension >
 const typename StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>::ParametersType &
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>
-::GetParameters( void ) const
-{
-  itkDebugMacro( << "Getting parameters ");
+::GetParameters( void ) const {
+    itkDebugMacro( << "Getting parameters ");
 
 
-  // Get the translation
-  for(unsigned int i=0; i < this->GetNumberOfParameters(); i++)
-    {
-    this->m_Parameters[i] = this->m_coeff_vector[i];
+    // Get the translation
+    for(unsigned int i=0; i < this->GetNumberOfParameters(); i++) {
+        this->m_Parameters[i] = this->m_coeff_vector[i];
     }
-  itkDebugMacro(<<"After getting parameters " << this->m_Parameters );
+    itkDebugMacro(<<"After getting parameters " << this->m_Parameters );
 
-  return this->m_Parameters;
+    return this->m_Parameters;
 }
 
 
@@ -162,23 +153,22 @@ StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutp
 template <class TRepresenter, class TScalarType, unsigned int TInputDimension, unsigned int TOutputDimension >
 void
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>
-::ComputeJacobianWithRespectToParameters(const InputPointType  &pt, JacobianType &jacobian)  const
-{
-	jacobian.SetSize(OutputSpaceDimension, m_StatisticalModel->GetNumberOfPrincipalComponents());
-	jacobian.Fill(0);
+::ComputeJacobianWithRespectToParameters(const InputPointType  &pt, JacobianType &jacobian)  const {
+    jacobian.SetSize(OutputSpaceDimension, m_StatisticalModel->GetNumberOfPrincipalComponents());
+    jacobian.Fill(0);
 
-	const MatrixType& statModelJacobian = m_StatisticalModel->GetJacobian(pt);
+    const MatrixType& statModelJacobian = m_StatisticalModel->GetJacobian(pt);
 
-	for (unsigned i = 0; i < statModelJacobian.rows(); i++) {
-		for (unsigned j = 0; j <  std::min(m_usedNumberCoefficients, (unsigned) this->GetNumberOfParameters()); j++) {
-			jacobian[i][j] = statModelJacobian[i][j];
-		}
-	}
+    for (unsigned i = 0; i < statModelJacobian.rows(); i++) {
+        for (unsigned j = 0; j <  std::min(m_usedNumberCoefficients, (unsigned) this->GetNumberOfParameters()); j++) {
+            jacobian[i][j] = statModelJacobian[i][j];
+        }
+    }
 
 
-	itkDebugMacro( << "Jacobian with MM:\n" << jacobian);
-	itkDebugMacro( << "After GetMorphableModelJacobian:"
-			<< "\nJacobian = \n" << jacobian);
+    itkDebugMacro( << "Jacobian with MM:\n" << jacobian);
+    itkDebugMacro( << "After GetMorphableModelJacobian:"
+                   << "\nJacobian = \n" << jacobian);
 }
 
 
@@ -187,9 +177,8 @@ StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutp
 template <class TRepresenter, class TScalarType, unsigned int TInputDimension, unsigned int TOutputDimension >
 void
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>::
-PrintSelf(std::ostream &os, Indent indent) const
-{
-	Superclass::PrintSelf(os,indent);
+PrintSelf(std::ostream &os, Indent indent) const {
+    Superclass::PrintSelf(os,indent);
 }
 
 } // namespace

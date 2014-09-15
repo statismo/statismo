@@ -107,12 +107,12 @@ typedef itk::PointsLocator<int, 3, double, MeshType::PointsContainer > PointsLoc
 #endif
 
 class ConfigParameters {
-public:
+  public:
 // Some configuration parameters
-static const short maxNumberOfIterations = 10000; // the maximum number of iterations to use in the optimization
-static const double translationScale; // dynamic range of translations
-static const double rotationScale; // dynamic range of rotations
-static const double smScale; // dynamic range of statistical model parameters
+    static const short maxNumberOfIterations = 10000; // the maximum number of iterations to use in the optimization
+    static const double translationScale; // dynamic range of translations
+    static const double rotationScale; // dynamic range of rotations
+    static const double smScale; // dynamic range of statistical model parameters
 };
 double const ConfigParameters::translationScale = 1;
 double const ConfigParameters::rotationScale = 0.1;
@@ -120,45 +120,46 @@ double const ConfigParameters::smScale = 3;
 
 
 class Utils {
-public:
-	/**
-	 * read landmarks from the given file in slicer fcsv formant and return them as a list.
-	 *
-	 * The format is: label,x,y,z
-	 *
-	 * @param filename the filename
-	 * @returns A list of itk points
-	 */
-	static std::vector<PointType > readLandmarks(const std::string& filename) {
+  public:
+    /**
+     * read landmarks from the given file in slicer fcsv formant and return them as a list.
+     *
+     * The format is: label,x,y,z
+     *
+     * @param filename the filename
+     * @returns A list of itk points
+     */
+    static std::vector<PointType > readLandmarks(const std::string& filename) {
 
-		std::vector<PointType> ptList;
+        std::vector<PointType> ptList;
 
-		std::fstream file ( filename.c_str() );
-		if (!file) {
-			std::cout << "could not read landmark file " << std::endl;
-			throw std::runtime_error("could not read landmark file ");
-		}
-		std::string line;
-		while (  std::getline ( file, line))
-		{
-			if (line.length() > 0 && line[0] == '#')
-				continue;
+        std::fstream file ( filename.c_str() );
+        if (!file) {
+            std::cout << "could not read landmark file " << std::endl;
+            throw std::runtime_error("could not read landmark file ");
+        }
+        std::string line;
+        while (  std::getline ( file, line)) {
+            if (line.length() > 0 && line[0] == '#')
+                continue;
 
-			std::istringstream strstr(line);
-			std::string token;
-			std::getline(strstr, token, ','); // ignore the label
-			std::getline(strstr, token, ','); // get the x coord
-			double pt0 = atof(token.c_str());
-			std::getline(strstr, token, ','); // get the y coord
-			double pt1 = atof(token.c_str());
-			std::getline(strstr, token, ','); // get the z coord
-			double pt2 = atof(token.c_str());
-			PointType pt;
-			pt[0] = pt0; pt[1] = pt1; pt[2] = pt2;
-			ptList.push_back(pt);
-		}
-		return ptList;
-	}
+            std::istringstream strstr(line);
+            std::string token;
+            std::getline(strstr, token, ','); // ignore the label
+            std::getline(strstr, token, ','); // get the x coord
+            double pt0 = atof(token.c_str());
+            std::getline(strstr, token, ','); // get the y coord
+            double pt1 = atof(token.c_str());
+            std::getline(strstr, token, ','); // get the z coord
+            double pt2 = atof(token.c_str());
+            PointType pt;
+            pt[0] = pt0;
+            pt[1] = pt1;
+            pt[2] = pt2;
+            ptList.push_back(pt);
+        }
+        return ptList;
+    }
 
 };
 
@@ -167,41 +168,40 @@ public:
 //
 StatisticalModelType::Pointer
 computePosteriorModel(const RigidTransformType* rigidTransform,
-												const StatisticalModelType* statisticalModel,
-												const  std::vector<PointType >& modelLandmarks,
-												const  std::vector<PointType >& targetLandmarks,
-												double variance)
-{
+                      const StatisticalModelType* statisticalModel,
+                      const  std::vector<PointType >& modelLandmarks,
+                      const  std::vector<PointType >& targetLandmarks,
+                      double variance) {
 
-		// invert the transformand back transform the landmarks
-		RigidTransformType::Pointer rinv = RigidTransformType::New();
-		rigidTransform->GetInverse(rinv);
+    // invert the transformand back transform the landmarks
+    RigidTransformType::Pointer rinv = RigidTransformType::New();
+    rigidTransform->GetInverse(rinv);
 
-	    StatisticalModelType::PointValueListType constraints;
+    StatisticalModelType::PointValueListType constraints;
 
-	    // We need to make sure the the points in fixed landmarks are real vertex points of the model reference.
-		MeshType::Pointer reference = statisticalModel->GetRepresenter()->GetReference();
-		PointsLocatorType::Pointer ptLocator = PointsLocatorType::New();
-		ptLocator->SetPoints(reference->GetPoints());
-		ptLocator->Initialize();
+    // We need to make sure the the points in fixed landmarks are real vertex points of the model reference.
+    MeshType::Pointer reference = statisticalModel->GetRepresenter()->GetReference();
+    PointsLocatorType::Pointer ptLocator = PointsLocatorType::New();
+    ptLocator->SetPoints(reference->GetPoints());
+    ptLocator->Initialize();
 
-		assert(modelLandmarks.size() == targetLandmarks.size());
-	    for (unsigned i = 0; i < targetLandmarks.size(); i++) {
+    assert(modelLandmarks.size() == targetLandmarks.size());
+    for (unsigned i = 0; i < targetLandmarks.size(); i++) {
 
-			int closestPointId = ptLocator->FindClosestPoint(modelLandmarks[i]);
-			PointType refPoint = (*reference->GetPoints())[closestPointId];
+        int closestPointId = ptLocator->FindClosestPoint(modelLandmarks[i]);
+        PointType refPoint = (*reference->GetPoints())[closestPointId];
 
-			// compensate for the rigid transformation that was applied to the model
-			PointType targetLmAtModelPos = rinv->TransformPoint(targetLandmarks[i]);
-			StatisticalModelType::PointValuePairType pointValue(refPoint ,targetLmAtModelPos);
-			constraints.push_back(pointValue);
+        // compensate for the rigid transformation that was applied to the model
+        PointType targetLmAtModelPos = rinv->TransformPoint(targetLandmarks[i]);
+        StatisticalModelType::PointValuePairType pointValue(refPoint ,targetLmAtModelPos);
+        constraints.push_back(pointValue);
 
-		}
+    }
 
-		PosteriorModelBuilderType::Pointer PosteriorModelBuilder = PosteriorModelBuilderType::New();
-	    StatisticalModelType::Pointer PosteriorModel = PosteriorModelBuilder->BuildNewModelFromModel(statisticalModel,constraints, variance, false);
+    PosteriorModelBuilderType::Pointer PosteriorModelBuilder = PosteriorModelBuilderType::New();
+    StatisticalModelType::Pointer PosteriorModel = PosteriorModelBuilder->BuildNewModelFromModel(statisticalModel,constraints, variance, false);
 
-	    return PosteriorModel;
+    return PosteriorModel;
 }
 
 
@@ -210,50 +210,46 @@ computePosteriorModel(const RigidTransformType* rigidTransform,
 // This class is used to track the progress of the optimization
 // (its method Execute is called in each iteration of the optimization)
 //
-class IterationStatusObserver : public itk::Command
-{
-public:
-  typedef  IterationStatusObserver   Self;
-  typedef  itk::Command             Superclass;
-  typedef  itk::SmartPointer<Self>  Pointer;
+class IterationStatusObserver : public itk::Command {
+  public:
+    typedef  IterationStatusObserver   Self;
+    typedef  itk::Command             Superclass;
+    typedef  itk::SmartPointer<Self>  Pointer;
 
-  itkNewMacro( Self );
+    itkNewMacro( Self );
 
-  typedef itk::LBFGSOptimizer    OptimizerType;
-  //typedef itk::GradientDescentOptimizer OptimizerType;
+    typedef itk::LBFGSOptimizer    OptimizerType;
+    //typedef itk::GradientDescentOptimizer OptimizerType;
 
-  typedef const OptimizerType                     *OptimizerPointer;
+    typedef const OptimizerType                     *OptimizerPointer;
 
 
-   void Execute(itk::Object *caller, const itk::EventObject & event)
-  {
-    Execute( (const itk::Object *)caller, event);
-  }
-
-  void Execute(const itk::Object * object, const itk::EventObject & event)
-  {
-    OptimizerPointer optimizer =
-                         dynamic_cast< OptimizerPointer >( object );
-
-    if( ! itk::IterationEvent().CheckEvent( &event ) )
-    {
-      return;
+    void Execute(itk::Object *caller, const itk::EventObject & event) {
+        Execute( (const itk::Object *)caller, event);
     }
 
-    std::cout << "Iteration: " << ++m_iter_no ;
-   std::cout << "; Value: " << optimizer->GetCachedValue();
-    std::cout << "; Current Parameters: " << optimizer->GetCachedCurrentPosition() << std::endl;
-  }
+    void Execute(const itk::Object * object, const itk::EventObject & event) {
+        OptimizerPointer optimizer =
+            dynamic_cast< OptimizerPointer >( object );
+
+        if( ! itk::IterationEvent().CheckEvent( &event ) ) {
+            return;
+        }
+
+        std::cout << "Iteration: " << ++m_iter_no ;
+        std::cout << "; Value: " << optimizer->GetCachedValue();
+        std::cout << "; Current Parameters: " << optimizer->GetCachedCurrentPosition() << std::endl;
+    }
 
 
-protected:
-  IterationStatusObserver():
-     m_iter_no(0)     {};
+  protected:
+    IterationStatusObserver():
+        m_iter_no(0)     {};
 
-  virtual ~IterationStatusObserver(){};
+    virtual ~IterationStatusObserver() {};
 
-private:
-  int m_iter_no;
+  private:
+    int m_iter_no;
 
 };
 
@@ -270,106 +266,106 @@ private:
  */
 int main(int argc, char* argv[]) {
 
-	if (argc < 8) {
-		std::cout << "usage " << argv[0] << " modelname ctimage fixedLandmarks movingLandmarks threshold lmVariance outputmesh" << std::endl;
-		exit(-1);
-	}
+    if (argc < 8) {
+        std::cout << "usage " << argv[0] << " modelname ctimage fixedLandmarks movingLandmarks threshold lmVariance outputmesh" << std::endl;
+        exit(-1);
+    }
 
-	char* modelName = argv[1];
-	char* targetName = argv[2];
-	char* fixedLandmarksName = argv[3];
-	char* movingLandmarksName = argv[4];
-	short threshold = atoi(argv[5]);
-	double lmVariance = atof(argv[6]);
-	char* outputMeshName = argv[7];
-
-
-	// load the image to which we will fit
-	CTImageReaderType::Pointer targetReader = CTImageReaderType::New();
-	targetReader->SetFileName(targetName);
-	targetReader->Update();
-	CTImageType::Pointer ctImage = targetReader->GetOutput();
+    char* modelName = argv[1];
+    char* targetName = argv[2];
+    char* fixedLandmarksName = argv[3];
+    char* movingLandmarksName = argv[4];
+    short threshold = atoi(argv[5]);
+    double lmVariance = atof(argv[6]);
+    char* outputMeshName = argv[7];
 
 
-	// We compute a binary threshold of input image to get a rough segmentation of the bony structure.
-	// Then we compute a distance transform of the segmentation, which we then use for the fitting
-	BinaryThresholdImageFilterType::Pointer thresholdFilter = BinaryThresholdImageFilterType::New();
-	thresholdFilter->SetInput(ctImage);
-	thresholdFilter->SetLowerThreshold( threshold );
-	DistanceMapImageFilterType::Pointer dm = DistanceMapImageFilterType::New();
-	dm->SetInput(thresholdFilter->GetOutput());
-	dm->Update();
-	DistanceImageType::Pointer distanceImage = dm->GetOutput();
-
-	// read the landmarks
-	std::vector<PointType> fixedLandmarks = Utils::readLandmarks(fixedLandmarksName);
-	std::vector<PointType> movingLandmarks = Utils::readLandmarks(movingLandmarksName);
-
-	// initialize the rigid transform
-	RigidTransformType::Pointer rigidTransform = RigidTransformType::New();
-	LandmarkTransformInitializerType::Pointer initializer = LandmarkTransformInitializerType::New();
-	initializer->SetFixedLandmarks(fixedLandmarks);
-	initializer->SetMovingLandmarks(movingLandmarks);
-	initializer->SetTransform(rigidTransform);
-	initializer->InitializeTransform();
-
-	// load the model create a shape model transform with it
-	StatisticalModelType::Pointer model = StatisticalModelType::New();
-	RepresenterType::Pointer representer = RepresenterType::New();
-	model->Load(representer, modelName);
-
-	StatisticalModelType::Pointer constraintModel = computePosteriorModel(rigidTransform, model, fixedLandmarks, movingLandmarks, lmVariance);
-
-	StatisticalModelTransformType::Pointer statModelTransform = StatisticalModelTransformType::New();
-	statModelTransform->SetStatisticalModel(constraintModel);
-	statModelTransform->SetIdentity();
-
-	// compose the two transformation
-	CompositeTransformType::Pointer transform = CompositeTransformType::New();
-	transform->AddTransform(rigidTransform);
-	transform->AddTransform(statModelTransform);
-	transform->SetOnlyMostRecentTransformToOptimizeOn(); //  only optimize the shape parameters, not the rigid transform parameters
-	//transform->SetAllTransformsToOptimizeOn(); // optimize shape and pose parameters
-
-	// Setting up the fitting
-	OptimizerType::Pointer optimizer = OptimizerType::New();
-	optimizer->SetMaximumNumberOfFunctionEvaluations(ConfigParameters::maxNumberOfIterations);
-	optimizer->MinimizeOn();
-
-	unsigned numStatmodelParameters = statModelTransform->GetNumberOfParameters();
-	unsigned totalNumParameters =  rigidTransform->GetNumberOfParameters() + numStatmodelParameters;
-
-	// set the scales of the optimizer, to compensate for potentially different scales of translation, rotation and shape parameters
-	OptimizerType::ScalesType scales( totalNumParameters );
-	for (unsigned i = 0; i < numStatmodelParameters; i++) {
-		scales[i] = 1.0 / (ConfigParameters::smScale);
-	}
-	for (unsigned i = numStatmodelParameters; i < numStatmodelParameters + 3; i++) {
-		scales[i] =  1.0 / (ConfigParameters::rotationScale);
-	}
-	for (unsigned i = numStatmodelParameters + 3; i < statModelTransform->GetNumberOfParameters() + 6; i++) {
-		scales[i] = 1.0 / (ConfigParameters::translationScale);
-	}
-	optimizer->SetScales(scales);
+    // load the image to which we will fit
+    CTImageReaderType::Pointer targetReader = CTImageReaderType::New();
+    targetReader->SetFileName(targetName);
+    targetReader->Update();
+    CTImageType::Pointer ctImage = targetReader->GetOutput();
 
 
+    // We compute a binary threshold of input image to get a rough segmentation of the bony structure.
+    // Then we compute a distance transform of the segmentation, which we then use for the fitting
+    BinaryThresholdImageFilterType::Pointer thresholdFilter = BinaryThresholdImageFilterType::New();
+    thresholdFilter->SetInput(ctImage);
+    thresholdFilter->SetLowerThreshold( threshold );
+    DistanceMapImageFilterType::Pointer dm = DistanceMapImageFilterType::New();
+    dm->SetInput(thresholdFilter->GetOutput());
+    dm->Update();
+    DistanceImageType::Pointer distanceImage = dm->GetOutput();
 
-	// set up the observer to keep track of the progress
-	typedef  IterationStatusObserver ObserverType;
-	ObserverType::Pointer observer = ObserverType::New();
-	optimizer->AddObserver( itk::IterationEvent(), observer );
+    // read the landmarks
+    std::vector<PointType> fixedLandmarks = Utils::readLandmarks(fixedLandmarksName);
+    std::vector<PointType> movingLandmarks = Utils::readLandmarks(movingLandmarksName);
 
-	// set up the metric and interpolators
-	MetricType::Pointer metric = MetricType::New();
-	InterpolatorType::Pointer interpolator = InterpolatorType::New();
+    // initialize the rigid transform
+    RigidTransformType::Pointer rigidTransform = RigidTransformType::New();
+    LandmarkTransformInitializerType::Pointer initializer = LandmarkTransformInitializerType::New();
+    initializer->SetFixedLandmarks(fixedLandmarks);
+    initializer->SetMovingLandmarks(movingLandmarks);
+    initializer->SetTransform(rigidTransform);
+    initializer->InitializeTransform();
 
-	// connect all the components
-	RegistrationFilterType::Pointer registration = RegistrationFilterType::New();
-	registration->SetInitialTransformParameters(transform->GetParameters());
-	registration->SetInterpolator(interpolator);
-	registration->SetMetric(metric);
-	registration->SetOptimizer(   optimizer);
-	registration->SetTransform(   transform );
+    // load the model create a shape model transform with it
+    StatisticalModelType::Pointer model = StatisticalModelType::New();
+    RepresenterType::Pointer representer = RepresenterType::New();
+    model->Load(representer, modelName);
+
+    StatisticalModelType::Pointer constraintModel = computePosteriorModel(rigidTransform, model, fixedLandmarks, movingLandmarks, lmVariance);
+
+    StatisticalModelTransformType::Pointer statModelTransform = StatisticalModelTransformType::New();
+    statModelTransform->SetStatisticalModel(constraintModel);
+    statModelTransform->SetIdentity();
+
+    // compose the two transformation
+    CompositeTransformType::Pointer transform = CompositeTransformType::New();
+    transform->AddTransform(rigidTransform);
+    transform->AddTransform(statModelTransform);
+    transform->SetOnlyMostRecentTransformToOptimizeOn(); //  only optimize the shape parameters, not the rigid transform parameters
+    //transform->SetAllTransformsToOptimizeOn(); // optimize shape and pose parameters
+
+    // Setting up the fitting
+    OptimizerType::Pointer optimizer = OptimizerType::New();
+    optimizer->SetMaximumNumberOfFunctionEvaluations(ConfigParameters::maxNumberOfIterations);
+    optimizer->MinimizeOn();
+
+    unsigned numStatmodelParameters = statModelTransform->GetNumberOfParameters();
+    unsigned totalNumParameters =  rigidTransform->GetNumberOfParameters() + numStatmodelParameters;
+
+    // set the scales of the optimizer, to compensate for potentially different scales of translation, rotation and shape parameters
+    OptimizerType::ScalesType scales( totalNumParameters );
+    for (unsigned i = 0; i < numStatmodelParameters; i++) {
+        scales[i] = 1.0 / (ConfigParameters::smScale);
+    }
+    for (unsigned i = numStatmodelParameters; i < numStatmodelParameters + 3; i++) {
+        scales[i] =  1.0 / (ConfigParameters::rotationScale);
+    }
+    for (unsigned i = numStatmodelParameters + 3; i < statModelTransform->GetNumberOfParameters() + 6; i++) {
+        scales[i] = 1.0 / (ConfigParameters::translationScale);
+    }
+    optimizer->SetScales(scales);
+
+
+
+    // set up the observer to keep track of the progress
+    typedef  IterationStatusObserver ObserverType;
+    ObserverType::Pointer observer = ObserverType::New();
+    optimizer->AddObserver( itk::IterationEvent(), observer );
+
+    // set up the metric and interpolators
+    MetricType::Pointer metric = MetricType::New();
+    InterpolatorType::Pointer interpolator = InterpolatorType::New();
+
+    // connect all the components
+    RegistrationFilterType::Pointer registration = RegistrationFilterType::New();
+    registration->SetInitialTransformParameters(transform->GetParameters());
+    registration->SetInterpolator(interpolator);
+    registration->SetMetric(metric);
+    registration->SetOptimizer(   optimizer);
+    registration->SetTransform(   transform );
 
 
     // we create the fixedPointSet of the registration from the reference mesh of our model.
@@ -383,27 +379,27 @@ int main(int argc, char* argv[]) {
     }
     fixedPointSet->SetPointData(points);
 
-	registration->SetFixedPointSet(  fixedPointSet);
-	registration->SetMovingImage(distanceImage);
+    registration->SetFixedPointSet(  fixedPointSet);
+    registration->SetMovingImage(distanceImage);
 
-	try {
-		std::cout << "starting model fitting" << std::endl;
-		registration->Update();
+    try {
+        std::cout << "starting model fitting" << std::endl;
+        registration->Update();
 
-	} catch ( itk::ExceptionObject& o ) {
-		std::cout << "caught exception " << o << std::endl;
-	}
+    } catch ( itk::ExceptionObject& o ) {
+        std::cout << "caught exception " << o << std::endl;
+    }
 
 
-	TransformMeshFilterType::Pointer transformMeshFilter = TransformMeshFilterType::New();
-	transformMeshFilter->SetInput(model->GetRepresenter()->GetReference());
-	transformMeshFilter->SetTransform(transform);
+    TransformMeshFilterType::Pointer transformMeshFilter = TransformMeshFilterType::New();
+    transformMeshFilter->SetInput(model->GetRepresenter()->GetReference());
+    transformMeshFilter->SetTransform(transform);
 
-	// Write out the fitting result
-	itk::MeshFileWriter<MeshType>::Pointer writer = itk::MeshFileWriter<MeshType>::New();
-	writer->SetFileName(outputMeshName);
-	writer->SetInput(transformMeshFilter->GetOutput());
-	writer->Update();
+    // Write out the fitting result
+    itk::MeshFileWriter<MeshType>::Pointer writer = itk::MeshFileWriter<MeshType>::New();
+    writer->SetFileName(outputMeshName);
+    writer->SetInput(transformMeshFilter->GetOutput());
+    writer->Update();
 
 }
 

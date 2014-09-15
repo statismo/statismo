@@ -56,93 +56,92 @@ namespace itk {
 
 template<class T>
 class LowRankGPModelBuilder: public Object {
-public:
+  public:
 
-	typedef LowRankGPModelBuilder Self;
-	typedef statismo::Representer<T> RepresenterType;
-	typedef Object Superclass;
-	typedef SmartPointer<Self> Pointer;
-	typedef SmartPointer<const Self> ConstPointer;
+    typedef LowRankGPModelBuilder Self;
+    typedef statismo::Representer<T> RepresenterType;
+    typedef Object Superclass;
+    typedef SmartPointer<Self> Pointer;
+    typedef SmartPointer<const Self> ConstPointer;
 
-	itkNewMacro (Self);itkTypeMacro( LowRankGPModelBuilder, Object );
+    itkNewMacro (Self);
+    itkTypeMacro( LowRankGPModelBuilder, Object );
 
-	typedef statismo::LowRankGPModelBuilder<T> ImplType;
-	typedef itk::StatisticalModel<T> StatisticalModelType;
-	typedef statismo::MatrixValuedKernel<typename RepresenterType::PointType> MatrixValuedKernelType;
+    typedef statismo::LowRankGPModelBuilder<T> ImplType;
+    typedef itk::StatisticalModel<T> StatisticalModelType;
+    typedef statismo::MatrixValuedKernel<typename RepresenterType::PointType> MatrixValuedKernelType;
 
-	LowRankGPModelBuilder() :
-			m_impl(0) {
-	}
-
-
-  	void SetstatismoImplObj(ImplType* impl) {
-  		if (m_impl) {
-  			delete m_impl;
-  		}
-  		m_impl = impl;
-  	}
+    LowRankGPModelBuilder() :
+        m_impl(0) {
+    }
 
 
-	void SetRepresenter(const RepresenterType* representer) {
-		SetstatismoImplObj(ImplType::Create(representer));
-	}
-
-	virtual ~LowRankGPModelBuilder() {
-		if (m_impl) {
-			delete m_impl;
-			m_impl = 0;
-		}
-	}
-
-	typename StatisticalModelType::Pointer BuildNewZeroMeanModel(
-			const MatrixValuedKernelType& kernel, unsigned numComponents,
-			unsigned numPointsForNystrom = 500) const {
-		if (m_impl == 0) {
-			itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
-	}
+    void SetstatismoImplObj(ImplType* impl) {
+        if (m_impl) {
+            delete m_impl;
+        }
+        m_impl = impl;
+    }
 
 
-	statismo::StatisticalModel<T>* model_statismo = 0;
-	try {
-		model_statismo = this->m_impl->BuildNewZeroMeanModel(kernel, numComponents, numPointsForNystrom);
+    void SetRepresenter(const RepresenterType* representer) {
+        SetstatismoImplObj(ImplType::Create(representer));
+    }
 
-	}
-	catch (statismo::StatisticalModelException& s) {
-		itkExceptionMacro(<< s.what());
-	}
+    virtual ~LowRankGPModelBuilder() {
+        if (m_impl) {
+            delete m_impl;
+            m_impl = 0;
+        }
+    }
 
-	typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
-	model_itk->SetstatismoImplObj(model_statismo);
-	return model_itk;
-
-}
-
-typename StatisticalModelType::Pointer BuildNewModel(typename RepresenterType::DatasetType* mean, const MatrixValuedKernelType& kernel, unsigned numComponents, unsigned numPointsForNystrom = 500) {
-	if (m_impl == 0) {
-		itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
-	}
-
-	statismo::StatisticalModel<T>* model_statismo = 0;
-	try {
-		model_statismo = this->m_impl->BuildNewModel(mean, kernel, numComponents, numPointsForNystrom);
-
-	}
-	catch (statismo::StatisticalModelException& s) {
-		itkExceptionMacro(<< s.what());
-	}
+    typename StatisticalModelType::Pointer BuildNewZeroMeanModel(
+        const MatrixValuedKernelType& kernel, unsigned numComponents,
+        unsigned numPointsForNystrom = 500) const {
+        if (m_impl == 0) {
+            itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
+        }
 
 
-	typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
-	model_itk->SetstatismoImplObj(model_statismo);
-	return model_itk;
+        statismo::StatisticalModel<T>* model_statismo = 0;
+        try {
+            model_statismo = this->m_impl->BuildNewZeroMeanModel(kernel, numComponents, numPointsForNystrom);
 
-}
+        } catch (statismo::StatisticalModelException& s) {
+            itkExceptionMacro(<< s.what());
+        }
 
-private:
-LowRankGPModelBuilder(const LowRankGPModelBuilder& orig);
-LowRankGPModelBuilder& operator=(const LowRankGPModelBuilder& rhs);
+        typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
+        model_itk->SetstatismoImplObj(model_statismo);
+        return model_itk;
 
-ImplType* m_impl;
+    }
+
+    typename StatisticalModelType::Pointer BuildNewModel(typename RepresenterType::DatasetType* mean, const MatrixValuedKernelType& kernel, unsigned numComponents, unsigned numPointsForNystrom = 500) {
+        if (m_impl == 0) {
+            itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
+        }
+
+        statismo::StatisticalModel<T>* model_statismo = 0;
+        try {
+            model_statismo = this->m_impl->BuildNewModel(mean, kernel, numComponents, numPointsForNystrom);
+
+        } catch (statismo::StatisticalModelException& s) {
+            itkExceptionMacro(<< s.what());
+        }
+
+
+        typename StatisticalModel<T>::Pointer model_itk = StatisticalModel<T>::New();
+        model_itk->SetstatismoImplObj(model_statismo);
+        return model_itk;
+
+    }
+
+  private:
+    LowRankGPModelBuilder(const LowRankGPModelBuilder& orig);
+    LowRankGPModelBuilder& operator=(const LowRankGPModelBuilder& rhs);
+
+    ImplType* m_impl;
 };
 
 }

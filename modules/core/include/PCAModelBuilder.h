@@ -59,52 +59,56 @@ template <typename T>
 class PCAModelBuilder : public ModelBuilder<T> {
 
 
-public:
+  public:
 
-	typedef ModelBuilder<T> Superclass;
-	typedef typename Superclass::DataManagerType DataManagerType;
-	typedef typename Superclass::StatisticalModelType StatisticalModelType;
-	typedef typename DataManagerType::DataItemListType DataItemListType;
+    typedef ModelBuilder<T> Superclass;
+    typedef typename Superclass::DataManagerType DataManagerType;
+    typedef typename Superclass::StatisticalModelType StatisticalModelType;
+    typedef typename DataManagerType::DataItemListType DataItemListType;
 
-	/**
-	 * Factory method to create a new PCAModelBuilder
-	 */
-	static PCAModelBuilder* Create() { return new PCAModelBuilder(); }
+    /**
+     * Factory method to create a new PCAModelBuilder
+     */
+    static PCAModelBuilder* Create() {
+        return new PCAModelBuilder();
+    }
 
-	/**
-	 * Destroy the object.
-	 * The same effect can be achieved by deleting the object in the usual
-	 * way using the c++ delete keyword.
-	 */
-	void Delete() {delete this; }
-
-
-	/**
-	 * The desctructor
-	 */
-	virtual ~PCAModelBuilder() {}
-
-	/**
-	 * Build a new model from the training data provided in the dataManager.
-	 * \param samples A sampleSet holding the data
-	 * \param noiseVariance The variance of N(0, noiseVariance) distributed noise on the points.
-	 * If this parameter is set to 0, we have a standard PCA model. For values > 0 we have a PPCA model.
-	 * \param computeScores Determines whether the scores (the pca coefficients of the examples) are computed and stored as model info
-	 * (computing the scores may take a long time for large models).
-	 *
-	 * \return A new Statistical model
-	 * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
-	 */
-	StatisticalModelType* BuildNewModel(const DataItemListType& samples, double noiseVariance, bool computeScores = true) const;
+    /**
+     * Destroy the object.
+     * The same effect can be achieved by deleting the object in the usual
+     * way using the c++ delete keyword.
+     */
+    void Delete() {
+        delete this;
+    }
 
 
-private:
-	// to prevent use
-	PCAModelBuilder();
-	PCAModelBuilder(const PCAModelBuilder& orig);
-	PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
+    /**
+     * The desctructor
+     */
+    virtual ~PCAModelBuilder() {}
 
-	StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const;
+    /**
+     * Build a new model from the training data provided in the dataManager.
+     * \param samples A sampleSet holding the data
+     * \param noiseVariance The variance of N(0, noiseVariance) distributed noise on the points.
+     * If this parameter is set to 0, we have a standard PCA model. For values > 0 we have a PPCA model.
+     * \param computeScores Determines whether the scores (the pca coefficients of the examples) are computed and stored as model info
+     * (computing the scores may take a long time for large models).
+     *
+     * \return A new Statistical model
+     * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
+     */
+    StatisticalModelType* BuildNewModel(const DataItemListType& samples, double noiseVariance, bool computeScores = true) const;
+
+
+  private:
+    // to prevent use
+    PCAModelBuilder();
+    PCAModelBuilder(const PCAModelBuilder& orig);
+    PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
+
+    StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const;
 
 
 };

@@ -67,15 +67,14 @@ typedef StatisticalModelType::DomainType DomainType;
 typedef DomainType::DomainPointsListType::const_iterator DomainPointsConstIterator;
 
 
-vtkPolyData* loadVTKPolyData(const std::string& filename)
-{
-       vtkPolyDataReader* reader = vtkPolyDataReader::New();
-       reader->SetFileName(filename.c_str());
-       reader->Update();
-       vtkPolyData* pd = vtkPolyData::New();
-       pd->DeepCopy(reader->GetOutput());
-       reader->Delete();
-      return pd;
+vtkPolyData* loadVTKPolyData(const std::string& filename) {
+    vtkPolyDataReader* reader = vtkPolyDataReader::New();
+    reader->SetFileName(filename.c_str());
+    reader->Update();
+    vtkPolyData* pd = vtkPolyData::New();
+    pd->DeepCopy(reader->GetOutput());
+    reader->Delete();
+    return pd;
 }
 
 
@@ -83,15 +82,15 @@ vtkPolyData* loadVTKPolyData(const std::string& filename)
   * Computes the mahalanobis distance of the targetPt, to the model point with the given pointId.
   */
 double mahalanobisDistance(const StatisticalModelType* model, unsigned ptId, const statismo::vtkPoint& targetPt) {
-       statismo::MatrixType cov = model->GetCovarianceAtPoint(ptId, ptId);
-       statismo::vtkPoint meanPt = model->DrawMeanAtPoint(ptId);
-       unsigned pointDim = model->GetRepresenter()->GetDimensions();
+    statismo::MatrixType cov = model->GetCovarianceAtPoint(ptId, ptId);
+    statismo::vtkPoint meanPt = model->DrawMeanAtPoint(ptId);
+    unsigned pointDim = model->GetRepresenter()->GetDimensions();
     assert(pointDim <= 3);
 
     VectorType x = VectorType::Zero(pointDim);
-       for (unsigned d = 0; d < pointDim; d++) {
+    for (unsigned d = 0; d < pointDim; d++) {
         x(d) = targetPt[d] - meanPt[d];
-       }
+    }
     return x.transpose() * cov.inverse() * x;
 }
 
@@ -105,7 +104,7 @@ int main(int argc, char** argv) {
     if (argc < 5) {
         std::cout << "Usage " << argv[0] << " inputModel  partialShapeMesh posteriorModel reconstructedShape" << std::endl;
         exit(-1);
-   }
+    }
 
 
     std::string inputModelName(argv[1]);
@@ -113,7 +112,7 @@ int main(int argc, char** argv) {
     std::string posteriorModelName(argv[3]);
     std::string reconstructedShapeName(argv[4]);
 
-	try {
+    try {
 
 
         vtkPolyData* partialShape = loadVTKPolyData(partialShapeMeshName);
@@ -147,8 +146,8 @@ int main(int argc, char** argv) {
         auto_ptr<StatisticalModelType> constraintModel(posteriorModelBuilder->BuildNewModelFromModel(inputModel.get(), constraints, 0.5));
 
 
-		// The resulting model is a normal statistical model, from which we could for example sample examples.
-		// Here we simply  save it to disk for later use.
+        // The resulting model is a normal statistical model, from which we could for example sample examples.
+        // Here we simply  save it to disk for later use.
         constraintModel->Save(posteriorModelName);
         std::cout << "successfully saved the model to " << posteriorModelName << std::endl;
 
@@ -156,15 +155,14 @@ int main(int argc, char** argv) {
         vtkPolyData* pmean = constraintModel->DrawMean();
         vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
 #if (VTK_MAJOR_VERSION == 5 )
-	        writer->SetInput(pmean);
+        writer->SetInput(pmean);
 #else
-			writer->SetInputData(pmean);
+        writer->SetInputData(pmean);
 #endif
         writer->SetFileName(reconstructedShapeName.c_str());
         writer->Update();
-	}
-	catch (StatisticalModelException& e) {
-		std::cout << "Exception occured while building the intenisity model" << std::endl;
-		std::cout << e.what() << std::endl;
-	}
+    } catch (StatisticalModelException& e) {
+        std::cout << "Exception occured while building the intenisity model" << std::endl;
+        std::cout << e.what() << std::endl;
+    }
 }
