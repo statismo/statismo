@@ -56,11 +56,11 @@ struct RepresenterTraits<itk::Mesh<float, 3u> > {
 
     typedef itk::Mesh<float, 3u> MeshType;
 
-	typedef MeshType::Pointer DatasetPointerType;
-	typedef MeshType::Pointer DatasetConstPointerType;
+    typedef MeshType::Pointer DatasetPointerType;
+    typedef MeshType::Pointer DatasetConstPointerType;
 
-	typedef MeshType::PointType PointType;
-	typedef MeshType::PointType ValueType;
+    typedef MeshType::PointType PointType;
+    typedef MeshType::PointType ValueType;
     ///@}
 
 };
@@ -74,10 +74,10 @@ namespace itk {
 // helper function to compute the hash value of an itk point (needed by unorderd_map)
 template <typename PointType>
 int hash_value(const PointType& pt) {
-	int hash_val = 1;
-	for (unsigned i = 0; i < pt.GetPointDimension(); i++)
-		hash_val *= pt[i];
-	return hash_val;
+    int hash_val = 1;
+    for (unsigned i = 0; i < pt.GetPointDimension(); i++)
+        hash_val *= pt[i];
+    return hash_val;
 }
 
 
@@ -92,112 +92,126 @@ int hash_value(const PointType& pt) {
  */
 template <class TPixel, unsigned MeshDimension>
 class StandardMeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, MeshDimension> >, public Object {
-public:
+  public:
 
-	/* Standard class typedefs. */
-	typedef StandardMeshRepresenter            Self;
-	typedef Object	Superclass;
-	typedef SmartPointer<Self>                Pointer;
-	typedef SmartPointer<const Self>          ConstPointer;
+    /* Standard class typedefs. */
+    typedef StandardMeshRepresenter            Self;
+    typedef Object	Superclass;
+    typedef SmartPointer<Self>                Pointer;
+    typedef SmartPointer<const Self>          ConstPointer;
 
 
     typedef itk::Mesh<TPixel, MeshDimension> MeshType;
-	typedef typename statismo::Representer<MeshType > RepresenterBaseType;
-	typedef typename RepresenterBaseType::DomainType DomainType;
-	typedef typename RepresenterBaseType::PointType PointType;
-	typedef typename RepresenterBaseType::ValueType ValueType;
-	typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
-	typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
-	typedef typename MeshType::PointsContainer PointsContainerType;
+    typedef typename statismo::Representer<MeshType > RepresenterBaseType;
+    typedef typename RepresenterBaseType::DomainType DomainType;
+    typedef typename RepresenterBaseType::PointType PointType;
+    typedef typename RepresenterBaseType::ValueType ValueType;
+    typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
+    typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
+    typedef typename MeshType::PointsContainer PointsContainerType;
 
-	/** New macro for creation of through a Smart Pointer. */
-	itkSimpleNewMacro( Self );
+    /** New macro for creation of through a Smart Pointer. */
+    itkSimpleNewMacro( Self );
 
-	/** Run-time type information (and related methods). */
-	itkTypeMacro( StandardMeshRepresenter, Object );
-
-
-    static StandardMeshRepresenter* Create() {return new StandardMeshRepresenter(); }
-
-	void Load(const H5::Group& fg);
-	StandardMeshRepresenter* Clone() const;
-
-	/// The type of the data set to be used
-	typedef MeshType DatasetType;
-
-	// An unordered map is used to cache pointid for corresonding points
-	typedef boost::unordered_map<PointType, unsigned> PointCacheType;
-
-	StandardMeshRepresenter();
-	virtual ~StandardMeshRepresenter();
-
-	unsigned GetDimensions() const { return MeshDimension; }
-	std::string GetName() const { return "itkStandardMeshRepresenter"; }
-	typename RepresenterBaseType::RepresenterDataType GetType() const { return RepresenterBaseType::POLYGON_MESH; }
-	std::string GetVersion() const { return "0.1"; }
-
-	const DomainType& GetDomain() const { return m_domain; }
-
-	/** Set the reference that is used to build the model */
-	void SetReference(DatasetPointerType ds);
-
-	statismo::VectorType PointToVector(const PointType& pt) const;
+    /** Run-time type information (and related methods). */
+    itkTypeMacro( StandardMeshRepresenter, Object );
 
 
-	/**
-	 * Create a sample from the dataset. No alignment or registration is done
-	 */
-	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
+    static StandardMeshRepresenter* Create() {
+        return new StandardMeshRepresenter();
+    }
 
-	/**
-	 * Converts a sample to its vectorial representation
-	 */
-	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
+    void Load(const H5::Group& fg);
+    StandardMeshRepresenter* Clone() const;
 
-	/**
-	 * Converts the given sample Vector to a Sample (an itk::Mesh)
-	 */
-	DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
+    /// The type of the data set to be used
+    typedef MeshType DatasetType;
 
-	/**
-	 * Returns the value of the sample at the point with the given id.
-	 */
-	ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
+    // An unordered map is used to cache pointid for corresonding points
+    typedef boost::unordered_map<PointType, unsigned> PointCacheType;
 
-	/**
-	 * Given a vector, represening a points convert it to an itkPoint
-	 */
-	ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
+    StandardMeshRepresenter();
+    virtual ~StandardMeshRepresenter();
 
-	/**
-	 * Given an itkPoint, convert it to a sample vector
-	 */
-	statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
+    unsigned GetDimensions() const {
+        return MeshDimension;
+    }
+    std::string GetName() const {
+        return "itkStandardMeshRepresenter";
+    }
+    typename RepresenterBaseType::RepresenterDataType GetType() const {
+        return RepresenterBaseType::POLYGON_MESH;
+    }
+    std::string GetVersion() const {
+        return "0.1";
+    }
 
-	/**
-	 * Save the state of the representer (this simply saves the reference)
-	 */
-	void Save(const H5::Group& fg) const;
+    const DomainType& GetDomain() const {
+        return m_domain;
+    }
 
-	/// return the number of points of the reference
-	virtual unsigned GetNumberOfPoints() const;
+    /** Set the reference that is used to build the model */
+    void SetReference(DatasetPointerType ds);
 
-	/// return the point id associated with the given point
-	/// \warning This works currently only for points that are defined on the reference
-	virtual unsigned GetPointIdForPoint(const PointType& point) const;
+    statismo::VectorType PointToVector(const PointType& pt) const;
+
+
+    /**
+     * Create a sample from the dataset. No alignment or registration is done
+     */
+    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
+
+    /**
+     * Converts a sample to its vectorial representation
+     */
+    statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
+
+    /**
+     * Converts the given sample Vector to a Sample (an itk::Mesh)
+     */
+    DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
+
+    /**
+     * Returns the value of the sample at the point with the given id.
+     */
+    ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
+
+    /**
+     * Given a vector, represening a points convert it to an itkPoint
+     */
+    ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
+
+    /**
+     * Given an itkPoint, convert it to a sample vector
+     */
+    statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
+
+    /**
+     * Save the state of the representer (this simply saves the reference)
+     */
+    void Save(const H5::Group& fg) const;
+
+    /// return the number of points of the reference
+    virtual unsigned GetNumberOfPoints() const;
+
+    /// return the point id associated with the given point
+    /// \warning This works currently only for points that are defined on the reference
+    virtual unsigned GetPointIdForPoint(const PointType& point) const;
 
     /// return the reference used in the representer
-    DatasetConstPointerType GetReference() const { return m_reference; }
+    DatasetConstPointerType GetReference() const {
+        return m_reference;
+    }
 
     void Delete() const {
-    	this->UnRegister();
+        this->UnRegister();
     }
 
 
-	void DeleteDataset(DatasetPointerType d) const { };
+    void DeleteDataset(DatasetPointerType d) const { };
     DatasetPointerType CloneDataset(DatasetConstPointerType mesh) const;
 
-private:
+  private:
 
     typename MeshType::Pointer LoadRef(const H5::Group& fg) const;
     typename MeshType::Pointer LoadRefLegacy(const H5::Group& fg) const;
@@ -205,9 +219,9 @@ private:
     // returns the closest point for the given mesh
     unsigned FindClosestPoint(const MeshType* mesh, const PointType pt) const ;
 
-	DatasetConstPointerType m_reference;
-	DomainType m_domain;
-	mutable PointCacheType m_pointCache;
+    DatasetConstPointerType m_reference;
+    DomainType m_domain;
+    mutable PointCacheType m_pointCache;
 };
 
 

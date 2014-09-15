@@ -52,23 +52,22 @@ namespace statismo {
 
 template <typename T>
 DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType* representer, const std::string& filename)
-: DataManager<T>(representer)
-{
-	LoadSurrogateTypes(filename);
+    : DataManager<T>(representer) {
+    LoadSurrogateTypes(filename);
 }
 
 
 template <typename T>
 void
 DataManagerWithSurrogates<T>::LoadSurrogateTypes(const std::string& filename) {
-	VectorType tmpVector;
-	tmpVector = Utils::ReadVectorFromTxtFile(filename.c_str());
-	m_typeInfo.typeFilename = filename;
-	m_typeInfo.types.clear();
-	for (unsigned i=0 ; i<tmpVector.size() ; i++) {
-		if (tmpVector(i)==0) m_typeInfo.types.push_back(DataItemWithSurrogatesType::Categorical);
-		else m_typeInfo.types.push_back(DataItemWithSurrogatesType::Continuous);
-	}
+    VectorType tmpVector;
+    tmpVector = Utils::ReadVectorFromTxtFile(filename.c_str());
+    m_typeInfo.typeFilename = filename;
+    m_typeInfo.types.clear();
+    for (unsigned i=0 ; i<tmpVector.size() ; i++) {
+        if (tmpVector(i)==0) m_typeInfo.types.push_back(DataItemWithSurrogatesType::Categorical);
+        else m_typeInfo.types.push_back(DataItemWithSurrogatesType::Continuous);
+    }
 }
 
 
@@ -76,28 +75,27 @@ DataManagerWithSurrogates<T>::LoadSurrogateTypes(const std::string& filename) {
 template <typename T>
 void
 DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType ds,
-																 const std::string& datasetURI,
-																 const std::string& surrogateFilename)
-{
+        const std::string& datasetURI,
+        const std::string& surrogateFilename) {
 
 
-	//assert(this->m_representer != 0);
-	//assert(this->m_surrogateTypes.size() > 0);
-	assert(this->m_representer != 0);
+    //assert(this->m_representer != 0);
+    //assert(this->m_surrogateTypes.size() > 0);
+    assert(this->m_representer != 0);
 
-	const VectorType& surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
+    const VectorType& surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
 
-	if (static_cast<unsigned>(surrogateVector.size()) != m_typeInfo.types.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
+    if (static_cast<unsigned>(surrogateVector.size()) != m_typeInfo.types.size() ) throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
 
-	DatasetPointerType sample;
-	  sample = this->m_representer->CloneDataset(ds);
+    DatasetPointerType sample;
+    sample = this->m_representer->CloneDataset(ds);
 
-	this->m_DataItemList.push_back(DataItemWithSurrogatesType::Create(this->m_representer,
-																			datasetURI,
-																		this->m_representer->SampleToSampleVector(sample),
-																	   surrogateFilename,
-																	   surrogateVector));
-	this->m_representer->DeleteDataset(sample);
+    this->m_DataItemList.push_back(DataItemWithSurrogatesType::Create(this->m_representer,
+                                   datasetURI,
+                                   this->m_representer->SampleToSampleVector(sample),
+                                   surrogateFilename,
+                                   surrogateVector));
+    this->m_representer->DeleteDataset(sample);
 }
 
 

@@ -59,16 +59,15 @@ typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
 
 
 /*function... might want it in some class?*/
-int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*")
-{
-	itk::Directory::Pointer directory = itk::Directory::New();
-	directory->Load(dir.c_str());
+int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*") {
+    itk::Directory::Pointer directory = itk::Directory::New();
+    directory->Load(dir.c_str());
 
-	for (unsigned i = 0; i < directory->GetNumberOfFiles(); i++) {
-		const char* filename = directory->GetFile(i);
-		if (extension == ".*" || std::string(filename).find(extension) != std::string::npos)
+    for (unsigned i = 0; i < directory->GetNumberOfFiles(); i++) {
+        const char* filename = directory->GetFile(i);
+        if (extension == ".*" || std::string(filename).find(extension) != std::string::npos)
             files.push_back(filename);
-	}
+    }
 
     return 0;
 }
@@ -79,8 +78,8 @@ int getdir (std::string dir, std::vector<std::string> &files, const std::string&
 void buildShapeModel(const char* referenceFilename, const char* dir, const char* modelname) {
 
 
-	typedef itk::PCAModelBuilder<MeshType> ModelBuilderType;
-	typedef itk::StatisticalModel<MeshType> StatisticalModelType;
+    typedef itk::PCAModelBuilder<MeshType> ModelBuilderType;
+    typedef itk::StatisticalModel<MeshType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
     typedef itk::DataManager<MeshType> DataManagerType;
     typedef itk::MeshFileReader<MeshType> MeshReaderType;
@@ -118,17 +117,17 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
 
 int main(int argc, char* argv[]) {
 
-	if (argc < 4) {
-		std::cout << "usage " << argv[0] << " referenceShape shapeDir modelname" << std::endl;
-		exit(-1);
-	}
+    if (argc < 4) {
+        std::cout << "usage " << argv[0] << " referenceShape shapeDir modelname" << std::endl;
+        exit(-1);
+    }
 
-	const char* reference = argv[1];
-	const char* dir = argv[2];
-	const char* modelname = argv[3];
-    
-	buildShapeModel(reference, dir, modelname);
+    const char* reference = argv[1];
+    const char* dir = argv[2];
+    const char* modelname = argv[3];
 
-	std::cout << "Model building is completed successfully." << std::endl;
+    buildShapeModel(reference, dir, modelname);
+
+    std::cout << "Model building is completed successfully." << std::endl;
 }
 

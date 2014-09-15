@@ -63,10 +63,10 @@ typedef float ScalarType;
 // wrapper struct that allows us to easily select matrix and vectors of an arbitrary
 // type, wich has the same traits as the standard matrix / vector traits
 template <typename TScalar> struct GenericEigenType {
-	typedef Eigen::Matrix<TScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
-	typedef Eigen::DiagonalMatrix<TScalar, Eigen::Dynamic> DiagMatrixType;
-	typedef Eigen::Matrix<TScalar, Eigen::Dynamic, 1> VectorType;
-	typedef Eigen::Matrix<TScalar, 1 , Eigen::Dynamic> RowVectorType;
+    typedef Eigen::Matrix<TScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
+    typedef Eigen::DiagonalMatrix<TScalar, Eigen::Dynamic> DiagMatrixType;
+    typedef Eigen::Matrix<TScalar, Eigen::Dynamic, 1> VectorType;
+    typedef Eigen::Matrix<TScalar, 1 , Eigen::Dynamic> RowVectorType;
 
 };
 typedef GenericEigenType<ScalarType>::MatrixType MatrixType;
@@ -91,18 +91,38 @@ const static unsigned FLOAT =         10;
 const static unsigned DOUBLE      =   11;
 
 template <class T> unsigned GetDataTypeId() {
-	throw StatisticalModelException("The datatype that was provided is not a valid statismo data type ");
+    throw StatisticalModelException("The datatype that was provided is not a valid statismo data type ");
 }
-template <> inline unsigned GetDataTypeId<signed char>() { return SIGNED_CHAR; }
-template <> inline unsigned GetDataTypeId<unsigned char>() { return UNSIGNED_CHAR; }
-template <> inline unsigned GetDataTypeId<signed short>() { return SIGNED_SHORT; }
-template <> inline unsigned GetDataTypeId<unsigned short>() { return UNSIGNED_SHORT; }
-template <> inline unsigned GetDataTypeId<signed int>() { return SIGNED_INT; }
-template <> inline unsigned GetDataTypeId<unsigned int>() { return UNSIGNED_INT; }
-template <> inline unsigned GetDataTypeId<signed long>() { return SIGNED_LONG; }
-template <> inline unsigned GetDataTypeId<unsigned long>() { return UNSIGNED_LONG; }
-template <> inline unsigned GetDataTypeId<float>() { return FLOAT; }
-template <> inline unsigned GetDataTypeId<double>() { return DOUBLE; }
+template <> inline unsigned GetDataTypeId<signed char>() {
+    return SIGNED_CHAR;
+}
+template <> inline unsigned GetDataTypeId<unsigned char>() {
+    return UNSIGNED_CHAR;
+}
+template <> inline unsigned GetDataTypeId<signed short>() {
+    return SIGNED_SHORT;
+}
+template <> inline unsigned GetDataTypeId<unsigned short>() {
+    return UNSIGNED_SHORT;
+}
+template <> inline unsigned GetDataTypeId<signed int>() {
+    return SIGNED_INT;
+}
+template <> inline unsigned GetDataTypeId<unsigned int>() {
+    return UNSIGNED_INT;
+}
+template <> inline unsigned GetDataTypeId<signed long>() {
+    return SIGNED_LONG;
+}
+template <> inline unsigned GetDataTypeId<unsigned long>() {
+    return UNSIGNED_LONG;
+}
+template <> inline unsigned GetDataTypeId<float>() {
+    return FLOAT;
+}
+template <> inline unsigned GetDataTypeId<double>() {
+    return DOUBLE;
+}
 
 
 } //namespace statismo

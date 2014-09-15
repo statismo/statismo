@@ -50,14 +50,13 @@
 using namespace statismo;
 using std::auto_ptr;
 
-vtkStructuredPoints* loadVTKStructuredPointsData(const std::string& filename)
-{
-	vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
-	reader->SetFileName(filename.c_str());
-	reader->Update();
-	vtkStructuredPoints* sp = vtkStructuredPoints::New();
-	sp->ShallowCopy(reader->GetOutput());
-	return sp;
+vtkStructuredPoints* loadVTKStructuredPointsData(const std::string& filename) {
+    vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
+    reader->SetFileName(filename.c_str());
+    reader->Update();
+    vtkStructuredPoints* sp = vtkStructuredPoints::New();
+    sp->ShallowCopy(reader->GetOutput());
+    return sp;
 }
 
 //
@@ -65,54 +64,53 @@ vtkStructuredPoints* loadVTKStructuredPointsData(const std::string& filename)
 //
 int main(int argc, char** argv) {
 
-	if (argc < 3) {
-		std::cout << "Usage " << argv[0] << " datadir modelname" << std::endl;
-		exit(-1);
-	}
-	std::string datadir(argv[1]);
-	std::string modelname(argv[2]);
+    if (argc < 3) {
+        std::cout << "Usage " << argv[0] << " datadir modelname" << std::endl;
+        exit(-1);
+    }
+    std::string datadir(argv[1]);
+    std::string modelname(argv[2]);
 
 
-	// All the statismo classes have to be parameterized with the RepresenterType.
-	// For building a intensity model with vtk, we use the vtkStructuredPointsRepresenter.
-	// Here, we work with unsigned character images. The second template parameter specifies
-	// the pixel dimension (1 means scalar image, whereas 3 is a 3D vector image).
-	typedef vtkStandardImageRepresenter<unsigned char, 1> RepresenterType;
-	typedef DataManager<vtkStructuredPoints> DataManagerType;
-	typedef PCAModelBuilder<vtkStructuredPoints> ModelBuilderType;
-	typedef StatisticalModel<vtkStructuredPoints> StatisticalModelType;
+    // All the statismo classes have to be parameterized with the RepresenterType.
+    // For building a intensity model with vtk, we use the vtkStructuredPointsRepresenter.
+    // Here, we work with unsigned character images. The second template parameter specifies
+    // the pixel dimension (1 means scalar image, whereas 3 is a 3D vector image).
+    typedef vtkStandardImageRepresenter<unsigned char, 1> RepresenterType;
+    typedef DataManager<vtkStructuredPoints> DataManagerType;
+    typedef PCAModelBuilder<vtkStructuredPoints> ModelBuilderType;
+    typedef StatisticalModel<vtkStructuredPoints> StatisticalModelType;
 
-	try {
+    try {
 
-		// Model building is exactly the same as for shape models (see BuildShapeModelExample for detailed explanation)
-		vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand-0.vtk");
-		auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
-		auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+        // Model building is exactly the same as for shape models (see BuildShapeModelExample for detailed explanation)
+        vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand-0.vtk");
+        auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
+        auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
-		// load the data and add it to the data manager. We take the first 4 hand shapes that we find in the data folder
-		for (unsigned i = 0; i < 4; i++) {
+        // load the data and add it to the data manager. We take the first 4 hand shapes that we find in the data folder
+        for (unsigned i = 0; i < 4; i++) {
 
-			std::ostringstream ss;
-			ss << datadir +"/hand-" << i << ".vtk";
-			const std::string datasetFilename = ss.str();
-			vtkStructuredPoints* dataset = loadVTKStructuredPointsData(datasetFilename);
+            std::ostringstream ss;
+            ss << datadir +"/hand-" << i << ".vtk";
+            const std::string datasetFilename = ss.str();
+            vtkStructuredPoints* dataset = loadVTKStructuredPointsData(datasetFilename);
 
-			// We provde the filename as a second argument.
-			// It will be written as metadata, and allows us to more easily figure out what we did later.
-			dataManager->AddDataset(dataset, datasetFilename);
+            // We provde the filename as a second argument.
+            // It will be written as metadata, and allows us to more easily figure out what we did later.
+            dataManager->AddDataset(dataset, datasetFilename);
 
-			// it is save to delete the dataset after it was added, as the datamanager direclty copies it.
-			dataset->Delete();
-		}
-		auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
-		auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
-		model->Save(modelname);
+            // it is save to delete the dataset after it was added, as the datamanager direclty copies it.
+            dataset->Delete();
+        }
+        auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
+        auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
+        model->Save(modelname);
 
-		reference->Delete();
-		std::cout << "Successfully saved model as " << modelname << std::endl;
-	}
-	catch (StatisticalModelException& e) {
-		std::cout << "Exception occured while building the intensity model" << std::endl;
-		std::cout << e.what() << std::endl;
-	}
+        reference->Delete();
+        std::cout << "Successfully saved model as " << modelname << std::endl;
+    } catch (StatisticalModelException& e) {
+        std::cout << "Exception occured while building the intensity model" << std::endl;
+        std::cout << e.what() << std::endl;
+    }
 }
