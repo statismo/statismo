@@ -68,7 +68,7 @@ public:
     /**
      * Returns a vector of size n, where n is the number of eigenfunctions/eigenvalues that were approximated
      */
-    VectorType getEigenvalues() const {
+    const VectorType& getEigenvalues() const {
         return m_eigenvalues;
     }
 
@@ -82,7 +82,7 @@ private:
 
         DomainType domain = m_representer->GetDomain();
         m_nystromPoints = getNystromPoints(domain, numberOfPointsForApproximation);
-        unsigned numDomainPoints = representer->GetDomain().GetNumberOfPoints();
+        unsigned numDomainPoints = domain.GetNumberOfPoints();
 
         // compute a eigenvalue decomposition of the kernel matrix, evaluated at the points used for the
         // nystrom approximation
@@ -93,12 +93,11 @@ private:
 
 
         // precompute the part of the nystrom approximation, which is independent of the domain point
-        m_nystromMatrix = sqrt(m_nystromPoints.size() / float(numDomainPoints))
-                * (U.leftCols(numEigenfunctions)
+        float normFactor = std::sqrt(static_cast<float>(m_nystromPoints.size()) / static_cast<float>(numDomainPoints));
+        m_nystromMatrix = normFactor * (U.leftCols(numEigenfunctions)
                         * D.topRows(numEigenfunctions).asDiagonal().inverse());
 
-        m_eigenvalues = numDomainPoints / float(m_nystromPoints.size()) * D.topRows(numEigenfunctions);
-
+        m_eigenvalues = numDomainPoints / static_cast<float>(m_nystromPoints.size()) * D.topRows(numEigenfunctions);
 
     }
 
@@ -111,31 +110,12 @@ private:
      */
     std::vector<PointType> getNystromPoints(DomainType& domain, unsigned numberOfPoints) const {
 
-        unsigned n = domain.GetNumberOfPoints();
+        numberOfPoints = std::min(numberOfPoints, domain.GetNumberOfPoints());
 
-        // convert all the points in the domain to a vector representation
-        std::vector<PointType> domainPoints;
-        std::vector<PointType> shuffledDomainPoints;
-
-        for (typename DomainPointsListType::const_iterator it =
-                domain.GetDomainPoints().begin();
-                it != domain.GetDomainPoints().end(); ++it) {
-            domainPoints.push_back(*it);
-            shuffledDomainPoints.push_back(*it);
-        }
-        assert(domainPoints.size() == n);
-
+        std::vector<PointType> shuffledDomainPoints = domain.GetDomainPoints();
         std::random_shuffle ( shuffledDomainPoints.begin(), shuffledDomainPoints.end() );
 
-        // select a subset of the points for computing the nystrom approximation.
-        std::vector<PointType> nystromPoints;
-        for (unsigned i = 0; i < numberOfPoints; i++) {
-            nystromPoints.push_back(shuffledDomainPoints[i]);
-        }
-
-        shuffledDomainPoints.clear();
-
-        return nystromPoints;
+        return std::vector<PointType>(shuffledDomainPoints.begin(), shuffledDomainPoints.begin() + numberOfPoints);
     }
 
 
@@ -156,12 +136,12 @@ private:
                 n * kernelDim, n * kernelDim);
         for (unsigned i = 0; i < n; ++i) {
             for (unsigned j = i; j < n; ++j) {
-                MatrixType v = (*kernel)(xs[i], xs[j]);
+                MatrixType k_xixj = (*kernel)(xs[i], xs[j]);
                 for (unsigned d1 = 0; d1 < kernelDim; d1++) {
                     for (unsigned d2 = 0; d2 < kernelDim; d2++) {
-                        K(i * kernelDim + d1, j * kernelDim + d2) = v(d1, d2);
-                        K(j * kernelDim + d2, i * kernelDim + d1) = K(
-                                i * kernelDim + d1, j * kernelDim + d2);
+                        double elem_d1d2 = k_xixj(d1, d2);
+                        K(i * kernelDim + d1, j * kernelDim + d2) = elem_d1d2;
+                        K(j * kernelDim + d2, i * kernelDim + d1) = elem_d1d2;
                     }
                 }
             }
