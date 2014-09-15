@@ -93,8 +93,8 @@ private:
 
 
         // precompute the part of the nystrom approximation, which is independent of the domain point
-        m_nystromMatrix = std::sqrt(m_nystromPoints.size() / static_cast<float>(numDomainPoints))
-                * (U.leftCols(numEigenfunctions)
+        float normFactor = std::sqrt(static_cast<float>(m_nystromPoints.size()) / static_cast<float>(numDomainPoints));
+        m_nystromMatrix = normFactor * (U.leftCols(numEigenfunctions)
                         * D.topRows(numEigenfunctions).asDiagonal().inverse());
 
         m_eigenvalues = numDomainPoints / static_cast<float>(m_nystromPoints.size()) * D.topRows(numEigenfunctions);
