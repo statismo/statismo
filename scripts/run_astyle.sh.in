@@ -1,0 +1,18 @@
+#! /bin/bash
+for module in core VTK itk;
+do
+  for dir in examples include src tests;
+  do
+    if [ -d "@Statismo_SOURCE_DIR@/${module}/${dir}" ]; then
+      for filetype in c cpp cxx h hpp hxx tpp txx;
+      do
+        list=`find ~/GITROOT/temp/statismo/modules/${module}/${dir} -name "*.${filetype}" -type f`
+
+        for f in ${list};
+        do
+          astyle --style=google $f;
+        done
+      done
+    fi
+  done
+done

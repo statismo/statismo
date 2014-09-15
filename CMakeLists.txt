@@ -133,6 +133,13 @@ add_subdirectory( modules )
 
 # -------------------------------------------------------------
 
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_astyle.sh.in
+  ${CMAKE_CURRENT_BINARY_DIR}/run_astyle.sh
+  @ONLY
+)
+
+# -------------------------------------------------------------
+
 # Add all targets to the build-tree export set
 set( _targets statismo_core )
 
