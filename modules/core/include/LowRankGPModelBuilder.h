@@ -185,7 +185,7 @@ public:
 
     for (unsigned i = 0; i <= numChunks; i++) {
 
-      unsigned int chunkSize = ceil(numDomainPoints / float(numChunks));
+      unsigned int chunkSize = std::ceil(static_cast<float>(numDomainPoints) / static_cast<float>(numChunks));
       unsigned int lowerInd = i * chunkSize;
       unsigned int upperInd =
         std::min( static_cast<unsigned>(numDomainPoints),
