@@ -63,88 +63,88 @@ namespace statismo {
 
 
 #ifdef _MSC_VER
-    #define is_deprecated __declspec(deprecated)
+#define is_deprecated __declspec(deprecated)
 #elif defined(__GNUC__)
-    #define is_deprecated __attribute__((deprecated))
+#define is_deprecated __attribute__((deprecated))
 #else
-    #define is_deprecated  //uncommon compiler, don't bother
+#define is_deprecated  //uncommon compiler, don't bother
 #endif
 
 
 class Utils {
-public:
+  public:
 
 
 
-	/**
-	 * return string representation of t
-	 */
-	template <class T>
-	static std::string toString(T t) {
-		std::ostringstream os;
-		os << t;
-		return os.str();
-	}
+    /**
+     * return string representation of t
+     */
+    template <class T>
+    static std::string toString(T t) {
+        std::ostringstream os;
+        os << t;
+        return os.str();
+    }
 
 
-	/** return a N(0,1) vector of size n */
-	static VectorType generateNormalVector(unsigned n) {
-		// we would like to use tr1 here as well, but on some versions of visual studio it hangs forever.
-		// therefore we use the functionality from boost
+    /** return a N(0,1) vector of size n */
+    static VectorType generateNormalVector(unsigned n) {
+        // we would like to use tr1 here as well, but on some versions of visual studio it hangs forever.
+        // therefore we use the functionality from boost
 
-		// we make the random generate static, to ensure that the seed is only set once, and not with
-		// every call
-		static boost::minstd_rand randgen(static_cast<unsigned>(time(0)));
-		static boost::normal_distribution<> dist(0, 1);
-		static boost::variate_generator<boost::minstd_rand, boost::normal_distribution<> > r(randgen, dist);
+        // we make the random generate static, to ensure that the seed is only set once, and not with
+        // every call
+        static boost::minstd_rand randgen(static_cast<unsigned>(time(0)));
+        static boost::normal_distribution<> dist(0, 1);
+        static boost::variate_generator<boost::minstd_rand, boost::normal_distribution<> > r(randgen, dist);
 
-		VectorType v = VectorType::Zero(n);
-		for (unsigned i=0; i < n; i++) {
-			v(i) = r();
-		}
-		return v;
-	}
-
-
-	static VectorType ReadVectorFromTxtFile(const char *name) {
-		typedef std::list<statismo::ScalarType> ListType;
-		std::list<statismo::ScalarType> values;
-		std::ifstream inFile(name, std::ios::in);
-		 if (inFile.good()) {
-			std::copy(std::istream_iterator<statismo::ScalarType>(inFile), std::istream_iterator<statismo::ScalarType>(), std::back_insert_iterator<ListType >(values));
-			inFile.close();
-		} else {
-			throw StatisticalModelException((std::string("Could not read text file ") + name).c_str());
-		}
-
-		VectorType v = VectorType::Zero(values.size());
-		unsigned i = 0;
-		for (ListType::const_iterator it = values.begin(); it != values.end(); ++it) {
-			v(i) = *it;
-			i++;
-		}
-		return v;
-	}
+        VectorType v = VectorType::Zero(n);
+        for (unsigned i=0; i < n; i++) {
+            v(i) = r();
+        }
+        return v;
+    }
 
 
-	static std::string CreateTmpName(const std::string& extension) {
-		#ifdef _WIN32
-		std::string tmpDirectoryName;
-		TCHAR szTempFileName[MAX_PATH];
-		DWORD dwRetVal = 0;
-		//  Gets the temp path env string (no guarantee it's a valid path).
-		dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                           szTempFileName); // buffer for path
-		tmpDirectoryName.assign(szTempFileName);
-		std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0) +extension;
-		return tmpfilename;
-		#else
-			std::string tmpfilename = tmpnam(0);
-			tmpfilename += extension;
-			return tmpfilename;
-		#endif
+    static VectorType ReadVectorFromTxtFile(const char *name) {
+        typedef std::list<statismo::ScalarType> ListType;
+        std::list<statismo::ScalarType> values;
+        std::ifstream inFile(name, std::ios::in);
+        if (inFile.good()) {
+            std::copy(std::istream_iterator<statismo::ScalarType>(inFile), std::istream_iterator<statismo::ScalarType>(), std::back_insert_iterator<ListType >(values));
+            inFile.close();
+        } else {
+            throw StatisticalModelException((std::string("Could not read text file ") + name).c_str());
+        }
 
-	}
+        VectorType v = VectorType::Zero(values.size());
+        unsigned i = 0;
+        for (ListType::const_iterator it = values.begin(); it != values.end(); ++it) {
+            v(i) = *it;
+            i++;
+        }
+        return v;
+    }
+
+
+    static std::string CreateTmpName(const std::string& extension) {
+#ifdef _WIN32
+        std::string tmpDirectoryName;
+        TCHAR szTempFileName[MAX_PATH];
+        DWORD dwRetVal = 0;
+        //  Gets the temp path env string (no guarantee it's a valid path).
+        dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
+                               szTempFileName); // buffer for path
+        tmpDirectoryName.assign(szTempFileName);
+        std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0) +extension;
+        return tmpfilename;
+#else
+        std::string tmpfilename = tmpnam(0);
+        tmpfilename += extension;
+        return tmpfilename;
+#endif
+
+    }
 
 };
 

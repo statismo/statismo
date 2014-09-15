@@ -61,16 +61,15 @@ typedef itk::StandardImageRepresenter<itk::Vector<float, 2>, 2> RepresenterType2
 
 
 
-int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*")
-{
-	itk::Directory::Pointer directory = itk::Directory::New();
-	directory->Load(dir.c_str());
+int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*") {
+    itk::Directory::Pointer directory = itk::Directory::New();
+    directory->Load(dir.c_str());
 
-	for (unsigned i = 0; i < directory->GetNumberOfFiles(); i++) {
-		const char* filename = directory->GetFile(i);
-		if (extension == ".*" || std::string(filename).find(extension) != std::string::npos)
+    for (unsigned i = 0; i < directory->GetNumberOfFiles(); i++) {
+        const char* filename = directory->GetFile(i);
+        if (extension == ".*" || std::string(filename).find(extension) != std::string::npos)
             files.push_back(filename);
-	}
+    }
 
     return 0;
 }
@@ -82,11 +81,11 @@ void itkExample(const char* dir, const char* modelname) {
 
 
 
-	typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
-	typedef itk::StatisticalModel<ImageType> StatisticalModelType;
+    typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
+    typedef itk::StatisticalModel<ImageType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
     typedef itk::DataManager<ImageType> DataManagerType;
-	typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
+    typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
 
 
     StringVectorType filenames;
@@ -94,9 +93,9 @@ void itkExample(const char* dir, const char* modelname) {
 
     // we take an arbitrary dataset as the reference, as they have all the same resolution anyway
     std::string referenceFilename = (std::string(dir) + "/" + filenames[0]);
-	typename ImageFileReaderType::Pointer refReader = ImageFileReaderType::New();
-	refReader->SetFileName(referenceFilename);
-	refReader->Update();
+    typename ImageFileReaderType::Pointer refReader = ImageFileReaderType::New();
+    refReader->SetFileName(referenceFilename);
+    refReader->Update();
 
     typename RepresenterType::Pointer representer = RepresenterType::New();
     representer->SetReference(refReader->GetOutput());
@@ -108,10 +107,10 @@ void itkExample(const char* dir, const char* modelname) {
     for (StringVectorType::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
 
         std::string fullpath = (std::string(dir) + "/") + *it;
-    	typename ImageFileReaderType::Pointer reader = ImageFileReaderType::New();
-    	reader->SetFileName(fullpath);
-    	reader->Update();
-    	typename ImageType::Pointer df = reader->GetOutput();
+        typename ImageFileReaderType::Pointer reader = ImageFileReaderType::New();
+        reader->SetFileName(fullpath);
+        reader->Update();
+        typename ImageType::Pointer df = reader->GetOutput();
 
         dataManager->AddDataset(df, fullpath.c_str());
     }
@@ -124,25 +123,23 @@ void itkExample(const char* dir, const char* modelname) {
 
 int main(int argc, char* argv[]) {
 
-	if (argc < 4) {
-		std::cout << "usage " << argv[0] << " dimension deformationFieldDir modelname" << std::endl;
-		exit(-1);
-	}
+    if (argc < 4) {
+        std::cout << "usage " << argv[0] << " dimension deformationFieldDir modelname" << std::endl;
+        exit(-1);
+    }
 
-	unsigned int dimension = atoi(argv[1]);
-	const char* dir = argv[2];
-	const char* modelname = argv[3];
+    unsigned int dimension = atoi(argv[1]);
+    const char* dir = argv[2];
+    const char* modelname = argv[3];
 
-	if (dimension==2){
-	  itkExample<RepresenterType2D, VectorImageType2D>(dir, modelname);
-	}
-	else if (dimension==3){
-	  itkExample<RepresenterType3D, VectorImageType3D>(dir, modelname);
-	}
-	else{
-	  assert(0);
-	}
+    if (dimension==2) {
+        itkExample<RepresenterType2D, VectorImageType2D>(dir, modelname);
+    } else if (dimension==3) {
+        itkExample<RepresenterType3D, VectorImageType3D>(dir, modelname);
+    } else {
+        assert(0);
+    }
 
-	std::cout << "Model building is completed successfully." << std::endl;
+    std::cout << "Model building is completed successfully." << std::endl;
 }
 

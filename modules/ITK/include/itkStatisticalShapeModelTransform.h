@@ -45,8 +45,7 @@
 #include "itkImage.h"
 #include "itkVector.h"
 
-namespace itk
-{
+namespace itk {
 
 /**
  *
@@ -57,66 +56,63 @@ namespace itk
  */
 template <class TRepresenter, class TScalarType,  unsigned int TDimension >
 class ITK_EXPORT StatisticalShapeModelTransform :
-public itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>
-{
-public:
-	/* Standard class typedefs. */
-	typedef StatisticalShapeModelTransform            Self;
-	typedef itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>	 Superclass;
-	typedef SmartPointer<Self>                Pointer;
-	typedef SmartPointer<const Self>          ConstPointer;
+    public itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension> {
+  public:
+    /* Standard class typedefs. */
+    typedef StatisticalShapeModelTransform            Self;
+    typedef itk::StatisticalModelTransformBase< TRepresenter, TScalarType , TDimension>	 Superclass;
+    typedef SmartPointer<Self>                Pointer;
+    typedef SmartPointer<const Self>          ConstPointer;
 
 
     itkSimpleNewMacro( Self );
-    
-
-	/** Run-time type information (and related methods). */
-	itkTypeMacro(StatisticalShapeModelTransform,  Superclass);
 
 
-	typedef typename Superclass::InputPointType         InputPointType;
-	typedef typename Superclass::OutputPointType        OutputPointType;
-	typedef typename Superclass::RepresenterType RepresenterType;
-
-	  /**
-	   * Clone the current transform
-	   */
-	  virtual ::itk::LightObject::Pointer CreateAnother() const
-	  {
-		  ::itk::LightObject::Pointer smartPtr;
-		  Pointer another = Self::New().GetPointer();
-		  this->CopyBaseMembers(another);
-
-		  smartPtr = static_cast<Pointer>(another);
-		  return smartPtr;
-	     }
+    /** Run-time type information (and related methods). */
+    itkTypeMacro(StatisticalShapeModelTransform,  Superclass);
 
 
-	/**
-	 * Transform a given point according to the deformation induced by the StatisticalModel,
-	 * given the current parameters.
-	 *
-	 * \param pt The point to tranform
-	 * \return The transformed point
-	 */
-	virtual OutputPointType  TransformPoint(const InputPointType &pt) const
-	{
-		typename RepresenterType::ValueType d;
-		try {
-			d = this->m_StatisticalModel->DrawSampleAtPoint(this->m_coeff_vector, pt);
-		} catch (ExceptionObject &e) {
-			std::cout << "exception occured at point " << pt << std::endl;
-			std::cout << "message " << e.what() << std::endl;
-		}
-		return d;
-	}
+    typedef typename Superclass::InputPointType         InputPointType;
+    typedef typename Superclass::OutputPointType        OutputPointType;
+    typedef typename Superclass::RepresenterType RepresenterType;
 
-	StatisticalShapeModelTransform() {}
+    /**
+     * Clone the current transform
+     */
+    virtual ::itk::LightObject::Pointer CreateAnother() const {
+        ::itk::LightObject::Pointer smartPtr;
+        Pointer another = Self::New().GetPointer();
+        this->CopyBaseMembers(another);
 
-private:
+        smartPtr = static_cast<Pointer>(another);
+        return smartPtr;
+    }
 
-	StatisticalShapeModelTransform(const StatisticalShapeModelTransform& orig); // purposely not implemented
-	StatisticalShapeModelTransform& operator=(const StatisticalShapeModelTransform& rhs); //purposely not implemented
+
+    /**
+     * Transform a given point according to the deformation induced by the StatisticalModel,
+     * given the current parameters.
+     *
+     * \param pt The point to tranform
+     * \return The transformed point
+     */
+    virtual OutputPointType  TransformPoint(const InputPointType &pt) const {
+        typename RepresenterType::ValueType d;
+        try {
+            d = this->m_StatisticalModel->DrawSampleAtPoint(this->m_coeff_vector, pt);
+        } catch (ExceptionObject &e) {
+            std::cout << "exception occured at point " << pt << std::endl;
+            std::cout << "message " << e.what() << std::endl;
+        }
+        return d;
+    }
+
+    StatisticalShapeModelTransform() {}
+
+  private:
+
+    StatisticalShapeModelTransform(const StatisticalShapeModelTransform& orig); // purposely not implemented
+    StatisticalShapeModelTransform& operator=(const StatisticalShapeModelTransform& rhs); //purposely not implemented
 };
 
 

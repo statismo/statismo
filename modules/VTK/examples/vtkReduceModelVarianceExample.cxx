@@ -54,40 +54,39 @@ using std::auto_ptr;
 // illustrates how to reduce the variance of a model
 int main(int argc, char** argv) {
 
-	if (argc < 3) {
-		std::cout << "Usage " << argv[0] << " inputmodel outputmodel" << std::endl;
-		exit(-1);
-	}
-	std::string inputModelName(argv[1]);
-	std::string outputModelName(argv[2]);
+    if (argc < 3) {
+        std::cout << "Usage " << argv[0] << " inputmodel outputmodel" << std::endl;
+        exit(-1);
+    }
+    std::string inputModelName(argv[1]);
+    std::string outputModelName(argv[2]);
 
 
-	// All the statismo classes have to be parameterized with the RepresenterType.
-	// For building a shape model with vtk, we use the vtkPolyDataRepresenter.
-	typedef vtkStandardMeshRepresenter RepresenterType;
-	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
-	typedef ReducedVarianceModelBuilder<vtkPolyData> ReducedVarianceModelBuilderType;
+    // All the statismo classes have to be parameterized with the RepresenterType.
+    // For building a shape model with vtk, we use the vtkPolyDataRepresenter.
+    typedef vtkStandardMeshRepresenter RepresenterType;
+    typedef StatisticalModel<vtkPolyData> StatisticalModelType;
+    typedef ReducedVarianceModelBuilder<vtkPolyData> ReducedVarianceModelBuilderType;
 
 
-	try {
+    try {
 
-		// To load a model, we call the static Load method, which returns (a pointer to) a
-		// new StatisticalModel object
-		RepresenterType* representer = RepresenterType::Create();
-		auto_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, inputModelName));
-		std::cout << "loaded model with variance of " << model->GetPCAVarianceVector().sum()  << std::endl;
+        // To load a model, we call the static Load method, which returns (a pointer to) a
+        // new StatisticalModel object
+        RepresenterType* representer = RepresenterType::Create();
+        auto_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, inputModelName));
+        std::cout << "loaded model with variance of " << model->GetPCAVarianceVector().sum()  << std::endl;
 
-		auto_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
+        auto_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
 
-		// build a model with only half the variance
+        // build a model with only half the variance
         auto_ptr<StatisticalModelType> reducedModel(reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5));
-		std::cout << "new model has variance of " << reducedModel->GetPCAVarianceVector().sum()  << std::endl;
+        std::cout << "new model has variance of " << reducedModel->GetPCAVarianceVector().sum()  << std::endl;
 
-		reducedModel->Save(outputModelName);
-	}
-	catch (StatisticalModelException& e) {
-		std::cout << "Exception occured while building the shape model" << std::endl;
-		std::cout << e.what() << std::endl;
-	}
+        reducedModel->Save(outputModelName);
+    } catch (StatisticalModelException& e) {
+        std::cout << "Exception occured while building the shape model" << std::endl;
+        std::cout << e.what() << std::endl;
+    }
 }
 

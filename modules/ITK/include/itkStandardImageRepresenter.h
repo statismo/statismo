@@ -58,99 +58,103 @@ namespace itk {
 
 template<class TPixel, unsigned ImageDimension>
 class StandardImageRepresenter: public Object, public statismo::Representer<
-		itk::Image<TPixel, ImageDimension> > {
-public:
+    itk::Image<TPixel, ImageDimension> > {
+  public:
 
-	/* Standard class typedefs. */
-	typedef StandardImageRepresenter Self;
-	typedef Object Superclass;
-	typedef SmartPointer<Self> Pointer;
-	typedef SmartPointer<const Self> ConstPointer;
+    /* Standard class typedefs. */
+    typedef StandardImageRepresenter Self;
+    typedef Object Superclass;
+    typedef SmartPointer<Self> Pointer;
+    typedef SmartPointer<const Self> ConstPointer;
 
-	/** New macro for creation of through a Smart Pointer. */
-	itkSimpleNewMacro (Self);
+    /** New macro for creation of through a Smart Pointer. */
+    itkSimpleNewMacro (Self);
 
-	/** Run-time type information (and related methods). */
-	itkTypeMacro( StandardImageRepresenter, Object );
+    /** Run-time type information (and related methods). */
+    itkTypeMacro( StandardImageRepresenter, Object );
 
-	typedef itk::Image<TPixel, ImageDimension> ImageType;
+    typedef itk::Image<TPixel, ImageDimension> ImageType;
 
-	typedef typename statismo::Representer<ImageType> RepresenterBaseType;
-	typedef typename RepresenterBaseType::DomainType DomainType;
-	typedef typename RepresenterBaseType::PointType PointType;
-	typedef typename RepresenterBaseType::ValueType ValueType;
-	typedef typename RepresenterBaseType::DatasetType DatasetType;
-	typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
-	typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
+    typedef typename statismo::Representer<ImageType> RepresenterBaseType;
+    typedef typename RepresenterBaseType::DomainType DomainType;
+    typedef typename RepresenterBaseType::PointType PointType;
+    typedef typename RepresenterBaseType::ValueType ValueType;
+    typedef typename RepresenterBaseType::DatasetType DatasetType;
+    typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
+    typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
 
-    static StandardImageRepresenter* Create() { return new StandardImageRepresenter(); }
-	void Load(const H5::Group& fg);
-	StandardImageRepresenter* Clone() const;
+    static StandardImageRepresenter* Create() {
+        return new StandardImageRepresenter();
+    }
+    void Load(const H5::Group& fg);
+    StandardImageRepresenter* Clone() const;
 
-	StandardImageRepresenter();
-	virtual ~StandardImageRepresenter();
+    StandardImageRepresenter();
+    virtual ~StandardImageRepresenter();
 
-	unsigned GetDimensions() const {
-		return PixelConversionTrait<TPixel>::GetPixelDimension();
-	}
-	std::string GetName() const {
-		return "itkStandardImageRepresenter";
-	}
-	typename RepresenterBaseType::RepresenterDataType GetType() const {
-		return RepresenterBaseType::IMAGE;
-	}
+    unsigned GetDimensions() const {
+        return PixelConversionTrait<TPixel>::GetPixelDimension();
+    }
+    std::string GetName() const {
+        return "itkStandardImageRepresenter";
+    }
+    typename RepresenterBaseType::RepresenterDataType GetType() const {
+        return RepresenterBaseType::IMAGE;
+    }
 
-	const DomainType& GetDomain() const {
-		return m_domain;
-	}
-	std::string GetVersion() const {
-		return "0.1";
-	}
+    const DomainType& GetDomain() const {
+        return m_domain;
+    }
+    std::string GetVersion() const {
+        return "0.1";
+    }
 
     /// return the reference used in the representer
-    DatasetConstPointerType GetReference() const { return m_reference; }
+    DatasetConstPointerType GetReference() const {
+        return m_reference;
+    }
 
 
-	/** Set the reference that is used to build the model */
-	void SetReference(ImageType* ds);
+    /** Set the reference that is used to build the model */
+    void SetReference(ImageType* ds);
 
-	/**
-	 * Creates a sample by first aligning the dataset ds to the reference using Procrustes
-	 * Alignment.
-	 */
-	statismo::VectorType PointToVector(const PointType& pt) const;
-	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
-	statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
-	DatasetPointerType SampleVectorToSample(
-			const statismo::VectorType& sample) const;
+    /**
+     * Creates a sample by first aligning the dataset ds to the reference using Procrustes
+     * Alignment.
+     */
+    statismo::VectorType PointToVector(const PointType& pt) const;
+    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
+    statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
+    DatasetPointerType SampleVectorToSample(
+        const statismo::VectorType& sample) const;
 
-	ValueType PointSampleFromSample(DatasetConstPointerType sample,
-			unsigned ptid) const;
-	ValueType PointSampleVectorToPointSample(
-			const statismo::VectorType& pointSample) const;
-	statismo::VectorType PointSampleToPointSampleVector(
-			const ValueType& v) const;
+    ValueType PointSampleFromSample(DatasetConstPointerType sample,
+                                    unsigned ptid) const;
+    ValueType PointSampleVectorToPointSample(
+        const statismo::VectorType& pointSample) const;
+    statismo::VectorType PointSampleToPointSampleVector(
+        const ValueType& v) const;
 
-	void Save(const H5::Group& fg) const;
-	virtual unsigned GetPointIdForPoint(const PointType& point) const;
+    void Save(const H5::Group& fg) const;
+    virtual unsigned GetPointIdForPoint(const PointType& point) const;
 
-	unsigned GetNumberOfPoints() const;
+    unsigned GetNumberOfPoints() const;
 
-	void Delete() const {
-	  this->UnRegister();
-	}
+    void Delete() const {
+        this->UnRegister();
+    }
 
 
-	void DeleteDataset(DatasetConstPointerType d) const {}
-	DatasetPointerType CloneDataset(DatasetConstPointerType d) const;
+    void DeleteDataset(DatasetConstPointerType d) const {}
+    DatasetPointerType CloneDataset(DatasetConstPointerType d) const;
 
-private:
+  private:
 
     typename ImageType::Pointer LoadRef(const H5::Group& fg) const;
-   typename ImageType::Pointer LoadRefLegacy(const H5::Group& fg) const;
+    typename ImageType::Pointer LoadRefLegacy(const H5::Group& fg) const;
 
-	DatasetConstPointerType m_reference;
-	DomainType m_domain;
+    DatasetConstPointerType m_reference;
+    DomainType m_domain;
 };
 
 } // namespace itk

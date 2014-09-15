@@ -66,31 +66,31 @@ typedef itk::StandardImageRepresenter<itk::Vector<float, 2>, 2> RepresenterType2
  * A scalar valued gaussian kernel.
  */
 template <class TPoint>
-class GaussianKernel: public statismo::ScalarValuedKernel<TPoint>{
-public:
-	typedef typename  TPoint::CoordRepType CoordRepType;
-	typedef vnl_vector<CoordRepType> VectorType;
+class GaussianKernel: public statismo::ScalarValuedKernel<TPoint> {
+  public:
+    typedef typename  TPoint::CoordRepType CoordRepType;
+    typedef vnl_vector<CoordRepType> VectorType;
 
-	GaussianKernel(double sigma) : m_sigma(sigma), m_sigma2(sigma * sigma) {}
+    GaussianKernel(double sigma) : m_sigma(sigma), m_sigma2(sigma * sigma) {}
 
-	inline double operator()(const TPoint& x, const TPoint& y) const {
-		VectorType xv = x.GetVnlVector();
-		VectorType yv = y.GetVnlVector();
+    inline double operator()(const TPoint& x, const TPoint& y) const {
+        VectorType xv = x.GetVnlVector();
+        VectorType yv = y.GetVnlVector();
 
-		VectorType r = yv - xv;
-		return exp(-dot_product(r, r) / m_sigma2);
-	}
+        VectorType r = yv - xv;
+        return exp(-dot_product(r, r) / m_sigma2);
+    }
 
-	std::string GetKernelInfo() const {
-		std::ostringstream os;
-		os << "GaussianKernel(" << m_sigma << ")";
-		return os.str();
-	}
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << "GaussianKernel(" << m_sigma << ")";
+        return os.str();
+    }
 
-private:
+  private:
 
-	double m_sigma;
-	double m_sigma2;
+    double m_sigma;
+    double m_sigma2;
 };
 
 
@@ -101,25 +101,25 @@ void itkExample(const char* referenceFilename, double gaussianKernelSigma, const
 
 
 
-	typedef itk::LowRankGPModelBuilder<ImageType> ModelBuilderType;
-	typedef itk::StatisticalModel<ImageType> StatisticalModelType;
+    typedef itk::LowRankGPModelBuilder<ImageType> ModelBuilderType;
+    typedef itk::StatisticalModel<ImageType> StatisticalModelType;
     typedef std::vector<std::string> StringVectorType;
-	typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
-	typedef typename ImageType::PointType PointType;
+    typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
+    typedef typename ImageType::PointType PointType;
 
     // we take an arbitrary dataset as the reference, as they have all the same resolution anyway
-	typename ImageFileReaderType::Pointer refReader = ImageFileReaderType::New();
-	refReader->SetFileName(referenceFilename);
-	refReader->Update();
+    typename ImageFileReaderType::Pointer refReader = ImageFileReaderType::New();
+    refReader->SetFileName(referenceFilename);
+    refReader->Update();
 
     typename RepresenterType::Pointer representer = RepresenterType::New();
     representer->SetReference(refReader->GetOutput());
 
 
-	const GaussianKernel<PointType> gk = GaussianKernel<PointType>(gaussianKernelSigma); // a gk with sigma 100
-	// make the kernel matrix valued and scale it by a factor of 100
-	const statismo::MatrixValuedKernel<PointType>& mvGk = statismo::UncorrelatedMatrixValuedKernel<PointType>(&gk, representer->GetDimensions());
-	const statismo::MatrixValuedKernel<PointType>& scaledGk = statismo::ScaledKernel<PointType>(&mvGk, 100.0);
+    const GaussianKernel<PointType> gk = GaussianKernel<PointType>(gaussianKernelSigma); // a gk with sigma 100
+    // make the kernel matrix valued and scale it by a factor of 100
+    const statismo::MatrixValuedKernel<PointType>& mvGk = statismo::UncorrelatedMatrixValuedKernel<PointType>(&gk, representer->GetDimensions());
+    const statismo::MatrixValuedKernel<PointType>& scaledGk = statismo::ScaledKernel<PointType>(&mvGk, 100.0);
 
 
     typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
@@ -132,26 +132,24 @@ void itkExample(const char* referenceFilename, double gaussianKernelSigma, const
 
 int main(int argc, char* argv[]) {
 
-	if (argc < 5) {
-		std::cout << "usage " << argv[0] << " dimension referenceFilename gaussianKernelSigma modelname" << std::endl;
-		exit(-1);
-	}
+    if (argc < 5) {
+        std::cout << "usage " << argv[0] << " dimension referenceFilename gaussianKernelSigma modelname" << std::endl;
+        exit(-1);
+    }
 
-	unsigned int dimension = atoi(argv[1]);
-	const char* referenceFilename = argv[2];
-	double gaussianKernelSigma = atof(argv[3]);
-	const char* modelname = argv[4];
+    unsigned int dimension = atoi(argv[1]);
+    const char* referenceFilename = argv[2];
+    double gaussianKernelSigma = atof(argv[3]);
+    const char* modelname = argv[4];
 
-	if (dimension==2){
-	  itkExample<RepresenterType2D, VectorImageType2D>(referenceFilename, gaussianKernelSigma,  modelname);
-	}
-	else if (dimension==3){
-	  itkExample<RepresenterType3D, VectorImageType3D>(referenceFilename, gaussianKernelSigma, modelname);
-	}
-	else{
-	  assert(0);
-	}
+    if (dimension==2) {
+        itkExample<RepresenterType2D, VectorImageType2D>(referenceFilename, gaussianKernelSigma,  modelname);
+    } else if (dimension==3) {
+        itkExample<RepresenterType3D, VectorImageType3D>(referenceFilename, gaussianKernelSigma, modelname);
+    } else {
+        assert(0);
+    }
 
-	std::cout << "Model building is completed successfully." << std::endl;
+    std::cout << "Model building is completed successfully." << std::endl;
 }
 

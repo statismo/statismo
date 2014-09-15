@@ -52,8 +52,8 @@ namespace statismo {
 
 template <typename T>
 ReducedVarianceModelBuilder<T>::ReducedVarianceModelBuilder()
-: Superclass()
-  {}
+    : Superclass() {
+}
 
 
 
@@ -61,8 +61,8 @@ ReducedVarianceModelBuilder<T>::ReducedVarianceModelBuilder()
 template <typename T>
 typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
 ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(
-        const StatisticalModelType* inputModel,
-        unsigned numberOfPrincipalComponents) const
+    const StatisticalModelType* inputModel,
+    unsigned numberOfPrincipalComponents) const
 
 {
     StatisticalModelType* reducedModel = StatisticalModelType::Create(
@@ -72,25 +72,25 @@ ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(
             inputModel->GetPCAVarianceVector().topRows(numberOfPrincipalComponents),
             inputModel->GetNoiseVariance());
 
-  // Write the parameters used to build the models into the builderInfo
-  typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
+    // Write the parameters used to build the models into the builderInfo
+    typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
 
-  BuilderInfo::ParameterInfoList bi;
-  bi.push_back(BuilderInfo::KeyValuePair("NumberOfPincipalComponents ", Utils::toString(numberOfPrincipalComponents)));
+    BuilderInfo::ParameterInfoList bi;
+    bi.push_back(BuilderInfo::KeyValuePair("NumberOfPincipalComponents ", Utils::toString(numberOfPrincipalComponents)));
 
-  BuilderInfo::DataInfoList di;
+    BuilderInfo::DataInfoList di;
 
-  BuilderInfo builderInfo("ReducedVarianceModelBuilder", di, bi);
-  builderInfoList.push_back(builderInfo);
+    BuilderInfo builderInfo("ReducedVarianceModelBuilder", di, bi);
+    builderInfoList.push_back(builderInfo);
 
-  // If the scores matrix is not set, or if we have for some reasons not as many score entries as the number of principal components,
-  // we simply work with what is there.
-  unsigned numComponentsForScores = std::min(static_cast<unsigned>(inputModel->GetModelInfo().GetScoresMatrix().rows()), numberOfPrincipalComponents);
+    // If the scores matrix is not set, or if we have for some reasons not as many score entries as the number of principal components,
+    // we simply work with what is there.
+    unsigned numComponentsForScores = std::min(static_cast<unsigned>(inputModel->GetModelInfo().GetScoresMatrix().rows()), numberOfPrincipalComponents);
 
-  ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsForScores), builderInfoList);
-  reducedModel->SetModelInfo(info);
+    ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsForScores), builderInfoList);
+    reducedModel->SetModelInfo(info);
 
-  return reducedModel;
+    return reducedModel;
 
 }
 
@@ -99,33 +99,31 @@ ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(
 template <typename T>
 typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
 ReducedVarianceModelBuilder<T>::BuildNewModelWithVariance(
-		const StatisticalModelType* inputModel,
-        double totalVariance) const
-{
+    const StatisticalModelType* inputModel,
+    double totalVariance) const {
 
-	VectorType pcaVariance = inputModel->GetPCAVarianceVector();
-	  double modelVariance = pcaVariance.sum();
+    VectorType pcaVariance = inputModel->GetPCAVarianceVector();
+    double modelVariance = pcaVariance.sum();
 
-	  //count the number of modes required for the model
-	  double cumulatedVariance = 0;
-	  unsigned numComponentsToReachPrescribedVariance = 0;
-	  for (unsigned i = 0; i < pcaVariance.size(); i++) {
-		  cumulatedVariance += pcaVariance(i);
-		  numComponentsToReachPrescribedVariance++;
-		  if (cumulatedVariance / modelVariance >= totalVariance)
-			  break;
-      }
+    //count the number of modes required for the model
+    double cumulatedVariance = 0;
+    unsigned numComponentsToReachPrescribedVariance = 0;
+    for (unsigned i = 0; i < pcaVariance.size(); i++) {
+        cumulatedVariance += pcaVariance(i);
+        numComponentsToReachPrescribedVariance++;
+        if (cumulatedVariance / modelVariance >= totalVariance)
+            break;
+    }
     return BuildNewModelWithLeadingComponents(inputModel, numComponentsToReachPrescribedVariance);
 }
 
 template <typename T>
 typename ReducedVarianceModelBuilder<T>::StatisticalModelType*
-    ReducedVarianceModelBuilder<T>::BuildNewModelFromModel(
-            const StatisticalModelType* inputModel,
-            double totalVariance) const
-{
+ReducedVarianceModelBuilder<T>::BuildNewModelFromModel(
+    const StatisticalModelType* inputModel,
+    double totalVariance) const {
 
-       return BuildNewModelWithVariance(inputModel, totalVariance);
+    return BuildNewModelWithVariance(inputModel, totalVariance);
 }
 
 } // namespace statismo

@@ -48,31 +48,33 @@ namespace statismo {
  * \brief Used to indicate that a method has not yet been implemented
  */
 class NotImplementedException : public std::exception {
-public:
-	NotImplementedException(const char* classname, const char* methodname)
-			:m_classname(classname), m_methodname(methodname)
-			 {}
-	virtual ~NotImplementedException() throw() {}
+  public:
+    NotImplementedException(const char* classname, const char* methodname)
+        :m_classname(classname), m_methodname(methodname) {
+    }
+    virtual ~NotImplementedException() throw() {}
 
-	const char* what() const throw() {
-		return (m_classname + "::" +m_methodname).c_str();
-	}
-private:
-	std::string m_classname;
-	std::string m_methodname;
+    const char* what() const throw() {
+        return (m_classname + "::" +m_methodname).c_str();
+    }
+  private:
+    std::string m_classname;
+    std::string m_methodname;
 };
 
 /**
  * \brief Generic Exception class for the statismo Library.
  */
 class StatisticalModelException : public std::exception {
-public:
-	StatisticalModelException(const char* message) : m_message(message) {}
-	virtual ~StatisticalModelException() throw() {}
-	const char* what() const throw() { return m_message.c_str(); }
+  public:
+    StatisticalModelException(const char* message) : m_message(message) {}
+    virtual ~StatisticalModelException() throw() {}
+    const char* what() const throw() {
+        return m_message.c_str();
+    }
 
-private:
-	std::string m_message;
+  private:
+    std::string m_message;
 };
 
 }

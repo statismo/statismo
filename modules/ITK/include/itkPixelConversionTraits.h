@@ -52,72 +52,190 @@ namespace itk {
 using statismo::VectorType;
 
 template <typename T> struct PixelConversionTrait {
-    static VectorType ToVector(const T& pixel) { throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)"); }
-    static  T FromVector(const VectorType& v) {throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)"); }
-    static unsigned GetDataType() { throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)"); }
-    static unsigned GetPixelDimension() { throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)"); }
+    static VectorType ToVector(const T& pixel) {
+        throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)");
+    }
+    static  T FromVector(const VectorType& v) {
+        throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)");
+    }
+    static unsigned GetDataType() {
+        throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)");
+    }
+    static unsigned GetPixelDimension() {
+        throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)");
+    }
 };
 
 template <> struct PixelConversionTrait<double> {
-    static VectorType ToVector(const double& pixel) { VectorType v(1); v << pixel; return v;}
-    static  double FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::DOUBLE; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const double& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static  double FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::DOUBLE;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 template <> struct PixelConversionTrait<float> {
-    static VectorType ToVector(const float& pixel) { VectorType v(1); v << pixel; return v;}
-    static  float FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::FLOAT; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const float& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static  float FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::FLOAT;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 template <> struct PixelConversionTrait<short> {
-    static VectorType ToVector(const short& pixel) { VectorType v(1); v << pixel; return v;}
-    static  short FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::SIGNED_SHORT; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const short& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static  short FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::SIGNED_SHORT;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 template <> struct PixelConversionTrait<unsigned short> {
-    static VectorType ToVector(const unsigned short& pixel) { VectorType v(1); v << pixel; return v;}
-    static  unsigned short FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::UNSIGNED_SHORT; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const unsigned short& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static  unsigned short FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::UNSIGNED_SHORT;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 template <> struct PixelConversionTrait<int> {
-    static VectorType ToVector(const int& pixel) { VectorType v(1); v << pixel; return v;}
-    static  int FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::SIGNED_INT; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const int& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static  int FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::SIGNED_INT;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 template <> struct PixelConversionTrait<unsigned int> {
-    static VectorType ToVector(const unsigned int& pixel) { VectorType v(1); v << pixel; return v;}
-    static  unsigned int FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::UNSIGNED_SHORT; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const unsigned int& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static  unsigned int FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::UNSIGNED_SHORT;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 template <> struct PixelConversionTrait<char> {
-    static VectorType ToVector(const char& pixel) { VectorType v(1); v << pixel; return v;}
-    static char FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::SIGNED_CHAR; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const char& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static char FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::SIGNED_CHAR;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 template <> struct PixelConversionTrait<unsigned char> {
-    static VectorType ToVector(const unsigned char& pixel) { VectorType v(1); v << pixel; return v;}
-    static  unsigned char FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::UNSIGNED_CHAR; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const unsigned char& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static  unsigned char FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::UNSIGNED_CHAR;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 
 template <> struct PixelConversionTrait<long> {
-    static VectorType ToVector(const long& pixel) { VectorType v(1); v << pixel; return v;}
-    static long FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::SIGNED_LONG; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const long& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static long FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::SIGNED_LONG;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 template <> struct PixelConversionTrait<unsigned long> {
-    static VectorType ToVector(const unsigned long& pixel) { VectorType v(1); v << pixel; return v;}
-    static  unsigned long FromVector(const VectorType& v) { assert(v.size() == 1); return v(0); }
-    static  unsigned  GetDataType() {return statismo::UNSIGNED_LONG; }
-    static unsigned GetPixelDimension() { return 1;}
+    static VectorType ToVector(const unsigned long& pixel) {
+        VectorType v(1);
+        v << pixel;
+        return v;
+    }
+    static  unsigned long FromVector(const VectorType& v) {
+        assert(v.size() == 1);
+        return v(0);
+    }
+    static  unsigned  GetDataType() {
+        return statismo::UNSIGNED_LONG;
+    }
+    static unsigned GetPixelDimension() {
+        return 1;
+    }
 };
 
 template <> struct PixelConversionTrait<itk::Vector<float, 2> > {
@@ -129,11 +247,16 @@ template <> struct PixelConversionTrait<itk::Vector<float, 2> > {
     static itk::Vector<float, 2> FromVector(const VectorType& v) {
         assert(v.size() == 2);
         itk::Vector<double, 2> itkVec;
-        itkVec[0] = v(0); itkVec[1] = v(1);
+        itkVec[0] = v(0);
+        itkVec[1] = v(1);
         return itkVec;
     }
-    static  unsigned  GetDataType() {return statismo::FLOAT; }
-    static unsigned GetPixelDimension() { return 2;}
+    static  unsigned  GetDataType() {
+        return statismo::FLOAT;
+    }
+    static unsigned GetPixelDimension() {
+        return 2;
+    }
 };
 
 template <> struct PixelConversionTrait<itk::Vector<float, 3> > {
@@ -145,11 +268,17 @@ template <> struct PixelConversionTrait<itk::Vector<float, 3> > {
     static itk::Vector<float, 3> FromVector(const VectorType& v) {
         assert(v.size() == 3);
         itk::Vector<double, 3> itkVec;
-        itkVec[0] = v(0); itkVec[1] = v(1); itkVec[2] = v(2);
+        itkVec[0] = v(0);
+        itkVec[1] = v(1);
+        itkVec[2] = v(2);
         return itkVec;
     }
-    static  unsigned  GetDataType() {return statismo::FLOAT; }
-    static unsigned GetPixelDimension() { return 3;}
+    static  unsigned  GetDataType() {
+        return statismo::FLOAT;
+    }
+    static unsigned GetPixelDimension() {
+        return 3;
+    }
 };
 
 
