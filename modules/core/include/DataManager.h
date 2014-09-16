@@ -55,42 +55,42 @@ namespace statismo {
  */
 template<typename T>
 class CrossValidationFold {
-public:
-	typedef DataItem<T> DataItemType;
-	typedef std::list<const DataItemType*> DataItemListType;
+  public:
+    typedef DataItem<T> DataItemType;
+    typedef std::list<const DataItemType*> DataItemListType;
 
-	/***
-	 * Create an empty fold
-	 */
-	CrossValidationFold() {
-	}
-	;
+    /***
+     * Create an empty fold
+     */
+    CrossValidationFold() {
+    }
+    ;
 
-	/**
-	 * Create a fold with the given trainingData and testingData
-	 */
-	CrossValidationFold(const DataItemListType& trainingData,
-			const DataItemListType& testingData) :
-			m_trainingData(trainingData), m_testingData(testingData) {
-	}
+    /**
+     * Create a fold with the given trainingData and testingData
+     */
+    CrossValidationFold(const DataItemListType& trainingData,
+                        const DataItemListType& testingData) :
+        m_trainingData(trainingData), m_testingData(testingData) {
+    }
 
-	/**
-	 * Get a list holding the training data
-	 */
-	DataItemListType GetTrainingData() const {
-		return m_trainingData;
-	}
+    /**
+     * Get a list holding the training data
+     */
+    DataItemListType GetTrainingData() const {
+        return m_trainingData;
+    }
 
-	/**
-	 * Get a list holding the testing data
-	 */
-	DataItemListType GetTestingData() const {
-		return m_testingData;
-	}
+    /**
+     * Get a list holding the testing data
+     */
+    DataItemListType GetTestingData() const {
+        return m_testingData;
+    }
 
-private:
-	DataItemListType m_trainingData;
-	DataItemListType m_testingData;
+  private:
+    DataItemListType m_trainingData;
+    DataItemListType m_testingData;
 };
 
 /**
@@ -112,103 +112,103 @@ private:
 template<typename T>
 class DataManager {
 
-public:
+  public:
 
-	typedef Representer<T> RepresenterType;
-	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
-	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
+    typedef Representer<T> RepresenterType;
+    typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
+    typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
-	typedef DataItem<T> DataItemType;
-	typedef DataItemWithSurrogates<T> DataItemWithSurrogatesType;
-	typedef std::list<const DataItemType*> DataItemListType;
-	typedef CrossValidationFold<T> CrossValidationFoldType;
-	typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
+    typedef DataItem<T> DataItemType;
+    typedef DataItemWithSurrogates<T> DataItemWithSurrogatesType;
+    typedef std::list<const DataItemType*> DataItemListType;
+    typedef CrossValidationFold<T> CrossValidationFoldType;
+    typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
 
-	/**
-	 * Factory method that creates a new instance of a DataManager class
-	 *
-	 */
-	static DataManager<T>* Create(const RepresenterType* representer) {
-		return new DataManager<T>(representer);
-	}
+    /**
+     * Factory method that creates a new instance of a DataManager class
+     *
+     */
+    static DataManager<T>* Create(const RepresenterType* representer) {
+        return new DataManager<T>(representer);
+    }
 
-	/**
-	 * Create a new dataManager, with the data stored in the given hdf5 file
-	 */
-	static DataManager<T>* Load(Representer<T>* representer,
-			const std::string& filename);
+    /**
+     * Create a new dataManager, with the data stored in the given hdf5 file
+     */
+    static DataManager<T>* Load(Representer<T>* representer,
+                                const std::string& filename);
 
 
-	/**
-	 * Destroy the object.
-	 * The same effect can be achieved by deleting the object in the usual
-	 * way using the c++ delete keyword.
-	 */
-	void Delete() {
-		delete this;
-	}
+    /**
+     * Destroy the object.
+     * The same effect can be achieved by deleting the object in the usual
+     * way using the c++ delete keyword.
+     */
+    void Delete() {
+        delete this;
+    }
 
-	/**
-	 * Destructor
-	 */
-	virtual ~DataManager();
+    /**
+     * Destructor
+     */
+    virtual ~DataManager();
 
-	/**
-	 * Add a dataset to the data manager.
-	 * \param dataset the dataset to be added
-	 * \param URI A string containing the URI of the given dataset. This is only added as an info to the metadata.
-	 *
-	 * While it is not strictly necessary, and sometimes not even possible, to specify a URI for the given dataset,
-	 * it is strongly encouraged to add a description. The string will be added to the metadata and stored with the model.
-	 * Having this information stored with the model may prove valuable at a later point in time.
-	 */
-	virtual void AddDataset(DatasetConstPointerType dataset,
-			const std::string& URI);
+    /**
+     * Add a dataset to the data manager.
+     * \param dataset the dataset to be added
+     * \param URI A string containing the URI of the given dataset. This is only added as an info to the metadata.
+     *
+     * While it is not strictly necessary, and sometimes not even possible, to specify a URI for the given dataset,
+     * it is strongly encouraged to add a description. The string will be added to the metadata and stored with the model.
+     * Having this information stored with the model may prove valuable at a later point in time.
+     */
+    virtual void AddDataset(DatasetConstPointerType dataset,
+                            const std::string& URI);
 
-	/**
-	 * Saves the data matrix and all URIs into an HDF5 file.
-	 * \param filename
-	 */
-	virtual void Save(const std::string& filename) const;
+    /**
+     * Saves the data matrix and all URIs into an HDF5 file.
+     * \param filename
+     */
+    virtual void Save(const std::string& filename) const;
 
-	/**
-	 * return a list with all the sample data objects managed by the data manager
-	 * \sa DataItem
-	 */
-	DataItemListType GetData() const;
+    /**
+     * return a list with all the sample data objects managed by the data manager
+     * \sa DataItem
+     */
+    DataItemListType GetData() const;
 
-	/**
-	 * returns the number of samples managed by the datamanager
-	 */
-	unsigned GetNumberOfSamples() const {
-		return m_DataItemList.size();
-	}
+    /**
+     * returns the number of samples managed by the datamanager
+     */
+    unsigned GetNumberOfSamples() const {
+        return m_DataItemList.size();
+    }
 
-	/**
-	 * Assigns the data to one of n Folds to be used for cross validation.
-	 * This method has to be called before cross validation can be started.
-	 *
-	 * \param nFolds The number of folds used in the crossvalidation
-	 * \param randomize If true, the data will be randomly assigned to the nfolds, otherwise the order with which it was added is preserved
-	 */
-	CrossValidationFoldListType GetCrossValidationFolds(unsigned nFolds,
-			bool randomize = true) const;
+    /**
+     * Assigns the data to one of n Folds to be used for cross validation.
+     * This method has to be called before cross validation can be started.
+     *
+     * \param nFolds The number of folds used in the crossvalidation
+     * \param randomize If true, the data will be randomly assigned to the nfolds, otherwise the order with which it was added is preserved
+     */
+    CrossValidationFoldListType GetCrossValidationFolds(unsigned nFolds,
+            bool randomize = true) const;
 
-	/**
-	 * Generates Leave-one-out cross validation folds
-	 */
-	CrossValidationFoldListType GetLeaveOneOutCrossValidationFolds() const;
+    /**
+     * Generates Leave-one-out cross validation folds
+     */
+    CrossValidationFoldListType GetLeaveOneOutCrossValidationFolds() const;
 
-protected:
-	DataManager(const RepresenterType* representer);
+  protected:
+    DataManager(const RepresenterType* representer);
 
-	DataManager(const DataManager<T>& orig);
-	DataManager& operator=(const DataManager<T>& rhs);
+    DataManager(const DataManager<T>& orig);
+    DataManager& operator=(const DataManager<T>& rhs);
 
-	RepresenterType* m_representer;
+    RepresenterType* m_representer;
 
-	// members
-	DataItemListType m_DataItemList;
+    // members
+    DataItemListType m_DataItemList;
 };
 
 }

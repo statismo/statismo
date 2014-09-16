@@ -54,36 +54,36 @@ namespace statismo {
 template <typename T>
 class ModelBuilder {
 
-public:
-	typedef Representer<T> RepresenterType;
-	typedef StatisticalModel<T> StatisticalModelType;
-	typedef DataManager<T> DataManagerType;
-	typedef typename DataManagerType::DataItemListType DataItemListType;
+  public:
+    typedef Representer<T> RepresenterType;
+    typedef StatisticalModel<T> StatisticalModelType;
+    typedef DataManager<T> DataManagerType;
+    typedef typename DataManagerType::DataItemListType DataItemListType;
 
-	// Values below this tolerance are treated as 0.
-	static const double TOLERANCE;
-
-
-protected:
-
-	MatrixType ComputeScores(const MatrixType& X, const StatisticalModelType* model) const {
-
-		MatrixType scores(model->GetNumberOfPrincipalComponents(), X.rows());
-		for (unsigned i = 0; i < scores.cols(); i++) {
-			scores.col(i) = model->ComputeCoefficientsForSampleVector(X.row(i));
-		}
-		return scores;
-	}
+    // Values below this tolerance are treated as 0.
+    static const double TOLERANCE;
 
 
-	ModelBuilder() {}
+  protected:
 
-	ModelInfo CollectModelInfo() const;
+    MatrixType ComputeScores(const MatrixType& X, const StatisticalModelType* model) const {
 
-private:
-	// private - to prevent use	
-	ModelBuilder(const ModelBuilder& orig);				
-	ModelBuilder& operator=(const ModelBuilder& rhs);
+        MatrixType scores(model->GetNumberOfPrincipalComponents(), X.rows());
+        for (unsigned i = 0; i < scores.cols(); i++) {
+            scores.col(i) = model->ComputeCoefficientsForSampleVector(X.row(i));
+        }
+        return scores;
+    }
+
+
+    ModelBuilder() {}
+
+    ModelInfo CollectModelInfo() const;
+
+  private:
+    // private - to prevent use
+    ModelBuilder(const ModelBuilder& orig);
+    ModelBuilder& operator=(const ModelBuilder& rhs);
 
 };
 

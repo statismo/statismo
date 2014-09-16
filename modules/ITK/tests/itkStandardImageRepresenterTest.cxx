@@ -18,11 +18,11 @@ typedef itk::Image< float,2 > ScalarImageType;
 
 ScalarImageType::Pointer loadScalarImage(const std::string& filename) {
     itk::ImageFileReader<ScalarImageType>::Pointer reader = itk::ImageFileReader<ScalarImageType>::New();
-	reader->SetFileName(filename);
-	reader->Update();
+    reader->SetFileName(filename);
+    reader->Update();
     ScalarImageType::Pointer img = reader->GetOutput();
-	img->DisconnectPipeline();
-	return img;
+    img->DisconnectPipeline();
+    return img;
 }
 
 int testRepresenterForScalarImage(const std::string& datadir) {
@@ -90,18 +90,17 @@ int testRepresenterForVectorImage(const std::string& datadir) {
 
 
 int main(int argc, char** argv) {
-	if (argc < 2) {
-		std::cout << "Usage: " << argv[0] << " datadir" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-	std::string datadir = std::string(argv[1]);
+    if (argc < 2) {
+        std::cout << "Usage: " << argv[0] << " datadir" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+    std::string datadir = std::string(argv[1]);
     bool resultScalarImage = testRepresenterForScalarImage(datadir);
     bool resultVectorImage = testRepresenterForVectorImage(datadir);
 
     if (resultScalarImage == true && resultVectorImage == true) {
         return EXIT_SUCCESS;
-    }
-    else {
+    } else {
         return EXIT_FAILURE;
     }
 }

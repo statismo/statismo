@@ -45,8 +45,7 @@
 #include "itkImage.h"
 #include "itkVector.h"
 
-namespace itk
-{
+namespace itk {
 
 /**
  *
@@ -62,151 +61,155 @@ namespace itk
 
 template <class TDataset, class TScalarType,  unsigned int TInputDimension, unsigned int TOutputDimension = TInputDimension  >
 class ITK_EXPORT StatisticalModelTransformBase :
-public itk::Transform< TScalarType , TInputDimension, TOutputDimension>
-{
-public:
-	/* Standard class typedefs. */
-	typedef StatisticalModelTransformBase            Self;
-	typedef itk::Transform< TScalarType , TInputDimension, TOutputDimension>	Superclass;
-	typedef SmartPointer<Self>                Pointer;
-	typedef SmartPointer<const Self>          ConstPointer;
+    public itk::Transform< TScalarType , TInputDimension, TOutputDimension> {
+  public:
+    /* Standard class typedefs. */
+    typedef StatisticalModelTransformBase            Self;
+    typedef itk::Transform< TScalarType , TInputDimension, TOutputDimension>	Superclass;
+    typedef SmartPointer<Self>                Pointer;
+    typedef SmartPointer<const Self>          ConstPointer;
 
-	typedef vnl_vector<statismo::ScalarType> VectorType;
+    typedef vnl_vector<statismo::ScalarType> VectorType;
     typedef vnl_matrix<statismo::ScalarType> MatrixType;
 
-    
-	  /**
-	   * Copy the members of the current transform. To be used by subclasses in the CreateAnother method.
-	   */
-	  virtual void CopyBaseMembers(StatisticalModelTransformBase* another) const
-	  {
-	 	  another->m_StatisticalModel = m_StatisticalModel;
-	 	  another->m_coeff_vector = m_coeff_vector;
-	 	  another->m_usedNumberCoefficients = m_usedNumberCoefficients;
-	 	  another->m_FixedParameters = m_FixedParameters;
-	 	  another->m_Parameters = this->m_Parameters;
-	   }
+
+    /**
+     * Copy the members of the current transform. To be used by subclasses in the CreateAnother method.
+     */
+    virtual void CopyBaseMembers(StatisticalModelTransformBase* another) const {
+        another->m_StatisticalModel = m_StatisticalModel;
+        another->m_coeff_vector = m_coeff_vector;
+        another->m_usedNumberCoefficients = m_usedNumberCoefficients;
+        another->m_FixedParameters = m_FixedParameters;
+        another->m_Parameters = this->m_Parameters;
+    }
 
 
-	/** Run-time type information (and related methods). */
-	itkTypeMacro( StatisticalModelTransformBase, Superclass );
+    /** Run-time type information (and related methods). */
+    itkTypeMacro( StatisticalModelTransformBase, Superclass );
 
-	/* Dimension of parameters. */
-	itkStaticConstMacro(SpaceDimension, unsigned int, TInputDimension);
-	itkStaticConstMacro(InputSpaceDimension, unsigned int, TInputDimension);
-	itkStaticConstMacro(OutputSpaceDimension, unsigned int, TOutputDimension);
-
-
-	/* Parameters Type   */
-	typedef typename Superclass::ParametersType         ParametersType;
-	typedef typename Superclass::JacobianType           JacobianType;
-	typedef typename Superclass::ScalarType             ScalarType;
-	typedef typename Superclass::InputPointType         InputPointType;
-	typedef typename Superclass::OutputPointType        OutputPointType;
-	typedef typename Superclass::InputVectorType        InputVectorType;
-	typedef typename Superclass::OutputVectorType       OutputVectorType;
-	typedef typename Superclass::InputVnlVectorType     InputVnlVectorType;
-	typedef typename Superclass::OutputVnlVectorType    OutputVnlVectorType;
-	typedef typename Superclass::InputCovariantVectorType
-	InputCovariantVectorType;
-	typedef typename Superclass::OutputCovariantVectorType
-	OutputCovariantVectorType;
-
-	typedef statismo::Representer<TDataset> RepresenterType;
-	typedef itk::StatisticalModel<TDataset> StatisticalModelType;
+    /* Dimension of parameters. */
+    itkStaticConstMacro(SpaceDimension, unsigned int, TInputDimension);
+    itkStaticConstMacro(InputSpaceDimension, unsigned int, TInputDimension);
+    itkStaticConstMacro(OutputSpaceDimension, unsigned int, TOutputDimension);
 
 
-	virtual void ComputeJacobianWithRespectToParameters(const InputPointType  &pt, JacobianType & jacobian) const;
+    /* Parameters Type   */
+    typedef typename Superclass::ParametersType         ParametersType;
+    typedef typename Superclass::JacobianType           JacobianType;
+    typedef typename Superclass::ScalarType             ScalarType;
+    typedef typename Superclass::InputPointType         InputPointType;
+    typedef typename Superclass::OutputPointType        OutputPointType;
+    typedef typename Superclass::InputVectorType        InputVectorType;
+    typedef typename Superclass::OutputVectorType       OutputVectorType;
+    typedef typename Superclass::InputVnlVectorType     InputVnlVectorType;
+    typedef typename Superclass::OutputVnlVectorType    OutputVnlVectorType;
+    typedef typename Superclass::InputCovariantVectorType
+    InputCovariantVectorType;
+    typedef typename Superclass::OutputCovariantVectorType
+    OutputCovariantVectorType;
 
-	/**
-	 * Transform a given point according to the deformation induced by the StatisticalModel,
-	 * given the current parameters.
-	 *
-	 * \param pt The point to tranform
-	 * \return The transformed point
-	 */
-	virtual OutputPointType  TransformPoint(const InputPointType &pt) const = 0;
+    typedef statismo::Representer<TDataset> RepresenterType;
+    typedef itk::StatisticalModel<TDataset> StatisticalModelType;
 
-	/**
-	 *  Set the parameters to the IdentityTransform
-	 *  */
-	virtual void SetIdentity(void);
 
-	/**
-	 * Set the parameters of the transform
-	 */
-	 virtual void SetParameters( const ParametersType & );
+    virtual void ComputeJacobianWithRespectToParameters(const InputPointType  &pt, JacobianType & jacobian) const;
 
-	 /**
-	  * Get the parameters of the transform
-	  */
-	 virtual const ParametersType& GetParameters(void) const;
+    /**
+     * Transform a given point according to the deformation induced by the StatisticalModel,
+     * given the current parameters.
+     *
+     * \param pt The point to tranform
+     * \return The transformed point
+     */
+    virtual OutputPointType  TransformPoint(const InputPointType &pt) const = 0;
 
-	 /**
-	  * Does nothing - as the transform does not have any fixed parameters
-	  */
-	  virtual void SetFixedParameters( const ParametersType &p ) {
-		 // there no fixed parameters
+    /**
+     *  Set the parameters to the IdentityTransform
+     *  */
+    virtual void SetIdentity(void);
 
-	 }
+    /**
+     * Set the parameters of the transform
+     */
+    virtual void SetParameters( const ParametersType & );
 
-	  /**
-	   * returns an empty Parameter vector, as the tranform does not have any fixed parameters
-	   */
-	  virtual const ParametersType& GetFixedParameters(void) const {
-		  return this->m_FixedParameters;
-	  };
+    /**
+     * Get the parameters of the transform
+     */
+    virtual const ParametersType& GetParameters(void) const;
 
-	  /**
-	   * Convenience method to obtain the current coefficients of the StatisticalModel as a statismo::VectorType.
-	   * The resulting vector is the same as it would be obtained from GetParameters.
-	   */
-	  virtual VectorType GetCoefficients() const {
-		  return m_coeff_vector;
-	  }
+    /**
+     * Does nothing - as the transform does not have any fixed parameters
+     */
+    virtual void SetFixedParameters( const ParametersType &p ) {
+        // there no fixed parameters
 
-	  /**
-	   * Convenicne method to set the coefficients of the underlying StatisticalModel from a statismo::VectorType.
-	   * This has the same effect as calling SetParameters.
-	   */
-	  virtual void SetCoefficients( VectorType& coefficients) { m_coeff_vector = coefficients; }
+    }
 
-	  /**
-	   * Set the statistical model that defines the valid transformations.
-	   */
-	void SetStatisticalModel(const StatisticalModelType* model);
+    /**
+     * returns an empty Parameter vector, as the tranform does not have any fixed parameters
+     */
+    virtual const ParametersType& GetFixedParameters(void) const {
+        return this->m_FixedParameters;
+    };
 
-	/**
-	 * Returns the statistical model used.
-	 */
-	typename StatisticalModelType::ConstPointer GetStatisticalModel() const;
+    /**
+     * Convenience method to obtain the current coefficients of the StatisticalModel as a statismo::VectorType.
+     * The resulting vector is the same as it would be obtained from GetParameters.
+     */
+    virtual VectorType GetCoefficients() const {
+        return m_coeff_vector;
+    }
 
-	/**
-	 * Set the number of PCA Coefficients used by the model. This parameters has a
-	 * regularization effect. Setting it to a small value will restrict the possible tranformations
-	 * to the main modes of variations.
-	 */
-	void SetUsedNumberOfCoefficients(unsigned n) { m_usedNumberCoefficients = n; }
+    /**
+     * Convenicne method to set the coefficients of the underlying StatisticalModel from a statismo::VectorType.
+     * This has the same effect as calling SetParameters.
+     */
+    virtual void SetCoefficients( VectorType& coefficients) {
+        m_coeff_vector = coefficients;
+    }
 
-	/**
-	 * returns the number of used model coefficients.
-	 */
-	unsigned GetUsedNumberOfCoefficients() { return m_usedNumberCoefficients; }
+    /**
+     * Set the statistical model that defines the valid transformations.
+     */
+    void SetStatisticalModel(const StatisticalModelType* model);
 
-protected:
+    /**
+     * Returns the statistical model used.
+     */
+    typename StatisticalModelType::ConstPointer GetStatisticalModel() const;
 
-	StatisticalModelTransformBase();
-	virtual ~StatisticalModelTransformBase(){};
+    /**
+     * Set the number of PCA Coefficients used by the model. This parameters has a
+     * regularization effect. Setting it to a small value will restrict the possible tranformations
+     * to the main modes of variations.
+     */
+    void SetUsedNumberOfCoefficients(unsigned n) {
+        m_usedNumberCoefficients = n;
+    }
 
-	void PrintSelf(std::ostream &os, Indent indent) const;
+    /**
+     * returns the number of used model coefficients.
+     */
+    unsigned GetUsedNumberOfCoefficients() {
+        return m_usedNumberCoefficients;
+    }
 
-	typename StatisticalModelType::ConstPointer m_StatisticalModel;
-	VectorType m_coeff_vector;
-	unsigned m_usedNumberCoefficients;
-	ParametersType m_FixedParameters;
+  protected:
 
-	StatisticalModelTransformBase(const Self& obj);// : Superclass(obj) {} //purposely not implemented
-	void operator=(const Self& rhs);// { return Superclass::operator=(rhs); } //purposely not implemented
+    StatisticalModelTransformBase();
+    virtual ~StatisticalModelTransformBase() {};
+
+    void PrintSelf(std::ostream &os, Indent indent) const;
+
+    typename StatisticalModelType::ConstPointer m_StatisticalModel;
+    VectorType m_coeff_vector;
+    unsigned m_usedNumberCoefficients;
+    ParametersType m_FixedParameters;
+
+    StatisticalModelTransformBase(const Self& obj);// : Superclass(obj) {} //purposely not implemented
+    void operator=(const Self& rhs);// { return Superclass::operator=(rhs); } //purposely not implemented
 
 
 

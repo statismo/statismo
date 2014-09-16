@@ -93,11 +93,11 @@ private:
 
 
         // precompute the part of the nystrom approximation, which is independent of the domain point
-        float normFactor = std::sqrt(static_cast<float>(m_nystromPoints.size()) / static_cast<float>(numDomainPoints));
-        m_nystromMatrix = normFactor * (U.leftCols(numEigenfunctions)
+        float normFactor = static_cast<float>(m_nystromPoints.size()) / static_cast<float>(numDomainPoints);
+        m_nystromMatrix = std::sqrt(normFactor) * (U.leftCols(numEigenfunctions)
                         * D.topRows(numEigenfunctions).asDiagonal().inverse());
 
-        m_eigenvalues = numDomainPoints / static_cast<float>(m_nystromPoints.size()) * D.topRows(numEigenfunctions);
+        m_eigenvalues = (1.0f / normFactor) * D.topRows(numEigenfunctions);
 
     }
 
@@ -131,7 +131,7 @@ private:
             MatrixType& U, VectorType& D) const {
         unsigned kernelDim = kernel->GetDimension();
 
-        double n = xs.size();
+        unsigned n = xs.size();
         MatrixTypeDoublePrecision K = MatrixTypeDoublePrecision::Zero(
                 n * kernelDim, n * kernelDim);
         for (unsigned i = 0; i < n; ++i) {

@@ -59,28 +59,32 @@ template <typename Representer>
 class ReducedVarianceModelBuilder : public ModelBuilder<Representer> {
 
 
-public:
+  public:
 
-	typedef ModelBuilder<Representer> Superclass;
-	typedef typename Superclass::StatisticalModelType StatisticalModelType;
+    typedef ModelBuilder<Representer> Superclass;
+    typedef typename Superclass::StatisticalModelType StatisticalModelType;
 
-	/**
-	 * Factory method to create a new ReducedVarianceModelBuilder
-	 */
-	static ReducedVarianceModelBuilder* Create() { return new ReducedVarianceModelBuilder(); }
+    /**
+     * Factory method to create a new ReducedVarianceModelBuilder
+     */
+    static ReducedVarianceModelBuilder* Create() {
+        return new ReducedVarianceModelBuilder();
+    }
 
-	/**
-	 * Destroy the object.
-	 * The same effect can be achieved by deleting the object in the usual
-	 * way using the c++ delete keyword.
-	 */
-	void Delete() { delete this; }
+    /**
+     * Destroy the object.
+     * The same effect can be achieved by deleting the object in the usual
+     * way using the c++ delete keyword.
+     */
+    void Delete() {
+        delete this;
+    }
 
 
-	/**
-	 * The desctructor
-	 */
-	virtual ~ReducedVarianceModelBuilder() {}
+    /**
+     * The desctructor
+     */
+    virtual ~ReducedVarianceModelBuilder() {}
 
     /**
      * Build a new model from the given model, which retains only the leading principal components
@@ -109,11 +113,11 @@ public:
     is_deprecated StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance) const ;
 
 
-private:
-	// to prevent use
-	ReducedVarianceModelBuilder();
-	ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder& orig);
-	ReducedVarianceModelBuilder& operator=(const ReducedVarianceModelBuilder& rhs);
+  private:
+    // to prevent use
+    ReducedVarianceModelBuilder();
+    ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder& orig);
+    ReducedVarianceModelBuilder& operator=(const ReducedVarianceModelBuilder& rhs);
 
 
 };

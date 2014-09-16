@@ -50,8 +50,7 @@
 #include "Representer.h"
 #include <boost/tr1/functional.hpp>
 
-namespace itk
-{
+namespace itk {
 
 
 /**
@@ -60,250 +59,249 @@ namespace itk
  */
 template <class T>
 class StatisticalModel : public Object {
-public:
+  public:
 
-	typedef StatisticalModel            Self;
-	typedef Object	Superclass;
-	typedef SmartPointer<Self>                Pointer;
-	typedef SmartPointer<const Self>          ConstPointer;
+    typedef StatisticalModel            Self;
+    typedef Object	Superclass;
+    typedef SmartPointer<Self>                Pointer;
+    typedef SmartPointer<const Self>          ConstPointer;
 
-	itkNewMacro( Self );
-	itkTypeMacro( StatisticalModel, Object );
+    itkNewMacro( Self );
+    itkTypeMacro( StatisticalModel, Object );
 
-	typedef statismo::Representer<T> RepresenterType;
+    typedef statismo::Representer<T> RepresenterType;
 
 
-	// statismo stuff
-	typedef statismo::StatisticalModel<T> ImplType;
-	
-	typedef typename statismo::DataManager<T>::DataItemType     DataItemType;
-	
-	typedef vnl_matrix<statismo::ScalarType> MatrixType;
-	typedef vnl_vector<statismo::ScalarType> VectorType;
+    // statismo stuff
+    typedef statismo::StatisticalModel<T> ImplType;
 
+    typedef typename statismo::DataManager<T>::DataItemType     DataItemType;
 
+    typedef vnl_matrix<statismo::ScalarType> MatrixType;
+    typedef vnl_vector<statismo::ScalarType> VectorType;
 
-	template <class F>
-	typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {
-		try {
-			  return f();
-		}
-		 catch (statismo::StatisticalModelException& s) {
-			itkExceptionMacro(<< s.what());
-		}
-	}
 
-  	void SetstatismoImplObj(ImplType* impl) {
-  		if (m_impl) {
-  			delete m_impl;
-  		}
-  		m_impl = impl;
-  	}
 
-  	ImplType* GetstatismoImplObj() const {
-  		return m_impl;
-  	}
+    template <class F>
+    typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {
+        try {
+            return f();
+        } catch (statismo::StatisticalModelException& s) {
+            itkExceptionMacro(<< s.what());
+        }
+    }
 
-	StatisticalModel() : m_impl(0) {}
-
-	virtual ~StatisticalModel() {
-		if (m_impl) {
-			delete m_impl;
-		}
-	}
-
+    void SetstatismoImplObj(ImplType* impl) {
+        if (m_impl) {
+            delete m_impl;
+        }
+        m_impl = impl;
+    }
 
-	typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
-	typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
-
-	typedef typename RepresenterType::ValueType ValueType;
-	typedef typename RepresenterType::PointType PointType;
-
-	typedef typename statismo::StatisticalModel<T>::PointValuePairType PointValuePairType;
-	typedef typename statismo::StatisticalModel<T>::PointValueListType PointValueListType;
-
-	typedef typename statismo::StatisticalModel<T>::DomainType DomainType;
-
+    ImplType* GetstatismoImplObj() const {
+        return m_impl;
+    }
 
-	void Load(RepresenterType* representer, const char* filename) {
-		try {
-			SetstatismoImplObj(ImplType::Load(representer, filename));
-		}
-		catch (statismo::StatisticalModelException& s) {
-			itkExceptionMacro(<< s.what());
-		}
-	}
-
+    StatisticalModel() : m_impl(0) {}
 
-	void Load(RepresenterType* representer, const H5::Group& modelRoot) {
-		try {
-		  SetstatismoImplObj(ImplType::Load(modelRoot));
-		}
-		catch (statismo::StatisticalModelException& s) {
-			itkExceptionMacro(<< s.what());
-		}
-	}
+    virtual ~StatisticalModel() {
+        if (m_impl) {
+            delete m_impl;
+        }
+    }
 
-  //TODO: wrap StatisticalModel* BuildReducedVarianceModel( double pcvar );
-
-	const RepresenterType* GetRepresenter() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetRepresenter, this->m_impl));
-	}
 
-	const DomainType& GetDomain() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetDomain, this->m_impl));
-	}
-
-	DatasetPointerType DrawMean() const { return callstatismoImpl(std::tr1::bind(&ImplType::DrawMean, this->m_impl)); }
+    typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
+    typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
-	ValueType DrawMeanAtPoint(const PointType& pt) const {
-		typedef ValueType (ImplType::*functype)(const PointType&) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawMeanAtPoint), this->m_impl, pt));
-	}
+    typedef typename RepresenterType::ValueType ValueType;
+    typedef typename RepresenterType::PointType PointType;
 
-	ValueType DrawMeanAtPoint(unsigned ptid) const {
-		typedef ValueType (ImplType::*functype)(unsigned) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawMeanAtPoint), this->m_impl, ptid));
-	}
-
-	DatasetPointerType DrawSample(const VectorType& coeffs, bool addNoise = false) const {
-		typedef DatasetPointerType (ImplType::*functype)(const statismo::VectorType&, bool) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, fromVnlVector(coeffs), addNoise));
-	}
-
-	DatasetPointerType DrawSample(bool addNoise = false) const {
-		typedef DatasetPointerType (ImplType::*functype)(bool) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, addNoise));
-	}
-
-	DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const {
-		typedef DatasetPointerType (ImplType::*functype)(unsigned) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawPCABasisSample), this->m_impl, componentNumber));
-	}
-
-	ValueType DrawSampleAtPoint(const VectorType& coeffs, const PointType& pt, bool addNoise = false) const {
-		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, const PointType&, bool) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), pt, addNoise));
-	}
-
-	ValueType DrawSampleAtPoint(const VectorType& coeffs, unsigned ptid, bool addNoise  = false) const  {
-		typedef ValueType (ImplType::*functype)(const statismo::VectorType&, unsigned, bool) const;
-		return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), ptid, addNoise));
-	}
+    typedef typename statismo::StatisticalModel<T>::PointValuePairType PointValuePairType;
+    typedef typename statismo::StatisticalModel<T>::PointValueListType PointValueListType;
 
+    typedef typename statismo::StatisticalModel<T>::DomainType DomainType;
 
-	VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataset, this->m_impl, ds)));
-	}
 
-	VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForSample, this->m_impl, ds)));
-	}
+    void Load(RepresenterType* representer, const char* filename) {
+        try {
+            SetstatismoImplObj(ImplType::Load(representer, filename));
+        } catch (statismo::StatisticalModelException& s) {
+            itkExceptionMacro(<< s.what());
+        }
+    }
 
-	VectorType ComputeCoefficientsForDataSample(const DataItemType* sample) const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataSample, this->m_impl, sample)));
-	}
-	
-	double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfDataset, this->m_impl, ds));
-	}
 
-	double ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeProbabilityOfDataset, this->m_impl, ds));
-	}
+    void Load(RepresenterType* representer, const H5::Group& modelRoot) {
+        try {
+            SetstatismoImplObj(ImplType::Load(modelRoot));
+        } catch (statismo::StatisticalModelException& s) {
+            itkExceptionMacro(<< s.what());
+        }
+    }
 
-	double ComputeLogProbabilityOfCoefficients(const VectorType& coeffs) const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfCoefficients, this->m_impl, fromVnlVector(coeffs)));
-	}
+    //TODO: wrap StatisticalModel* BuildReducedVarianceModel( double pcvar );
 
-	double ComputeProbabilityOfCoefficients(const VectorType& coeffs) const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::ComputeProbabilityOfCoefficients, this->m_impl, fromVnlVector(coeffs)));
-  }
+    const RepresenterType* GetRepresenter() const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::GetRepresenter, this->m_impl));
+    }
 
-  double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
-    return callstatismoImpl(std::tr1::bind(&ImplType::ComputeMahalanobisDistanceForDataset, this->m_impl, ds));
-  }
+    const DomainType& GetDomain() const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::GetDomain, this->m_impl));
+    }
 
-	VectorType ComputeCoefficientsForPointValues(const PointValueListType& pvlist, double variance) const {
-	  typedef statismo::VectorType (ImplType::*functype)(const PointValueListType&, double) const;
-	  return toVnlVector(callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::ComputeCoefficientsForPointValues), this->m_impl, pvlist, variance)));
-	}
+    DatasetPointerType DrawMean() const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::DrawMean, this->m_impl));
+    }
 
+    ValueType DrawMeanAtPoint(const PointType& pt) const {
+        typedef ValueType (ImplType::*functype)(const PointType&) const;
+        return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawMeanAtPoint), this->m_impl, pt));
+    }
 
-	DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::DatasetToSample, this->m_impl, ds));
-	}
+    ValueType DrawMeanAtPoint(unsigned ptid) const {
+        typedef ValueType (ImplType::*functype)(unsigned) const;
+        return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawMeanAtPoint), this->m_impl, ptid));
+    }
+
+    DatasetPointerType DrawSample(const VectorType& coeffs, bool addNoise = false) const {
+        typedef DatasetPointerType (ImplType::*functype)(const statismo::VectorType&, bool) const;
+        return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, fromVnlVector(coeffs), addNoise));
+    }
+
+    DatasetPointerType DrawSample(bool addNoise = false) const {
+        typedef DatasetPointerType (ImplType::*functype)(bool) const;
+        return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, addNoise));
+    }
+
+    DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const {
+        typedef DatasetPointerType (ImplType::*functype)(unsigned) const;
+        return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawPCABasisSample), this->m_impl, componentNumber));
+    }
+
+    ValueType DrawSampleAtPoint(const VectorType& coeffs, const PointType& pt, bool addNoise = false) const {
+        typedef ValueType (ImplType::*functype)(const statismo::VectorType&, const PointType&, bool) const;
+        return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), pt, addNoise));
+    }
 
-	unsigned GetNumberOfPrincipalComponents() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetNumberOfPrincipalComponents, this->m_impl));
-	}
+    ValueType DrawSampleAtPoint(const VectorType& coeffs, unsigned ptid, bool addNoise  = false) const  {
+        typedef ValueType (ImplType::*functype)(const statismo::VectorType&, unsigned, bool) const;
+        return callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::DrawSampleAtPoint), this->m_impl, fromVnlVector(coeffs), ptid, addNoise));
+    }
 
-	void Save(const char* modelname) {
-	  typedef void (ImplType::*functype)(const std::string&) const;
-	  callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::Save), this->m_impl, modelname));
-	}
 
-	void Save(const H5::Group& modelRoot) {
-	  typedef void (ImplType::*functype)(const H5::Group&) const;
-	  callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::Save), this->m_impl, modelRoot));
-	}
+    VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const {
+        return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataset, this->m_impl, ds)));
+    }
 
+    VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const {
+        return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForSample, this->m_impl, ds)));
+    }
 
-	MatrixType GetCovarianceAtPoint(const PointType& pt1, const PointType& pt2) const {
-		typedef statismo::MatrixType (ImplType::*functype)(const PointType&, const PointType&) const;
-		return  toVnlMatrix(callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::GetCovarianceAtPoint), this->m_impl, pt1, pt2)));
-	}
+    VectorType ComputeCoefficientsForDataSample(const DataItemType* sample) const {
+        return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::ComputeCoefficientsForDataSample, this->m_impl, sample)));
+    }
 
-	MatrixType GetCovarianceAtPoint(unsigned ptid1, unsigned  ptid2) const {
-		typedef statismo::MatrixType (ImplType::*functype)(unsigned, unsigned ) const;
-		return toVnlMatrix(callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::GetCovarianceAtPoint),this->m_impl, ptid1, ptid2)));
-	}
+    double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfDataset, this->m_impl, ds));
+    }
 
-	MatrixType GetJacobian(const PointType& pt) const {
-		return toVnlMatrix(callstatismoImpl(std::tr1::bind(&ImplType::GetJacobian, this->m_impl, pt)));
-	}
+    double ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::ComputeProbabilityOfDataset, this->m_impl, ds));
+    }
 
-	MatrixType GetPCABasisMatrix() const {
-		return toVnlMatrix(callstatismoImpl(std::tr1::bind(&ImplType::GetPCABasisMatrix, this->m_impl)));
-	}
+    double ComputeLogProbabilityOfCoefficients(const VectorType& coeffs) const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::ComputeLogProbabilityOfCoefficients, this->m_impl, fromVnlVector(coeffs)));
+    }
 
-	MatrixType GetOrthonormalPCABasisMatrix() const { 
-		return toVnlMatrix(callstatismoImpl(std::tr1::bind(&ImplType::GetOrthonormalPCABasisMatrix, this->m_impl)));
-	}
+    double ComputeProbabilityOfCoefficients(const VectorType& coeffs) const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::ComputeProbabilityOfCoefficients, this->m_impl, fromVnlVector(coeffs)));
+    }
 
-	VectorType GetPCAVarianceVector() const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::GetPCAVarianceVector, this->m_impl)));
-	}
+    double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::ComputeMahalanobisDistanceForDataset, this->m_impl, ds));
+    }
 
-	VectorType GetMeanVector() const {
-		return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::GetMeanVector, this->m_impl)));
-	}
+    VectorType ComputeCoefficientsForPointValues(const PointValueListType& pvlist, double variance) const {
+        typedef statismo::VectorType (ImplType::*functype)(const PointValueListType&, double) const;
+        return toVnlVector(callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::ComputeCoefficientsForPointValues), this->m_impl, pvlist, variance)));
+    }
 
-	const statismo::ModelInfo& GetModelInfo() const {
-		return callstatismoImpl(std::tr1::bind(&ImplType::GetModelInfo, this->m_impl));
-	}
 
-private:
+    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::DatasetToSample, this->m_impl, ds));
+    }
 
-	static MatrixType toVnlMatrix(const statismo::MatrixType& M) {
-		return MatrixType(M.data(), M.rows(), M.cols());
+    unsigned GetNumberOfPrincipalComponents() const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::GetNumberOfPrincipalComponents, this->m_impl));
+    }
 
-	}
+    void Save(const char* modelname) {
+        typedef void (ImplType::*functype)(const std::string&) const;
+        callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::Save), this->m_impl, modelname));
+    }
 
-	static VectorType toVnlVector(const statismo::VectorType& v) {
-		return VectorType(v.data(), v.rows());
+    void Save(const H5::Group& modelRoot) {
+        typedef void (ImplType::*functype)(const H5::Group&) const;
+        callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::Save), this->m_impl, modelRoot));
+    }
 
-	}
 
-	static statismo::VectorType fromVnlVector(const VectorType& v) {
-		return Eigen::Map<const statismo::VectorType>(v.data_block(), v.size());
+    MatrixType GetCovarianceAtPoint(const PointType& pt1, const PointType& pt2) const {
+        typedef statismo::MatrixType (ImplType::*functype)(const PointType&, const PointType&) const;
+        return  toVnlMatrix(callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::GetCovarianceAtPoint), this->m_impl, pt1, pt2)));
+    }
 
-	}
+    MatrixType GetCovarianceAtPoint(unsigned ptid1, unsigned  ptid2) const {
+        typedef statismo::MatrixType (ImplType::*functype)(unsigned, unsigned ) const;
+        return toVnlMatrix(callstatismoImpl(std::tr1::bind(static_cast<functype>(&ImplType::GetCovarianceAtPoint),this->m_impl, ptid1, ptid2)));
+    }
 
-	StatisticalModel(const StatisticalModel& orig);
-	StatisticalModel& operator=(const StatisticalModel& rhs);
+    MatrixType GetJacobian(const PointType& pt) const {
+        return toVnlMatrix(callstatismoImpl(std::tr1::bind(&ImplType::GetJacobian, this->m_impl, pt)));
+    }
 
-	ImplType* m_impl;
+    MatrixType GetPCABasisMatrix() const {
+        return toVnlMatrix(callstatismoImpl(std::tr1::bind(&ImplType::GetPCABasisMatrix, this->m_impl)));
+    }
+
+    MatrixType GetOrthonormalPCABasisMatrix() const {
+        return toVnlMatrix(callstatismoImpl(std::tr1::bind(&ImplType::GetOrthonormalPCABasisMatrix, this->m_impl)));
+    }
+
+    VectorType GetPCAVarianceVector() const {
+        return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::GetPCAVarianceVector, this->m_impl)));
+    }
+
+    VectorType GetMeanVector() const {
+        return toVnlVector(callstatismoImpl(std::tr1::bind(&ImplType::GetMeanVector, this->m_impl)));
+    }
+
+    const statismo::ModelInfo& GetModelInfo() const {
+        return callstatismoImpl(std::tr1::bind(&ImplType::GetModelInfo, this->m_impl));
+    }
+
+  private:
+
+    static MatrixType toVnlMatrix(const statismo::MatrixType& M) {
+        return MatrixType(M.data(), M.rows(), M.cols());
+
+    }
+
+    static VectorType toVnlVector(const statismo::VectorType& v) {
+        return VectorType(v.data(), v.rows());
+
+    }
+
+    static statismo::VectorType fromVnlVector(const VectorType& v) {
+        return Eigen::Map<const statismo::VectorType>(v.data_block(), v.size());
+
+    }
+
+    StatisticalModel(const StatisticalModel& orig);
+    StatisticalModel& operator=(const StatisticalModel& rhs);
+
+    ImplType* m_impl;
 };
 
 

@@ -45,8 +45,7 @@
 #include "itkImage.h"
 #include "itkVector.h"
 
-namespace itk
-{
+namespace itk {
 
 /**
  *
@@ -57,73 +56,70 @@ namespace itk
  */
 template <class TDataSet, class TScalarType,  unsigned int TDimension >
 class ITK_EXPORT StatisticalDeformationModelTransform :
-public itk::StatisticalModelTransformBase< TDataSet, TScalarType , TDimension>
-{
-public:
-	/* Standard class typedefs. */
-	typedef StatisticalDeformationModelTransform            Self;
-	typedef itk::StatisticalModelTransformBase< TDataSet, TScalarType , TDimension>	 Superclass;
-	typedef SmartPointer<Self>                Pointer;
-	typedef SmartPointer<const Self>          ConstPointer;
+    public itk::StatisticalModelTransformBase< TDataSet, TScalarType , TDimension> {
+  public:
+    /* Standard class typedefs. */
+    typedef StatisticalDeformationModelTransform            Self;
+    typedef itk::StatisticalModelTransformBase< TDataSet, TScalarType , TDimension>	 Superclass;
+    typedef SmartPointer<Self>                Pointer;
+    typedef SmartPointer<const Self>          ConstPointer;
 
 
     itkSimpleNewMacro( Self );
-    
-
-	/** Run-time type information (and related methods). */
-	itkTypeMacro(StatisticalDeformationModelTransform,  Superclass);
 
 
-	typedef typename Superclass::InputPointType         InputPointType;
-	typedef typename Superclass::OutputPointType        OutputPointType;
-	typedef typename Superclass::RepresenterType RepresenterType;
-
-	  /**
-	   * Clone the current transform
-	   */
-	  virtual ::itk::LightObject::Pointer CreateAnother() const
-	  {
-		  ::itk::LightObject::Pointer smartPtr;
-		  Pointer another = Self::New().GetPointer();
-		  this->CopyBaseMembers(another);
-
-		  smartPtr = static_cast<Pointer>(another);
-		  return smartPtr;
-	     }
+    /** Run-time type information (and related methods). */
+    itkTypeMacro(StatisticalDeformationModelTransform,  Superclass);
 
 
-	/**
-	 * Transform a given point according to the deformation induced by the StatisticalModel,
-	 * given the current parameters.
-	 *
-	 * \param pt The point to tranform
-	 * \return The transformed point
-	 */
-	virtual OutputPointType  TransformPoint(const InputPointType &pt) const
-	{
-		typename RepresenterType::ValueType d;
-		try {
-			d = this->m_StatisticalModel->DrawSampleAtPoint(this->m_coeff_vector, pt);
-		} catch (ExceptionObject &e) {
-			std::cout << "exception occured at point " << pt << std::endl;
-			std::cout << "message " << e.what() << std::endl;
-		}
-		OutputPointType transformedPoint;
-		for (unsigned i = 0; i < pt.GetPointDimension(); i++) { 
-			transformedPoint[i] = pt[i] + d[i];
-		}
-		return transformedPoint;
-	}
+    typedef typename Superclass::InputPointType         InputPointType;
+    typedef typename Superclass::OutputPointType        OutputPointType;
+    typedef typename Superclass::RepresenterType RepresenterType;
 
-	virtual ~StatisticalDeformationModelTransform() {}
+    /**
+     * Clone the current transform
+     */
+    virtual ::itk::LightObject::Pointer CreateAnother() const {
+        ::itk::LightObject::Pointer smartPtr;
+        Pointer another = Self::New().GetPointer();
+        this->CopyBaseMembers(another);
 
-	StatisticalDeformationModelTransform() {}
-
-private:
+        smartPtr = static_cast<Pointer>(another);
+        return smartPtr;
+    }
 
 
-	StatisticalDeformationModelTransform(const StatisticalDeformationModelTransform& orig); // purposely not implemented
-	StatisticalDeformationModelTransform& operator=(const StatisticalDeformationModelTransform& rhs); //purposely not implemented
+    /**
+     * Transform a given point according to the deformation induced by the StatisticalModel,
+     * given the current parameters.
+     *
+     * \param pt The point to tranform
+     * \return The transformed point
+     */
+    virtual OutputPointType  TransformPoint(const InputPointType &pt) const {
+        typename RepresenterType::ValueType d;
+        try {
+            d = this->m_StatisticalModel->DrawSampleAtPoint(this->m_coeff_vector, pt);
+        } catch (ExceptionObject &e) {
+            std::cout << "exception occured at point " << pt << std::endl;
+            std::cout << "message " << e.what() << std::endl;
+        }
+        OutputPointType transformedPoint;
+        for (unsigned i = 0; i < pt.GetPointDimension(); i++) {
+            transformedPoint[i] = pt[i] + d[i];
+        }
+        return transformedPoint;
+    }
+
+    virtual ~StatisticalDeformationModelTransform() {}
+
+    StatisticalDeformationModelTransform() {}
+
+  private:
+
+
+    StatisticalDeformationModelTransform(const StatisticalDeformationModelTransform& orig); // purposely not implemented
+    StatisticalDeformationModelTransform& operator=(const StatisticalDeformationModelTransform& rhs); //purposely not implemented
 };
 
 

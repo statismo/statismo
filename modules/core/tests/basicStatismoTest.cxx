@@ -54,48 +54,47 @@ typedef statismo::TrivialVectorialRepresenter RepresenterType;
  */
 int main(int argc, char* argv[]) {
 
-	typedef statismo::PCAModelBuilder<statismo::VectorType> ModelBuilderType;
-	typedef statismo::StatisticalModel<statismo::VectorType> StatisticalModelType;
+    typedef statismo::PCAModelBuilder<statismo::VectorType> ModelBuilderType;
+    typedef statismo::StatisticalModel<statismo::VectorType> StatisticalModelType;
     typedef statismo::DataManager<statismo::VectorType> DataManagerType;
 
 
     try {
-    	const unsigned Dim = 3;
-		std::auto_ptr<RepresenterType> representer(RepresenterType::Create(Dim));
-		std::auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+        const unsigned Dim = 3;
+        std::auto_ptr<RepresenterType> representer(RepresenterType::Create(Dim));
+        std::auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
-		// we create three simple datasets
-		statismo::VectorType dataset1(Dim), dataset2(Dim), dataset3(Dim);
-		dataset1 << 1,0,0;
-		dataset2 << 0,2,0;
-		dataset3 << 0,0,4;
+        // we create three simple datasets
+        statismo::VectorType dataset1(Dim), dataset2(Dim), dataset3(Dim);
+        dataset1 << 1,0,0;
+        dataset2 << 0,2,0;
+        dataset3 << 0,0,4;
 
-		dataManager->AddDataset(dataset1, "dataset1");
-		dataManager->AddDataset(dataset2, "dataset1");
-		dataManager->AddDataset(dataset3, "dataset1");
-
-
-		std::auto_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
-		std::auto_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
-
-		// As we have added 3 linearly independent samples, we get 2 principal components.
-		if (model->GetNumberOfPrincipalComponents() != 2) {
-			return EXIT_FAILURE;
-		}
-
-		model->Save("test.h5");
-
-		RepresenterType* newRepresenter = RepresenterType::Create();
-		std::auto_ptr<StatisticalModelType> loadedModel(StatisticalModelType::Load(newRepresenter, "test.h5"));
-		if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents()) {
-			return EXIT_FAILURE;
-		}
+        dataManager->AddDataset(dataset1, "dataset1");
+        dataManager->AddDataset(dataset2, "dataset1");
+        dataManager->AddDataset(dataset3, "dataset1");
 
 
-    }
-    catch (statismo::StatisticalModelException& e) {
-    	std::cout << e.what() << std::endl;
-    	return EXIT_FAILURE;
+        std::auto_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
+        std::auto_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
+
+        // As we have added 3 linearly independent samples, we get 2 principal components.
+        if (model->GetNumberOfPrincipalComponents() != 2) {
+            return EXIT_FAILURE;
+        }
+
+        model->Save("test.h5");
+
+        RepresenterType* newRepresenter = RepresenterType::Create();
+        std::auto_ptr<StatisticalModelType> loadedModel(StatisticalModelType::Load(newRepresenter, "test.h5"));
+        if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents()) {
+            return EXIT_FAILURE;
+        }
+
+
+    } catch (statismo::StatisticalModelException& e) {
+        std::cout << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
 
