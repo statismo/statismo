@@ -15,6 +15,7 @@
 #include "StatisticalModel.h"
 #include "vtkPolyDataReader.h"
 #include "vtkStandardMeshRepresenter.h"
+#include "vtkCenterOfMass.h"
 #include "Kernels.h"
 #include "KernelCombinators.h"
 
@@ -38,7 +39,7 @@ class MultiscaleGaussianKernel: public MatrixValuedKernel<vtkPoint> {
         VectorType r(3);
         r << x[0] - y[0], x[1] - y[1], x[2] - y[2];
 
-        const float minusRDotR = - r.dor(r);
+        const float minusRDotR = - r.dot(r);
 
         float kernelValue = 0.;
         for (unsigned l = 1 ; l <= m_nLevels; ++l) {
@@ -63,6 +64,7 @@ class MultiscaleGaussianKernel: public MatrixValuedKernel<vtkPoint> {
 };
 
 
+// load a mesh
 vtkPolyData* loadVTKPolyData(const std::string& filename) {
     vtkPolyDataReader* reader = vtkPolyDataReader::New();
     reader->SetFileName(filename.c_str());
@@ -73,14 +75,30 @@ vtkPolyData* loadVTKPolyData(const std::string& filename) {
     return pd;
 }
 
-// As an example of a tempering function, we use the sigmoid function in x direction. This implies that
-// any point whose x coordinate is smaller than 0 will be unchanged, while values larger than 0 will be tempered (with value 2).
-// How smooth the transition between the values is, is defined by the variable a.
-struct SigmoidFunction : public TemperingFunction<vtkPoint> {
+// compute the center of mass for the given mesh
+vtkPoint centerOfMass(const vtkPolyData* pd) {
+    vtkCenterOfMass* cm = vtkCenterOfMass::New();
+    cm->SetInputData(const_cast<vtkPolyData*>(pd));
+    cm->Update();
+    vtkPoint centerOfMass(cm->GetCenter());
+    cm->Delete();
+    return centerOfMass;
+}
+
+// As an example of a tempering function, we use a function which is more smooth for points whose
+// x-component is smaller than the x-component of the center of mass. To achieve a smooth transition between the areas, we use a sigmoid function.
+// The variable a controls how fast the value of the tempering function changes from 0 to 1.
+struct MyTemperingFunction : public TemperingFunction<vtkPoint> {
+    MyTemperingFunction(const vtkPoint& centerOfMass) : m_centerOfMass(centerOfMass) {}
+
     static const double a = 0.5;
     double operator() (const vtkPoint& pt) const {
-        return  (1.0 / ( 1 + std::exp(-pt[0] * a)) + 1.0) ;
+        double xDiffToCenter =  m_centerOfMass[0] - pt[0];
+        return  (1.0 / ( 1.0 + std::exp(-xDiffToCenter * a)) + 1.0) ;
     }
+
+private:
+    vtkPoint m_centerOfMass;
 };
 
 
@@ -121,7 +139,7 @@ int main(int argc, char** argv) {
 
         MultiscaleGaussianKernel gk = MultiscaleGaussianKernel(baseKernelWidth, baseScale, numLevels);
 
-        SigmoidFunction temperingFun;
+        MyTemperingFunction temperingFun(centerOfMass(referenceMesh));
 
         const MatrixValuedKernelType& temperedKernel = SpatiallyVaryingKernel<RepresenterType::DatasetType>(representer, gk, temperingFun , numberOfComponents,  numberOfComponents * 2, true);
 
