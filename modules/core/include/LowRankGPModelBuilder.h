@@ -185,11 +185,12 @@ public:
 
     for (unsigned i = 0; i <= numChunks; i++) {
 
-      unsigned int chunkSize = ceil(numDomainPoints / float(numChunks));
-      unsigned int lowerInd = i * chunkSize;
-      unsigned int upperInd =
-        std::min( static_cast<unsigned>(numDomainPoints),
+      unsigned chunkSize = static_cast< unsigned >( ceil( static_cast< float >( numDomainPoints ) / static_cast< float >( numChunks ) ) );
+      unsigned lowerInd = i * chunkSize;
+      unsigned upperInd =
+        std::min( static_cast< unsigned >(numDomainPoints),
                   (i + 1) * chunkSize);
+
             if (lowerInd >= upperInd) {
         break;
             }
@@ -231,8 +232,7 @@ public:
     // finally add meta data to the model info
     BuilderInfo builderInfo("LowRankGPModelBuilder", dataInfo, bi);
 
-    ModelInfo::BuilderInfoList biList;
-    biList.push_back(builderInfo);
+    ModelInfo::BuilderInfoList biList( 1, builderInfo );;
 
     ModelInfo info(scores, biList);
     model->SetModelInfo(info);
