@@ -29,31 +29,33 @@ using namespace statismo;
  * We use a sum of gaussian kernels as our main model.
  */
 class MultiscaleGaussianKernel: public MatrixValuedKernel<vtkPoint> {
-public:
+  public:
 
-    MultiscaleGaussianKernel(float baseWidth, float baseScale, unsigned nLevels) : m_baseWidth(baseWidth), m_baseScale(baseScale), m_nLevels(nLevels), MatrixValuedKernel<vtkPoint>(3){
-	}
+    MultiscaleGaussianKernel(float baseWidth, float baseScale, unsigned nLevels) : m_baseWidth(baseWidth), m_baseScale(baseScale), m_nLevels(nLevels), MatrixValuedKernel<vtkPoint>(3) {
+    }
 
-    inline statismo::MatrixType operator()(const vtkPoint& x, const vtkPoint& y) const {
-		VectorType r(3);
-		r << x[0] - y[0], x[1] - y[1], x[2] - y[2];
+    inline MatrixType operator()(const vtkPoint& x, const vtkPoint& y) const {
+        VectorType r(3);
+        r << x[0] - y[0], x[1] - y[1], x[2] - y[2];
 
-        float kernelValue = 0;
+        const float minusRDotR = - r.dor(r);
+
+        float kernelValue = 0.;
         for (unsigned l = 1 ; l <= m_nLevels; ++l) {
-            float widthOnLevel = m_baseWidth / l;
-            float scaleOnLevel = m_baseScale / l;
-            kernelValue += scaleOnLevel * std::exp(-r.dot(r) / (widthOnLevel * widthOnLevel));
+            const float scaleOnLevel = m_baseScale / static_cast< float >( l );
+            const float widthOnLevel = m_baseWidth / static_cast< float >( l );
+            kernelValue += scaleOnLevel * std::exp( minusRDotR / (widthOnLevel * widthOnLevel));
         }
         return statismo::MatrixType::Identity(3,3) * kernelValue;
-	}
+    }
 
-	std::string GetKernelInfo() const {
-		std::ostringstream os;
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
         os << "Multiscale GaussianKernel";
-		return os.str();
-	}
+        return os.str();
+    }
 
-private:
+  private:
 
     float m_baseWidth;
     float m_baseScale;
@@ -61,13 +63,12 @@ private:
 };
 
 
-vtkPolyData* loadVTKPolyData(const std::string& filename)
-{
-	vtkPolyDataReader* reader = vtkPolyDataReader::New();
-	reader->SetFileName(filename.c_str());
-	reader->Update();
-	vtkPolyData* pd = vtkPolyData::New();
-	pd->ShallowCopy(reader->GetOutput());
+vtkPolyData* loadVTKPolyData(const std::string& filename) {
+    vtkPolyDataReader* reader = vtkPolyDataReader::New();
+    reader->SetFileName(filename.c_str());
+    reader->Update();
+    vtkPolyData* pd = vtkPolyData::New();
+    pd->ShallowCopy(reader->GetOutput());
     reader->Delete();
     return pd;
 }
@@ -76,8 +77,10 @@ vtkPolyData* loadVTKPolyData(const std::string& filename)
 // any point whose x coordinate is smaller than 0 will be unchanged, while values larger than 0 will be tempered (with value 2).
 // How smooth the transition between the values is, is defined by the variable a.
 struct SigmoidFunction : public TemperingFunction<vtkPoint> {
-  static const double a = 0.5;
-  double operator() (const vtkPoint& pt) const {return  (1.0 / ( 1 + std::exp(-pt[0] * a)) + 1.0) ; }
+    static const double a = 0.5;
+    double operator() (const vtkPoint& pt) const {
+        return  (1.0 / ( 1 + std::exp(-pt[0] * a)) + 1.0) ;
+    }
 };
 
 
@@ -92,9 +95,9 @@ struct SigmoidFunction : public TemperingFunction<vtkPoint> {
 int main(int argc, char** argv) {
 
     if (argc < 7) {
-        std::cout << "Usage " << argv[0] << " referenceMesh baseKernelWidth baseScale numLevels numberOfComponents outputmodelName" << std::endl;
-		exit(-1);
-	}
+        std::cerr << "Usage " << argv[0] << " referenceMesh baseKernelWidth baseScale numLevels numberOfComponents outputmodelName" << std::endl;
+        return EXIT_FAILURE;
+    }
     std::string refFilename(argv[1]);
     double baseKernelWidth = std::atof(argv[2]);
     double baseScale = std::atof(argv[3]);
@@ -103,15 +106,15 @@ int main(int argc, char** argv) {
     std::string outputModelFilename(argv[6]);
 
 
-	// All the statismo classes have to be parameterized with the RepresenterType.
+    // All the statismo classes have to be parameterized with the RepresenterType.
 
-	typedef vtkStandardMeshRepresenter RepresenterType;
-	typedef LowRankGPModelBuilder<vtkPolyData> ModelBuilderType;
-	typedef StatisticalModel<vtkPolyData> StatisticalModelType;
+    typedef vtkStandardMeshRepresenter RepresenterType;
+    typedef LowRankGPModelBuilder<vtkPolyData> ModelBuilderType;
+    typedef StatisticalModel<vtkPolyData> StatisticalModelType;
     typedef MultiscaleGaussianKernel GaussianKernelType;
-	typedef MatrixValuedKernel<vtkPoint> MatrixValuedKernelType;
+    typedef MatrixValuedKernel<vtkPoint> MatrixValuedKernelType;
 
-	try {
+    try {
 
         vtkPolyData* referenceMesh = loadVTKPolyData(refFilename);
         vtkStandardMeshRepresenter* representer = vtkStandardMeshRepresenter::Create(referenceMesh);
@@ -129,16 +132,17 @@ int main(int argc, char** argv) {
 
         // Once we have built the model, we can save it to disk.
         newModel->Save(outputModelFilename);
-		std::cout << "Successfully saved shape model as " << outputModelFilename << std::endl;
+        std::cout << "Successfully saved shape model as " << outputModelFilename << std::endl;
 
         referenceMesh->Delete();
         representer->Delete();
         modelBuilder->Delete();
         newModel->Delete();
 
-	}
-	catch (StatisticalModelException& e) {
-		std::cout << "Exception occured while building the shape model" << std::endl;
-		std::cout << e.what() << std::endl;
-	}
+    } catch (StatisticalModelException& e) {
+        std::cerr << "Exception occured while building the shape model" << std::endl;
+        std::cerr << e.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+  return EXIT_SUCCESS;
 }
