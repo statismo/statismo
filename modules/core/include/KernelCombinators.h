@@ -20,7 +20,7 @@
 #include "Nystrom.h"
 #include <boost/unordered_map.hpp>
 #include <boost/thread/mutex.hpp>
-
+#include <boost/scoped_ptr.hpp>
 
 namespace statismo {
 
@@ -300,7 +300,7 @@ private:
     // members
 
     const RepresenterType* m_representer;
-    std::auto_ptr<Nystrom<T> > m_nystrom;
+    boost::scoped_ptr<Nystrom<T> > m_nystrom;
     statismo::VectorType m_eigenvalues;
     const  TemperingFunction<PointType>& m_eta;
     bool m_cacheValues;

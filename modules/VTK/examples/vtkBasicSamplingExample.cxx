@@ -40,13 +40,12 @@
 #include "vtkPolyDataWriter.h"
 #include "vtkVersion.h"
 #include <iostream>
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 #include "StatisticalModel.h"
 #include "vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
-using std::auto_ptr;
 
 void saveSample(const vtkPolyData* pd, const std::string& resdir, const std::string& basename) {
     std::string filename = resdir +std::string("/") + basename;
@@ -82,7 +81,7 @@ int main(int argc, char** argv) {
         // To load a model, we call the static Load method, which returns (a pointer to) a
         // new StatisticalModel object
         RepresenterType* representer = RepresenterType::Create();
-        auto_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, modelname));
+        boost::scoped_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, modelname));
         std::cout << "loaded model with " << model->GetNumberOfPrincipalComponents() << " Principal Components" << std::endl;
 
 

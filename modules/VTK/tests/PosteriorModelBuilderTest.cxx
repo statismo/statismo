@@ -18,6 +18,8 @@
 #include "vtkMath.h"
 #include "vtkVersion.h"
 
+#include <boost/scoped_ptr.hpp>
+
 using namespace statismo;
 
 typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
@@ -79,7 +81,7 @@ int main(int argc, char** argv) {
     vtkPolyData* reference = loadPolyData(referenceFilename);
     RepresenterType* representer = RepresenterType::Create(reference);
 
-    std::auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+    boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
     vtkPolyData* testDataset = loadPolyData(testDatasetFilename);
     vtkPolyData* testDataset2 = loadPolyData(testDatasetFilename2);
