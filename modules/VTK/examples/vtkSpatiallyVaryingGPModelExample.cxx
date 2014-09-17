@@ -15,7 +15,6 @@
 #include "StatisticalModel.h"
 #include "vtkPolyDataReader.h"
 #include "vtkStandardMeshRepresenter.h"
-#include "vtkCenterOfMass.h"
 #include "Kernels.h"
 #include "KernelCombinators.h"
 
@@ -76,12 +75,22 @@ vtkPolyData* loadVTKPolyData(const std::string& filename) {
 }
 
 // compute the center of mass for the given mesh
-vtkPoint centerOfMass(const vtkPolyData* pd) {
-    vtkCenterOfMass* cm = vtkCenterOfMass::New();
-    cm->SetInputData(const_cast<vtkPolyData*>(pd));
-    cm->Update();
-    vtkPoint centerOfMass(cm->GetCenter());
-    cm->Delete();
+vtkPoint centerOfMass(const vtkPolyData* _pd) {
+
+    // vtk is not const-correct, but we will not mutate pd here;
+    vtkPolyData* pd = const_cast<vtkPolyData*>(_pd);
+
+    vtkIdType numPoints = pd->GetNumberOfPoints();
+    vtkPoint centerOfMass(0.0, 0.0, 0.0);
+    for (vtkIdType i = 0; i < numPoints; ++i) {
+        double *ithPoint = pd->GetPoint(i);
+        for (unsigned d = 0; d < 3; ++d) {
+            centerOfMass[d] += ithPoint[d];
+        }
+    }
+    for (unsigned d = 0; d < 3; ++d) {
+        centerOfMass[d] /= numPoints;
+    }
     return centerOfMass;
 }
 
