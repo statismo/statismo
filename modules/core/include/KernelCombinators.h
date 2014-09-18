@@ -31,19 +31,19 @@ namespace statismo {
  */
 template<class TPoint>
 class SumKernel: public MatrixValuedKernel<TPoint> {
-public:
+  public:
 
     typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
 
 
     SumKernel(const MatrixValuedKernelType* lhs,
-            const MatrixValuedKernelType* rhs) :
-            MatrixValuedKernelType(lhs->GetDimension()),
-            m_lhs(lhs),
-            m_rhs(rhs) {
+              const MatrixValuedKernelType* rhs) :
+        MatrixValuedKernelType(lhs->GetDimension()),
+        m_lhs(lhs),
+        m_rhs(rhs) {
         if (lhs->GetDimension() != rhs->GetDimension()) {
             throw StatisticalModelException(
-                    "Kernels in SumKernel must have the same dimensionality");
+                "Kernels in SumKernel must have the same dimensionality");
         }
     }
 
@@ -57,7 +57,7 @@ public:
         return os.str();
     }
 
-private:
+  private:
     const MatrixValuedKernelType* m_lhs;
     const MatrixValuedKernelType* m_rhs;
 };
@@ -71,17 +71,17 @@ private:
 template<class TPoint>
 class ProductKernel: public MatrixValuedKernel<TPoint> {
 
-public:
+  public:
 
     typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
 
     ProductKernel(const MatrixValuedKernelType* lhs,
-            const MatrixValuedKernelType* rhs) :
-            MatrixValuedKernelType(lhs->GetDimension()), m_lhs(lhs), m_rhs(
-                    rhs) {
+                  const MatrixValuedKernelType* rhs) :
+        MatrixValuedKernelType(lhs->GetDimension()), m_lhs(lhs), m_rhs(
+            rhs) {
         if (lhs->GetDimension() != rhs->GetDimension()) {
             throw StatisticalModelException(
-                    "Kernels in SumKernel must have the same dimensionality");
+                "Kernels in SumKernel must have the same dimensionality");
         }
 
     }
@@ -96,7 +96,7 @@ public:
         return os.str();
     }
 
-private:
+  private:
     const MatrixValuedKernelType* m_lhs;
     const MatrixValuedKernelType* m_rhs;
 };
@@ -108,15 +108,15 @@ private:
 
 template<class TPoint>
 class ScaledKernel: public MatrixValuedKernel<TPoint> {
-public:
+  public:
 
 
     typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
 
 
     ScaledKernel(const MatrixValuedKernelType* kernel,
-            double scalingFactor) :
-            MatrixValuedKernelType(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {
+                 double scalingFactor) :
+        MatrixValuedKernelType(kernel->GetDimension()), m_kernel(kernel), m_scalingFactor(scalingFactor) {
     }
 
     MatrixType operator()(const TPoint& x, const TPoint& y) const {
@@ -128,7 +128,7 @@ public:
         return os.str();
     }
 
-private:
+  private:
     const MatrixValuedKernelType* m_kernel;
     double m_scalingFactor;
 };
@@ -141,15 +141,15 @@ private:
  */
 template<class TPoint>
 class UncorrelatedMatrixValuedKernel: public MatrixValuedKernel<TPoint> {
-public:
+  public:
 
     typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
 
     UncorrelatedMatrixValuedKernel(
-            const ScalarValuedKernel<TPoint>* scalarKernel,
-            unsigned dimension) :
-            MatrixValuedKernelType(	dimension), m_kernel(scalarKernel),
-            m_ident(MatrixType::Identity(dimension, dimension)) {
+        const ScalarValuedKernel<TPoint>* scalarKernel,
+        unsigned dimension) :
+        MatrixValuedKernelType(	dimension), m_kernel(scalarKernel),
+        m_ident(MatrixType::Identity(dimension, dimension)) {
     }
 
     MatrixType operator()(const TPoint& x, const TPoint& y) const {
@@ -163,11 +163,11 @@ public:
     std::string GetKernelInfo() const {
         std::ostringstream os;
         os << "UncorrelatedMatrixValuedKernel(" << (*m_kernel).GetKernelInfo()
-                << ", " << this->m_dimension << ")";
+           << ", " << this->m_dimension << ")";
         return os.str();
     }
 
-private:
+  private:
 
     const ScalarValuedKernel<TPoint>* m_kernel;
     MatrixType m_ident;
@@ -180,7 +180,7 @@ private:
  */
 template <class TPoint>
 class TemperingFunction {
-public:
+  public:
     virtual double operator()(const TPoint& pt) const = 0;
     virtual ~TemperingFunction() {}
 };
@@ -197,7 +197,7 @@ class SpatiallyVaryingKernel : public MatrixValuedKernel<typename Representer<T>
 
     typedef boost::unordered_map<statismo::VectorType, statismo::MatrixType> CacheType;
 
-public:
+  public:
 
     typedef Representer<T> RepresenterType;
     typedef typename RepresenterType::PointType PointType;
@@ -218,8 +218,7 @@ public:
           m_nystrom(Nystrom<T>::Create(representer, kernel, numEigenfunctions, numberOfPointsForApproximation == 0 ? numEigenfunctions * 2 : numberOfPointsForApproximation)),
           m_eigenvalues(m_nystrom->getEigenvalues()),
           m_cacheValues(cacheValues),
-          MatrixValuedKernel<PointType>(kernel.GetDimension())
-    {
+          MatrixValuedKernel<PointType>(kernel.GetDimension()) {
     }
 
     inline MatrixType operator()(const PointType& x, const PointType& y) const {
@@ -266,7 +265,7 @@ public:
 
 
 
-private:
+  private:
 
     // returns a d x n matrix holding the value of all n eigenfunctions evaluated at the given point.
     const statismo::MatrixType phiAtPoint(const PointType& pt) const {
@@ -278,20 +277,18 @@ private:
             const VectorType ptAsVec = this->m_representer->PointToVector(pt);
             _phiCacheLock.lock();
             typename CacheType::const_iterator got = m_phiCache.find (ptAsVec);
-                _phiCacheLock.unlock();
+            _phiCacheLock.unlock();
             if (got == m_phiCache.end()) {
                 v = m_nystrom->computeEigenfunctionsAtPoint(pt);
                 _phiCacheLock.lock();
                 m_phiCache.insert(std::make_pair(ptAsVec, v));
                 _phiCacheLock.unlock();
-            }
-            else {
+            } else {
                 v = got->second;
             }
-        }
-        else {
+        } else {
             v = m_nystrom->computeEigenfunctionsAtPoint(pt);
-       }
+        }
         return v;
     }
 

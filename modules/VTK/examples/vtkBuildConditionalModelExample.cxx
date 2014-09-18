@@ -130,9 +130,9 @@ int main(int argc, char** argv) {
         boost::scoped_ptr<ConditionalModelBuilderType> modelBuilder(ConditionalModelBuilderType::Create());
 
         boost::scoped_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(),
-                                             dataManager->GetSurrogateTypeInfo(),
-                                             conditioningInfo,
-                                             0.1));
+                dataManager->GetSurrogateTypeInfo(),
+                conditioningInfo,
+                0.1));
         std::cout << "successfully built conditional model" << std::endl;
 
         // The resulting model is a normal statistical model, from which we could for example sample examples.
