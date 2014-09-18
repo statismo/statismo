@@ -130,7 +130,7 @@ option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
 mark_as_advanced(BUILD_WRAPPING)
 
 add_subdirectory( modules )
-
+add_subdirectory( doc )
 # -------------------------------------------------------------
 
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_astyle.sh.in
