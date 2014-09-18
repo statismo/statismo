@@ -27,7 +27,7 @@ namespace statismo {
  */
 template <class T>
 class Nystrom {
-public:
+  public:
 
 
     typedef typename Representer<T>::PointType PointType;
@@ -73,12 +73,11 @@ public:
     }
 
 
-private:
+  private:
 
 
     Nystrom(const Representer<T>* representer, const MatrixValuedKernel<PointType>& kernel, unsigned numEigenfunctions, unsigned numberOfPointsForApproximation)
-        : m_representer(representer), m_kernel(kernel), m_numEigenfunctions(numEigenfunctions)
-    {
+        : m_representer(representer), m_kernel(kernel), m_numEigenfunctions(numEigenfunctions) {
 
         DomainType domain = m_representer->GetDomain();
         m_nystromPoints = getNystromPoints(domain, numberOfPointsForApproximation);
@@ -95,7 +94,7 @@ private:
         // precompute the part of the nystrom approximation, which is independent of the domain point
         float normFactor = static_cast<float>(m_nystromPoints.size()) / static_cast<float>(numDomainPoints);
         m_nystromMatrix = std::sqrt(normFactor) * (U.leftCols(numEigenfunctions)
-                        * D.topRows(numEigenfunctions).asDiagonal().inverse());
+                          * D.topRows(numEigenfunctions).asDiagonal().inverse());
 
         m_eigenvalues = (1.0f / normFactor) * D.topRows(numEigenfunctions);
 
@@ -127,13 +126,13 @@ private:
      * the corresponding eigenvalues of this kernel matrix
      */
     void computeKernelMatrixDecomposition(const MatrixValuedKernel<PointType>* kernel,
-            const std::vector<PointType>& xs, unsigned numComponents,
-            MatrixType& U, VectorType& D) const {
+                                          const std::vector<PointType>& xs, unsigned numComponents,
+                                          MatrixType& U, VectorType& D) const {
         unsigned kernelDim = kernel->GetDimension();
 
         unsigned n = xs.size();
         MatrixTypeDoublePrecision K = MatrixTypeDoublePrecision::Zero(
-                n * kernelDim, n * kernelDim);
+                                          n * kernelDim, n * kernelDim);
         for (unsigned i = 0; i < n; ++i) {
             for (unsigned j = i; j < n; ++j) {
                 MatrixType k_xixj = (*kernel)(xs[i], xs[j]);

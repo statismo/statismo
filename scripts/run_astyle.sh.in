@@ -1,18 +1,13 @@
 #! /bin/bash
-for module in core VTK itk;
-do
-  for dir in examples include src tests;
-  do
-    if [ -d "@Statismo_SOURCE_DIR@/${module}/${dir}" ]; then
-      for filetype in c cpp cxx h hpp hxx tpp txx;
-      do
-        list=`find ~/GITROOT/temp/statismo/modules/${module}/${dir} -name "*.${filetype}" -type f`
+pushd
+cd @statismo_SOURCE_DIR@/modules
+astyle --recursive --style=google *.c
+astyle --recursive --style=google *.cxx
+astyle --recursive --style=google *.cpp
 
-        for f in ${list};
-        do
-          astyle --style=google $f;
-        done
-      done
-    fi
-  done
-done
+astyle --recursive --style=google *.h
+astyle --recursive --style=google *.hxx
+astyle --recursive --style=google *.hpp
+astyle --recursive --style=google *.txx
+astyle --recursive --style=google *.tpp
+popd
