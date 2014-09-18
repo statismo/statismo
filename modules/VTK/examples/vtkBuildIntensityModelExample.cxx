@@ -45,10 +45,9 @@
 
 #include <iostream>
 #include <ostream>
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 using namespace statismo;
-using std::auto_ptr;
 
 vtkStructuredPoints* loadVTKStructuredPointsData(const std::string& filename) {
     vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
@@ -85,8 +84,8 @@ int main(int argc, char** argv) {
 
         // Model building is exactly the same as for shape models (see BuildShapeModelExample for detailed explanation)
         vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand-0.vtk");
-        auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
-        auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+        boost::scoped_ptr<RepresenterType> representer(RepresenterType::Create(reference));
+        boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
         // load the data and add it to the data manager. We take the first 4 hand shapes that we find in the data folder
         for (unsigned i = 0; i < 4; i++) {
@@ -103,8 +102,8 @@ int main(int argc, char** argv) {
             // it is save to delete the dataset after it was added, as the datamanager direclty copies it.
             dataset->Delete();
         }
-        auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
-        auto_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
+        boost::scoped_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
+        boost::scoped_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
         model->Save(modelname);
 
         reference->Delete();

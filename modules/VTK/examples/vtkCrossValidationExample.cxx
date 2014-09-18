@@ -46,11 +46,11 @@
 
 #include <iostream>
 #include <ostream>
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 
 using namespace statismo;
-using std::auto_ptr;
+using boost::scoped_ptr;
 
 
 vtkPolyData* loadVTKPolyData(const std::string& filename) {
@@ -83,10 +83,10 @@ int main(int argc, char** argv) {
 
     try {
         vtkPolyData* reference = loadVTKPolyData(datadir +"/hand-0.vtk");
-        auto_ptr<RepresenterType> representer(RepresenterType::Create(reference));
+        boost::scoped_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 
         // create a data manager and add a number of datasets for model building
-        auto_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+        boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
         for (unsigned i = 0; i < 17; i++) {
 
@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
         std::cout << "succesfully loaded "<< dataManager->GetNumberOfSamples() << " samples "<< std::endl;
 
         // create the model builder
-        auto_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
+        boost::scoped_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
 
         // We perform 4-fold cross validation
         CVFoldListType cvFoldList = dataManager->GetCrossValidationFolds(4, true);
@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
                 it != cvFoldList.end();
                 ++it) {
             // build the model as usual
-            auto_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(it->GetTrainingData(), 0.01));
+            boost::scoped_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(it->GetTrainingData(), 0.01));
             std::cout << "built model with  " << model->GetNumberOfPrincipalComponents() << " principal components"<< std::endl;
 
             // Now we can iterate over the test data and do whatever validation we would like to do.

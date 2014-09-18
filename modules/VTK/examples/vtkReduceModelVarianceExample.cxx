@@ -45,10 +45,10 @@
 #include "vtkPolyDataWriter.h"
 
 #include <iostream>
-#include <memory>
+#include <boost/scoped_ptr.hpp>
+
 
 using namespace statismo;
-using std::auto_ptr;
 
 
 // illustrates how to reduce the variance of a model
@@ -74,13 +74,13 @@ int main(int argc, char** argv) {
         // To load a model, we call the static Load method, which returns (a pointer to) a
         // new StatisticalModel object
         RepresenterType* representer = RepresenterType::Create();
-        auto_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, inputModelName));
+        boost::scoped_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, inputModelName));
         std::cout << "loaded model with variance of " << model->GetPCAVarianceVector().sum()  << std::endl;
 
-        auto_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
+        boost::scoped_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
 
         // build a model with only half the variance
-        auto_ptr<StatisticalModelType> reducedModel(reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5));
+        boost::scoped_ptr<StatisticalModelType> reducedModel(reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5));
         std::cout << "new model has variance of " << reducedModel->GetPCAVarianceVector().sum()  << std::endl;
 
         reducedModel->Save(outputModelName);

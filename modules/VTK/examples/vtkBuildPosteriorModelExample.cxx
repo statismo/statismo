@@ -53,9 +53,7 @@
 #include "vtkPolyDataWriter.h"
 #include "vtkVersion.h"
 #include <iostream>
-#include <memory>
-
-using std::auto_ptr;
+#include <boost/scoped_ptr.hpp>
 
 
 typedef statismo::VectorType VectorType;
@@ -118,7 +116,7 @@ int main(int argc, char** argv) {
         vtkPolyData* partialShape = loadVTKPolyData(partialShapeMeshName);
 
         RepresenterType* representer = RepresenterType::Create();
-        auto_ptr<StatisticalModelType> inputModel(StatisticalModelType::Load(representer, inputModelName));
+        boost::scoped_ptr<StatisticalModelType> inputModel(StatisticalModelType::Load(representer, inputModelName));
         vtkPolyData* refPd = const_cast<vtkPolyData*>(inputModel->GetRepresenter()->GetReference());
 
 
@@ -142,8 +140,8 @@ int main(int argc, char** argv) {
         // build the new model. In addition to the input model and the constraints, we also specify
         // the inaccuracy of our value (variance of the error).
 
-        auto_ptr<PosteriorModelBuilderType> posteriorModelBuilder(PosteriorModelBuilderType::Create());
-        auto_ptr<StatisticalModelType> constraintModel(posteriorModelBuilder->BuildNewModelFromModel(inputModel.get(), constraints, 0.5));
+        boost::scoped_ptr<PosteriorModelBuilderType> posteriorModelBuilder(PosteriorModelBuilderType::Create());
+        boost::scoped_ptr<StatisticalModelType> constraintModel(posteriorModelBuilder->BuildNewModelFromModel(inputModel.get(), constraints, 0.5));
 
 
         // The resulting model is a normal statistical model, from which we could for example sample examples.

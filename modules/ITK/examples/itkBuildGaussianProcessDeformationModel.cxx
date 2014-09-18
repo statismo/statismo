@@ -42,6 +42,8 @@
 #include "itkDataManager.h"
 #include "itkImageFileReader.h"
 #include "itkDirectory.h"
+#include "Kernels.h"
+#include "KernelCombinators.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>

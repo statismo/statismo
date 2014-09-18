@@ -13,6 +13,7 @@ set( _examples
   vtkBuildShapeModelExample
   vtkCrossValidationExample
   vtkReduceModelVarianceExample
+  vtkSpatiallyVaryingGPModelExample
 )
 
 foreach( e ${_examples} )

@@ -25,9 +25,9 @@
 #include "Nystrom.h"
 #include <vector>
 #include <cmath>
-#include <memory>
 #include "boost/thread.hpp"
 #include "boost/thread/future.hpp"
+#include <boost/scoped_ptr.hpp>
 
 namespace statismo {
 
@@ -172,7 +172,7 @@ public:
         unsigned kernelDim = kernel.GetDimension();
 
 
-         std::auto_ptr<Nystrom<T> > nystrom(Nystrom<T>::Create(m_representer, kernel, numComponents, numPointsForNystrom));
+         boost::scoped_ptr<Nystrom<T> > nystrom(Nystrom<T>::Create(m_representer, kernel, numComponents, numPointsForNystrom));
 
     // we precompute the value of the eigenfunction for each domain point
     // and store it later in the pcaBasis matrix. In this way we obtain

@@ -67,6 +67,9 @@
 #include "itkCommand.h"
 #include "itkImage.h"
 
+#include "Kernels.h"
+#include "KernelCombinators.h"
+
 #include "itkDirectory.h"
 #include <sys/types.h>
 #include <errno.h>
