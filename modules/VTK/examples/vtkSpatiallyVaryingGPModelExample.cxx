@@ -88,8 +88,9 @@ vtkPoint centerOfMass(const vtkPolyData* _pd) {
             centerOfMass[d] += ithPoint[d];
         }
     }
+    double V = 1.0 / static_cast<double>(numPoints);
     for (unsigned d = 0; d < 3; ++d) {
-        centerOfMass[d] /= numPoints;
+        centerOfMass[d] * V;
     }
     return centerOfMass;
 }

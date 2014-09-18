@@ -45,10 +45,9 @@
 #include "KernelCombinators.h"
 
 #include <iostream>
-#include <memory>
+#include <boost/scoped_ptr.hpp>
 
 using namespace statismo;
-using std::auto_ptr;
 
 
 /**
@@ -119,7 +118,7 @@ int main(int argc, char** argv) {
         // we load an existing statistical model and create a StatisticalModelKernel from it. The statisticlModelKernel
         // takes the covariance (matrix) of the model and defines a kernel function from it.
         vtkStandardMeshRepresenter* representer = vtkStandardMeshRepresenter::Create();
-        auto_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, modelFilename));
+        boost::scoped_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, modelFilename));
         const MatrixValuedKernelType& statModelKernel = StatisticalModelKernel<vtkPolyData>(model.get());
 
         // Create a (scalar valued) gaussian kernel. This kernel is then made matrix-valued. We use a UncorrelatedMatrixValuedKernel,
@@ -136,8 +135,8 @@ int main(int argc, char** argv) {
         const MatrixValuedKernelType& combinedModelAndGaussKernel = SumKernel<vtkPoint>(&statModelKernel, &scaledGk);
 
         // We create a new model using the combined kernel. The new model will be more flexible than the original statistical model.
-        auto_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create(model->GetRepresenter()));
-        auto_ptr<StatisticalModelType> combinedModel(modelBuilder->BuildNewModel(model->DrawMean(), combinedModelAndGaussKernel, numberOfComponents));
+        boost::scoped_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create(model->GetRepresenter()));
+        boost::scoped_ptr<StatisticalModelType> combinedModel(modelBuilder->BuildNewModel(model->DrawMean(), combinedModelAndGaussKernel, numberOfComponents));
 
         // Once we have built the model, we can save it to disk.
         combinedModel->Save(outputModelFilename);
