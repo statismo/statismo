@@ -62,8 +62,17 @@ found on the [Wiki](https://github.com/statismo/statismo/wiki/compilation).
 Statismo (shape) models are best viewed using the [Statismo model viewer](https://github.com/statismo/statismo/wiki/Statismo%20Viewer).
 Sometimes it is useful to look at the statismo file itself. [Hdfview](http://www.hdfgroup.org/products/java/hdfview/) provides a graphical interface  to explore the structure and data within a hdf5 file.
 
-History
--------
+## Support for other languages
+
+Statismo is a C++ framework and at the current stage the only the C++ interface is supported and maintained on all platform. However, some work has already been done to make statismo available from other languages: 
+
+* For Statismo's vtk module, experimental Python wrappers are available, which are known to work on Linux systems. These wrappers are internally used for our [unit tests](https://github.com/statismo/statismo/tree/master/Tests/statismoTests), which also serve as usage examples.
+* Statismo's VTK module can also be acccessed from [R](http://www.r-project.org) using Stefan Schlager's [RvtkStatismo](https://github.com/zarquon42b/RvtkStatismo). 
+
+In principle it should also be easy to wrap the statismo ITK module by using ITK's WrapITK mechanism. However, we currently have no working wrappers for ITK and do not have the resources to work on it. Any help is greatly appreciated. 
+
+## History
+
 Statismo has originally been developed in the context of the [Co-Me](http://www.co-me.ch) research project as a collaboration between the [University of Bern](http://www.istb.unibe.ch), the [University of Basel](http://gravis.cs.unibas.ch) and the [ETH Zurich](http://www.vision.ee.ethz.ch/), with goal of the making it easy to exchange algorithms and shape models between different research groups. The original code has been written by 
 * Marcel Luethi, University of Basel  and
 * Remi Blanc, formerly at ETH Zurich.
@@ -81,6 +90,6 @@ In the meantime, many people have contributed to statismo, including
 
 The main development is currently done by the [Graphics and Vision Research Group](http://gravis.cs.unibas.ch) at the University of Basel.
 
-License:
---------
+## License:
+
 Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. Most notably, these are [Eigen](http://eigen.tuxfamily.org), [Boost](http://www.boost.org) and [HDF5](http://www.hdfgroup.org) and, depending on the configuration [ITK](http://www.itk.org) and [VTK](http://www.vtk.org)
