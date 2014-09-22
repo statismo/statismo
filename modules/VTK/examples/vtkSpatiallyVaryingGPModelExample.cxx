@@ -101,7 +101,7 @@ vtkPoint centerOfMass(const vtkPolyData* _pd) {
 struct MyTemperingFunction : public TemperingFunction<vtkPoint> {
     MyTemperingFunction(const vtkPoint& centerOfMass) : m_centerOfMass(centerOfMass) {}
 
-    static const double a = 0.5;
+    static const double a;
     double operator() (const vtkPoint& pt) const {
         double xDiffToCenter =  m_centerOfMass[0] - pt[0];
         return  (1.0 / ( 1.0 + std::exp(-xDiffToCenter * a)) + 1.0) ;
@@ -110,6 +110,7 @@ struct MyTemperingFunction : public TemperingFunction<vtkPoint> {
   private:
     vtkPoint m_centerOfMass;
 };
+const double MyTemperingFunction::a = 0.5;
 
 
 
