@@ -33,7 +33,7 @@ ExternalProject_Add(Boost
 )
 
 if( WIN32 )
-  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include/boost-1_54 )
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include/boost-1_55 )
   set( BOOST_ROOT ${INSTALL_DEPECENCIES_DIR} )
 else()
   set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include )
