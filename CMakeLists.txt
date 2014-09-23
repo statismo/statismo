@@ -6,9 +6,14 @@ enable_testing()
 set( STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
 
 set(STATISMO_MAJOR_VERSION 0)
-set(STATISMO_MINOR_VERSION 9)
-set(STATISMO_PATCH_VERSION 1)
+set(STATISMO_MINOR_VERSION 10)
+set(STATISMO_PATCH_VERSION 0)
 set(STATISMO_VERSION ${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION}.${STATISMO_PATCH_VERSION} )
+
+set( statismo_LIB_VERSION ${STATISMO_VERSION} )
+set( statismo_LIB_SOVERSION ${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION} )
+set( statismo_LIB_TYPE SHARED )
+
 
 # Setup build locations.
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
@@ -43,22 +48,61 @@ if( CMAKE_HOST_WIN32 )
   endif()
 endif()
 
+# installation
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+set(INSTALL_INCLUDE_DIR include CACHE PATH
+  "Installation directory for header files")
+if(WIN32 AND NOT CYGWIN)
+  set(DEF_INSTALL_CMAKE_DIR CMake)
+else()
+  set(DEF_INSTALL_CMAKE_DIR lib/cmake/statismo)
+endif()
+set(INSTALL_CMAKE_DIR ${DEF_INSTALL_CMAKE_DIR} CACHE PATH
+  "Installation directory for CMake files")
+
+# Make relative paths absolute (needed later on)
+foreach(p LIB BIN INCLUDE CMAKE)
+  set(var INSTALL_${p}_DIR)
+  if(NOT IS_ABSOLUTE "${${var}}")
+    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+  endif()
+endforeach()
+
 include( CTest )
+
+include( ModuleHeaderTest )
 
 find_package( Eigen3 REQUIRED )
 include_directories( ${EIGEN3_INCLUDE_DIR} )
 
-find_package( Boost REQUIRED )
+if( WIN32 )
+  set( Boost_USE_STATIC_LIBS ON )
+endif()
+
+find_package( Boost 1.50 COMPONENTS thread system REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
+
+link_directories( ${Boost_LIBRARY_DIRS} )
+add_definitions( -DBOOST_THREAD_VERSION=3 )
 
 find_package( HDF5  COMPONENTS C CXX)
 include_directories( ${HDF5_INCLUDE_DIRS} )
 
-# On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding
-# the dlls instead of the libs. We are setting the variables directly
 if(WIN32)
+ # On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding
+ # the dlls instead of the libs. We are setting the variables directly
  set(HDF5_LIBRARY_DIRS ${INSTALL_DEPECENCIES_DIR}/lib)
  set(HDF5_LIBRARIES hdf5.lib hdf5_cpp.lib)
+
+ # Help Windows to find the HDF5 libraries
+ link_directories(${HDF5_LIBRARY_DIRS})
+
+ # On Windows, we can only build static libraries, as the dynamic libraries would be
+ # missing the accompanying .lib (unless the code is entirely rewritten with __declspec(dllexport) etc.)
+ # See http://www.cmake.org/Wiki/BuildingWinDLL
+
+ set(statismo_LIB_TYPE STATIC)
 endif()
 
 foreach( _library ${HDF5_LIBRARIES} )
@@ -71,8 +115,6 @@ option( ITK_SUPPORT "Build ITK Support" ON )
 if( ${ITK_SUPPORT} MATCHES "ON" )
   find_package( ITK REQUIRED )
   include( ${ITK_USE_FILE} )
-
-  add_subdirectory( Examples/ITK )
 endif()
 
 option( VTK_SUPPORT "Build VTK Support" ON )
@@ -80,64 +122,87 @@ option( VTK_SUPPORT "Build VTK Support" ON )
 if( ${VTK_SUPPORT} MATCHES "ON" )
   find_package( VTK REQUIRED )
   include( ${VTK_USE_FILE} )
-
-  add_subdirectory( Examples/VTK )
 endif()
 
-if( ${BUILD_TESTING} )
-  add_subdirectory( Tests )
-endif()
+option( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
-# --------------------------------------------------
-# Wrapping
-option( BUILD_WRAPPING_VTK "Build Python Wrappers for VTK" OFF )
+option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
+mark_as_advanced(BUILD_WRAPPING)
 
-if( ${BUILD_WRAPPING_VTK} )
-  add_subdirectory( Wrapping/VTK )
-endif()
+add_subdirectory( modules )
+add_subdirectory( doc )
+# -------------------------------------------------------------
 
-configure_file( ${statismo_SOURCE_DIR}/statismo-config.cmake.in
-  ${statismo_BINARY_DIR}/statismo-config.cmake
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_astyle.sh.in
+  ${CMAKE_CURRENT_BINARY_DIR}/run_astyle.sh
   @ONLY
 )
 
-file( GLOB statismo_hdrs
-  statismo/*.h statismo/*.hxx statismo/*.hpp statismo/*.txx  statismo/*.tpp statismo/*.cpp statismo/*.cxx
-)
-install( FILES ${statismo_hdrs}
-  DESTINATION include/statismo/statismo
+# -------------------------------------------------------------
+
+# Add all targets to the build-tree export set
+set( _targets statismo_core )
+
+if( VTK_SUPPORT )
+  set( _targets ${_targets} statismo_VTK )
+endif()
+
+export( TARGETS ${_targets}
+  FILE "${statismo_BINARY_DIR}/statismoTargets.cmake"
 )
 
-file( GLOB statismo_itk_hdrs
-  statismo_ITK/*.h statismo_ITK/*.hxx statismo_ITK/*.hpp statismo_ITK/*.txx  statismo_ITK/*.tpp
+# Export the package for use from the build-tree
+# (this registers the build-tree with a global CMake-registry)
+export(PACKAGE statismo)
+
+# -------------------------------------------------------------
+# for the build tree
+set( CONF_INCLUDE_DIRS
+  "${statismo_SOURCE_DIR}/modules/core/include"
 )
-install( FILES ${statismo_itk_hdrs}
-  DESTINATION include/statismo/statismo_ITK
+set( statismo_LIBRARIES statismo_core )
+
+if( ${VTK_SUPPORT} )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/VTK/include" )
+  set( statismo_LIBRARIES ${statismo_LIBRARIES} statismo_VTK )
+endif()
+
+if( ${ITK_SUPPORT} )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/ITK/include" )
+endif()
+
+configure_file( ${statismo_SOURCE_DIR}/statismoConfig.cmake.in
+  ${statismo_BINARY_DIR}/statismoConfig.cmake
+  @ONLY
 )
 
-install( FILES ${statismo_BINARY_DIR}/statismo-config.cmake
-  DESTINATION lib/cmake/statismo
-)
+# for the install tree
+file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
+   "${INSTALL_INCLUDE_DIR}")
 
-file( GLOB statismo_rep
-  Representers/*.h Representers/*.hxx Representers/*.hpp Representers/*.txx  Representers/*.tpp
+set( CONF_INCLUDE_DIRS
+  "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/core"
 )
-install( FILES ${statismo_rep}
-  DESTINATION include/statismo/Representers/
-)
+if( ${VTK_SUPPORT} )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/VTK" )
+endif()
 
-file( GLOB statismo_rep_itk
-  Representers/ITK/*.h Representers/ITK/*.hxx Representers/ITK/*.hpp Representers/ITK/*.txx  Representers/ITK/*.tpp
-)
+if( ${ITK_SUPPORT} )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/ITK" )
+endif()
 
-install( FILES ${statismo_rep_itk}
-  DESTINATION include/statismo/Representers/ITK
+configure_file( ${statismo_SOURCE_DIR}/statismoConfig.cmake.in
+  ${statismo_BINARY_DIR}/cmake/statismoConfig.cmake
+  @ONLY
 )
-
-file( GLOB statismo_rep_vtk
-  Representers/VTK/*.h Representers/VTK/*.hxx Representers/VTK/*.hpp Representers/VTK/*.txx  Representers/VTK/*.tpp Representers/VTK/*.cpp
+configure_file( ${statismo_SOURCE_DIR}/statismoConfigVersion.cmake.in
+  ${statismo_BINARY_DIR}/statismoConfigVersion.cmake
+  @ONLY
 )
-install( FILES ${statismo_rep_vtk}
-  DESTINATION include/statismo/Representers/VTK
+install( FILES
+    "${statismo_BINARY_DIR}/cmake/statismoConfig.cmake"
+    "${statismo_BINARY_DIR}/statismoConfigVersion.cmake"
+  DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT dev
 )
+install(EXPORT statismoTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 
