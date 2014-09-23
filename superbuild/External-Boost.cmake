@@ -20,6 +20,11 @@ set( Boost_Patches_DIR ${Patches_DIR}/boost )
 set( Boost_Patch_Script ${Boost_Patches_DIR}/boost_patch.sh )
 set( Boost_Patch_Command ${SHELL_CMD} ${Boost_Patch_Script} )
 
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+  set(Boost_address_model 64)
+else()
+  set(Boost_address_model 32)
+endif()
 
 ExternalProject_Add(Boost
   BUILD_IN_SOURCE 1
@@ -28,7 +33,7 @@ ExternalProject_Add(Boost
   UPDATE_COMMAND ""
   PATCH_COMMAND ${Boost_Patch_Command}
   CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib --with-libraries=thread --with-libraries=system
-  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR}
+  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR} address-model=${Boost_address_model}
   INSTALL_COMMAND ""
 )
 
