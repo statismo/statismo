@@ -4,6 +4,11 @@
 message( "External project - Boost" )
 
 set( Boost_Bootstrap_Command )
+
+# Note: It IS important to download different files on different OS's:
+# on Unix-like systems, we need the file persmissions (only available in the .tar.gz),
+# while on Windows, we need CR/LF line feeds (only available in the .zip)
+
 if( UNIX )
   set( Boost_url "http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz")
   set( Boost_md5 93780777cfbf999a600f62883bd54b17)
