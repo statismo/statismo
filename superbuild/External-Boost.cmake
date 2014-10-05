@@ -5,11 +5,15 @@ message( "External project - Boost" )
 
 set( Boost_Bootstrap_Command )
 if( UNIX )
+  set( Boost_url "http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz")
+  set( Boost_md5 93780777cfbf999a600f62883bd54b17)
   set( Boost_Bootstrap_Command ./bootstrap.sh )
   set( Boost_b2_Command ./b2 )
   set( SHELL_CMD sh)
 else()
   if( WIN32 )
+    set( Boost_url "http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.zip")
+	set( Boost_md5 8aca361a4713a1f491b0a5e33fee0f1f)
     set( Boost_Bootstrap_Command cmd /C bootstrap.bat msvc )
     set( Boost_b2_Command b2.exe )
     set (SHELL_CMD "")
@@ -28,12 +32,12 @@ endif()
 
 ExternalProject_Add(Boost
   BUILD_IN_SOURCE 1
-  URL "http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.gz"
-  URL_MD5 93780777cfbf999a600f62883bd54b17
+  URL ${Boost_url} 
+  URL_MD5 ${Boost_md5} 
   UPDATE_COMMAND ""
-  PATCH_COMMAND ${Boost_Patch_Command}
-  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib --with-libraries=thread --with-libraries=system
-  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR} address-model=${Boost_address_model}
+  #PATCH_COMMAND ${Boost_Patch_Command}
+  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib  
+  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR} --with-thread --with-system  address-model=${Boost_address_model}
   INSTALL_COMMAND ""
 )
 
