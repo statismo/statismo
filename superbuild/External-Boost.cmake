@@ -37,12 +37,12 @@ endif()
 
 ExternalProject_Add(Boost
   BUILD_IN_SOURCE 1
-  URL ${Boost_url}
-  URL_MD5 ${Boost_md5}
+  URL ${Boost_url} 
+  URL_MD5 ${Boost_md5} 
   UPDATE_COMMAND ""
   #PATCH_COMMAND ${Boost_Patch_Command}
-  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib --with-libraries=thread --with-libraries=system
-  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR} address-model=${Boost_address_model}
+  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib
+  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR} --with-thread --with-system address-model=${Boost_address_model}
   INSTALL_COMMAND ""
 )
 
