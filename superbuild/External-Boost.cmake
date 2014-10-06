@@ -31,8 +31,8 @@ endif()
 
 ExternalProject_Add(Boost
   BUILD_IN_SOURCE 1
-  URL ${Boost_url} 
-  URL_MD5 ${Boost_md5} 
+  URL ${Boost_url}
+  URL_MD5 ${Boost_md5}
   UPDATE_COMMAND ""
   CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib
   BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR} --with-thread --with-system address-model=${Boost_address_model}
@@ -40,7 +40,7 @@ ExternalProject_Add(Boost
 )
 
 if( WIN32 )
-  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include/boost-1_55 )
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include/boost-1_56 )
   set( BOOST_ROOT ${INSTALL_DEPECENCIES_DIR} )
 else()
   set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include )
