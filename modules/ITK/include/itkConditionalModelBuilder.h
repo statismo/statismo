@@ -80,7 +80,7 @@ class ConditionalModelBuilder : public Object {
     }
 
     template <class F>
-    typename std::tr1::result_of<F()>::type callstatismoImpl(F f) const {
+    typename boost::result_of<F()>::type callstatismoImpl(F f) const {
         try {
             return f();
         } catch (statismo::StatisticalModelException& s) {
@@ -96,7 +96,7 @@ class ConditionalModelBuilder : public Object {
                   float noiseVariance,
                   double modelVarianceRetained
                  ) {
-        statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::tr1::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, surrogateTypes, conditioningInfo, noiseVariance, modelVarianceRetained));
+        statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(boost::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, surrogateTypes, conditioningInfo, noiseVariance, modelVarianceRetained));
         typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
         model_itk->SetstatismoImplObj(model_statismo);
         return model_itk;
