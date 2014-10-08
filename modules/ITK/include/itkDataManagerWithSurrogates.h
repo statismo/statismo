@@ -41,10 +41,11 @@
 
 #include <boost/utility/result_of.hpp>
 
-#include "itkObject.h"
-#include "itkObjectFactory.h"
-#include "statismoITKConfig.h"
+#include <itkObject.h>
+#include <itkObjectFactory.h>
+
 #include "DataManagerWithSurrogates.h"
+#include "statismoITKConfig.h"
 
 namespace itk {
 
