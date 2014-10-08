@@ -35,13 +35,11 @@
  *
  */
 
+#include <iostream>
+
 #include "CommonTypes.h"
 #include "HDF5Utils.h"
 #include "StatismoUtils.h"
-#include <iostream>
-
-
-using statismo::VectorType;
 
 /**
  * This class provides generic tests for representer. The tests need to hold for all representers.
@@ -60,6 +58,7 @@ class GenericRepresenterTest {
     typedef typename Representer::DomainType DomainType;
 
   public:
+
     /// Create new test with the given representer.
     /// Tests are performed using the given testDataset and the pointValuePair.
     /// It is assumed that the PointValuePair is taken from the testDataset (otherwise some tests will fail).
@@ -75,10 +74,10 @@ class GenericRepresenterTest {
         DatasetConstPointerType sample = m_testDataset;
         unsigned id = m_representer->GetPointIdForPoint(m_testPoint);
         ValueType val = m_representer->PointSampleFromSample(sample, id);
-        VectorType valVec = m_representer->PointSampleToPointSampleVector(val);
+        statismo::VectorType valVec = m_representer->PointSampleToPointSampleVector(val);
 
         // the obtained value should correspond to the value that is obtained by obtaining the sample vector, and evaluating it at the given position
-        VectorType sampleVector = m_representer->SampleToSampleVector(sample);
+        statismo::VectorType sampleVector = m_representer->SampleToSampleVector(sample);
         for (unsigned i = 0; i < m_representer->GetDimensions(); ++i) {
             unsigned idx = m_representer->MapPointIdToInternalIdx(id, i);
             if (sampleVector(i) != valVec(i)) {
@@ -105,7 +104,7 @@ class GenericRepresenterTest {
         // if we convert a dataset to a samplevector, the resulting vector needs to have
         // as many entries as there are points * dimensions
         DatasetConstPointerType sample = m_testDataset;
-        VectorType sampleVector = m_representer->SampleToSampleVector(sample);
+        statismo::VectorType sampleVector = m_representer->SampleToSampleVector(sample);
         if (sampleVector.rows() != m_representer->GetDimensions() * domain.GetNumberOfPoints()) {
             std::cout << "the dimension of the sampleVector does not agree with the number of points in the domain (#points * dimensionality)" << std::endl;
             return false;
@@ -138,12 +137,12 @@ class GenericRepresenterTest {
     bool testSampleToVectorAndBack() const {
         std::cout << "testSampleToVectorToSample" << std::endl;
 
-        VectorType sampleVec = getSampleVectorFromTestDataset();
+        statismo::VectorType sampleVec = getSampleVectorFromTestDataset();
 
         DatasetConstPointerType reconstructedSample = m_representer->SampleVectorToSample(sampleVec);
 
         // as we don't know anything about how to compare samples, we compare their vectorial representation
-        VectorType reconstructedSampleAsVec = m_representer->SampleToSampleVector(reconstructedSample);
+        statismo::VectorType reconstructedSampleAsVec = m_representer->SampleToSampleVector(reconstructedSample);
         bool isOkay = assertSampleVectorsEqual(sampleVec, reconstructedSampleAsVec);
         if (isOkay == false) {
             std::cout << "Error: the sample has changed by converting between the representations " << std::endl;
@@ -155,7 +154,7 @@ class GenericRepresenterTest {
     bool testPointSampleDimension() const {
         std::cout << "testPointSampleDimension" << std::endl;
 
-        VectorType valVec = m_representer->PointSampleToPointSampleVector(m_testValue);
+        statismo::VectorType valVec = m_representer->PointSampleToPointSampleVector(m_testValue);
 
         if (valVec.rows() != m_representer->GetDimensions()) {
             std::cout << "Error: The dimensionality of the pointSampleVector is not the same as the Dimensionality of the representer" << std::endl;
@@ -170,11 +169,11 @@ class GenericRepresenterTest {
     bool testPointSampleToPointSampleVectorAndBack() const {
         std::cout << "testPointSampleToPointSampleVectorAndBack" << std::endl;
 
-        VectorType valVec = m_representer->PointSampleToPointSampleVector(m_testValue);
+        statismo::VectorType valVec = m_representer->PointSampleToPointSampleVector(m_testValue);
         ValueType recVal = m_representer->PointSampleVectorToPointSample(valVec);
 
         // we compare the vectors and not the points, as we don't know how to compare poitns.
-        VectorType recValVec = m_representer->PointSampleToPointSampleVector(recVal);
+        statismo::VectorType recValVec = m_representer->PointSampleToPointSampleVector(recVal);
         bool ok = assertSampleVectorsEqual(valVec, recValVec);
         if (!ok) {
             std::cout << "Error: the point sample has changed by converting between the representations" << std::endl;
@@ -194,8 +193,8 @@ class GenericRepresenterTest {
         }
 
         // the value of the point in the sample vector needs to correspond the the value that was provided
-        VectorType sampleVec = getSampleVectorFromTestDataset();
-        VectorType pointSampleVec = m_representer->PointSampleToPointSampleVector(m_testValue);
+        statismo::VectorType sampleVec = getSampleVectorFromTestDataset();
+        statismo::VectorType pointSampleVec = m_representer->PointSampleToPointSampleVector(m_testValue);
 
         for (unsigned d = 0; d < m_representer->GetDimensions(); ++d) {
             unsigned idx = m_representer->MapPointIdToInternalIdx(ptId, d);
@@ -274,7 +273,7 @@ class GenericRepresenterTest {
     /// test if the sample vector dimensions are correct
     bool testSampleVectorDimensions() const {
         std::cout << "testSampleVectorDimensions()" << std::endl;
-        VectorType testSampleVec = getSampleVectorFromTestDataset();
+        statismo::VectorType testSampleVec = getSampleVectorFromTestDataset();
 
         bool isOk =  m_representer->GetDimensions() * m_representer->GetNumberOfPoints() == testSampleVec.rows();
         if (!isOk) {
@@ -333,8 +332,8 @@ class GenericRepresenterTest {
             std::cout << "the representers do not have the same nubmer of points " <<std::endl;
             return false;
         }
-        VectorType sampleRep1 = getSampleVectorFromTestDataset(representer1);
-        VectorType sampleRep2 = getSampleVectorFromTestDataset(representer2);
+        statismo::VectorType sampleRep1 = getSampleVectorFromTestDataset(representer1);
+        statismo::VectorType sampleRep2 = getSampleVectorFromTestDataset(representer2);
         if (assertSampleVectorsEqual(sampleRep1, sampleRep2) == false) {
             std::cout << "the representers produce different sample vectors for the same sample" << std::endl;
             return false;
@@ -344,7 +343,7 @@ class GenericRepresenterTest {
     }
 
 
-    bool assertSampleVectorsEqual(const VectorType& v1, const VectorType& v2) const {
+    bool assertSampleVectorsEqual(const statismo::VectorType& v1, const statismo::VectorType& v2) const {
         if (v1.rows() != v2.rows()) {
             std::cout << "dimensionality of SampleVectors do not agree" << std::endl;
             return false;
@@ -361,13 +360,13 @@ class GenericRepresenterTest {
     }
 
 
-    VectorType getSampleVectorFromTestDataset() const {
+    statismo::VectorType getSampleVectorFromTestDataset() const {
         return getSampleVectorFromTestDataset(m_representer);
     }
 
-    VectorType getSampleVectorFromTestDataset(const Representer* representer) const {
+    statismo::VectorType getSampleVectorFromTestDataset(const Representer* representer) const {
         DatasetConstPointerType sample = m_testDataset;
-        VectorType sampleVec = representer->SampleToSampleVector(sample);
+        statismo::VectorType sampleVec = representer->SampleToSampleVector(sample);
         return sampleVec;
     }
 

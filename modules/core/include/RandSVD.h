@@ -1,17 +1,19 @@
 #ifndef __RANDSVD_H
 #define __RANDSVD_H
 
+#include <cmath>
+
 #include <iostream>
+#include <limits>
+
+#include <boost/random.hpp>
+
 #include <Eigen/Dense>
 
+namespace statismo {
 /**
  * TODO comment and add reference to paper
  */
-#include <cmath>
-#include <limits>
-#include <boost/random.hpp>
-
-namespace statismo {
 template <typename ScalarType>
 class RandSVD {
   public:

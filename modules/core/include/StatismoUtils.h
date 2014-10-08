@@ -39,21 +39,25 @@
 #ifndef __UTILS_H_
 #define __UTILS_H_
 
-#include <fstream>
-#include "Exceptions.h"
-#include "CommonTypes.h"
-#include <boost/random.hpp>
 #include <cstdlib>
+#include <ctime>
+
 #include <algorithm>
-#include <iterator>
+#include <fstream>
 #include <iostream>
-#include "time.h"
+#include <iterator>
 
 #ifdef _WIN32
 #define NOMINMAX // avoid including the min and max macro
 #include <windows.h>
 #include <tchar.h>
 #endif
+
+
+#include <boost/random.hpp>
+
+#include "CommonTypes.h"
+#include "Exceptions.h"
 
 namespace statismo {
 

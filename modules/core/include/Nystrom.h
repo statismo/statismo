@@ -12,13 +12,14 @@
  * Statismo is licensed under the BSD licence (3 clause) license
  */
 
-#include "Representer.h"
-#include "Config.h"
+#include <boost/thread.hpp>
+
 #include "CommonTypes.h"
+#include "Config.h"
 #include "Kernels.h"
 #include "RandSVD.h"
-#include "Kernels.h"
-#include "boost/thread.hpp"
+#include "Representer.h"
+
 namespace statismo {
 
 /**

@@ -38,18 +38,16 @@
 #ifndef __CONDITIONALMODELBUILDER_H_
 #define __CONDITIONALMODELBUILDER_H_
 
-#include "Config.h"
-#include "ModelBuilder.h"
-#include "StatisticalModel.h"
-#include "CommonTypes.h"
-#include "DataManagerWithSurrogates.h"
 #include <vector>
 #include <memory>
 
+#include "CommonTypes.h"
+#include "Config.h"
+#include "DataManagerWithSurrogates.h"
+#include "ModelBuilder.h"
+#include "StatisticalModel.h"
 
 namespace statismo {
-
-
 
 /**
  * \brief Creates a StatisticalModel conditioned on some external data

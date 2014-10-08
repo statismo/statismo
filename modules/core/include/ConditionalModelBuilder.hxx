@@ -38,13 +38,14 @@
 #ifndef __ConditionalModelBuilder_hxx
 #define __ConditionalModelBuilder_hxx
 
-#include "CommonTypes.h"
-#include "Exceptions.h"
+#include "ConditionalModelBuilder.h"
+
 #include <iostream>
 
 #include <Eigen/SVD>
+
+#include "Exceptions.h"
 #include "PCAModelBuilder.h"
-#include "ConditionalModelBuilder.h"
 
 namespace statismo {
 

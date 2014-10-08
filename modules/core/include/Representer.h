@@ -39,8 +39,9 @@
 
 #include <string>
 #include <H5Cpp.h>
-#include "Domain.h"
+
 #include "CommonTypes.h"
+#include "Domain.h"
 
 /**
  * \brief Provides the interface between statismo and the dataset type the application uses.
