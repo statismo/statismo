@@ -35,17 +35,18 @@
  *
  */
 
-
-#include "PCAModelBuilder.h"
-#include "StatisticalModel.h"
-#include "DataManager.h"
-#include "vtkStructuredPoints.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkStandardImageRepresenter.h"
-
 #include <iostream>
 #include <ostream>
+
 #include <boost/scoped_ptr.hpp>
+
+#include <vtkStructuredPoints.h>
+#include <vtkStructuredPointsReader.h>
+
+#include "DataManager.h"
+#include "PCAModelBuilder.h"
+#include "StatisticalModel.h"
+#include "vtkStandardImageRepresenter.h"
 
 using namespace statismo;
 

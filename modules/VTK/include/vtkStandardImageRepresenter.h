@@ -38,15 +38,16 @@
 #ifndef VTKSTANDARDIMAGERESENTER_H_
 #define VTKSTANDARDIMAGERESENTER_H_
 
-#include "vtkSmartPointer.h"
-#include "vtkStructuredPoints.h"
+#include <H5Cpp.h>
 
-#include "Representer.h"
-#include "vtkHelper.h"
+#include <vtkSmartPointer.h>
+#include <vtkStructuredPoints.h>
+
 #include "CommonTypes.h"
 #include "Domain.h"
+#include "Representer.h"
+#include "vtkHelper.h"
 
-#include <H5Cpp.h>
 
 /**
  * \brief Representer class for vtkStructuredPoints of arbitrary scalar type and PixelDimension
