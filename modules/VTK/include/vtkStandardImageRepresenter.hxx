@@ -47,10 +47,6 @@
 #include "HDF5Utils.h"
 #include "StatismoUtils.h"
 
-using statismo::VectorType;
-using statismo::HDF5Utils;
-using statismo::StatisticalModelException;
-
 namespace statismo {
 
 template<class TScalar, unsigned PixelDimensions>

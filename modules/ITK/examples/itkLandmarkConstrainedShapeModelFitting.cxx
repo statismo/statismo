@@ -47,32 +47,30 @@
  *
  */
 
+#include <itkBinaryThresholdImageFilter.h>
+#include <itkCannyEdgeDetectionImageFilter.h>
+#include <itkCastImageFilter.h>
+#include <itkCommand.h>
+#include <itkCompositeTransform.h>
+#include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
+#include <itkLandmarkBasedTransformInitializer.h>
+#include <itkLinearInterpolateImageFunction.h>
+#include <itkLBFGSOptimizer.h>
+#include <itkMeanSquaresPointSetToImageMetric.h>
+#include <itkMesh.h>
+#include <itkMeshFileReader.h>
+#include <itkMeshFileWriter.h>
+#include <itkPointSetToImageRegistrationMethod.h>
+#include <itkPointsLocator.h>
+#include <itkRigid3DTransform.h>
+#include <itkSignedDanielssonDistanceMapImageFilter.h>
+#include <itkTransformMeshFilter.h>
 
-
+#include "itkPosteriorModelBuilder.h"
 #include "itkStandardMeshRepresenter.h"
 #include "itkStatisticalModel.h"
 #include "itkStatisticalShapeModelTransform.h"
-#include "itkMeanSquaresPointSetToImageMetric.h"
-#include "itkLinearInterpolateImageFunction.h"
-#include "itkLBFGSOptimizer.h"
-#include "itkPointSetToImageRegistrationMethod.h"
-#include "itkMeshFileReader.h"
-#include "itkMeshFileWriter.h"
-#include "itkImageFileReader.h"
-#include "itkImageFileWriter.h"
-#include "itkCommand.h"
-#include "itkMesh.h"
-#include "itkTransformMeshFilter.h"
-#include "itkCompositeTransform.h"
-#include "itkRigid3DTransform.h"
-#include "itkLandmarkBasedTransformInitializer.h"
-#include "itkCastImageFilter.h"
-#include "itkCannyEdgeDetectionImageFilter.h"
-#include "itkSignedDanielssonDistanceMapImageFilter.h"
-#include "itkBinaryThresholdImageFilter.h"
-#include "itkCompositeTransform.h"
-#include "itkPosteriorModelBuilder.h"
-#include "itkPointsLocator.h"
 
 const unsigned Dimensions = 3;
 typedef itk::PointSet<float, Dimensions  > PointSetType;
