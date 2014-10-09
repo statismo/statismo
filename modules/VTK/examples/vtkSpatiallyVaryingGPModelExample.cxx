@@ -152,7 +152,7 @@ int main(int argc, char** argv) {
 
         MyTemperingFunction temperingFun(centerOfMass(referenceMesh));
 
-        const MatrixValuedKernelType& temperedKernel = SpatiallyVaryingKernel<RepresenterType::DatasetType>(representer, gk, temperingFun , numberOfComponents,  numberOfComponents * 2, true);
+        SpatiallyVaryingKernel<RepresenterType::DatasetType> temperedKernel(representer, gk, temperingFun , numberOfComponents,  numberOfComponents * 2, true);
 
         // We create a new model using the combined kernel. The new model will be more flexible than the original statistical model.
         ModelBuilderType* modelBuilder = ModelBuilderType::Create(representer);
