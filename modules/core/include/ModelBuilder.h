@@ -38,13 +38,12 @@
 #ifndef __MODELBUILDER_H_
 #define __MODELBUILDER_H_
 
-
-#include "DataManager.h"
-#include "StatisticalModel.h"
-#include "CommonTypes.h"
 #include <vector>
 #include <memory>
 
+#include "CommonTypes.h"
+#include "DataManager.h"
+#include "StatisticalModel.h"
 
 namespace statismo {
 

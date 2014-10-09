@@ -38,18 +38,16 @@
 #ifndef __PCAModelBuilder_TXX
 #define __PCAModelBuilder_TXX
 
-#include <Eigen/SVD>
-#include "CommonTypes.h"
-#include "Exceptions.h"
 #include "PCAModelBuilder.h"
+
 #include <iostream>
 
+#include <Eigen/SVD>
 
+#include "CommonTypes.h"
+#include "Exceptions.h"
 
 namespace statismo {
-
-
-
 
 template <typename T>
 PCAModelBuilder<T>::PCAModelBuilder()

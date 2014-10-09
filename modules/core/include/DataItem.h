@@ -38,10 +38,9 @@
 #ifndef __SAMPLE_DATA_H
 #define __SAMPLE_DATA_H
 
-#include "Representer.h"
 #include "CommonTypes.h"
 #include "HDF5Utils.h"
-
+#include "Representer.h"
 
 namespace statismo {
 /* \class DataItem

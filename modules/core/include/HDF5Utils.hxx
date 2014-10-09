@@ -39,19 +39,17 @@
 #define __HDF5_UTILS_CXX
 
 #include "HDF5Utils.h"
+
+#include <algorithm>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+
 #include "CommonTypes.h"
 #include "Exceptions.h"
 #include "H5Cpp.h"
-#include <fstream>
-#include <iostream>
-#include <algorithm>
-#include <fstream>
-#include <iterator>
 
 namespace statismo {
-
-
-
 
 inline
 H5::H5File

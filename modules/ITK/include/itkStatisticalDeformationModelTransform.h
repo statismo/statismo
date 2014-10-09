@@ -39,11 +39,13 @@
 #define __ItkStatisticalDeformationModelTransform
 
 #include <iostream>
-#include "itkStatisticalModelTransformBase.h"
+
+#include <itkImage.h>
+#include <itkVector.h>
+
 #include "itkStandardImageRepresenter.h"
 #include "itkStatisticalModel.h"
-#include "itkImage.h"
-#include "itkVector.h"
+#include "itkStatisticalModelTransformBase.h"
 
 namespace itk {
 
@@ -57,6 +59,7 @@ namespace itk {
 template <class TDataSet, class TScalarType,  unsigned int TDimension >
 class ITK_EXPORT StatisticalDeformationModelTransform :
     public itk::StatisticalModelTransformBase< TDataSet, TScalarType , TDimension> {
+
   public:
     /* Standard class typedefs. */
     typedef StatisticalDeformationModelTransform            Self;
@@ -64,16 +67,13 @@ class ITK_EXPORT StatisticalDeformationModelTransform :
     typedef SmartPointer<Self>                Pointer;
     typedef SmartPointer<const Self>          ConstPointer;
 
-
     itkSimpleNewMacro( Self );
-
 
     /** Run-time type information (and related methods). */
     itkTypeMacro(StatisticalDeformationModelTransform,  Superclass);
 
-
-    typedef typename Superclass::InputPointType         InputPointType;
-    typedef typename Superclass::OutputPointType        OutputPointType;
+    typedef typename Superclass::InputPointType  InputPointType;
+    typedef typename Superclass::OutputPointType OutputPointType;
     typedef typename Superclass::RepresenterType RepresenterType;
 
     /**
