@@ -35,17 +35,18 @@
  *
  */
 
+#include <iostream>
 
-#include "LowRankGPModelBuilder.h"
-#include "StatisticalModel.h"
-#include "vtkPolyDataReader.h"
-#include "vtkStandardMeshRepresenter.h"
+#include <boost/scoped_ptr.hpp>
+
+#include <vtkPolyDataReader.h>
 
 #include "Kernels.h"
 #include "KernelCombinators.h"
+#include "LowRankGPModelBuilder.h"
+#include "StatisticalModel.h"
 
-#include <iostream>
-#include <boost/scoped_ptr.hpp>
+#include "vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

@@ -40,14 +40,17 @@
 #ifndef ITK_STANDARD_MESH_REPRESENTER_H
 #define ITK_STANDARD_MESH_REPRESENTER_H
 
+#include <boost/unordered_map.hpp>
+
+#include <itkMesh.h>
+#include <itkObject.h>
+
 #include "statismoITKConfig.h" // this needs to be the first include file
-#include "Representer.h"
-#include "itkMesh.h"
-#include "itkObject.h"
-#include "itkMesh.h"
+
 #include "CommonTypes.h"
 #include "Exceptions.h"
-#include <boost/unordered_map.hpp>
+#include "Representer.h"
+
 #include "itkPixelConversionTraits.h"
 
 namespace statismo {
@@ -61,28 +64,21 @@ struct RepresenterTraits<itk::Mesh<float, 3u> > {
 
     typedef MeshType::PointType PointType;
     typedef MeshType::PointType ValueType;
-    ///@}
-
 };
 
 }
-
-
 
 namespace itk {
 
 // helper function to compute the hash value of an itk point (needed by unorderd_map)
 template <typename PointType>
-int hash_value(const PointType& pt) {
-    int hash_val = 1;
-    for (unsigned i = 0; i < pt.GetPointDimension(); i++)
-        hash_val *= pt[i];
+size_t hash_value(const PointType& pt) {
+    size_t hash_val = 0;
+    for (unsigned i = 0; i < pt.GetPointDimension(); i++) {
+        boost::hash_combine( hash_val, pt[i] );
+    }
     return hash_val;
 }
-
-
-
-
 
 
 /**

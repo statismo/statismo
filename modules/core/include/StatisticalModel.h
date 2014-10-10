@@ -39,13 +39,14 @@
 #ifndef STATISTICALMODEL_H_
 #define STATISTICALMODEL_H_
 
+#include <limits>
+#include <vector>
+
+#include "CommonTypes.h"
 #include "Config.h"
 #include "DataManager.h"
-#include "CommonTypes.h"
 #include "ModelInfo.h"
 #include "Representer.h"
-#include <vector>
-#include <limits>
 
 namespace H5 {
 class Group;

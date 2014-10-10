@@ -38,31 +38,21 @@
 #ifndef __itkStandardMeshRepresenter_hxx
 #define __itkStandardMeshRepresenter_hxx
 
-#include "itkIndex.h"
-#include "itkPoint.h"
-#include "itkVector.h"
-#include "HDF5Utils.h"
-#include "StatismoUtils.h"
-#include <iostream>
-#include "itkMeshFileReader.h"
-#include "itkMeshFileWriter.h"
-#include "itkTransformMeshFilter.h"
-#include "itkIdentityTransform.h"
-
 #include "itkStandardMeshRepresenter.h"
 
+#include <iostream>
+
+#include <itkIdentityTransform.h>
+#include <itkMeshFileReader.h>
+#include <itkMeshFileWriter.h>
+#include <itkPoint.h>
+#include <itkTransformMeshFilter.h>
+#include <itkVector.h>
+
+#include "HDF5Utils.h"
+#include "StatismoUtils.h"
 
 namespace itk {
-
-using statismo::VectorType;
-using statismo::HDF5Utils;
-using statismo::StatisticalModelException;
-
-
-typedef statismo::GenericEigenType<double>::MatrixType DoubleMatrixType;
-typedef statismo::GenericEigenType<double>::VectorType DoubleVectorType;
-
-
 
 template <class TPixel, unsigned MeshDimension>
 StandardMeshRepresenter<TPixel, MeshDimension>::StandardMeshRepresenter()
@@ -89,7 +79,7 @@ template <class TPixel, unsigned MeshDimension>
 void
 StandardMeshRepresenter<TPixel, MeshDimension>::Load(const H5::Group& fg) {
 
-    std::string repName = HDF5Utils::readStringAttribute(fg, "name");
+    std::string repName = statismo::HDF5Utils::readStringAttribute(fg, "name");
     if (repName == "vtkPolyDataRepresenter" || repName == "itkMeshRepresenter") {
         this->SetReference(LoadRefLegacy(fg));
     } else {
@@ -102,11 +92,11 @@ typename StandardMeshRepresenter<TPixel, MeshDimension>::MeshType::Pointer
 StandardMeshRepresenter<TPixel, MeshDimension>::LoadRef(const H5::Group& fg) const {
 
     statismo::MatrixType vertexMat;
-    HDF5Utils::readMatrix(fg, "./points", vertexMat);
+    statismo::HDF5Utils::readMatrix(fg, "./points", vertexMat);
 
     typedef typename statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
     UIntMatrixType cellsMat;
-    HDF5Utils::readMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
+    statismo::HDF5Utils::readMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
 
     unsigned nVertices = vertexMat.cols();
     unsigned nCells = cellsMat.cols();
@@ -137,7 +127,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::LoadRef(const H5::Group& fg) con
         } else if (cellDim == 3) {
             cell.TakeOwnership( new TriangleCellType);
         } else {
-            throw StatisticalModelException("This representer currently supports only line and triangle cells");
+            throw statismo::StatisticalModelException("This representer currently supports only line and triangle cells");
         }
 
         for (unsigned d = 0; d < cellDim; d++) {
@@ -147,17 +137,17 @@ StandardMeshRepresenter<TPixel, MeshDimension>::LoadRef(const H5::Group& fg) con
     }
 
     // currently this representer supports only pointdata of type scalar
-    if (HDF5Utils::existsObjectWithName(fg, "pointData")) {
+    if (statismo::HDF5Utils::existsObjectWithName(fg, "pointData")) {
         H5::Group pdGroup = fg.openGroup("./pointData");
 
-        if (HDF5Utils::existsObjectWithName(pdGroup, "scalars")) {
+        if (statismo::HDF5Utils::existsObjectWithName(pdGroup, "scalars")) {
             H5::DataSet ds = pdGroup.openDataSet("scalars");
-            unsigned type = static_cast<unsigned>(HDF5Utils::readIntAttribute(ds, "datatype"));
+            unsigned type = static_cast<unsigned>(statismo::HDF5Utils::readIntAttribute(ds, "datatype"));
             if (type != PixelConversionTrait<TPixel>::GetDataType()) {
                 std::cout << "Warning: The datatype specified for the scalars does not match the TPixel template argument used in this representer." << std::endl;
             }
-            DoubleMatrixType scalarMatDouble;
-            HDF5Utils::readMatrixOfType<double>(pdGroup, "scalars", scalarMatDouble);
+            statismo::MatrixTypeDoublePrecision scalarMatDouble;
+            statismo::HDF5Utils::readMatrixOfType<double>(pdGroup, "scalars", scalarMatDouble);
             statismo::MatrixType scalarMat = scalarMatDouble.cast<statismo::ScalarType>();
             assert(static_cast<unsigned>(scalarMatDouble.cols()) == mesh->GetNumberOfPoints());
             typename MeshType::PointDataContainerPointer pd = MeshType::PointDataContainer::New();
@@ -181,7 +171,7 @@ typename StandardMeshRepresenter<TPixel, MeshDimension>::MeshType::Pointer
 StandardMeshRepresenter<TPixel, MeshDimension>::LoadRefLegacy(const H5::Group& fg) const {
 
     std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
-    HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
+    statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
 
 
     typename itk::MeshFileReader<MeshType>::Pointer reader = itk::MeshFileReader<MeshType>::New();
@@ -189,7 +179,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::LoadRefLegacy(const H5::Group& f
     try {
         reader->Update();
     } catch (itk::MeshFileReaderException& e) {
-        throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
+        throw statismo::StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
     }
 
     typename MeshType::Pointer mesh = reader->GetOutput();
@@ -241,9 +231,9 @@ StandardMeshRepresenter<TPixel, MeshDimension>::DatasetToSample(DatasetConstPoin
 }
 
 template <class TPixel, unsigned MeshDimension>
-VectorType
+statismo::VectorType
 StandardMeshRepresenter<TPixel, MeshDimension>::SampleToSampleVector(DatasetConstPointerType mesh) const {
-    VectorType sample(GetNumberOfPoints() * GetDimensions());
+    statismo::VectorType sample(GetNumberOfPoints() * GetDimensions());
 
     typename PointsContainerType::Pointer points = mesh->GetPoints();
 
@@ -264,7 +254,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::SampleToSampleVector(DatasetCons
 
 template <class TPixel, unsigned MeshDimension>
 typename StandardMeshRepresenter<TPixel, MeshDimension>::DatasetPointerType
-StandardMeshRepresenter<TPixel, MeshDimension>::SampleVectorToSample(const VectorType& sample) const {
+StandardMeshRepresenter<TPixel, MeshDimension>::SampleVectorToSample(const statismo::VectorType& sample) const {
     typename MeshType::Pointer mesh = this->CloneDataset(m_reference);
     typename PointsContainerType::Pointer points = mesh->GetPoints();
     typename PointsContainerType::Iterator pointsIterator = points->Begin();
@@ -288,7 +278,7 @@ template <class TPixel, unsigned MeshDimension>
 typename StandardMeshRepresenter<TPixel, MeshDimension>::ValueType
 StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const {
     if (ptid >= sample->GetNumberOfPoints()) {
-        throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
+        throw statismo::StatisticalModelException("invalid ptid provided to PointSampleFromSample");
     }
 
     return sample->GetPoint(ptid);
@@ -297,7 +287,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleFromSample(DatasetCon
 
 template <class TPixel, unsigned MeshDimension>
 typename StandardMeshRepresenter<TPixel, MeshDimension>::ValueType
-StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleVectorToPointSample(const VectorType& pointSample) const {
+StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const {
     ValueType value;
     for (unsigned d = 0; d < GetDimensions(); d++) {
         value[d] = pointSample[d];
@@ -307,7 +297,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleVectorToPointSample(c
 template <class TPixel, unsigned MeshDimension>
 statismo::VectorType
 StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleToPointSampleVector(const ValueType& v) const {
-    VectorType vec(GetDimensions());
+    statismo::VectorType vec(GetDimensions());
     for (unsigned d = 0; d < GetDimensions(); d++) {
         vec[d] = v[d];
     }
@@ -328,7 +318,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::Save(const H5::Group& fg) const 
             vertexMat(d, i) = pt[d];
         }
     }
-    HDF5Utils::writeMatrix(fg, "./points", vertexMat);
+    statismo::HDF5Utils::writeMatrix(fg, "./points", vertexMat);
 
     // check the dimensionality of a face (i.e. the number of points it has). We assume that
     // all the cells are the same.
@@ -362,13 +352,13 @@ StandardMeshRepresenter<TPixel, MeshDimension>::Save(const H5::Group& fg) const 
         for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
             scalarsMat.col(i) = PixelConversionTrait<TPixel>::ToVector(pd->GetElement(i));
         }
-        DoubleMatrixType scalarsMatDouble = scalarsMat.cast<double>();
-        H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup, "scalars", scalarsMatDouble);
-        HDF5Utils::writeIntAttribute(ds, "datatype", PixelConversionTrait<TPixel>::GetDataType());
+        statismo::MatrixTypeDoublePrecision scalarsMatDouble = scalarsMat.cast<double>();
+        H5::DataSet ds = statismo::HDF5Utils::writeMatrixOfType<double>(pdGroup, "scalars", scalarsMatDouble);
+        statismo::HDF5Utils::writeIntAttribute(ds, "datatype", PixelConversionTrait<TPixel>::GetDataType());
     }
 
 
-    HDF5Utils::writeMatrixOfType<unsigned int>(fg, "./cells", facesMat);
+    statismo::HDF5Utils::writeMatrixOfType<unsigned int>(fg, "./cells", facesMat);
 }
 
 
@@ -422,7 +412,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::CloneDataset(DatasetConstPointer
 template <class TPixel, unsigned MeshDimension>
 unsigned
 StandardMeshRepresenter<TPixel, MeshDimension>::FindClosestPoint(const MeshType* mesh, const PointType pt) const {
-    throw StatisticalModelException("Not implemented. Currently only points of the reference can be used.");
+    throw statismo::StatisticalModelException("Not implemented. Currently only points of the reference can be used.");
 }
 
 } // namespace itk

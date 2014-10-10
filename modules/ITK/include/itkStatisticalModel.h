@@ -38,22 +38,21 @@
 #ifndef ITKSTATISTICALMODEL_H_
 #define ITKSTATISTICALMODEL_H_
 
-#include "itkObject.h"
-#include "itkObjectFactory.h"
+#include <boost/bind.hpp>
+#include <boost/utility/result_of.hpp>
+
+#include <itkObject.h>
+#include <itkObjectFactory.h>
 
 #include <vnl/vnl_matrix.h>
 #include <vnl/vnl_vector.h>
 
-#include "statismoITKConfig.h"
-#include "StatisticalModel.h"
 #include "ModelInfo.h"
 #include "Representer.h"
-
-#include <boost/bind.hpp>
-#include <boost/utility/result_of.hpp>
+#include "StatisticalModel.h"
+#include "statismoITKConfig.h"
 
 namespace itk {
-
 
 /**
  * \brief ITK Wrapper for the statismo::StatisticalModel class.
@@ -73,7 +72,6 @@ class StatisticalModel : public Object {
 
     typedef statismo::Representer<T> RepresenterType;
 
-
     // statismo stuff
     typedef statismo::StatisticalModel<T> ImplType;
 
@@ -81,7 +79,6 @@ class StatisticalModel : public Object {
 
     typedef vnl_matrix<statismo::ScalarType> MatrixType;
     typedef vnl_vector<statismo::ScalarType> VectorType;
-
 
 
     template <class F>
