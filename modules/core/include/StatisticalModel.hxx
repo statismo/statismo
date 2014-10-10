@@ -38,15 +38,16 @@
 #ifndef __StatisticalModel_hxx
 #define __StatisticalModel_hxx
 
+#include <cmath>
 
+#include <fstream>
+#include <iostream>
+#include <string>
+
+#include "Exceptions.h"
+#include "HDF5Utils.h"
 #include "ModelBuilder.h"
 #include "StatisticalModel.h"
-#include "HDF5Utils.h"
-#include "Exceptions.h"
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <cmath>
 
 namespace statismo {
 

@@ -5,12 +5,11 @@
  *      Author: luethi
  */
 
-#include "vtkSmartPointer.h"
-#include "vtkPolyDataReader.h"
+#include <vtkPolyDataReader.h>
+#include <vtkSmartPointer.h>
 
-#include "vtkStandardMeshRepresenter.h"
 #include "genericRepresenterTest.hxx"
-
+#include "vtkStandardMeshRepresenter.h"
 
 using statismo::vtkStandardMeshRepresenter;
 using statismo::vtkPoint;

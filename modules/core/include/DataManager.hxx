@@ -38,9 +38,10 @@
 #ifndef __DataManager_hxx
 #define __DataManager_hxx
 
+#include <iostream>
+
 #include "DataManager.h"
 #include "HDF5Utils.h"
-#include <iostream>
 
 namespace statismo {
 

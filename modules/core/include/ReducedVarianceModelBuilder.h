@@ -38,15 +38,16 @@
 #ifndef __ReducedVarianceModelBuilder_H_
 #define __ReducedVarianceModelBuilder_H_
 
-#include "Config.h"
-#include "ModelInfo.h"
-#include "ModelBuilder.h"
-#include "StatismoUtils.h"
-#include "DataManager.h"
-#include "StatisticalModel.h"
-#include "CommonTypes.h"
 #include <vector>
 #include <memory>
+
+#include "Config.h"
+#include "CommonTypes.h"
+#include "DataManager.h"
+#include "ModelBuilder.h"
+#include "ModelInfo.h"
+#include "StatismoUtils.h"
+#include "StatisticalModel.h"
 
 namespace statismo {
 

@@ -38,14 +38,17 @@
 #ifndef __ItkInterpolatingStatisticalDeformationModelTransform
 #define __ItkInterpolatingStatisticalDeformationModelTransform
 
-#include "Representer.h"
 #include <iostream>
-#include "itkStatisticalModelTransformBase.h"
-#include "itkVectorLinearInterpolateImageFunction.h"
+
+#include <itkImage.h>
+#include <itkVector.h>
+#include <itkVectorLinearInterpolateImageFunction.h>
+
 #include "itkStandardImageRepresenter.h"
 #include "itkStatisticalModel.h"
-#include "itkImage.h"
-#include "itkVector.h"
+#include "itkStatisticalModelTransformBase.h"
+
+#include "Representer.h"
 
 namespace itk {
 

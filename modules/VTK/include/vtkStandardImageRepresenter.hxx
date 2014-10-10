@@ -36,18 +36,16 @@
  */
 
 #include "vtkStandardImageRepresenter.h"
-#include "vtkStructuredPointsReader.h"
-#include "vtkStructuredPointsWriter.h"
-#include "vtkPointData.h"
-#include "vtkDataArray.h"
-#include "vtkVersion.h"
+
+#include <vtkStructuredPointsReader.h>
+#include <vtkStructuredPointsWriter.h>
+#include <vtkPointData.h>
+#include <vtkDataArray.h>
+#include <vtkVersion.h>
+
+#include "CommonTypes.h"
 #include "HDF5Utils.h"
 #include "StatismoUtils.h"
-#include "CommonTypes.h"
-
-using statismo::VectorType;
-using statismo::HDF5Utils;
-using statismo::StatisticalModelException;
 
 namespace statismo {
 

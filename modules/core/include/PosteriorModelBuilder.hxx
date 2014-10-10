@@ -38,12 +38,14 @@
 #ifndef __PosteriorModelBuilder_hxx
 #define __PosteriorModelBuilder_hxx
 
-#include <Eigen/SVD>
-#include "CommonTypes.h"
-#include "PCAModelBuilder.h"
 #include "PosteriorModelBuilder.h"
 
 #include <iostream>
+
+#include <Eigen/SVD>
+
+#include "CommonTypes.h"
+#include "PCAModelBuilder.h"
 
 namespace statismo {
 
