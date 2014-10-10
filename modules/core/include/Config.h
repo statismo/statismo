@@ -41,7 +41,7 @@
 #include <string>
 
 namespace statismo {
-const std::string STATISMO_VERSION = "0.10.0";
+const std::string STATISMO_VERSION = "0.10.1";
 }
 
 // gccxml (as used by e.g. wrapitk) does not compile with vectorization enabled.
