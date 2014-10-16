@@ -11,17 +11,17 @@ ExternalProject_add(HDF5
     -DHDF5_BUILD_CPP_LIB:BOOL=ON
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DHDF5_BUILD_TOOLS:BOOL=OFF
-    -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPECENCIES_DIR}
-  INSTALL_DIR ${INSTALL_DEPECENCIES_DIR}
+    -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPENDENCIES_DIR}
+  INSTALL_DIR ${INSTALL_DEPENDENCIES_DIR}
 )
 
 if (WIN32)
-  set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/cmake/hdf5/ )
+  set( HDF5_DIR ${INSTALL_DEPENDENCIES_DIR}/cmake/hdf5/ )
   add_custom_command(
     TARGET HDF5
     POST_BUILD
       COMMAND ${CMAKE_COMMAND}
-        -D INSTALL_DEPECENCIES_DIR=${INSTALL_DEPECENCIES_DIR}
+        -D INSTALL_DEPENDENCIES_DIR=${INSTALL_DEPENDENCIES_DIR}
         -P ${CMAKE_CURRENT_SOURCE_DIR}/normalize_hdf5_lib_names.cmake
     COMMENT "normalizing hdf5 library filename"
   )
@@ -29,11 +29,11 @@ if (WIN32)
   # On Windows, find_package(HDF5) with cmake 2.8.[8,9] always ends up finding
   # the dlls instead of the libs. So setting the variables explicitly for
   # dependent projects.
-  set(cmake_hdf5_c_lib    -DHDF5_C_LIBRARY:FILEPATH=${INSTALL_DEPECENCIES_DIR}/lib/hdf5.lib)
-  set(cmake_hdf5_cxx_lib  -DHDF5_CXX_LIBRARY:FILEPATH=${INSTALL_DEPECENCIES_DIR}/lib/hdf5_cpp.lib)
+  set(cmake_hdf5_c_lib    -DHDF5_C_LIBRARY:FILEPATH=${INSTALL_DEPENDENCIES_DIR}/lib/hdf5.lib)
+  set(cmake_hdf5_cxx_lib  -DHDF5_CXX_LIBRARY:FILEPATH=${INSTALL_DEPENDENCIES_DIR}/lib/hdf5_cpp.lib)
   set(cmake_hdf5_libs     ${cmake_hdf5_c_lib} ${cmake_hdf5_cxx_lib})
 
 else ()
-  set( HDF5_DIR ${INSTALL_DEPECENCIES_DIR}/share/cmake/hdf5/ )
+  set( HDF5_DIR ${INSTALL_DEPENDENCIES_DIR}/share/cmake/hdf5/ )
 endif ()
 
