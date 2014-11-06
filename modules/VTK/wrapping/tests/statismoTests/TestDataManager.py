@@ -39,7 +39,7 @@ import tempfile
 import os.path
 import vtk
 
-import statismo
+import statismo_VTK as statismo
 from statismoTestUtils import DATADIR, getDataFiles, read_vtkpd
 
 class Test(unittest.TestCase):
