@@ -39,7 +39,7 @@ from os import listdir
 from os.path import join
 from scipy import zeros, randn, log, eye
 from scipy.stats import norm as normdist
-import statismo
+import statismo_VTK as statismo
 
 from statismoTestUtils import buildPolyDataModel, DATADIR, getPDPointWithId
 import tempfile

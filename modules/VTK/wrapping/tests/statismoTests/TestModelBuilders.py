@@ -39,7 +39,7 @@ from os import listdir
 from os.path import join
 from scipy import zeros, randn, log, isnan, any, sqrt, identity
 
-import statismo
+import statismo_VTK as statismo
 
 from statismoTestUtils import getDataFiles, DATADIR, getPDPointWithId, read_vtkpd
 import tempfile
