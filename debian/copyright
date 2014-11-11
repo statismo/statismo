@@ -1,0 +1,15 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: statismo
+Upstream-Contact: https://github.com/statismo/statismo
+X-Debianized-By: Stefan Schlager <zarquon42@gmail.com>
+X-Debianized-Date: 2014-11-11 16:45:55 +0200.
+Source:https://github.com/statismo/statismo/archive/master.zip
+ This is a debian package of upstream statismo build against system libs.
+ .
+ 
+
+Files: *
+Copyright:  University of Bern University of Basel ETH Zurich
+ Research Council
+ License:BSD
+

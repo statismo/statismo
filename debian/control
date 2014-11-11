@@ -1,0 +1,14 @@
+Source: statismo
+Section: utils
+Priority: extra
+Maintainer: Stefan Schlager <zarquon42@gmail.com>
+Build-Depends: debhelper (>= 9),libinsighttoolkit4-dev, libvtk5-dev, libhdf5-dev, libeigen3-dev, libboost-date-time1.54-dev, libboost-dev, libboost-system1.54-dev, libboost-thread1.54-dev, cmake
+Homepage: https://github.com/statismo/statismo
+Standards-Version: 3.9.5
+
+Package: statismo
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: statismo description here.
+
+

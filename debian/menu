@@ -1,0 +1,2 @@
+?package(meshlab):needs="X11" section="Applications/Graphics"\
+  title="meshlab" command="/usr/bin/meshlab"
