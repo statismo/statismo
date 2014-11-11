@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 2.8.10)
 project(statismo)
 
+cmake_policy( SET CMP0042 NEW )
+
 enable_testing()
 
 set( STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
