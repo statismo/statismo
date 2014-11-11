@@ -130,6 +130,8 @@ endif()
 
 option( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
+option( BUILD_EXAMPLES "Build examples" ON )
+
 option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
 mark_as_advanced(BUILD_WRAPPING)
 
