@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 2.8.10)
 project(statismo)
 
+if( POLICY CMP0042 )
+  cmake_policy( SET CMP0042 NEW )
+endif()
+
 enable_testing()
 
 set( STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
@@ -125,6 +129,8 @@ if( ${VTK_SUPPORT} MATCHES "ON" )
 endif()
 
 option( BUILD_SHARED_LIBS "Build shared libraries" ON )
+
+option( BUILD_EXAMPLES "Build examples" ON )
 
 option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
 mark_as_advanced(BUILD_WRAPPING)

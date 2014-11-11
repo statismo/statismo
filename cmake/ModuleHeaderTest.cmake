@@ -20,6 +20,10 @@ add_custom_target( StatismoHeaderTests
   COMMENT "Regenerating and building the header tests." )
 
 macro( module_headertest _name )
+  if( NOT ${BUILD_TESTING} )
+    return()
+  endif()
+
   if( EXISTS ${statismo_SOURCE_DIR}/modules/${_name}/include
       AND PYTHON_EXECUTABLE
       AND NOT (PYTHON_VERSION_STRING VERSION_LESS 2.6)
