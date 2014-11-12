@@ -25,7 +25,7 @@ find_package( LATEX )
     )
 
   install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/
-    DESTINATION share/statismo/doc/html
+    DESTINATION ${INSTALL_DOC_DIR}/html
   )
 endif()
 
