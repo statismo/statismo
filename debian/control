@@ -20,6 +20,6 @@ Description: Statismo is a c++ framework for statistical shape modeling. This pa
 
 Package: statismo-dev
 Architecture: any
-Depends: statismo-core
+Depends:${shlibs:Depends}, ${misc:Depends}, statismo-core
 Recommends: libinsighttoolkit4-dev, libvtk5-dev, libhdf5-dev, libeigen3-dev, libboost-date-time1.55-dev, libboost-dev, libboost-system1.55-dev, libboost-thread1.55-dev, libfftw3-dev
 Description: Statismo is a c++ framework for statistical shape modeling. This package contains the header files for statismo.
