@@ -1,30 +1,30 @@
-Name:		statismo
-Version: 	0.10.1
-Release:	1%{?dist}
-Summary: 	Framework for building Statistical Image And Shape Models.
+Name:     statismo
+Version:  0.10.1
+Release:  1%{?dist}
+Summary:  Framework for building Statistical Image And Shape Models.
 
-Group: Scientific
-License: BSD
-URL: https://github.com/statismo/statismo
-Source0: https://github.com/statismo/statismo/archive/v0.10.1.tar.gz
+Group:    Scientific
+License:  BSD
+URL:      https://github.com/statismo/statismo
+Source0:  https://github.com/statismo/statismo/archive/v0.10.1.tar.gz
 
-BuildRequires:	cmake
-BuildRequires:	doxygen
-BuildRequires:	graphviz
-BuildRequires: 	gcc-c++
-BuildRequires: 	hdf5-devel
-BuildRequires: 	eigen3-devel
-BuildRequires: 	boost-devel
-BuildRequires:	vtk-devel
-BuildRequires: 	python2-devel
-BuildRequires:	vxl-devel
-BuildRequires:	gdcm-devel
-BuildRequires: 	InsightToolkit-devel
+BuildRequires:  cmake
+BuildRequires:  doxygen
+BuildRequires:  graphviz
+BuildRequires:  gcc-c++
+BuildRequires:  hdf5-devel
+BuildRequires:  eigen3-devel
+BuildRequires:  boost-devel
+BuildRequires:  vtk-devel
+BuildRequires:  python2-devel
+BuildRequires:  vxl-devel
+BuildRequires:  gdcm-devel
+BuildRequires:  InsightToolkit-devel
 
-Requires: 	hdf5
-Requires: 	boost-thread
-Requires: 	InsightToolkit
-Requires: 	vtk
+Requires: hdf5
+Requires: boost-thread
+Requires: InsightToolkit
+Requires: vtk
 
 %description
 Statismo is a c++ framework for statistical shape modeling. It supports the
@@ -36,8 +36,8 @@ functionality for model-based shape and image analysis.
 #	doc
 #
 %package doc
-Summary: 	Includes html documentation for statismo
-Group:		documentation
+Summary:    Includes html documentation for statismo
+Group:      Documentation
 BuildArch:	noarch
 
 %description doc
@@ -48,9 +48,9 @@ documentation for statismo.
 #	devel
 #
 %package devel
-Summary: 	Libraries and headers for statismo
-Group:		Development/Libraries
-Requires:	%{name}%{?_isa} = %{version}-%{release}
+Summary:  Libraries and headers for statismo
+Group:    Development/Libraries
+Requires: %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
 You should install the statismo-devel package if you want to compile
