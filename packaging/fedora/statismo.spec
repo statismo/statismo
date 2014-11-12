@@ -1,11 +1,11 @@
 Name:		statismo
-Version: 	0.10.1	
+Version: 	0.10.1
 Release:	1%{?dist}
 Summary: 	Framework for building Statistical Image And Shape Models.
 
-Group: Scientific		
+Group: Scientific
 License: BSD
-URL: https://github.com/statismo/statismo	
+URL: https://github.com/statismo/statismo
 Source0: https://github.com/statismo/statismo/archive/v0.10.1.tar.gz
 
 BuildRequires:	cmake
@@ -19,22 +19,18 @@ BuildRequires:	vtk-devel
 BuildRequires: 	python2-devel
 BuildRequires:	vxl-devel
 BuildRequires:	gdcm-devel
-BuildRequires: 	InsightToolkit-devel 
+BuildRequires: 	InsightToolkit-devel
 
 Requires: 	hdf5
 Requires: 	boost-thread
 Requires: 	InsightToolkit
-Requires: 	vtk	
+Requires: 	vtk
 
 %description
-Statismo is a c++ framework for statistical shape modeling. It supports all
-shape modeling tasks, from model building to shape analysis. Although the main
-focus of statismo lies on shape modeling, it is designed such that it supports
-any kind of PCA based statistical model, including statistical deformation
-models and intensiy models. One of the main goals of statismo is to make the
-exchange of statistical shape models easy. This is achieved by using a well
-documented file format based on HDF5.	
-
+Statismo is a c++ framework for statistical shape modeling. It supports the
+creation of different kinds of PCA based shape models, and provides a variety
+of tools to manipulate, extend and explore the models. Furthermore, it offers
+functionality for model-based shape and image analysis.
 
 #
 #	doc
