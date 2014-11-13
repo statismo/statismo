@@ -27,10 +27,12 @@ Description: Statismo is a c++ framework for statistical shape modeling. This pa
 
 Package: statismo-doc
 Architecture: all
+Depends: ${misc:Depends}
 Suggests: statismo, statismo-core, statismo-dev, statismo-example-data
 Description: Statismo is a c++ framework for statistical shape modeling. This package contains the compiled doxygen documentation.
 
 Package: statismo-example-data
 Architecture: all
+Depends: ${misc:Depends}
 Suggests: statismo, statismo-core, statismo-dev, statismo-doc
 Description: Statismo is a c++ framework for statistical shape modeling. This package contains example data.
