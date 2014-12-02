@@ -37,7 +37,7 @@
  */
  
 %{
-#include "vtkUnstructuredGridRepresenter.h"
+#include "statismo/VTK/vtkUnstructuredGridRepresenter.h"
 %}
 
 

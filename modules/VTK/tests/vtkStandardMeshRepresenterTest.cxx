@@ -8,8 +8,8 @@
 #include <vtkPolyDataReader.h>
 #include <vtkSmartPointer.h>
 
-#include "genericRepresenterTest.hxx"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/genericRepresenterTest.hxx"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 using statismo::vtkStandardMeshRepresenter;
 using statismo::vtkPoint;

@@ -43,10 +43,10 @@
 #include <vtkStructuredPoints.h>
 #include <vtkStructuredPointsReader.h>
 
-#include "DataManager.h"
-#include "PCAModelBuilder.h"
-#include "StatisticalModel.h"
-#include "vtkStandardImageRepresenter.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/VTK/vtkStandardImageRepresenter.h"
 
 using namespace statismo;
 

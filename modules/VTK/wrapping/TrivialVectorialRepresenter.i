@@ -36,7 +36,7 @@
  */
  
 %{
-#include "TrivialVectorialRepresenter.h"
+#include "statismo/core/TrivialVectorialRepresenter.h"
 %}
 
 struct PointIdType {

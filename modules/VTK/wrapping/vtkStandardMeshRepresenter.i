@@ -36,10 +36,10 @@
  */
  
 %{
-#include "Representer.h"
-#include "vtkStandardMeshRepresenter.h"
-#include "vtkHelper.h"
-#include "vtkPolyData.h"
+#include "statismo/core/Representer.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
+#include "statismo/VTK/vtkHelper.h"
+#include "statismo/VTK/statismo/VTK/vtkPolyData.h"
 %}
 
 %include "Representer.i"

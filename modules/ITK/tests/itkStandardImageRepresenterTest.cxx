@@ -5,8 +5,8 @@
  *      Author: luethi
  */
 
-#include "genericRepresenterTest.hxx"
-#include "itkStandardImageRepresenter.h"
+#include "statismo/core/genericRepresenterTest.hxx"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
 
 
 

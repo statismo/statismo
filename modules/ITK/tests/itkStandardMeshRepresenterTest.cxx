@@ -7,9 +7,9 @@
 
 #include <itkMeshFileReader.h>
 
-#include "genericRepresenterTest.hxx"
+#include "statismo/core/genericRepresenterTest.hxx"
 
-#include "itkStandardMeshRepresenter.h"
+#include "statismo/ITK/itkStandardMeshRepresenter.h"
 
 const unsigned Dimensions = 3;
 typedef itk::Mesh<float, Dimensions  > MeshType;

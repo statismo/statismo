@@ -1,3 +1,5 @@
+set(STATISMO_MODULE_NAME "core")
+
 include_directories( BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
@@ -8,11 +10,8 @@ if( ${BUILD_TESTING} )
   add_subdirectory( tests )
 endif()
 
-module_headertest( core )
+module_headertest( ${STATISMO_MODULE_NAME} )
 
-file( GLOB _core_hdrs
-  include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
-)
-install( FILES ${_core_hdrs}
-  DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/core
+install( DIRECTORY ${CMAKE_CURREND_SOURCE_DIR}/include/statismo/${STATISMO_MODULE_NAME}
+    DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/
 )

@@ -67,10 +67,10 @@
 #include <itkSignedDanielssonDistanceMapImageFilter.h>
 #include <itkTransformMeshFilter.h>
 
-#include "itkPosteriorModelBuilder.h"
-#include "itkStandardMeshRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkStatisticalShapeModelTransform.h"
+#include "statismo/ITK/itkPosteriorModelBuilder.h"
+#include "statismo/ITK/itkStandardMeshRepresenter.h"
+#include "statismo/ITK/itkStatisticalModel.h"
+#include "statismo/ITK/itkStatisticalShapeModelTransform.h"
 
 const unsigned Dimensions = 3;
 typedef itk::PointSet<float, Dimensions  > PointSetType;

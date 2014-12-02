@@ -38,11 +38,11 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "ConditionalModelBuilder.h"
-#include "DataManager.h"
-#include "StatisticalModel.h"
+#include "statismo/core/ConditionalModelBuilder.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/StatisticalModel.h"
 
-#include "vtkStandardImageRepresenter.h"
+#include "statismo/VTK/vtkStandardImageRepresenter.h"
 
 using namespace statismo;
 

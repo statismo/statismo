@@ -34,7 +34,7 @@ macro( module_headertest _name )
     # WARNING: This code is highly coupled with the BuildHeaderTest.py file
     # below.  Before making any logic changes here, make sure that script is not
     # effected.
-    set( _include ${statismo_SOURCE_DIR}/modules/${_name}/include )
+    set( _include ${statismo_SOURCE_DIR}/modules/${_name}/include/statismo/${_name}/ )
 
     file( GLOB _h_files ${_include}/*.h )
     file( GLOB _hxx_files ${_include}/*.hxx )

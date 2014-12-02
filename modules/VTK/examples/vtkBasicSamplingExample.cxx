@@ -43,8 +43,8 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
 
-#include "StatisticalModel.h"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

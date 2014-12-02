@@ -35,7 +35,7 @@
  *
  */
 
-#include "vtkUnstructuredGridRepresenter.h"
+#include "statismo/VTK/vtkUnstructuredGridRepresenter.h"
 
 #include <vtkDataArray.h>
 #include <vtkPoints.h>
@@ -43,8 +43,8 @@
 #include <vtkXMLUnstructuredGridReader.h>
 #include <vtkXMLUnstructuredGridWriter.h>
 
-#include "HDF5Utils.h"
-#include "StatismoUtils.h"
+#include "statismo/core/HDF5Utils.h"
+#include "statismo/core/StatismoUtils.h"
 
 vtkUnstructuredGridRepresenter::vtkUnstructuredGridRepresenter(DatasetConstPointerType reference, AlignmentType alignment)
     :
