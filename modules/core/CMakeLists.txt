@@ -12,6 +12,6 @@ endif()
 
 module_headertest( ${STATISMO_MODULE_NAME} )
 
-install( DIRECTORY ${CMAKE_CURREND_SOURCE_DIR}/include/statismo/${STATISMO_MODULE_NAME}
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/statismo/${STATISMO_MODULE_NAME}
     DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/
 )
