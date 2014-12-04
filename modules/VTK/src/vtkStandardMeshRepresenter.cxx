@@ -35,7 +35,7 @@
  *
  */
 
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
@@ -54,8 +54,8 @@
 #include <vtkUnsignedLongArray.h>
 #include <vtkUnsignedShortArray.h>
 
-#include "HDF5Utils.h"
-#include "StatismoUtils.h"
+#include "statismo/core/HDF5Utils.h"
+#include "statismo/core/StatismoUtils.h"
 
 namespace statismo {
 

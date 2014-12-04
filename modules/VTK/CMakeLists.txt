@@ -1,3 +1,5 @@
+set(STATISMO_MODULE_NAME "VTK")
+
 include_directories( BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${statismo_SOURCE_DIR}/modules/core/include
@@ -20,11 +22,8 @@ if( ${BUILD_WRAPPING} )
 endif()
 
 
-module_headertest( VTK )
+module_headertest( ${STATISMO_MODULE_NAME} )
 
-file( GLOB _VTK_hdrs
-  include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
-)
-install( FILES ${_VTK_hdrs}
-  DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/VTK
-)
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/statismo/${STATISMO_MODULE_NAME}
+    DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/
+    )

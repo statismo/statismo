@@ -5,7 +5,7 @@
 /////////////////////////////////////////////////////
 
 %{
-#include "Representer.h"
+#include "statismo/core/Representer.h"
 %}
 
 

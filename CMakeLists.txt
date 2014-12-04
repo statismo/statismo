@@ -55,10 +55,8 @@ endif()
 # installation
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
-set(INSTALL_INCLUDE_DIR include CACHE PATH
-  "Installation directory for header files")
-set(INSTALL_DOC_DIR share/doc/statismo CACHE PATH 
-  "Installation directory for documentation")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set(INSTALL_DOC_DIR share/doc/statismo CACHE PATH "Installation directory for documentation")
 
 if(WIN32 AND NOT CYGWIN)
   set(DEF_INSTALL_CMAKE_DIR CMake)
@@ -190,14 +188,14 @@ file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
    "${INSTALL_INCLUDE_DIR}")
 
 set( CONF_INCLUDE_DIRS
-  "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/core"
+  "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}"
 )
 if( ${VTK_SUPPORT} )
-  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/VTK" )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}" )
 endif()
 
 if( ${ITK_SUPPORT} )
-  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/ITK" )
+  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}" )
 endif()
 
 configure_file( ${statismo_SOURCE_DIR}/statismoConfig.cmake.in
@@ -213,5 +211,5 @@ install( FILES
     "${statismo_BINARY_DIR}/statismoConfigVersion.cmake"
   DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT dev
 )
-install(EXPORT statismoTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
+#install(EXPORT statismoTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
 

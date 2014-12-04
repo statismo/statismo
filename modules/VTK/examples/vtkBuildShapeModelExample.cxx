@@ -40,10 +40,10 @@
 #include <vtkDirectory.h>
 #include <vtkPolyDataReader.h>
 
-#include "DataManager.h"
-#include "PCAModelBuilder.h"
-#include "StatisticalModel.h"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

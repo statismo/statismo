@@ -44,11 +44,12 @@
 #include <itkMeshFileWriter.h>
 #include <itkMeshFileReader.h>
 
-#include "itkDataManager.h"
-#include "itkPCAModelBuilder.h"
-#include "itkReducedVarianceModelBuilder.h"
-#include "itkStandardMeshRepresenter.h"
-#include "itkStatisticalModel.h"
+#include "statismo/ITK/itkDataManager.h"
+#include "statismo/ITK/itkPCAModelBuilder.h"
+#include "statismo/ITK/itkReducedVarianceModelBuilder.h"
+#include "statismo/ITK/itkStandardMeshRepresenter.h"
+#include "statismo/ITK/itkStatisticalModel.h"
+
 
 /*
  * This example shows the ITK Wrapping of statismo can be used to build a shape model.

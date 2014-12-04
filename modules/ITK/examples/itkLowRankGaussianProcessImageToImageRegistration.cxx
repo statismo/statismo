@@ -67,15 +67,15 @@
 #include <itkNormalizedCorrelationImageToImageMetric.h>
 #include <itkWarpImageFilter.h>
 
-#include "Kernels.h"
-#include "KernelCombinators.h"
+#include "statismo/core/Kernels.h"
+#include "statismo/core/KernelCombinators.h"
 
-#include "itkDataManager.h"
-#include "itkInterpolatingStatisticalDeformationModelTransform.h"
-#include "itkLowRankGPModelBuilder.h"
-#include "itkPosteriorModelBuilder.h"
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
+#include "statismo/ITK/itkDataManager.h"
+#include "statismo/ITK/itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "statismo/ITK/itkLowRankGPModelBuilder.h"
+#include "statismo/ITK/itkPosteriorModelBuilder.h"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
+#include "statismo/ITK/itkStatisticalModel.h"
 
 /**
  * A scalar valued gaussian kernel.

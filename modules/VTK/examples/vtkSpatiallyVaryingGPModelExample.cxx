@@ -14,11 +14,11 @@
 
 #include <vtkPolyDataReader.h>
 
-#include "Kernels.h"
-#include "KernelCombinators.h"
-#include "LowRankGPModelBuilder.h"
-#include "StatisticalModel.h"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/Kernels.h"
+#include "statismo/core/KernelCombinators.h"
+#include "statismo/core/LowRankGPModelBuilder.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

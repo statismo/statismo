@@ -36,7 +36,7 @@
  */
  
 %{
-#include "vtkStructuredPointsRepresenter.h"
+#include "statismo/VTK/vtkStructuredPointsRepresenter.h"
 %}
 
 

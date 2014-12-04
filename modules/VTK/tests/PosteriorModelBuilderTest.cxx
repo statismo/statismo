@@ -13,13 +13,13 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
 
-#include "CommonTypes.h"
-#include "DataManager.h"
-#include "Domain.h"
-#include "genericRepresenterTest.hxx"
-#include "PosteriorModelBuilder.h"
-#include "PCAModelBuilder.h"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/CommonTypes.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/Domain.h"
+#include "statismo/core/genericRepresenterTest.hxx"
+#include "statismo/core/PosteriorModelBuilder.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

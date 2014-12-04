@@ -37,10 +37,10 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "DataManager.h"
-#include "PCAModelBuilder.h"
-#include "StatisticalModel.h"
-#include "TrivialVectorialRepresenter.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/core/TrivialVectorialRepresenter.h"
 
 typedef statismo::TrivialVectorialRepresenter RepresenterType;
 

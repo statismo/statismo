@@ -55,14 +55,14 @@
 #include "itkLinearInterpolateImageFunction.h"
 #include "itkMeanSquaresImageToImageMetric.h"
 
-#include "Kernels.h"
-#include "KernelCombinators.h"
+#include "statismo/core/Kernels.h"
+#include "statismo/core/KernelCombinators.h"
 
-#include "itkDataManager.h"
-#include "itkInterpolatingStatisticalDeformationModelTransform.h"
-#include "itkLowRankGPModelBuilder.h"
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
+#include "statismo/ITK/itkDataManager.h"
+#include "statismo/ITK/itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "statismo/ITK/itkLowRankGPModelBuilder.h"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
+#include "statismo/ITK/itkStatisticalModel.h"
 
 #define GaussianSigma 70
 #define GaussianScale 100

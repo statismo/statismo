@@ -1,3 +1,5 @@
+set(STATISMO_MODULE_NAME "ITK")
+
 include_directories( BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${statismo_SOURCE_DIR}/modules/core/include
@@ -11,11 +13,8 @@ if( ${BUILD_EXAMPLES} )
   add_subdirectory( examples )
 endif()
 
-module_headertest( ITK )
+module_headertest( ${STATISMO_MODULE_NAME} )
 
-file( GLOB _ITK_hdrs
-  include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
-)
-install( FILES ${_ITK_hdrs}
-  DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/ITK
-)
+install( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/statismo/${STATISMO_MODULE_NAME}
+    DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/
+    )
