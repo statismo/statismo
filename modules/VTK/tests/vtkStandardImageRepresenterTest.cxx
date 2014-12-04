@@ -5,8 +5,8 @@
  *      Author: luethi
  */
 
-#include "vtkStandardImageRepresenter.h"
-#include "genericRepresenterTest.hxx"
+#include "statismo/core/genericRepresenterTest.hxx"
+#include "statismo/VTK/vtkStandardImageRepresenter.h"
 
 
 typedef statismo::vtkStandardImageRepresenter<double, 2> RepresenterType;

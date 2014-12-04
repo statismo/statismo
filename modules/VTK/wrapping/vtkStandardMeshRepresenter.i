@@ -36,9 +36,9 @@
  */
  
 %{
-#include "Representer.h"
-#include "vtkStandardMeshRepresenter.h"
-#include "vtkHelper.h"
+#include "statismo/core/Representer.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
+#include "statismo/VTK/vtkHelper.h"
 #include "vtkPolyData.h"
 %}
 

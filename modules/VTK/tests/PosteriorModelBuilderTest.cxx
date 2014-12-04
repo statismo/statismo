@@ -4,21 +4,22 @@
  *  Created on: May 3, 2012
  *      Author: luethi
  */
-
-#include "vtkStandardMeshRepresenter.h"
-#include "genericRepresenterTest.hxx"
-#include "DataManager.h"
-#include "PosteriorModelBuilder.h"
-#include "PCAModelBuilder.h"
-#include "CommonTypes.h"
-#include "Domain.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include <Eigen/Geometry>
-#include "vtkMath.h"
-#include "vtkVersion.h"
-
 #include <boost/scoped_ptr.hpp>
+
+#include <Eigen/Geometry>
+
+#include <vtkMath.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkVersion.h>
+
+#include "statismo/core/CommonTypes.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/Domain.h"
+#include "statismo/core/genericRepresenterTest.hxx"
+#include "statismo/core/PosteriorModelBuilder.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

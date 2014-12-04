@@ -36,7 +36,7 @@
  */
  
 %{
-#include "vtkPolyDataRepresenter.h"
+#include "statismo/VTK/vtkPolyDataRepresenter.h"
 %}
 
 

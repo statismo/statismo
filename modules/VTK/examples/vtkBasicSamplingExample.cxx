@@ -34,16 +34,17 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-#include "vtkPolyData.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include "vtkVersion.h"
 #include <iostream>
+
 #include <boost/scoped_ptr.hpp>
 
-#include "StatisticalModel.h"
-#include "vtkStandardMeshRepresenter.h"
+#include <vtkPolyData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkVersion.h>
+
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

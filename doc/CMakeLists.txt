@@ -23,5 +23,9 @@ find_package( LATEX )
     DEPENDS         ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
+
+  install( DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/
+    DESTINATION ${INSTALL_DOC_DIR}/html
+  )
 endif()
 

@@ -34,19 +34,20 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkLowRankGPModelBuilder.h"
-#include "itkDataManager.h"
-#include "itkImageFileReader.h"
-#include "itkDirectory.h"
-#include "Kernels.h"
-#include "KernelCombinators.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>
+
+#include <itkDirectory.h>
+#include <itkImageFileReader.h>
+
+#include "statismo/ITK/itkDataManager.h"
+#include "statismo/ITK/itkLowRankGPModelBuilder.h"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
+#include "statismo/ITK/itkStatisticalModel.h"
+
+#include "statismo/core/Kernels.h"
+#include "statismo/core/KernelCombinators.h"
 
 /*
  * This example shows the ITK Wrapping of statismo can be used to build a deformation model.

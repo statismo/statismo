@@ -54,15 +54,15 @@
 
   
 %{
-#include "Representer.h"
-#include "DataManager.h"
-#include "DataManagerWithSurrogates.h"
-#include "StatisticalModel.h"
-#include "PosteriorModelBuilder.h"
-#include "ReducedVarianceModelBuilder.h"
-#include "PCAModelBuilder.h"
-#include "Exceptions.h"
-#include "CommonTypes.h"
+#include "statismo/core/Representer.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/DataManagerWithSurrogates.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/core/PosteriorModelBuilder.h"
+#include "statismo/core/ReducedVarianceModelBuilder.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/core/Exceptions.h"
+#include "statismo/core/CommonTypes.h"
 #include <list>
 #include <string>
 %}

@@ -39,16 +39,17 @@
  * This example shows how the fitting of a statistical deformation model can be performed with statismo.
  */
 
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkInterpolatingStatisticalDeformationModelTransform.h"
-#include "itkMeanSquaresImageToImageMetric.h"
-#include "itkNormalizedCorrelationImageToImageMetric.h"
-#include "itkLBFGSOptimizer.h"
-#include "itkLinearInterpolateImageFunction.h"
-#include "itkImageRegistrationMethod.h"
-#include "itkImageFileReader.h"
-#include "itkCommand.h"
+#include <itkCommand.h>
+#include <itkImageFileReader.h>
+#include <itkImageRegistrationMethod.h>
+#include <itkLBFGSOptimizer.h>
+#include <itkLinearInterpolateImageFunction.h>
+#include <itkMeanSquaresImageToImageMetric.h>
+#include <itkNormalizedCorrelationImageToImageMetric.h>
+
+#include "statismo/ITK/itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
+#include "statismo/ITK/itkStatisticalModel.h"
 
 const unsigned Dimensions = 2;
 typedef itk::Image<unsigned short int, Dimensions> ImageType;

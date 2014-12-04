@@ -34,16 +34,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-
-#include "ConditionalModelBuilder.h"
-#include "StatisticalModel.h"
-#include "DataManager.h"
-
-#include "vtkStandardImageRepresenter.h"
-
 #include <iostream>
+
 #include <boost/scoped_ptr.hpp>
+
+#include "statismo/core/ConditionalModelBuilder.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/StatisticalModel.h"
+
+#include "statismo/VTK/vtkStandardImageRepresenter.h"
 
 using namespace statismo;
 

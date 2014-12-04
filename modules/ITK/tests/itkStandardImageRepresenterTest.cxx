@@ -1,6 +1,3 @@
-
-
-
 /*
  * itkVectorImageRepresenterTest.cxx
  *
@@ -8,8 +5,8 @@
  *      Author: luethi
  */
 
-#include "itkStandardImageRepresenter.h"
-#include "genericRepresenterTest.hxx"
+#include "statismo/core/genericRepresenterTest.hxx"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
 
 
 

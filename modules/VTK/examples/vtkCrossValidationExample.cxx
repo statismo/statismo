@@ -34,19 +34,19 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-
-#include "PCAModelBuilder.h"
-#include "StatisticalModel.h"
-#include "DataManager.h"
-
-#include "vtkStandardMeshRepresenter.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyData.h"
-
 #include <iostream>
 #include <ostream>
+
 #include <boost/scoped_ptr.hpp>
+
+#include <vtkPolyDataReader.h>
+#include <vtkPolyData.h>
+
+#include "statismo/core/DataManager.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/core/StatisticalModel.h"
+
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 
 using namespace statismo;

@@ -35,32 +35,27 @@
  *
  */
 
-#include "vtkPoints.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkDataSetAttributes.h"
-#include "vtkDataArray.h"
-#include "vtkUnsignedCharArray.h"
-#include "vtkCharArray.h"
-#include "vtkFloatArray.h"
-#include "vtkDoubleArray.h"
-#include "vtkLongArray.h"
-#include "vtkUnsignedLongArray.h"
-#include "vtkShortArray.h"
-#include "vtkUnsignedShortArray.h"
-#include "vtkUnsignedIntArray.h"
-#include "vtkFloatArray.h"
-#include "vtkCellArray.h"
-#include "vtkPolyDataReader.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
-#include "HDF5Utils.h"
-#include "StatismoUtils.h"
+#include <vtkCellArray.h>
+#include <vtkCellData.h>
+#include <vtkCharArray.h>
+#include <vtkDataArray.h>
+#include <vtkDataSetAttributes.h>
+#include <vtkDoubleArray.h>
+#include <vtkFloatArray.h>
+#include <vtkLongArray.h>
+#include <vtkPoints.h>
+#include <vtkPointData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkShortArray.h>
+#include <vtkUnsignedCharArray.h>
+#include <vtkUnsignedIntArray.h>
+#include <vtkUnsignedLongArray.h>
+#include <vtkUnsignedShortArray.h>
 
-#include "vtkStandardMeshRepresenter.h"
-
-using statismo::VectorType;
-using statismo::HDF5Utils;
-using statismo::StatisticalModelException;
+#include "statismo/core/HDF5Utils.h"
+#include "statismo/core/StatismoUtils.h"
 
 namespace statismo {
 
