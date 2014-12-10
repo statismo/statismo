@@ -213,5 +213,9 @@ install( FILES
     "${statismo_BINARY_DIR}/statismoConfigVersion.cmake"
   DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT dev
 )
-install(EXPORT statismoTargets DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
+install( EXPORT statismoTargets
+  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
+)
+install( FILES ReadMe.md LICENSE
+  DESTINATION ${INSTALL_DOC_DIR}
+)
