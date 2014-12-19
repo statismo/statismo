@@ -19,7 +19,7 @@ add_custom_target( StatismoHeaderTests
   ${CMAKE_COMMAND} --build ${statismo_BINARY_DIR}
   COMMENT "Regenerating and building the header tests." )
 
-macro( module_headertest _name )
+function( module_headertest _name )
   if( NOT ${BUILD_TESTING} )
     return()
   endif()
@@ -98,4 +98,4 @@ macro( module_headertest _name )
       math( EXPR _test_num "${_test_num} + 1" )
     endforeach()
   endif()
-endmacro()
+endfunction()
