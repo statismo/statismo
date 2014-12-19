@@ -34,21 +34,22 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+#include <boost/scoped_ptr.hpp>
 
-#include "vtkStandardMeshRepresenter.h"
-#include "genericRepresenterTest.hxx"
+#include <Eigen/Geometry>
+
+#include <vtkMath.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkVersion.h>
+
+#include "CommonTypes.h"
 #include "DataManager.h"
+#include "Domain.h"
+#include "genericRepresenterTest.hxx"
 #include "PosteriorModelBuilder.h"
 #include "PCAModelBuilder.h"
-#include "CommonTypes.h"
-#include "Domain.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include <Eigen/Geometry>
-#include "vtkMath.h"
-#include "vtkVersion.h"
-
-#include <boost/scoped_ptr.hpp>
+#include "vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

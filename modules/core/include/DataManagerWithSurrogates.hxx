@@ -39,8 +39,10 @@
 #define __DataManagerWithSurrogates_hxx
 
 #include "DataManagerWithSurrogates.h"
-#include "HDF5Utils.h"
+
 #include <iostream>
+
+#include "HDF5Utils.h"
 
 namespace statismo {
 

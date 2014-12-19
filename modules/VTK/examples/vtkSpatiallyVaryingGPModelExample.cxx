@@ -9,18 +9,16 @@
  * Statismo is licensed under the BSD licence (3 clause) license
  */
 
-
-
-#include "LowRankGPModelBuilder.h"
-#include "StatisticalModel.h"
-#include "vtkPolyDataReader.h"
-#include "vtkStandardMeshRepresenter.h"
-#include "Kernels.h"
-#include "KernelCombinators.h"
-
 #include <iostream>
 #include <memory>
 
+#include <vtkPolyDataReader.h>
+
+#include "Kernels.h"
+#include "KernelCombinators.h"
+#include "LowRankGPModelBuilder.h"
+#include "StatisticalModel.h"
+#include "vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

@@ -38,15 +38,16 @@
 #ifndef __DATAMANAGER_H_
 #define __DATAMANAGER_H_
 
+#include <list>
+
 #include "Config.h"
 #include "CommonTypes.h"
-#include "StatismoUtils.h"
+#include "DataItem.h"
 #include "Exceptions.h"
 #include "HDF5Utils.h"
 #include "ModelInfo.h"
-#include "DataItem.h"
 #include "Representer.h"
-#include <list>
+#include "StatismoUtils.h"
 
 namespace statismo {
 

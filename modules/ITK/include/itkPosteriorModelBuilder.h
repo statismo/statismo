@@ -39,12 +39,13 @@
 #ifndef ITK_POSTERIOR_MODELBUILDER_H_
 #define ITK_POSTERIOR_MODELBUILDER_H_
 
-#include "itkObject.h"
-#include "statismoITKConfig.h"
+#include <itkObject.h>
+
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
-#include "PosteriorModelBuilder.h"
 
+#include "PosteriorModelBuilder.h"
+#include "statismoITKConfig.h"
 
 namespace itk {
 

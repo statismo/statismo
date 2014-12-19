@@ -19,7 +19,11 @@ add_custom_target( StatismoHeaderTests
   ${CMAKE_COMMAND} --build ${statismo_BINARY_DIR}
   COMMENT "Regenerating and building the header tests." )
 
-macro( module_headertest _name )
+function( module_headertest _name )
+  if( NOT ${BUILD_TESTING} )
+    return()
+  endif()
+
   if( EXISTS ${statismo_SOURCE_DIR}/modules/${_name}/include
       AND PYTHON_EXECUTABLE
       AND NOT (PYTHON_VERSION_STRING VERSION_LESS 2.6)
@@ -94,4 +98,4 @@ macro( module_headertest _name )
       math( EXPR _test_num "${_test_num} + 1" )
     endforeach()
   endif()
-endmacro()
+endfunction()

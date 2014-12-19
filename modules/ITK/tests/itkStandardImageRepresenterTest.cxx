@@ -35,8 +35,8 @@
  *
  */
 
-#include "itkStandardImageRepresenter.h"
 #include "genericRepresenterTest.hxx"
+#include "itkStandardImageRepresenter.h"
 
 
 typedef itk::Image< float,2 > ScalarImageType;

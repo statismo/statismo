@@ -35,11 +35,11 @@
  *
  */
 
-#include "itkStandardMeshRepresenter.h"
-#include "itkMeshFileReader.h"
+#include <itkMeshFileReader.h>
+
 #include "genericRepresenterTest.hxx"
 
-
+#include "itkStandardMeshRepresenter.h"
 
 const unsigned Dimensions = 3;
 typedef itk::Mesh<float, Dimensions  > MeshType;

@@ -39,15 +39,15 @@
 #ifndef VTK_STANDARD_MESH_REPRESENTER_H_
 #define VTK_STANDARD_MESH_REPRESENTER_H_
 
-
-#include "vtkPolyData.h"
-#include "vtkHelper.h"
-#include "Representer.h"
-#include "CommonTypes.h"
-#include "Domain.h"
-#include "vtkSmartPointer.h"
 #include <H5Cpp.h>
 
+#include <vtkPolyData.h>
+#include <vtkSmartPointer.h>
+
+#include "CommonTypes.h"
+#include "Domain.h"
+#include "Representer.h"
+#include "vtkHelper.h"
 
 namespace statismo {
 

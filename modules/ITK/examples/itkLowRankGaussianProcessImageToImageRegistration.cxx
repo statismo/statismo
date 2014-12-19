@@ -49,35 +49,33 @@
  *
  */
 
-
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkLowRankGPModelBuilder.h"
-#include "itkPosteriorModelBuilder.h"
-#include "itkDataManager.h"
-#include "itkInterpolatingStatisticalDeformationModelTransform.h"
-#include "itkMeanSquaresImageToImageMetric.h"
-#include "itkNormalizedCorrelationImageToImageMetric.h"
-#include "itkLBFGSOptimizer.h"
-#include "itkLinearInterpolateImageFunction.h"
-#include "itkImageRegistrationMethod.h"
-#include "itkWarpImageFilter.h"
-#include "itkImageFileReader.h"
-#include "itkImageFileWriter.h"
-#include "itkCommand.h"
-#include "itkImage.h"
-
-#include "Kernels.h"
-#include "KernelCombinators.h"
-
-#include "itkDirectory.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
 
+#include <itkCommand.h>
+#include <itkDirectory.h>
+#include <itkImage.h>
+#include <itkImageFileReader.h>
+#include <itkImageFileWriter.h>
+#include <itkImageRegistrationMethod.h>
+#include <itkLBFGSOptimizer.h>
+#include <itkLinearInterpolateImageFunction.h>
+#include <itkMeanSquaresImageToImageMetric.h>
+#include <itkNormalizedCorrelationImageToImageMetric.h>
+#include <itkWarpImageFilter.h>
 
+#include "Kernels.h"
+#include "KernelCombinators.h"
+
+#include "itkDataManager.h"
+#include "itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "itkLowRankGPModelBuilder.h"
+#include "itkPosteriorModelBuilder.h"
+#include "itkStandardImageRepresenter.h"
+#include "itkStatisticalModel.h"
 
 /**
  * A scalar valued gaussian kernel.

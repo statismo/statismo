@@ -35,8 +35,8 @@
  *
  */
 
-#include "vtkStandardImageRepresenter.h"
 #include "genericRepresenterTest.hxx"
+#include "vtkStandardImageRepresenter.h"
 
 
 typedef statismo::vtkStandardImageRepresenter<double, 2> RepresenterType;

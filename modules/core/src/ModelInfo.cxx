@@ -35,18 +35,15 @@
  *
  */
 
-#include "ModelInfo.h"
-#include "HDF5Utils.h"
-#include "Exceptions.h"
-#include <iostream>
 #include <ctime>
-#include "DataManager.h"
+#include <iostream>
 
+#include "DataManager.h"
+#include "Exceptions.h"
+#include "HDF5Utils.h"
+#include "ModelInfo.h"
 
 namespace statismo {
-
-
-
 
 ModelInfo::ModelInfo() {
 }
