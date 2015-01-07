@@ -38,14 +38,15 @@
 #ifndef __PCAMODELBUILDER_H_
 #define __PCAMODELBUILDER_H_
 
-#include "Config.h"
-#include "ModelInfo.h"
-#include "ModelBuilder.h"
-#include "DataManager.h"
-#include "StatisticalModel.h"
-#include "CommonTypes.h"
-#include <vector>
 #include <memory>
+#include <vector>
+
+#include "CommonTypes.h"
+#include "Config.h"
+#include "DataManager.h"
+#include "ModelBuilder.h"
+#include "ModelInfo.h"
+#include "StatisticalModel.h"
 
 namespace statismo {
 

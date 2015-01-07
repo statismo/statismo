@@ -13,18 +13,18 @@
 #ifndef __KERNELS_H
 #define __KERNELS_H
 
-#include "Config.h"
+#include <cmath>
 
-#include "ModelInfo.h"
+#include <vector>
+#include <memory>
+#include <functional>
+
 #include "CommonTypes.h"
+#include "Config.h"
+#include "ModelInfo.h"
 #include "Representer.h"
 #include "StatisticalModel.h"
 
-
-#include <vector>
-#include <cmath>
-#include <memory>
-#include <functional>
 
 namespace statismo {
 

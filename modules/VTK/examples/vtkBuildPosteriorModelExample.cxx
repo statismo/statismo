@@ -42,19 +42,19 @@
 // corresponding point. This is only true if the partial shape is close to the model mean. If this is not the
 // case, a more sophisticated method for establishing correspondence needs to be used.
 //
-
-#include "PosteriorModelBuilder.h"
-#include "StatisticalModel.h"
-#include "DataManager.h"
-
-#include "vtkStandardMeshRepresenter.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include "vtkVersion.h"
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
 
+#include <vtkPolyData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkVersion.h>
+
+#include "DataManager.h"
+#include "PosteriorModelBuilder.h"
+#include "StatisticalModel.h"
+
+#include "vtkStandardMeshRepresenter.h"
 
 typedef statismo::VectorType VectorType;
 typedef statismo::MatrixType MatrixType;
@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
 #endif
         writer->SetFileName(reconstructedShapeName.c_str());
         writer->Update();
-    } catch (StatisticalModelException& e) {
+    } catch (statismo::StatisticalModelException& e) {
         std::cout << "Exception occured while building the intenisity model" << std::endl;
         std::cout << e.what() << std::endl;
     }

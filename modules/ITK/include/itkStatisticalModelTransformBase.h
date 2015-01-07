@@ -38,12 +38,15 @@
 #ifndef __itkStatisticalModelTransform_h
 #define __itkStatisticalModelTransform_h
 
-#include "Representer.h"
 #include <iostream>
-#include "itkTransform.h"
+
+#include <itkImage.h>
+#include <itkTransform.h>
+#include <itkVector.h>
+
+#include "Representer.h"
+
 #include "itkStatisticalModel.h"
-#include "itkImage.h"
-#include "itkVector.h"
 
 namespace itk {
 

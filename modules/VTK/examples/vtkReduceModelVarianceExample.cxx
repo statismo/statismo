@@ -35,18 +35,17 @@
  *
  */
 
-
-#include "StatisticalModel.h"
-#include "ReducedVarianceModelBuilder.h"
-#include "vtkStandardMeshRepresenter.h"
-
-#include "vtkPolyData.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-
 #include <iostream>
 #include <boost/scoped_ptr.hpp>
 
+#include <vtkPolyData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+
+#include "ReducedVarianceModelBuilder.h"
+#include "StatisticalModel.h"
+
+#include "vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
 

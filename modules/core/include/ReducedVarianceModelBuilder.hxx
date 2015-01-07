@@ -38,25 +38,21 @@
 #ifndef __ReducedVarianceModelBuilder_hxx
 #define __ReducedVarianceModelBuilder_hxx
 
-#include <Eigen/SVD>
-#include "CommonTypes.h"
-#include "Exceptions.h"
-#include <iostream>
-
 #include "ReducedVarianceModelBuilder.h"
 
+#include <iostream>
+
+#include <Eigen/SVD>
+
+#include "CommonTypes.h"
+#include "Exceptions.h"
+
 namespace statismo {
-
-
-
 
 template <typename T>
 ReducedVarianceModelBuilder<T>::ReducedVarianceModelBuilder()
     : Superclass() {
 }
-
-
-
 
 template <typename T>
 typename ReducedVarianceModelBuilder<T>::StatisticalModelType*

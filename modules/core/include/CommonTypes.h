@@ -38,22 +38,21 @@
 #ifndef __COMMON_TYPES_H
 #define __COMMON_TYPES_H
 
-#include "Config.h"
-#include "Domain.h"
-#include "Exceptions.h"
-#include <iostream>
-
 #include <exception>
-#include <string>
+#include <iostream>
 #include <list>
+#include <string>
 #include <vector>
-#include <Eigen/Dense>
 
 #include <boost/functional/hash.hpp>
 
+#include <Eigen/Dense>
+
+#include "Config.h"
+#include "Domain.h"
+#include "Exceptions.h"
 
 namespace statismo {
-
 
 const double PI	=	3.14159265358979323846;
 

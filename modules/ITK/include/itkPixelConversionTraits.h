@@ -39,23 +39,21 @@
 #ifndef __ITK_TYPE_CONVERSION_TRAIT
 #define __ITK_TYPE_CONVERSION_TRAIT
 
+#include <itkVector.h>
+
 #include "Exceptions.h"
 #include "CommonTypes.h"
-
-#include "itkVector.h"
 
 namespace itk {
 
 // these traits are used to allow a conversion from the generic pixel type to a statismo vector.
 // Currently only scalar types are supported.
 
-using statismo::VectorType;
-
 template <typename T> struct PixelConversionTrait {
-    static VectorType ToVector(const T& pixel) {
+    static statismo::VectorType ToVector(const T& pixel) {
         throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)");
     }
-    static  T FromVector(const VectorType& v) {
+    static  T FromVector(const statismo::VectorType& v) {
         throw statismo::StatisticalModelException("Unsupported PixelType (PixelTraits::ToVector not implemented)");
     }
     static unsigned GetDataType() {
@@ -67,12 +65,12 @@ template <typename T> struct PixelConversionTrait {
 };
 
 template <> struct PixelConversionTrait<double> {
-    static VectorType ToVector(const double& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const double& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static  double FromVector(const VectorType& v) {
+    static  double FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -84,12 +82,12 @@ template <> struct PixelConversionTrait<double> {
     }
 };
 template <> struct PixelConversionTrait<float> {
-    static VectorType ToVector(const float& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const float& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static  float FromVector(const VectorType& v) {
+    static  float FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -101,12 +99,12 @@ template <> struct PixelConversionTrait<float> {
     }
 };
 template <> struct PixelConversionTrait<short> {
-    static VectorType ToVector(const short& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const short& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static  short FromVector(const VectorType& v) {
+    static  short FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -118,12 +116,12 @@ template <> struct PixelConversionTrait<short> {
     }
 };
 template <> struct PixelConversionTrait<unsigned short> {
-    static VectorType ToVector(const unsigned short& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const unsigned short& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static  unsigned short FromVector(const VectorType& v) {
+    static  unsigned short FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -135,12 +133,12 @@ template <> struct PixelConversionTrait<unsigned short> {
     }
 };
 template <> struct PixelConversionTrait<int> {
-    static VectorType ToVector(const int& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const int& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static  int FromVector(const VectorType& v) {
+    static  int FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -152,12 +150,12 @@ template <> struct PixelConversionTrait<int> {
     }
 };
 template <> struct PixelConversionTrait<unsigned int> {
-    static VectorType ToVector(const unsigned int& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const unsigned int& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static  unsigned int FromVector(const VectorType& v) {
+    static  unsigned int FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -169,12 +167,12 @@ template <> struct PixelConversionTrait<unsigned int> {
     }
 };
 template <> struct PixelConversionTrait<char> {
-    static VectorType ToVector(const char& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const char& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static char FromVector(const VectorType& v) {
+    static char FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -186,12 +184,12 @@ template <> struct PixelConversionTrait<char> {
     }
 };
 template <> struct PixelConversionTrait<unsigned char> {
-    static VectorType ToVector(const unsigned char& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const unsigned char& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static  unsigned char FromVector(const VectorType& v) {
+    static  unsigned char FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -204,12 +202,12 @@ template <> struct PixelConversionTrait<unsigned char> {
 };
 
 template <> struct PixelConversionTrait<long> {
-    static VectorType ToVector(const long& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const long& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static long FromVector(const VectorType& v) {
+    static long FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -221,12 +219,12 @@ template <> struct PixelConversionTrait<long> {
     }
 };
 template <> struct PixelConversionTrait<unsigned long> {
-    static VectorType ToVector(const unsigned long& pixel) {
-        VectorType v(1);
+    static statismo::VectorType ToVector(const unsigned long& pixel) {
+        statismo::VectorType v(1);
         v << pixel;
         return v;
     }
-    static  unsigned long FromVector(const VectorType& v) {
+    static  unsigned long FromVector(const statismo::VectorType& v) {
         assert(v.size() == 1);
         return v(0);
     }
@@ -239,12 +237,12 @@ template <> struct PixelConversionTrait<unsigned long> {
 };
 
 template <> struct PixelConversionTrait<itk::Vector<float, 2> > {
-    static VectorType ToVector(const itk::Vector<float, 2>& pixel) {
-        VectorType v(2);
+    static statismo::VectorType ToVector(const itk::Vector<float, 2>& pixel) {
+        statismo::VectorType v(2);
         v << pixel[0] , pixel[1];
         return v;
     }
-    static itk::Vector<float, 2> FromVector(const VectorType& v) {
+    static itk::Vector<float, 2> FromVector(const statismo::VectorType& v) {
         assert(v.size() == 2);
         itk::Vector<double, 2> itkVec;
         itkVec[0] = v(0);
@@ -260,12 +258,12 @@ template <> struct PixelConversionTrait<itk::Vector<float, 2> > {
 };
 
 template <> struct PixelConversionTrait<itk::Vector<float, 3> > {
-    static VectorType ToVector(const itk::Vector<float, 3>& pixel) {
-        VectorType v(3);
+    static statismo::VectorType ToVector(const itk::Vector<float, 3>& pixel) {
+        statismo::VectorType v(3);
         v << pixel[0] , pixel[1], pixel[2];
         return v;
     }
-    static itk::Vector<float, 3> FromVector(const VectorType& v) {
+    static itk::Vector<float, 3> FromVector(const statismo::VectorType& v) {
         assert(v.size() == 3);
         itk::Vector<double, 3> itkVec;
         itkVec[0] = v(0);

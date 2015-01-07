@@ -39,16 +39,15 @@
 #ifndef __POSTERIORMODELBUILDER_H_
 #define __POSTERIORMODELBUILDER_H_
 
-
-#include "Config.h"
-#include "Representer.h"
-#include "ModelBuilder.h"
-#include "DataManager.h"
-#include "StatisticalModel.h"
-#include "CommonTypes.h"
-
-#include <vector>
 #include <list>
+#include <vector>
+
+#include "CommonTypes.h"
+#include "Config.h"
+#include "DataManager.h"
+#include "ModelBuilder.h"
+#include "Representer.h"
+#include "StatisticalModel.h"
 
 namespace statismo {
 

@@ -41,15 +41,15 @@
 
 #include <H5Cpp.h>
 
-#include "vtkSmartPointer.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkLandmarkTransform.h"
-#include "vtkTransform.h"
-#include "vtkTransformPolyDataFilter.h"
+#include <vtkLandmarkTransform.h>
+#include <vtkSmartPointer.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
+#include <vtkUnstructuredGrid.h>
 
-#include "vtkHelper.h"
 #include "CommonTypes.h"
 #include "Domain.h"
+#include "vtkHelper.h"
 
 /**
  * \brief A representer for vtkUnstructuredGrid using Procrustes alignment to align the datasets

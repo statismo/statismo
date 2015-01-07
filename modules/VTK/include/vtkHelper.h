@@ -42,21 +42,16 @@
 #include <iostream>
 #include <sstream>
 
-#include "Exceptions.h"
 #include "CommonTypes.h"
+#include "Exceptions.h"
 
-
-using statismo::StatisticalModelException;
+namespace statismo {
 
 /**
   * \brief Helper class that represents a vtkPixel or arbitrary type and dimension
   * In vtk a pixel is just of type  T*. The statismo library relies on a proper
   * copy semantics, and hence requires such a wrapper.
  */
-
-
-namespace statismo {
-
 class vtkNDPixel {
   public:
 
@@ -75,7 +70,7 @@ class vtkNDPixel {
         if (i >= m_dimensions) {
             std::ostringstream os;
             os << "Invalid index for vtkPixel (index = " << i << ")";
-            throw StatisticalModelException(os.str().c_str());
+            throw statismo::StatisticalModelException(os.str().c_str());
         } else {
             return m_pixel[i];
         }
@@ -85,7 +80,7 @@ class vtkNDPixel {
         if (i >= m_dimensions) {
             std::ostringstream os;
             os << "Invalid index for vtkPixel (index = " << i << ")";
-            throw StatisticalModelException(os.str().c_str());
+            throw statismo::StatisticalModelException(os.str().c_str());
         } else {
             return m_pixel[i];
         }
@@ -208,7 +203,7 @@ class vtkHelper {
             dataType = statismo::SIGNED_LONG;
             break;
         default:
-            throw StatisticalModelException("Unsupported data type for dataArray in vtkStandardMeshRepresenter::GetAsDataArray.");
+            throw statismo::StatisticalModelException("Unsupported data type for dataArray in vtkStandardMeshRepresenter::GetAsDataArray.");
         }
         return dataType;
     }

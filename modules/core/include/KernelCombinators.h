@@ -13,18 +13,16 @@
 #ifndef KERNELCOMBINATORS_H
 #define KERNELCOMBINATORS_H
 
+#include <boost/scoped_ptr.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/unordered_map.hpp>
 
 #include "CommonTypes.h"
 #include "Kernels.h"
-#include "Representer.h"
 #include "Nystrom.h"
-#include <boost/unordered_map.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/scoped_ptr.hpp>
+#include "Representer.h"
 
 namespace statismo {
-
-
 
 /**
  * A (matrix valued) kernel, which represents the sum of two matrix valued kernels.
