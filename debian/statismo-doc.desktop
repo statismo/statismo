@@ -1,0 +1,7 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Statismo Documentation
+Type=Application
+Exec=xdg-open file:///usr/share/doc/statismo/html/index.html
+Icon=text-html
+Categories=Development;

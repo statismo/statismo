@@ -1,1 +1,2 @@
-debian/docu-build/* /usr/share/statismo/doc/
+/usr/share/doc/statismo/
+debian/statismo-doc.desktop /usr/share/applications/

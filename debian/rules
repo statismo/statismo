@@ -3,8 +3,10 @@
 configure: configure-stamp
 configure-stamp:
 	cmake . -DCMAKE_INSTALL_PREFIX=/usr \
-		-DBUILD_DOCUMENTATION:BOOL=ON
-	mkdir -p debian/docu-build/
+		-DBUILD_DOCUMENTATION:BOOL=ON \
+		-DBUILD_TESTING:BOOL=OFF \
+		-DBUILD_EXAMPLES:BOOL=OFF \
+	#mkdir -p debian/docu-build/
 	mkdir -p debian/example-data/
 
 build: build-arch build-indep
@@ -16,11 +18,11 @@ build-stamp: configure-stamp
 clean:
 	dh clean
 	rm -f build-stamp configure-stamp
-	rm -rf doc/html
-	rm -rf debian/docu-build/
+	#rm -rf doc/html
+	#rm -rf debian/docu-build/
 	rm -rf debian/example-data/
 install: build
-	cp -r $(CURDIR)/doc/html debian/docu-build/
+	#cp -r $(CURDIR)/doc/html debian/docu-build/
 	cp -r $(CURDIR)/data/* debian/example-data/
 	dh_testdir
 	dh install
