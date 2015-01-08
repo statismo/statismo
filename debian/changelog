@@ -1,4 +1,10 @@
-statismo (0.10.1) UNRELEASED; urgency=medium
+statismo (0.10.2) UNRELEASED; urgency=medium
+
+  * new upstream release
+
+ -- Stefan Schlager <zarquon42@gmail.com>  Thu, 08 Jan 2015 10:22:17 +0100
+
+statismo (0.10.1) unstable; urgency=medium
 
   * intitial deb
 
