@@ -39,11 +39,13 @@
 #define __ItkStatisticalShapeModelTransform
 
 #include <iostream>
-#include "itkStatisticalModelTransformBase.h"
+
+#include <itkImage.h>
+#include <itkVector.h>
+
 #include "itkStandardImageRepresenter.h"
 #include "itkStatisticalModel.h"
-#include "itkImage.h"
-#include "itkVector.h"
+#include "itkStatisticalModelTransformBase.h"
 
 namespace itk {
 

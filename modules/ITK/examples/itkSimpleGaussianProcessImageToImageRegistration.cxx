@@ -38,31 +38,31 @@
  * ./bin/itkSimpleGaussianProcessImageToImageRegistration share/data/hand_images/hand-1.vtk share/data/hand_images/hand-2.vtk /tmp/deformationfield.vtk
  *
  */
-
-
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkLowRankGPModelBuilder.h"
-#include "itkDataManager.h"
-#include "itkInterpolatingStatisticalDeformationModelTransform.h"
-#include "itkMeanSquaresImageToImageMetric.h"
-#include "itkLBFGSOptimizer.h"
-#include "itkLinearInterpolateImageFunction.h"
-#include "itkImageRegistrationMethod.h"
-#include "itkImageFileReader.h"
-#include "itkImageFileWriter.h"
-#include "itkCommand.h"
-#include "itkImage.h"
-
-#include "Kernels.h"
-#include "KernelCombinators.h"
-
-#include "itkDirectory.h"
 #include <sys/types.h>
 #include <errno.h>
 #include <iostream>
 #include <iomanip>
 #include <string>
+
+
+#include "itkCommand.h"
+#include "itkDirectory.h"
+#include "itkImage.h"
+#include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
+#include "itkImageRegistrationMethod.h"
+#include "itkLBFGSOptimizer.h"
+#include "itkLinearInterpolateImageFunction.h"
+#include "itkMeanSquaresImageToImageMetric.h"
+
+#include "Kernels.h"
+#include "KernelCombinators.h"
+
+#include "itkDataManager.h"
+#include "itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "itkLowRankGPModelBuilder.h"
+#include "itkStandardImageRepresenter.h"
+#include "itkStatisticalModel.h"
 
 #define GaussianSigma 70
 #define GaussianScale 100

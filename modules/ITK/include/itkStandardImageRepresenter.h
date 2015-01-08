@@ -39,14 +39,17 @@
 #define ITK_STANDARDIMAGE_REPRESENTER_H_
 
 #include "statismoITKConfig.h" // this needs to be the first include
-#include "Representer.h"
-#include "itkImage.h"
-#include "CommonTypes.h"
-#include "itkObject.h"
-#include <H5Cpp.h>
-#include "itkPixelConversionTraits.h"
 
+#include <H5Cpp.h>
+
+#include <itkObject.h>
+#include <itkImage.h>
+
+#include "itkPixelConversionTraits.h"
 #include "itkStandardImageRepresenterTraits.h"
+
+#include "CommonTypes.h"
+#include "Representer.h"
 
 namespace itk {
 

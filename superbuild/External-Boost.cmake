@@ -34,16 +34,16 @@ ExternalProject_Add(Boost
   URL ${Boost_url}
   URL_MD5 ${Boost_md5}
   UPDATE_COMMAND ""
-  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPECENCIES_DIR}/lib
-  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPECENCIES_DIR} --with-thread --with-system --with-date_time address-model=${Boost_address_model}
+  CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPENDENCIES_DIR}/lib
+  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPENDENCIES_DIR} --with-thread --with-system --with-date_time address-model=${Boost_address_model}
   INSTALL_COMMAND ""
 )
 
 if( WIN32 )
-  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include/boost-1_56 )
-  set( BOOST_ROOT ${INSTALL_DEPECENCIES_DIR} )
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include/boost-1_56 )
+  set( BOOST_ROOT ${INSTALL_DEPENDENCIES_DIR} )
 else()
-  set( Boost_INCLUDE_DIR ${INSTALL_DEPECENCIES_DIR}/include )
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include )
 endif()
 
-set( Boost_LIBRARY_DIR ${INSTALL_DEPECENCIES_DIR}/lib )
+set( Boost_LIBRARY_DIR ${INSTALL_DEPENDENCIES_DIR}/lib )

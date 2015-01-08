@@ -35,7 +35,7 @@
 #
 #
 
-import statismo
+import statismo_VTK as statismo
 import os
 from os import listdir
 from os.path import join, realpath

@@ -40,14 +40,14 @@
 #ifndef MODELINFO_H_
 #define MODELINFO_H_
 
-#include "H5Cpp.h"
-#include "CommonTypes.h"
-#include <memory>
 #include <ctime>
 
+#include <memory>
+
+#include "CommonTypes.h"
+#include "H5Cpp.h"
+
 namespace statismo {
-
-
 
 class BuilderInfo; // forward declaration
 

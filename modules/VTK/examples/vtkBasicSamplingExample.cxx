@@ -34,13 +34,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-#include "vtkPolyData.h"
-#include "vtkPolyDataReader.h"
-#include "vtkPolyDataWriter.h"
-#include "vtkVersion.h"
 #include <iostream>
+
 #include <boost/scoped_ptr.hpp>
+
+#include <vtkPolyData.h>
+#include <vtkPolyDataReader.h>
+#include <vtkPolyDataWriter.h>
+#include <vtkVersion.h>
 
 #include "StatisticalModel.h"
 #include "vtkStandardMeshRepresenter.h"

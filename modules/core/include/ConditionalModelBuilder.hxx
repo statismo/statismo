@@ -38,13 +38,14 @@
 #ifndef __ConditionalModelBuilder_hxx
 #define __ConditionalModelBuilder_hxx
 
-#include "CommonTypes.h"
-#include "Exceptions.h"
+#include "ConditionalModelBuilder.h"
+
 #include <iostream>
 
 #include <Eigen/SVD>
+
+#include "Exceptions.h"
 #include "PCAModelBuilder.h"
-#include "ConditionalModelBuilder.h"
 
 namespace statismo {
 
@@ -208,7 +209,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList
         unsigned numComponentsToKeep = std::min<unsigned>( numComponentsToReachPrescribedVariance, singularValues.size() );
 
         VectorType newPCAVariance = singularValues.topRows(numComponentsToKeep);
-        MatrixType newPCABasisMatrix = (pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).topLeftCorner(X.cols(), numComponentsToKeep);
+        MatrixType newPCABasisMatrix = (pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).leftCols(numComponentsToKeep);
 
         StatisticalModelType* model = StatisticalModelType::Create(pcaModel->GetRepresenter(),  condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance);
 
