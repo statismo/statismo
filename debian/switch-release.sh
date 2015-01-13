@@ -35,7 +35,7 @@ echo $vtk
 sed -i "s|libvtk5-dev|$vtk|g" control
 cd ../
 dch -r -D $distrib
-debuild -S
+debuild -S -I
 cd debian
 mv changelog.bck changelog
 mv control.bck control
