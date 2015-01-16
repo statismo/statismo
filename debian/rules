@@ -1,0 +1,40 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+configure: configure-stamp
+configure-stamp:
+	cmake . -DCMAKE_INSTALL_PREFIX=/usr \
+		-DBUILD_DOCUMENTATION:BOOL=ON \
+		-DBUILD_TESTING:BOOL=OFF \
+		-DBUILD_EXAMPLES:BOOL=OFF \
+	#mkdir -p debian/docu-build/
+	mkdir -p debian/example-data/
+
+build: build-arch build-indep
+build-arch: build-stamp
+build-indep: build-stamp
+build-stamp: configure-stamp
+	dh_testdir
+	$(MAKE)
+clean:
+	dh clean
+	rm -f build-stamp configure-stamp
+	#rm -rf doc/html
+	#rm -rf debian/docu-build/
+	rm -rf debian/example-data/
+install: build
+	#cp -r $(CURDIR)/doc/html debian/docu-build/
+	cp -r $(CURDIR)/data/* debian/example-data/
+	dh_testdir
+	dh install
+
+# Build architecture-independent files here.
+binary-indep: build install
+	dh binary-indep
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh binary-arch
+
+binary: binary-indep binary-arch
+
+.PHONY: build clean binary-indep binary-arch binary install configure
