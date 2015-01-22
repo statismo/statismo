@@ -218,11 +218,6 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
     }
         break;
 
-    case RandomSVD:
-    {
-        throw StatisticalModelException("The RandomSVD is not jet supported in the PCAModelBuilder.");
-    }
-        break;
     default:
         throw StatisticalModelException("Unrecognized decomposition/eigenvalue solver method.");
         return 0;

@@ -68,9 +68,9 @@ class PCAModelBuilder : public ModelBuilder<T> {
     typedef typename DataManagerType::DataItemListType DataItemListType;
 
     /**
-     * @brief The EigenValueMethod enum This type is used to specify which decomposition method resp. eigenvalue solver sould be used. Default is JacobiSVD which is the most accurate but for larger systems quite slow. In this case the SelfAdjointEigensolver is more appropriate (especially, if there are more examples than variables). If the system is still to large to solve, and only the first few eigenvalues/eigenvectors need to be computed the RandomSVD can be used as an approximation.
+     * @brief The EigenValueMethod enum This type is used to specify which decomposition method resp. eigenvalue solver sould be used. Default is JacobiSVD which is the most accurate but for larger systems quite slow. In this case the SelfAdjointEigensolver is more appropriate (especially, if there are more examples than variables).
      */
-    typedef enum { JacobiSVD, SelfAdjointEigenSolver, RandomSVD } EigenValueMethod;
+    typedef enum { JacobiSVD, SelfAdjointEigenSolver } EigenValueMethod;
 
     /**
      * Factory method to create a new PCAModelBuilder
