@@ -43,6 +43,7 @@
 #include <iostream>
 
 #include <Eigen/SVD>
+#include <Eigen/Eigenvalues>
 
 #include "CommonTypes.h"
 #include "Exceptions.h"
@@ -57,7 +58,7 @@ PCAModelBuilder<T>::PCAModelBuilder()
 
 template <typename T>
 typename PCAModelBuilder<T>::StatisticalModelType*
-PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double noiseVariance, bool computeScores) const {
+PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double noiseVariance, bool computeScores, EigenValueMethod method) const {
 
     unsigned n = sampleDataList.size();
     if (n <= 0) {
@@ -81,7 +82,7 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
 
 
     // build the model
-    StatisticalModelType* model = BuildNewModelInternal(representer, X, noiseVariance);
+    StatisticalModelType* model = BuildNewModelInternal(representer, X, noiseVariance, method);
     MatrixType scores;
     if (computeScores) {
         scores = this->ComputeScores(X, model);
@@ -117,10 +118,7 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
 
 template <typename T>
 typename PCAModelBuilder<T>::StatisticalModelType*
-PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const {
-
-    typedef Eigen::JacobiSVD<MatrixType> SVDType;
-    typedef Eigen::JacobiSVD<MatrixTypeDoublePrecision> SVDDoublePrecisionType;
+PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance, EigenValueMethod method) const {
 
     unsigned n = X.rows();
     unsigned p = X.cols();
@@ -128,65 +126,102 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
     RowVectorType mu = X.colwise().mean(); // needs to be row vector
     MatrixType X0 = X.rowwise() - mu;
 
-    // We destinguish the case where we have more variables than samples and
-    // the case where we have more samples than variable.
-    // In the first case we compute the (smaller) inner product matrix instead of the full covariance matrix.
-    // It is known that this has the same non-zero singular values as the covariance matrix.
-    // Furthermore, it is possible to compute the corresponding eigenvectors of the covariance matrix from the
-    // decomposition.
+    switch(method){
+    case JacobiSVD:
 
-    if (n < p) {
-        // we compute the eigenvectors of the covariance matrix by computing an SVD of the
-        // n x n inner product matrix 1/(n-1) X0X0^T
-        MatrixType Cov = X0 * X0.transpose() * 1.0/(n-1);
-        SVDDoublePrecisionType SVD(Cov.cast<double>(), Eigen::ComputeThinV);
-        VectorType singularValues = SVD.singularValues().cast<ScalarType>();
-        MatrixType V = SVD.matrixV().cast<ScalarType>();
+        typedef Eigen::JacobiSVD<MatrixType> SVDType;
+        typedef Eigen::JacobiSVD<MatrixTypeDoublePrecision> SVDDoublePrecisionType;
 
-        unsigned numComponentsAboveTolerance = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
+        // We destinguish the case where we have more variables than samples and
+        // the case where we have more samples than variable.
+        // In the first case we compute the (smaller) inner product matrix instead of the full covariance matrix.
+        // It is known that this has the same non-zero singular values as the covariance matrix.
+        // Furthermore, it is possible to compute the corresponding eigenvectors of the covariance matrix from the
+        // decomposition.
 
-        // there can be at most n-1 nonzero singular values in this case. Everything else must be due to numerical inaccuracies
-        unsigned numComponentsToKeep = std::min(numComponentsAboveTolerance, n - 1);
-        // compute the pseudo inverse of the square root of the singular values
-        // which is then needed to recompute the PCA basis
-        VectorType singSqrt = singularValues.array().sqrt();
-        VectorType singSqrtInv = VectorType::Zero(singSqrt.rows());
-        for (unsigned i = 0; i < numComponentsToKeep; i++) {
-            assert(singSqrt(i) > Superclass::TOLERANCE);
-            singSqrtInv(i) = 1.0 / singSqrt(i);
+        if (n < p) {
+            // we compute the eigenvectors of the covariance matrix by computing an SVD of the
+            // n x n inner product matrix 1/(n-1) X0X0^T
+            MatrixType Cov = X0 * X0.transpose() * 1.0/(n-1);
+            SVDDoublePrecisionType SVD(Cov.cast<double>(), Eigen::ComputeThinV);
+            VectorType singularValues = SVD.singularValues().cast<ScalarType>();
+            MatrixType V = SVD.matrixV().cast<ScalarType>();
+
+            unsigned numComponentsAboveTolerance = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
+
+            // there can be at most n-1 nonzero singular values in this case. Everything else must be due to numerical inaccuracies
+            unsigned numComponentsToKeep = std::min(numComponentsAboveTolerance, n - 1);
+            // compute the pseudo inverse of the square root of the singular values
+            // which is then needed to recompute the PCA basis
+            VectorType singSqrt = singularValues.array().sqrt();
+            VectorType singSqrtInv = VectorType::Zero(singSqrt.rows());
+            for (unsigned i = 0; i < numComponentsToKeep; i++) {
+                assert(singSqrt(i) > Superclass::TOLERANCE);
+                singSqrtInv(i) = 1.0 / singSqrt(i);
+            }
+
+            // we recover the eigenvectors U of the full covariance matrix from the eigenvectors V of the inner product matrix.
+            // We use the fact that if we decompose X as X=UDV^T, then we get X^TX = UD^2U^T and XX^T = VD^2V^T (exploiting the orthogonormality
+            // of the matrix U and V from the SVD). The additional factor sqrt(n-1) is to compensate for the 1/sqrt(n-1) in the formula
+            // for the covariance matrix.
+            MatrixType pcaBasis = (X0.transpose() * V * singSqrtInv.asDiagonal() / sqrt(n-1.0)).topLeftCorner(p, numComponentsToKeep);;
+
+            if (numComponentsToKeep == 0) {
+                throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
+            }
+
+            VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
+            VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
+
+            StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+
+            return model;
+        } else {
+            // we compute an SVD of the full p x p  covariance matrix 1/(n-1) X0^TX0 directly
+            SVDType SVD(X0.transpose() * X0 * 1.0/(n-1), Eigen::ComputeThinU);
+            VectorType singularValues = SVD.singularValues();
+            unsigned numComponentsToKeep = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
+            MatrixType pcaBasis = SVD.matrixU().topLeftCorner(p, numComponentsToKeep);
+
+            if (numComponentsToKeep == 0) {
+                throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
+            }
+
+            VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
+            VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
+            StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+            return model;
         }
+        break;
 
-        // we recover the eigenvectors U of the full covariance matrix from the eigenvectors V of the inner product matrix.
-        // We use the fact that if we decompose X as X=UDV^T, then we get X^TX = UD^2U^T and XX^T = VD^2V^T (exploiting the orthogonormality
-        // of the matrix U and V from the SVD). The additional factor sqrt(n-1) is to compensate for the 1/sqrt(n-1) in the formula
-        // for the covariance matrix.
-        MatrixType pcaBasis = (X0.transpose() * V * singSqrtInv.asDiagonal() / sqrt(n-1.0)).topLeftCorner(p, numComponentsToKeep);;
+    case SelfAdjointEigenSolver:
+    {
+        // we compute the eigenvalues/eigenvectors of the full p x p  covariance matrix 1/(n-1) X0^TX0 directly
+
+        typedef Eigen::SelfAdjointEigenSolver<MatrixType> SelfAdjointEigenSolver;
+        SelfAdjointEigenSolver es;
+        es.compute(X0.transpose() * X0 * 1.0/(n-1));
+        VectorType eigenValues = es.eigenvalues().reverse(); // SelfAdjointEigenSolver orders the eigenvalues in increasing order
+
+
+        unsigned numComponentsToKeep = ((eigenValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
+        MatrixType pcaBasis = es.eigenvectors().rowwise().reverse().topLeftCorner(p, numComponentsToKeep);
 
         if (numComponentsToKeep == 0) {
             throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
         }
 
-        VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
-        VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
-
-        StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
-
-        return model;
-    } else {
-        // we compute an SVD of the full p x p  covariance matrix 1/(n-1) X0^TX0 directly
-        SVDType SVD(X0.transpose() * X0 * 1.0/(n-1), Eigen::ComputeThinU);
-        VectorType singularValues = SVD.singularValues();
-        unsigned numComponentsToKeep = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
-        MatrixType pcaBasis = SVD.matrixU().topLeftCorner(p, numComponentsToKeep);
-
-        if (numComponentsToKeep == 0) {
-            throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
-        }
-
-        VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
+        VectorType sampleVarianceVector = eigenValues.topRows(numComponentsToKeep);
         VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
         StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
         return model;
+    }
+        break;
+
+    default:
+        throw StatisticalModelException("Unrecognized decomposition/eigenvalue solver method.");
+        return 0;
+        break;
     }
 }
 

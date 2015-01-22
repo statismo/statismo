@@ -1,5 +1,6 @@
 set( _VTKTests
   PosteriorModelBuilderTest
+  PCAModelBuilderWithSelfAdjointEigenSolverTest
   vtkStandardImageRepresenterTest
   vtkStandardMeshRepresenterTest
 )
@@ -11,6 +12,9 @@ endforeach()
 
 add_test( NAME PosteriorModelBuilderTest
   COMMAND PosteriorModelBuilderTest ${statismo_SOURCE_DIR}/data
+)
+add_test( NAME PCAModelBuilderWithSelfAdjointEigenSolverTest
+  COMMAND PCAModelBuilderWithSelfAdjointEigenSolverTest ${statismo_SOURCE_DIR}/data
 )
 add_test( NAME vtkStandardImageRepresenterTest
   COMMAND vtkStandardImageRepresenterTest ${statismo_SOURCE_DIR}/data

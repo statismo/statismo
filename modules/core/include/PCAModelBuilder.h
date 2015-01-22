@@ -68,6 +68,11 @@ class PCAModelBuilder : public ModelBuilder<T> {
     typedef typename DataManagerType::DataItemListType DataItemListType;
 
     /**
+     * @brief The EigenValueMethod enum This type is used to specify which decomposition method resp. eigenvalue solver sould be used. Default is JacobiSVD which is the most accurate but for larger systems quite slow. In this case the SelfAdjointEigensolver is more appropriate (especially, if there are more examples than variables).
+     */
+    typedef enum { JacobiSVD, SelfAdjointEigenSolver } EigenValueMethod;
+
+    /**
      * Factory method to create a new PCAModelBuilder
      */
     static PCAModelBuilder* Create() {
@@ -96,11 +101,12 @@ class PCAModelBuilder : public ModelBuilder<T> {
      * If this parameter is set to 0, we have a standard PCA model. For values > 0 we have a PPCA model.
      * \param computeScores Determines whether the scores (the pca coefficients of the examples) are computed and stored as model info
      * (computing the scores may take a long time for large models).
+     * \param method Specifies the method which is used for the decomposition resp. eigenvalue solver.
      *
      * \return A new Statistical model
      * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
      */
-    StatisticalModelType* BuildNewModel(const DataItemListType& samples, double noiseVariance, bool computeScores = true) const;
+    StatisticalModelType* BuildNewModel(const DataItemListType& samples, double noiseVariance, bool computeScores = true, EigenValueMethod method = JacobiSVD) const;
 
 
   private:
@@ -109,7 +115,7 @@ class PCAModelBuilder : public ModelBuilder<T> {
     PCAModelBuilder(const PCAModelBuilder& orig);
     PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
 
-    StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance) const;
+    StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance, EigenValueMethod method = JacobiSVD) const;
 
 
 };
