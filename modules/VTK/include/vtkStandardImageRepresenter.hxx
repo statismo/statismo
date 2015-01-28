@@ -465,6 +465,8 @@ void vtkStandardImageRepresenter<TScalar, Dimensions>::Save(
     }
 
     H5::Group pdGroup = fg.createGroup("pointData");
+    statismo::HDF5Utils::writeInt(pdGroup, "pixelDimension", GetDimensions());
+
 
     H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup,
                      "pixelValues", pixelMat);
