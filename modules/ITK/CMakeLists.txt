@@ -11,6 +11,10 @@ if( ${BUILD_EXAMPLES} )
   add_subdirectory( examples )
 endif()
 
+if( ${BUILD_CLI_TOOLS} )
+  add_subdirectory( cli )
+endif()
+
 module_headertest( ITK )
 
 file( GLOB _ITK_hdrs

@@ -87,7 +87,7 @@ if( WIN32 )
   set( Boost_USE_STATIC_LIBS ON )
 endif()
 
-find_package( Boost 1.50 COMPONENTS thread system date_time REQUIRED )
+find_package( Boost 1.50 COMPONENTS thread system date_time program_options  REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 link_directories( ${Boost_LIBRARY_DIRS} )
@@ -126,6 +126,8 @@ endif()
 option( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
 option( BUILD_EXAMPLES "Build examples" ON )
+
+option( BUILD_CLI_TOOLS "Build command-line tools" ON )
 
 option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
 mark_as_advanced(BUILD_WRAPPING)
