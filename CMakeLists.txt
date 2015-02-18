@@ -87,11 +87,11 @@ if( WIN32 )
   set( Boost_USE_STATIC_LIBS ON )
 endif()
 
-find_package( Boost 1.50 COMPONENTS thread system date_time REQUIRED )
+find_package( Boost 1.50 COMPONENTS thread system date_time filesystem REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 link_directories( ${Boost_LIBRARY_DIRS} )
-add_definitions( -DBOOST_THREAD_VERSION=3 )
+add_definitions( -DBOOST_THREAD_VERSION=3 -DBOOST_FILESYSTEM_VERSION=3 )
 
 find_package( HDF5  COMPONENTS C CXX)
 include_directories( ${HDF5_INCLUDE_DIRS} )

@@ -13,6 +13,7 @@ set( Boost_INCLUDE_DIR @Boost_INCLUDE_DIR@ )
 set( Boost_LIBRARY_DIRS @Boost_LIBRARY_DIRS@ )
 set( Boost_LIBRARIES @Boost_LIBRARIES@ )
 add_definitions( -DBOOST_THREAD_VERSION=3 )
+add_definitions( -DBOOST_FILESYSTEM_VERSION=3 )
 
 set( HDF5_DIR @HDF5_DIR@ )
 set( HDF5_INCLUDE_DIRS @HDF5_INCLUDE_DIRS@ )
