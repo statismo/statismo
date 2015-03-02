@@ -87,7 +87,19 @@ if( WIN32 )
   set( Boost_USE_STATIC_LIBS ON )
 endif()
 
-find_package( Boost 1.50 COMPONENTS thread system date_time program_options  REQUIRED )
+set( REQUIRED_BOOST_COMPONENTS thread system date_time )
+
+option( BUILD_CLI_TOOLS "Build command-line tools" ON )
+if( ${BUILD_CLI_TOOLS} MATCHES "ON" )
+	#search for pandoc to generate man pages for the cli tools
+	find_program( PANDOC NAMES pandoc )
+	mark_as_advanced( PANDOC )
+	
+	#the cli tools require the program_options component from boost
+	set( REQUIRED_BOOST_COMPONENTS ${REQUIRED_BOOST_COMPONENTS} program_options )
+endif()
+
+find_package( Boost 1.50 COMPONENTS ${REQUIRED_BOOST_COMPONENTS} REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 link_directories( ${Boost_LIBRARY_DIRS} )
@@ -127,7 +139,6 @@ option( BUILD_SHARED_LIBS "Build shared libraries" ON )
 
 option( BUILD_EXAMPLES "Build examples" ON )
 
-option( BUILD_CLI_TOOLS "Build command-line tools" ON )
 
 option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
 mark_as_advanced(BUILD_WRAPPING)

@@ -1,12 +1,11 @@
-#include <sys/types.h>
-#include <errno.h>
-#include <iostream>
-#include <string>
-
 #include <itkDirectory.h>
 #include <itkMesh.h>
 #include <itkMeshFileWriter.h>
 #include <itkMeshFileReader.h>
+#include <itkLandmarkBasedTransformInitializer.h>
+#include <itkRigid3DTransform.h>
+#include <itkTransformMeshFilter.h>
+#include <itkImage.h>
 
 #include "itkDataManager.h"
 #include "itkPCAModelBuilder.h"
@@ -16,9 +15,9 @@
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
 
-namespace po = boost::program_options;
-using namespace std;
+#include "statismo-build-models-utils.h"
 
+namespace po = boost::program_options;
 
 struct programOptions {
     bool bDisplayHelp;
@@ -29,12 +28,12 @@ struct programOptions {
     float fNoiseVariance;
     bool bAutoNoise;
 };
-typedef list<string> StringList;
 
 po::options_description initializeProgramOptions(programOptions& poParameters);
-bool isOptionsConflictPresent(programOptions opt);
-StringList getFileList(programOptions opt);
+bool isOptionsConflictPresent(programOptions& opt);
 void buildAndSaveShapeModel(programOptions opt);
+
+
 
 int main(int argc, char** argv) {
     programOptions poParameters;
@@ -80,9 +79,18 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(programOptions opt) {
+bool isOptionsConflictPresent(programOptions& opt) {
     boost::algorithm::to_lower(opt.strProcrustesMode);
+
+    if (opt.strProcrustesMode != "reference" && opt.strProcrustesMode != "gpa") {
+        return true;
+    }
+
     if(opt.strProcrustesMode == "reference" && opt.strProcrustesReferenceFile == "") {
+        return true;
+    }
+
+    if (opt.strProcrustesMode == "gpa" && opt.strProcrustesReferenceFile != "") {
         return true;
     }
 
@@ -90,8 +98,14 @@ bool isOptionsConflictPresent(programOptions opt) {
         return true;
     }
 
-    if (opt.strProcrustesMode != "gpa" && opt.strProcrustesMode != "reference") {
+    if (opt.strDataListFile == opt.strOutputFileName) {
         return true;
+    }
+
+    if (opt.strProcrustesMode == "reference") {
+        if (opt.strDataListFile == opt.strProcrustesReferenceFile || opt.strOutputFileName == opt.strProcrustesReferenceFile) {
+            return true;
+        }
     }
 
     return false;
@@ -105,11 +119,24 @@ void buildAndSaveShapeModel(programOptions opt) {
     typedef itk::StatisticalModel<MeshType> StatisticalModelType;
     typedef itk::DataManager<MeshType> DataManagerType;
     typedef itk::MeshFileReader<MeshType> MeshReaderType;
-    typedef list<MeshType::Pointer> MeshList;
+    typedef list<pair<MeshType::Pointer, string> > MeshList;
 
     RepresenterType::Pointer representer = RepresenterType::New();
     DataManagerType::Pointer dataManager = DataManagerType::New();
 
+    MeshList meshes;
+    StringList filenames = getFileList(opt.strDataListFile);
+    for (StringList::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
+        MeshReaderType::Pointer reader = MeshReaderType::New();
+        reader->SetFileName(it->c_str());
+        reader->Update();
+        meshes.push_back(make_pair(reader->GetOutput(), *it));
+    }
+
+    if (meshes.size() == 0) {
+        itk::ExceptionObject e(__FILE__, __LINE__, "The specified data-list is empty.", ITK_LOCATION);
+        throw e;
+    }
 
     if (opt.strProcrustesMode == "reference") {
         MeshReaderType::Pointer refReader = MeshReaderType::New();
@@ -117,45 +144,34 @@ void buildAndSaveShapeModel(programOptions opt) {
         refReader->Update();
         representer->SetReference(refReader->GetOutput());
     } else {
-        //TODO: calculate mean & use that as reference
-        itk::ExceptionObject e(__FILE__, __LINE__, "GPA is currently not implemented", ITK_LOCATION);
-        throw e;
+        typedef itk::VersorRigid3DTransform< float > Rigid3DTransformType;
+        typedef itk::Vector<float, Dimensions> VectorType;
+        typedef itk::Image<VectorType, Dimensions> ImageType;
+        typedef itk::LandmarkBasedTransformInitializer<Rigid3DTransformType, ImageType, ImageType> LandmarkBasedTransformInitializerType;
+        typedef itk::TransformMeshFilter< MeshType, MeshType, Rigid3DTransformType > FilterType;
+
+        vector<MeshType::Pointer> originalMeshes;
+        for (MeshList::iterator it = meshes.begin(); it != meshes.end(); it++) {
+            originalMeshes.push_back(it->first);
+        }
+
+        const unsigned uMaxGPAIterations = 20;
+        const unsigned uNumberOfPoints = 100;
+        const float fBreakIfChangeBelow = 0.01f;
+        MeshType::Pointer referenceMesh = calculateProcrustesMeanMesh<MeshType, LandmarkBasedTransformInitializerType, Rigid3DTransformType, FilterType>(originalMeshes, uMaxGPAIterations, uNumberOfPoints, fBreakIfChangeBelow);
+        representer->SetReference(referenceMesh);
     }
 
     dataManager->SetRepresenter(representer);
 
-    StringList filenames = getFileList(opt);
-    MeshList meshes;
-    for (StringList::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
-        MeshReaderType::Pointer reader = MeshReaderType::New();
-        reader->SetFileName(it->c_str());
-        reader->Update();
-        MeshType::Pointer mesh = reader->GetOutput();
-        dataManager->AddDataset(mesh, it->c_str());
+    for (MeshList::const_iterator it = meshes.begin(); it != meshes.end(); it++) {
+        dataManager->AddDataset(it->first, it->second.c_str());
     }
-
-
-
 
     StatisticalModelType::Pointer model;
     PCAModelBuilder::Pointer pcaModelBuilder = PCAModelBuilder::New();
     model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance);
     model->Save(opt.strOutputFileName.c_str());
-}
-
-StringList getFileList(programOptions opt) {
-    StringList fileList;
-
-    ifstream file;
-    file.exceptions(ifstream::failbit | ifstream::badbit);
-    file.open(opt.strDataListFile.c_str(), ifstream::in);
-    string line;
-    while (getline(file, line)) {
-        if (line != "") {
-            fileList.push_back(line);
-        }
-    }
-    return fileList;
 }
 
 po::options_description initializeProgramOptions(programOptions& poParameters) {
@@ -166,10 +182,10 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     ;
     po::options_description optAdditional("Optional options");
     optAdditional.add_options()
-    ("procrustes,p", po::value<string>(&poParameters.strProcrustesMode)->default_value("GPA"), "Specify how the data is aligned. PROCRUSTES_MODE can be reference (aligns all datasets rigidly to the reference) GPA alignes all the datasets to the population mean. This option is only available when TYPE is shape.")
-    ("reference,r", po::value<string>(&poParameters.strProcrustesReferenceFile), "Specify the reference used for model building. This is needed in the caes that PROCRUSTES-MODE is reference")
-    ("noise", po::value<float>(&poParameters.fNoiseVariance)->default_value(0), "Noise variance of the PPCA model")
-//		("auto-noise", po::bool_switch(&poParameters.bAutoNoise), "Estimate noise directly from dropped components") //currently not available
+    ("procrustes,p", po::value<string>(&poParameters.strProcrustesMode)->default_value("GPA"), "Specify how the data is aligned: REFERENCE aligns all datasets rigidly to the reference and GPA alignes all datasets to the population mean.")
+    ("reference,r", po::value<string>(&poParameters.strProcrustesReferenceFile), "Specify the reference used for model building. This is needed if --procrustes is REFERENCE")
+    ("noise,n", po::value<float>(&poParameters.fNoiseVariance)->default_value(0), "Noise variance of the PPCA model")
+//		("auto-noise,a", po::bool_switch(&poParameters.bAutoNoise), "Estimate noise directly from dropped components") //currently not available
     ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
     ;
 

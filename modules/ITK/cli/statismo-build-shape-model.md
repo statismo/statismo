@@ -22,24 +22,24 @@ In this case the file data.txt contains a list of filenames of meshes (which are
 # OPTIONS
 
 -d, \--data-list *DATA_LIST*
-:	*DATA_LIST* is the path to a file containing a list of mesh-files that will be used to create the shape model. Please only give the path to **one** mesh-file per line.
+:	*DATA_LIST* is the path to a file containing a list of mesh-files that will be used to create the shape model. Please only give the path to **one** mesh-file per line  in the data-list-file.
 
 -o, \--output-file *OUTPUT_FILE*
 :	*OUTPUT_FILE* is the path where the newly build model should be saved.
 
 -p, \--procrustes *PROCRUSTES_MODE*
-:	Specify how the data is aligned. *PROCRUSTES_MODE* can be **reference** (aligns all datasets rigidly to the reference) **GPA** alignes all the datasets to the population mean. This option is only available when *TYPE* is `shape`.
+:	Specify how the data is aligned. *PROCRUSTES_MODE* can be **reference** which aligns all datasets rigidly to the reference or **GPA** which aligns all the datasets to the population mean.
 
 -r, \--reference *FILE* 
-:	Specify the reference used for model building. This is needed in the caes that *PROCRUSTES-MODE* is `reference`
+:	Specify the reference used for model building. This is needed if *PROCRUSTES-MODE* is **reference**
 
---noise *NOISE*
+-n, \--noise *NOISE*
 :	Specify the noise variance of the PPCA model. Defaults to 0
 
- <!---
-\--auto-noise 
+ <!-- 
+-a, \--auto-noise 
 :	Estimate noise directly from dropped components.
---->
+-->
  
 # Examples 
 Build a model where the datasets are aligned to the procrustes mean
@@ -53,3 +53,11 @@ Build a model where the datasets are aligned to a given reference
 
 # SEE ALSO
 
+*statismo-build-deformation-model* (8).
+Builds deformation models from a list of deformation fields
+
+*statismo-build-gp-model* (8).
+Builds shape or deformation models from a given gaussian process definition.
+
+*statismo-sample* (8).
+Draws samples from a model.
