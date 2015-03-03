@@ -345,7 +345,14 @@ class StatisticalModel {
      * \param pt The point where the Jacobian is computed
      * \param jacobian Output parameter where the jacobian is stored.
      */
-    MatrixType GetJacobian(const PointType& pt) const ;
+    MatrixType GetJacobian(const PointType& pt) const;
+
+    /**
+     * Computes the jacobian of the Statistical model at a specified pointID
+     * \param ptId The pointID where the Jacobian is computed
+     * \param jacobian Output parameter where the jacobian is stored.
+     */
+    MatrixType GetJacobian(unsigned ptId) const;
 
     /**
      * Returns the variance in the model for point pt
