@@ -263,6 +263,10 @@ class StatisticalModel : public Object {
         return toVnlMatrix(callstatismoImpl(boost::bind(&ImplType::GetJacobian, this->m_impl, pt)));
     }
 
+    MatrixType GetJacobian(unsigned ptId) const {
+        return toVnlMatrix(callstatismoImpl(boost::bind(&ImplType::GetJacobian, this->m_impl, ptId)));
+    }
+
     MatrixType GetPCABasisMatrix() const {
         return toVnlMatrix(callstatismoImpl(boost::bind(&ImplType::GetPCABasisMatrix, this->m_impl)));
     }
