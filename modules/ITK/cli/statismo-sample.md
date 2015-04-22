@@ -26,6 +26,9 @@ statismo-sample is used to draw samples from a model. It's possible to draw diff
 -t, \--type *TYPE*
 :	Specifies the type of the model. *TYPE* can either be **shape** or **deformation**.
 
+-d, \--dimensionality 
+:	Specifies the dimensionality of the model (either 2 or 3). This option is only available if the type is **deformation**.
+
 -i, \--input-file *MODEL_FILE*
 :	*MODEL_FILE* is the path to the model.
 
@@ -45,9 +48,13 @@ or
 
     statismo-sample -i model.h5 -o sample.vtk
 
-Draw a random sample from a deformation model:
+Draw a random sample from a 3D deformation model:
 
     statismo-sample -t deformation -i model.h5 -o sample.vtk
+	
+Draw a random sample from a 2D deformation model:
+
+    statismo-sample -d 2 -t deformation -i model.h5 -o sample.vtk
 
 Draw the mean from a shape model:
 
@@ -63,7 +70,7 @@ Draw a sample from a shape model with the 1st parameter set to 1, the 5th parame
 
 # SEE ALSO
 
-
+##Building Models:
 *statismo-build-shape-model* (8).
 Builds shape models from a list of meshes.
 
@@ -72,3 +79,21 @@ Builds deformation models from a list of deformation fields
 
 *statismo-build-gp-model* (8).
 Builds shape or deformation models from a given gaussian process definition.
+
+##Working with models:
+
+*statismo-sample* (8).
+Draws samples from a model.
+
+*statismo-reduce-model* (8).
+Reduces the number of components in a model.
+
+*statismo-posterior* (8).
+Creates a posterior model from an existing model.
+
+*statismo-fit-surface* (8).
+Fits a model iteratively in to a target mesh.
+
+*statismo-fit-image* (8).
+Fits a model iteratively to an image.
+

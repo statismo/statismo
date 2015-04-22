@@ -90,13 +90,20 @@ endif()
 set( REQUIRED_BOOST_COMPONENTS thread system date_time )
 
 option( BUILD_CLI_TOOLS "Build command-line tools" ON )
+#make the option to build the cli documentation available if and only if the cli tools will be built
+include(CMakeDependentOption)
+CMAKE_DEPENDENT_OPTION( BUILD_CLI_TOOLS_DOC "Build documentation for the command-line tools" ON
+  "BUILD_CLI_TOOLS" OFF
+)
 if( ${BUILD_CLI_TOOLS} MATCHES "ON" )
-	#search for pandoc to generate man pages for the cli tools
-	find_program( PANDOC NAMES pandoc )
-	mark_as_advanced( PANDOC )
-	
-	#the cli tools require the program_options component from boost
-	set( REQUIRED_BOOST_COMPONENTS ${REQUIRED_BOOST_COMPONENTS} program_options )
+  if( ${BUILD_CLI_TOOLS_DOC} MATCHES "ON" )
+    #search for pandoc to generate man pages for the cli tools
+    find_program( PANDOC NAMES pandoc )
+    mark_as_advanced( PANDOC )
+  endif()
+
+  #the cli tools require the program_options component from boost
+  set( REQUIRED_BOOST_COMPONENTS ${REQUIRED_BOOST_COMPONENTS} program_options )
 endif()
 
 find_package( Boost 1.50 COMPONENTS ${REQUIRED_BOOST_COMPONENTS} REQUIRED )
@@ -109,11 +116,11 @@ find_package( HDF5  COMPONENTS C CXX)
 include_directories( ${HDF5_INCLUDE_DIRS} )
 
 if(WIN32)
- # On Windows, we can only build static libraries, as the dynamic libraries would be
- # missing the accompanying .lib (unless the code is entirely rewritten with __declspec(dllexport) etc.)
- # See http://www.cmake.org/Wiki/BuildingWinDLL
+  # On Windows, we can only build static libraries, as the dynamic libraries would be
+  # missing the accompanying .lib (unless the code is entirely rewritten with __declspec(dllexport) etc.)
+  # See http://www.cmake.org/Wiki/BuildingWinDLL
 
- set(statismo_LIB_TYPE STATIC)
+  set(statismo_LIB_TYPE STATIC)
 endif()
 
 foreach( _library ${HDF5_LIBRARIES} )

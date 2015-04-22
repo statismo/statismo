@@ -21,7 +21,7 @@ In this case the file data.txt contains a list of filenames of meshes (which are
 
 # OPTIONS
 
--d, \--data-list *DATA_LIST*
+-l, \--data-list *DATA_LIST*
 :	*DATA_LIST* is the path to a file containing a list of mesh-files that will be used to create the shape model. Please only give the path to **one** mesh-file per line  in the data-list-file.
 
 -o, \--output-file *OUTPUT_FILE*
@@ -36,22 +36,22 @@ In this case the file data.txt contains a list of filenames of meshes (which are
 -n, \--noise *NOISE*
 :	Specify the noise variance of the PPCA model. Defaults to 0
 
- <!-- 
--a, \--auto-noise 
-:	Estimate noise directly from dropped components.
--->
  
 # Examples 
-Build a model where the datasets are aligned to the procrustes mean
+Build a model where the data is aligned to the procrustes mean
 
-    statismo-build-shape-model -p GPA --data-list data.txt shapemodel.h5
+    statismo-build-shape-model -p GPA -l data-list.txt shapemodel.h5
 
-Build a model where the datasets are aligned to a given reference
+Build a model where the data is aligned to a given reference
 
-    statismo-build-shape-model --procrustes=reference --reference=ref.vtk --data-list data.txt shapemodel.h5
+    statismo-build-shape-model -p reference -r ref.vtk -l data-list.txt shapemodel.h5
 
 
 # SEE ALSO
+
+##Building Models:
+*statismo-build-shape-model* (8).
+Builds shape models from a list of meshes.
 
 *statismo-build-deformation-model* (8).
 Builds deformation models from a list of deformation fields
@@ -59,5 +59,20 @@ Builds deformation models from a list of deformation fields
 *statismo-build-gp-model* (8).
 Builds shape or deformation models from a given gaussian process definition.
 
+##Working with models:
+
 *statismo-sample* (8).
 Draws samples from a model.
+
+*statismo-reduce-model* (8).
+Reduces the number of components in a model.
+
+*statismo-posterior* (8).
+Creates a posterior model from an existing model.
+
+*statismo-fit-surface* (8).
+Fits a model iteratively in to a target mesh.
+
+*statismo-fit-image* (8).
+Fits a model iteratively to an image.
+

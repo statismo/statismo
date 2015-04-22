@@ -1,23 +1,57 @@
-#include <itkDirectory.h>
-#include <itkMesh.h>
-#include <itkMeshFileWriter.h>
-#include <itkMeshFileReader.h>
-#include <itkLandmarkBasedTransformInitializer.h>
-#include <itkRigid3DTransform.h>
-#include <itkTransformMeshFilter.h>
-#include <itkImage.h>
+/*
+ * Copyright (c) 2015 University of Basel
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * Neither the name of the project's author nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 
-#include "itkDataManager.h"
-#include "itkPCAModelBuilder.h"
-#include "itkStandardMeshRepresenter.h"
-#include "itkStatisticalModel.h"
-
-#include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
 
-#include "statismo-build-models-utils.h"
+#include <itkDataManager.h>
+#include <itkDirectory.h>
+#include <itkImage.h>
+#include <itkLandmarkBasedTransformInitializer.h>
+#include <itkMesh.h>
+#include <itkMeshFileReader.h>
+#include <itkMeshFileWriter.h>
+#include <itkPCAModelBuilder.h>
+#include <itkRigid3DTransform.h>
+#include <itkStandardMeshRepresenter.h>
+#include <itkStatisticalModel.h>
+#include <itkTransformMeshFilter.h>
+
+#include "utils/statismo-build-models-utils.h"
+
 
 namespace po = boost::program_options;
+using namespace std;
 
 struct programOptions {
     bool bDisplayHelp;
@@ -26,7 +60,6 @@ struct programOptions {
     string strProcrustesReferenceFile;
     string strOutputFileName;
     float fNoiseVariance;
-    bool bAutoNoise;
 };
 
 po::options_description initializeProgramOptions(programOptions& poParameters);
@@ -108,34 +141,38 @@ bool isOptionsConflictPresent(programOptions& opt) {
         }
     }
 
+    if (opt.fNoiseVariance < 0) {
+        return true;
+    }
+
     return false;
 }
 
 void buildAndSaveShapeModel(programOptions opt) {
     const unsigned Dimensions = 3;
-    typedef itk::Mesh<float, Dimensions> MeshType;
-    typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
-    typedef itk::PCAModelBuilder<MeshType> PCAModelBuilder;
-    typedef itk::StatisticalModel<MeshType> StatisticalModelType;
-    typedef itk::DataManager<MeshType> DataManagerType;
-    typedef itk::MeshFileReader<MeshType> MeshReaderType;
-    typedef list<pair<MeshType::Pointer, string> > MeshList;
 
+    typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
     RepresenterType::Pointer representer = RepresenterType::New();
+
+    typedef itk::Mesh<float, Dimensions> MeshType;
+    typedef itk::DataManager<MeshType> DataManagerType;
     DataManagerType::Pointer dataManager = DataManagerType::New();
 
-    MeshList meshes;
-    StringList filenames = getFileList(opt.strDataListFile);
-    for (StringList::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
+    StringList fileNames = getFileList(opt.strDataListFile);
+
+    typedef itk::MeshFileReader<MeshType> MeshReaderType;
+    typedef vector<MeshReaderType::Pointer> MeshReaderList;
+    MeshReaderList meshes;
+    meshes.reserve(fileNames.size());
+    for (StringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
         MeshReaderType::Pointer reader = MeshReaderType::New();
         reader->SetFileName(it->c_str());
         reader->Update();
-        meshes.push_back(make_pair(reader->GetOutput(), *it));
+        meshes.push_back(reader);
     }
 
     if (meshes.size() == 0) {
-        itk::ExceptionObject e(__FILE__, __LINE__, "The specified data-list is empty.", ITK_LOCATION);
-        throw e;
+        itkGenericExceptionMacro( << "The specified data-list is empty.");
     }
 
     if (opt.strProcrustesMode == "reference") {
@@ -144,31 +181,34 @@ void buildAndSaveShapeModel(programOptions opt) {
         refReader->Update();
         representer->SetReference(refReader->GetOutput());
     } else {
-        typedef itk::VersorRigid3DTransform< float > Rigid3DTransformType;
-        typedef itk::Vector<float, Dimensions> VectorType;
-        typedef itk::Image<VectorType, Dimensions> ImageType;
-        typedef itk::LandmarkBasedTransformInitializer<Rigid3DTransformType, ImageType, ImageType> LandmarkBasedTransformInitializerType;
-        typedef itk::TransformMeshFilter< MeshType, MeshType, Rigid3DTransformType > FilterType;
-
         vector<MeshType::Pointer> originalMeshes;
-        for (MeshList::iterator it = meshes.begin(); it != meshes.end(); it++) {
-            originalMeshes.push_back(it->first);
+        for (MeshReaderList::iterator it = meshes.begin(); it != meshes.end(); ++it) {
+            MeshReaderType::Pointer reader = *it;
+            originalMeshes.push_back(reader->GetOutput());
         }
 
         const unsigned uMaxGPAIterations = 20;
         const unsigned uNumberOfPoints = 100;
-        const float fBreakIfChangeBelow = 0.01f;
+        const float fBreakIfChangeBelow = 0.001f;
+
+        typedef itk::VersorRigid3DTransform< float > Rigid3DTransformType;
+        typedef itk::Image<float, Dimensions> ImageType;
+        typedef itk::LandmarkBasedTransformInitializer<Rigid3DTransformType, ImageType, ImageType> LandmarkBasedTransformInitializerType;
+        typedef itk::TransformMeshFilter< MeshType, MeshType, Rigid3DTransformType > FilterType;
         MeshType::Pointer referenceMesh = calculateProcrustesMeanMesh<MeshType, LandmarkBasedTransformInitializerType, Rigid3DTransformType, FilterType>(originalMeshes, uMaxGPAIterations, uNumberOfPoints, fBreakIfChangeBelow);
         representer->SetReference(referenceMesh);
     }
 
     dataManager->SetRepresenter(representer);
 
-    for (MeshList::const_iterator it = meshes.begin(); it != meshes.end(); it++) {
-        dataManager->AddDataset(it->first, it->second.c_str());
+    for (MeshReaderList::const_iterator it = meshes.begin(); it != meshes.end(); ++it) {
+        MeshReaderType::Pointer reader = *it;
+        dataManager->AddDataset(reader->GetOutput(), reader->GetFileName());
     }
 
+    typedef itk::StatisticalModel<MeshType> StatisticalModelType;
     StatisticalModelType::Pointer model;
+    typedef itk::PCAModelBuilder<MeshType> PCAModelBuilder;
     PCAModelBuilder::Pointer pcaModelBuilder = PCAModelBuilder::New();
     model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance);
     model->Save(opt.strOutputFileName.c_str());
@@ -177,7 +217,7 @@ void buildAndSaveShapeModel(programOptions opt) {
 po::options_description initializeProgramOptions(programOptions& poParameters) {
     po::options_description optMandatory("Mandatory options");
     optMandatory.add_options()
-    ("data-list,d", po::value<string>(&poParameters.strDataListFile), "File containing a list of meshes to build shape model from")
+    ("data-list,l", po::value<string>(&poParameters.strDataListFile), "File containing a list of meshes to build shape model from")
     ("output-file,o", po::value<string>(&poParameters.strOutputFileName), "Name of the output file")
     ;
     po::options_description optAdditional("Optional options");
@@ -185,7 +225,6 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     ("procrustes,p", po::value<string>(&poParameters.strProcrustesMode)->default_value("GPA"), "Specify how the data is aligned: REFERENCE aligns all datasets rigidly to the reference and GPA alignes all datasets to the population mean.")
     ("reference,r", po::value<string>(&poParameters.strProcrustesReferenceFile), "Specify the reference used for model building. This is needed if --procrustes is REFERENCE")
     ("noise,n", po::value<float>(&poParameters.fNoiseVariance)->default_value(0), "Noise variance of the PPCA model")
-//		("auto-noise,a", po::bool_switch(&poParameters.bAutoNoise), "Estimate noise directly from dropped components") //currently not available
     ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
     ;
 

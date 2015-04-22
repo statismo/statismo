@@ -1,20 +1,56 @@
+/*
+ * Copyright (c) 2015 University of Basel
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * Neither the name of the project's author nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
+
 #include <iostream>
-#include <string>
 #include <set>
+#include <string>
 
-#include <itkDirectory.h>
-#include <itkMesh.h>
-#include <itkMeshFileWriter.h>
-#include <itkMeshFileReader.h>
-#include <itkImage.h>
-
-#include "itkDataManager.h"
-#include "itkStandardMeshRepresenter.h"
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
-
-#include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/program_options.hpp>
+
+#include <itkDataManager.h>
+#include <itkDirectory.h>
+#include <itkImage.h>
+#include <itkMesh.h>
+#include <itkMeshFileReader.h>
+#include <itkMeshFileWriter.h>
+#include <itkStandardImageRepresenter.h>
+#include <itkStandardMeshRepresenter.h>
+#include <itkStatisticalModel.h>
+
+
+const unsigned Dimensionality3D = 3;
+const unsigned Dimensionality2D = 2;
 
 namespace po = boost::program_options;
 using namespace std;
@@ -29,6 +65,7 @@ struct programOptions {
     StringList vParameters;
     bool bSampleMean;
     bool bSampleReference;
+    unsigned uNumberOfDimensions;
 };
 
 po::options_description initializeProgramOptions(programOptions& poParameters);
@@ -72,16 +109,22 @@ int main(int argc, char** argv) {
     try {
         const unsigned Dimensions = 3;
         if (poParameters.strType == "shape") {
-
             typedef itk::Mesh<float, Dimensions> DataType;
             typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
             typedef itk::MeshFileWriter<DataType> DataWriterType;
             drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
         } else {
-            typedef itk::Image< itk::Vector<float, Dimensions>, Dimensions > DataType;
-            typedef itk::StandardImageRepresenter<itk::Vector<float, Dimensions>, Dimensions> RepresenterType;
-            typedef itk::ImageFileWriter<DataType> DataWriterType;
-            drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
+            if (poParameters.uNumberOfDimensions == 2) {
+                typedef itk::Image< itk::Vector<float, Dimensionality2D>, Dimensionality2D > DataType;
+                typedef itk::StandardImageRepresenter<DataType::PixelType, Dimensionality2D> RepresenterType;
+                typedef itk::ImageFileWriter<DataType> DataWriterType;
+                drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
+            } else {
+                typedef itk::Image< itk::Vector<float, Dimensionality3D>, Dimensionality3D > DataType;
+                typedef itk::StandardImageRepresenter<DataType::PixelType, Dimensionality3D> RepresenterType;
+                typedef itk::ImageFileWriter<DataType> DataWriterType;
+                drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
+            }
         }
     } catch (itk::ExceptionObject & e) {
         cerr << "Could not build the model:" << endl;
@@ -119,7 +162,7 @@ template <class VectorType>
 void populateVectorWithParameters(const StringList& vParams, VectorType& vParametersReturnVector) {
     set<unsigned> sSeenIndices;
 
-    for (StringList::const_iterator i = vParams.begin(); i != vParams.end(); i++) {
+    for (StringList::const_iterator i = vParams.begin(); i != vParams.end(); ++i) {
         StringList vSplit;
         bool bSuccess = true;
         boost::split(vSplit, *i, boost::is_any_of(":"));
@@ -131,16 +174,14 @@ void populateVectorWithParameters(const StringList& vParams, VectorType& vParame
                 double dValue = boost::lexical_cast<double>(vSplit[1]);
 
                 if (uIndex >= vParametersReturnVector.size()) {
-                    itk::ExceptionObject e(__FILE__, __LINE__, "The parameter '" + *i + "' is has an index value that is not in the range of this model's available parameters (0 to " + boost::lexical_cast<string>(vParametersReturnVector.size()) + ").", ITK_LOCATION);
-                    throw e;
+                    itkGenericExceptionMacro( << "The parameter '" << *i << "' is has an index value that is not in the range of this model's available parameters (0 to " <<vParametersReturnVector.size() << ").");
                 }
 
                 if (sSeenIndices.find(uIndex) == sSeenIndices.end()) {
                     sSeenIndices.insert(uIndex);
                     vParametersReturnVector[uIndex] = dValue;
                 } else {
-                    itk::ExceptionObject e(__FILE__, __LINE__, "The index '" + boost::lexical_cast<string>(uIndex) +"' occurs more than once in the parameter list.", ITK_LOCATION);
-                    throw e;
+                    itkGenericExceptionMacro( << "The index '" << uIndex<<"' occurs more than once in the parameter list.");
                 }
             } catch (boost::bad_lexical_cast &) {
                 bSuccess = false;
@@ -148,17 +189,16 @@ void populateVectorWithParameters(const StringList& vParams, VectorType& vParame
         }
 
         if (bSuccess == false) {
-            itk::ExceptionObject e(__FILE__, __LINE__, "The parameter '" + *i + "' is in an incorrect format. The correct format is index:value. Like for example 0:1.1 or 19:-2", ITK_LOCATION);
-            throw e;
+            itkGenericExceptionMacro( << "The parameter '" << *i << "' is in an incorrect format. The correct format is index:value. Like for example 0:1.1 or 19:-2");
         }
     }
 }
 
 template <class DataType, class RepresenterType, class DataWriterType>
 void drawSampleFromModel(programOptions opt) {
-    typedef itk::StatisticalModel<DataType> StatisticalModelType;
-
     typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
+
+    typedef itk::StatisticalModel<DataType> StatisticalModelType;
     typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
 
     pModel->Load(pRepresenter, opt.strInputFileName.c_str());
@@ -191,8 +231,8 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     po::options_description optMandatory("Mandatory options");
     optMandatory.add_options()
     ("type,t", po::value<string>(&poParameters.strType)->default_value("shape"), "Specifies the type of the model: shape and deformation are the two available types")
-
-    ("iput-file,i", po::value<string>(&poParameters.strInputFileName), "The path to the model file.")
+    ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input model (only available if the type is deformation)")
+    ("input-file,i", po::value<string>(&poParameters.strInputFileName), "The path to the model file.")
     ("output-file,o", po::value<string>(&poParameters.strOutputFileName), "Name of the output file/the sample.")
     ;
     po::options_description optAdditional("Optional options");
