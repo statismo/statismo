@@ -3,8 +3,27 @@ include_directories( BEFORE
   ${statismo_SOURCE_DIR}/modules/core/include
 )
 
-find_package( VTK REQUIRED )
+set( required_vtk_modules
+  vtkCommonComputationalGeometry
+  vtkCommonCore
+  vtkCommonDataModel
+  vtkCommonExecutionModel
+  vtkCommonMath
+  vtkCommonMisc
+  vtkCommonSystem
+  vtkCommonTransforms
+  vtkFiltersCore
+  vtkFiltersGeneral
+  vtkIOCore
+  vtkIOGeometry
+  vtkIOLegacy
+  vtkIOXML
+  vtkIOXMLParser
+)
+
+find_package( VTK REQUIRED COMPONENTS ${required_vtk_modules} )
 include( ${VTK_USE_FILE} )
+
 add_subdirectory( src )
 
 if( ${BUILD_TESTING} )
