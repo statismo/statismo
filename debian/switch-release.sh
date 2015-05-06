@@ -30,6 +30,10 @@ cd $DIR
 echo $DIR
 cp -f changelog changelog.bck
 cp -f control control.bck
+#cp -f ../CMakeLists.txt ../CMakeLists.txt.bck
+#if [ $vtk == 6 ]; then
+#sed -i 's|find_package( VTK REQUIRED )|find_package( VTK REQUIRED )\n  find_package(Qt5Widgets REQUIRED) \n  find_package(Qt5OpenGL REQUIRED)|g' ../CMakeLists.txt
+#fi
 vtk=libvtk$vtk-dev
 echo $vtk
 sed -i "s|libvtk5-dev|$vtk|g" control
@@ -39,4 +43,5 @@ debuild -S -I
 cd debian
 mv changelog.bck changelog
 mv control.bck control
+#mv ../CMakeLists.txt.bck ../CMakeLists.txt
 
