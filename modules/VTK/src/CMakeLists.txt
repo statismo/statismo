@@ -1,11 +1,25 @@
+##macro that removes all linking to Qt libs
+macro(NO_QT arg result)
+  set(VTK_NO_QT "")
+  foreach(lib ${arg})
+    if (NOT  ${lib} MATCHES "Qt")
+      list(APPEND VTK_NO_QT ${lib})
+    endif()
+  endforeach()
+  set(${result} "${VTK_NO_QT}")
+endmacro()
+
+NO_QT("${VTK_LIBRARIES}" VTK_LIBRARIES)
+
 add_library( statismo_VTK ${statismo_LIB_TYPE}
   vtkStandardMeshRepresenter.cxx
   vtkUnstructuredGridRepresenter.cxx
 )
+
 target_link_libraries( statismo_VTK
   statismo_core
   ${VTK_LIBRARIES}
-)
+  )
 
 set_target_properties( statismo_VTK PROPERTIES
   DEBUG_POSTFIX "-d"
