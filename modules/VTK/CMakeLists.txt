@@ -19,11 +19,11 @@ set( required_vtk_modules
   vtkIOLegacy
   vtkIOXML
   vtkIOXMLParser
+  vtkIOMPIParallel
 )
 
 find_package( VTK REQUIRED COMPONENTS ${required_vtk_modules} )
 include( ${VTK_USE_FILE} )
-
 add_subdirectory( src )
 
 if( ${BUILD_TESTING} )
