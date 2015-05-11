@@ -26,13 +26,13 @@ if(VTK_MAJOR_VERSION GREATER 5)
   if(NOT HasOMPI EQUAL -1)
     list(APPEND required_vtk_modules vtkIOMPIParallel)
   endif()
-
+  find_package( VTK REQUIRED COMPONENTS ${required_vtk_modules} )
+  
 else()
   find_package( VTK REQUIRED )
 endif()
 
 
-find_package( VTK REQUIRED COMPONENTS ${required_vtk_modules} )
 include( ${VTK_USE_FILE} )
 add_subdirectory( src )
 
