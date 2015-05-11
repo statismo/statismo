@@ -71,11 +71,11 @@ Create a posterior model from a shape model with a mesh in correspondence and th
 
 Create a posterior model from a 3D deformation model with landmarks:
 
-    statismo-posterior -i model.h5 -t deformation -f fixed-landmarks.csv -m moving-landmarks.csv -v 100 posterior-model.h5
+    statismo-posterior -i model.h5 -t deformation -f fixed-landmarks.csv -m moving-landmarks.csv -v 0.5 posterior-model.h5
 
 Create a posterior model from a 2D deformation model with landmarks:
 
-    statismo-posterior -d 2 -i model.h5 -t deformation -f fixed-landmarks.csv -m moving-landmarks.csv -v 100 posterior-model.h5
+    statismo-posterior -d 2 -i model.h5 -t deformation -f fixed-landmarks.csv -m moving-landmarks.csv -v 0.5 posterior-model.h5
 
 # SEE ALSO
 
@@ -106,4 +106,5 @@ Fits a model iteratively in to a target mesh.
 *statismo-fit-image* (8).
 Fits a model iteratively to an image.
 
-
+*statismo-warp-image* (8).
+Applies a deformation field to an image.

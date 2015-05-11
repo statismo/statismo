@@ -119,7 +119,7 @@ int main(int argc, char** argv) {
         cerr << e.what() << endl;
         return EXIT_FAILURE;
     } catch (itk::ExceptionObject & e) {
-        cerr << "Could not build the model:" << endl;
+        cerr << "Could not build the posterior model:" << endl;
         cerr << e.what() << endl;
         return EXIT_FAILURE;
     }
@@ -192,9 +192,10 @@ void buildPosteriorShapeModel(programOptions& opt) {
 
 template<unsigned Dimensionality>
 void buildPosteriorDeformationModel(programOptions& opt) {
-    typedef itk::Image<itk::Vector<float, Dimensionality>, Dimensionality> DataType;
+    typedef itk::Vector<float, Dimensionality> VectorPixelType;
+    typedef itk::Image<VectorPixelType, Dimensionality> DataType;
     typedef itk::StatisticalModel<DataType> StatisticalModelType;
-    typedef itk::StandardImageRepresenter<typename DataType::PixelType, Dimensionality> RepresenterType;
+    typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality> RepresenterType;
     typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
     typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
     pModel->Load(pRepresenter.GetPointer(), opt.strInputModelFileName.c_str());

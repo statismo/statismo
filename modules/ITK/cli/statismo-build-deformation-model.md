@@ -33,11 +33,11 @@ statismo-build-deformation-model is used to build a deformation model from a giv
 # Examples 
 Build a 3D deformation model from the deformation fields specified in the file data.txt
 
-    statismo-build-deformation-model -l data-list.txt shapemodel.h5
+    statismo-build-deformation-model -l data-list.txt deformationmodel.h5
 
 Build a 2D deformation model from the deformation fields specified in the file data.txt
 
-    statismo-build-deformation-model -d 2 -l data-list.txt shapemodel.h5
+    statismo-build-deformation-model -d 2 -l data-list.txt deformationmodel.h5
 
 # SEE ALSO
 
@@ -68,3 +68,5 @@ Fits a model iteratively in to a target mesh.
 *statismo-fit-image* (8).
 Fits a model iteratively to an image.
 
+*statismo-warp-image* (8).
+Applies a deformation field to an image.

@@ -41,7 +41,7 @@ Crate a new shape model with 5 components:
 Crate a new shape model with 42.1% of to models' total variance:
 
     statismo-reduce-model -i model.h5 -v 42.1 reduced_model.h5
-    
+
 Crate a new 3D deformation model with 91% of to models' total variance:
 
     statismo-reduce-model -t deformation -i model.h5 -v 91 reduced_model.h5
@@ -79,4 +79,7 @@ Fits a model iteratively in to a target mesh.
 
 *statismo-fit-image* (8).
 Fits a model iteratively to an image.
+
+*statismo-warp-image* (8).
+Applies a deformation field to an image.
 

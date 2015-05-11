@@ -123,7 +123,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     } catch (itk::ExceptionObject & e) {
         coSilencer.enableOutput();
-        cerr << "Could not build the model:" << endl;
+        cerr << "Could not fit the model:" << endl;
         cerr << e.what() << endl;
         return EXIT_FAILURE;
     }
@@ -138,7 +138,7 @@ bool isOptionsConflictPresent(programOptions& opt) {
     }
 
     //at least one of the outputs needs to be set or the fitting information has to be printed
-    if (opt.strOutputFittedMeshFileName == "" && opt.strOutputProjectedMeshFileName == "" && opt.bPrintFittingInformation == false) {
+    if (opt.strOutputFittedMeshFileName == "" && opt.strOutputProjectedMeshFileName == "") {
         return true;
     }
 

@@ -101,17 +101,19 @@ int main(int argc, char** argv) {
             reduceModel<DataType, RepresenterType>(poParameters);
         } else {
             if (poParameters.uNumberOfDimensions == Dimensionality2D) {
-                typedef itk::Image<itk::Vector<float, Dimensionality2D>, Dimensionality2D> DataType;
-                typedef itk::StandardImageRepresenter<DataType::PixelType, Dimensionality2D> RepresenterType;
+                typedef itk::Vector<float, Dimensionality2D> VectorPixelType;
+                typedef itk::Image<VectorPixelType, Dimensionality2D> DataType;
+                typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality2D> RepresenterType;
                 reduceModel<DataType, RepresenterType>(poParameters);
             } else {
-                typedef itk::Image<itk::Vector<float, Dimensionality3D>, Dimensionality3D> DataType;
-                typedef itk::StandardImageRepresenter<DataType::PixelType, Dimensionality3D> RepresenterType;
+                typedef itk::Vector<float, Dimensionality3D> VectorPixelType;
+                typedef itk::Image<VectorPixelType, Dimensionality3D> DataType;
+                typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality3D> RepresenterType;
                 reduceModel<DataType, RepresenterType>(poParameters);
             }
         }
     } catch (itk::ExceptionObject & e) {
-        cerr << "Could not build the model:" << endl;
+        cerr << "Could not reduce the model:" << endl;
         cerr << e.what() << endl;
         return EXIT_FAILURE;
     }

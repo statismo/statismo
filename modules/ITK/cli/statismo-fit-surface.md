@@ -22,7 +22,7 @@ statismo-fit-surface fits a model iteratively in to a target mesh and then saves
 :	*MESH_FILE* is the path to the target mesh in to which the model will be fitted.
 
 -w, \--regularization-weight *WEIGHT*
-:	*WEIGHT* is the regularization weight that is used to ensure that the model parameters don't deviate too much from the mean. The higher this weight is, the closer the model parameters should stay to the mean.
+:	*WEIGHT* is the regularization weight that is used to ensure that the model parameters don't deviate too much from the mean. The higher this weight is, the closer the model parameters should stay to the mean. Note: The regularization is the sum over the square of all model parameters.
 
 -o, \--output-fit *FITTED_MESH_FILE*
 :	*FITTED_MESH_FILE* is the path where the fitted mesh will be saved. At least one of the two output meshes has to be specified. It's also possible to save both.
@@ -102,4 +102,5 @@ Fits a model iteratively in to a target mesh.
 *statismo-fit-image* (8).
 Fits a model iteratively to an image.
 
-
+*statismo-warp-image* (8).
+Applies a deformation field to an image.

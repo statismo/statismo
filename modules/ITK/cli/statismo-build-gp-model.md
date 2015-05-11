@@ -13,6 +13,8 @@ statismo-buid-gp-model [*options*] -r *reference-file* *output-file*
 statismo-build-gp-model is used to build a shape or deformation model from a gaussian process definition.
 
 # OPTIONS
+## Mandatory
+
 -t, \--type *TYPE*
 :	Specify the type of the model. *TYPE* can either be **shape** or **deformation**.
 
@@ -21,12 +23,12 @@ statismo-build-gp-model is used to build a shape or deformation model from a gau
 
 -k, \--kernel *KERNEL* 
 :	Specify the kernel (covariance function) of the gaussian process.
-   Supported kernels: **gauss**
+   Supported kernels: **gaussian**
 
 -p, \--parameters *KERNEL_PARAMETERS*
 :	*KERNEL_PARAMETERS* are the kernel parameters. The exact parameters depend on the kernel:
 
-	- gauss: The gaussian kernel has one parameter
+	- gaussian: The gaussian kernel has one parameter
 		- sigma: This parameter is a float that sets the sigma parameter in the gaussian kernel. Bigger values make the changes "smoother".
 
 <!-- 
@@ -47,20 +49,29 @@ statismo-build-gp-model is used to build a shape or deformation model from a gau
 -o, \--output-file *OUTPUT_FILE*
 :	*OUTPUT_FILE* is the path where the model will be saved.
 
+## Optional
+
+-m, \--input-model *MODEL_FILE*
+:	*MODEL_FILE* Extends an existing model with data from the specified kernel. This is useful to extend existing models in case of insufficient data.
+
+
 # Examples 
 
 Build a shape model with a gaussian kernel and 50 basis functions:
 
-    statismo-build-gp-model -t shape -k gauss -p 95.5 -s 100.42 -n 50 -r reference-mesh.vtk model.h5
+    statismo-build-gp-model -t shape -k gaussian -p 95.5 -s 100.42 -n 50 -r reference-mesh.vtk model.h5
 
 Build a 3D deformation model with a gaussian kernel and 25 basis functions:
 
-    statismo-build-gp-model -t deformation -k gauss -p 75 -s 100 -n 25 -r reference-image.vtk model.h5
+    statismo-build-gp-model -t deformation -k gaussian -p 75 -s 100 -n 25 -r reference-image.vtk model.h5
 
 Build a 2D deformation model with a gaussian kernel and 25 basis functions:
 
-    statismo-build-gp-model -d 2 -t deformation -k gauss -p 75 -s 100 -n 25 -r reference-image.vtk model.h5
+    statismo-build-gp-model -d 2 -t deformation -k gaussian -p 75 -s 100 -n 25 -r reference-image.vtk model.h5
 
+Extend a 2D deformation model with a gaussian kernel and scale it up to 100 basis functions:
+
+    statismo-build-gp-model -d 2 -t deformation -k gaussian -p 75 -s 100 -n 100 -r reference-image.vtk -m input-model.h5 extended-model.h5
 
 <!-- 
 Build a shape model with a multi-parameter kernel and 50 basis functions: (this is an example on how to use multiple kernel parameters for future documentation writers)
@@ -98,3 +109,5 @@ Fits a model iteratively in to a target mesh.
 *statismo-fit-image* (8).
 Fits a model iteratively to an image.
 
+*statismo-warp-image* (8).
+Applies a deformation field to an image.

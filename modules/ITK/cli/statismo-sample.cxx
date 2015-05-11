@@ -107,27 +107,28 @@ int main(int argc, char** argv) {
     }
 
     try {
-        const unsigned Dimensions = 3;
         if (poParameters.strType == "shape") {
-            typedef itk::Mesh<float, Dimensions> DataType;
-            typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
+			typedef itk::Mesh<float, Dimensionality3D> DataType;
+			typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
             typedef itk::MeshFileWriter<DataType> DataWriterType;
             drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
         } else {
             if (poParameters.uNumberOfDimensions == 2) {
-                typedef itk::Image< itk::Vector<float, Dimensionality2D>, Dimensionality2D > DataType;
-                typedef itk::StandardImageRepresenter<DataType::PixelType, Dimensionality2D> RepresenterType;
+                typedef itk::Vector<float, Dimensionality2D> VectorPixelType;
+                typedef itk::Image<VectorPixelType, Dimensionality2D> DataType;
+                typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality2D> RepresenterType;
                 typedef itk::ImageFileWriter<DataType> DataWriterType;
                 drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
             } else {
-                typedef itk::Image< itk::Vector<float, Dimensionality3D>, Dimensionality3D > DataType;
-                typedef itk::StandardImageRepresenter<DataType::PixelType, Dimensionality3D> RepresenterType;
+                typedef itk::Vector<float, Dimensionality3D> VectorPixelType;
+                typedef itk::Image<VectorPixelType, Dimensionality3D> DataType;
+                typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality3D> RepresenterType;
                 typedef itk::ImageFileWriter<DataType> DataWriterType;
                 drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
             }
         }
     } catch (itk::ExceptionObject & e) {
-        cerr << "Could not build the model:" << endl;
+        cerr << "Could not get a sample:" << endl;
         cerr << e.what() << endl;
         return EXIT_FAILURE;
     }
@@ -170,18 +171,18 @@ void populateVectorWithParameters(const StringList& vParams, VectorType& vParame
             bSuccess = false;
         } else {
             try {
-                unsigned uIndex = boost::lexical_cast<unsigned>(vSplit[0]);
+                unsigned uIndex = boost::lexical_cast<unsigned>(vSplit[0])-1;
                 double dValue = boost::lexical_cast<double>(vSplit[1]);
 
                 if (uIndex >= vParametersReturnVector.size()) {
-                    itkGenericExceptionMacro( << "The parameter '" << *i << "' is has an index value that is not in the range of this model's available parameters (0 to " <<vParametersReturnVector.size() << ").");
+                    itkGenericExceptionMacro( << "The parameter '" << *i << "' is has an index value that is not in the range of this model's available parameters (1 to " <<vParametersReturnVector.size() << ").");
                 }
 
                 if (sSeenIndices.find(uIndex) == sSeenIndices.end()) {
                     sSeenIndices.insert(uIndex);
                     vParametersReturnVector[uIndex] = dValue;
                 } else {
-                    itkGenericExceptionMacro( << "The index '" << uIndex<<"' occurs more than once in the parameter list.");
+                    itkGenericExceptionMacro( << "The index '" << (uIndex+1)<<"' occurs more than once in the parameter list.");
                 }
             } catch (boost::bad_lexical_cast &) {
                 bSuccess = false;
@@ -239,7 +240,7 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     optAdditional.add_options()
     ("mean,m", po::bool_switch(&poParameters.bSampleMean), "Draws the mean from the model and saves it.")
     ("reference,r", po::bool_switch(&poParameters.bSampleReference), "Draws the reference from the model and saves it.")
-    ("parameters,p", po::value<StringList >(&poParameters.vParameters)->multitoken(), "Makes it possible to specify a list of parameters and their positions that will then be used to draw a sample. Parameters are speciefied in the following format: POSITION1:VALUE1 POSITIONn:VALUEn. Unspecified parameters will be set to 0.")
+    ("parameters,p", po::value<StringList >(&poParameters.vParameters)->multitoken(), "Makes it possible to specify a list of parameters and their positions that will then be used to draw a sample. Parameters are speciefied in the following format: POSITION1:VALUE1 POSITIONn:VALUEn. Unspecified parameters will be set to 0. The first parameter is at position 1.")
     ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
     ;
 

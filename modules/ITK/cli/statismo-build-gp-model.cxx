@@ -52,6 +52,7 @@ using namespace std;
 
 struct programOptions {
     bool bDisplayHelp;
+    string strOptionalModelPath;
     string strReferenceFile;
     string strKernel;
     string strType;
@@ -108,11 +109,11 @@ int main(int argc, char** argv) {
             buildAndSaveModel<DataTypeShape, RepresenterType, DataReaderType, true, Dimensionality3D>(poParameters);
         } else {
             if (poParameters.uNumberOfDimensions == 2) {
-                typedef itk::StandardImageRepresenter<DataType2DDeformation::PixelType, Dimensionality2D> RepresenterType;
+                typedef itk::StandardImageRepresenter<VectorPixel2DType, Dimensionality2D> RepresenterType;
                 typedef itk::ImageFileReader<DataType2DDeformation> DataReaderType;
                 buildAndSaveModel<DataType2DDeformation, RepresenterType, DataReaderType, false, Dimensionality2D>(poParameters);
             } else {
-                typedef itk::StandardImageRepresenter<DataType3DDeformation::PixelType, Dimensionality3D> RepresenterType;
+                typedef itk::StandardImageRepresenter<VectorPixel3DType, Dimensionality3D> RepresenterType;
                 typedef itk::ImageFileReader<DataType3DDeformation> DataReaderType;
                 buildAndSaveModel<DataType3DDeformation, RepresenterType, DataReaderType, false, Dimensionality3D>(poParameters);
             }
@@ -179,8 +180,28 @@ void buildAndSaveModel(programOptions opt) {
         }
     }
 
-    const statismo::MatrixValuedKernel<PointType>& mvGk = statismo::UncorrelatedMatrixValuedKernel<PointType>(pKernel.get(), Dimenstionality);
-    const statismo::MatrixValuedKernel<PointType>& scaledGk = statismo::ScaledKernel<PointType>(&mvGk, opt.fKernelScale);
+    typedef boost::shared_ptr<statismo::MatrixValuedKernel<PointType> > KernelPointerType;
+    KernelPointerType pUnscaledKernel(new statismo::UncorrelatedMatrixValuedKernel<PointType>(pKernel.get(), Dimenstionality));
+    KernelPointerType pScaledKernel(new statismo::ScaledKernel<PointType>(pUnscaledKernel.get(), opt.fKernelScale));
+    KernelPointerType pStatModelKernel;
+    KernelPointerType pModelBuildingKernel;
+
+    typedef statismo::StatisticalModel<DataType> RawModelType;
+    typedef boost::shared_ptr<RawModelType> RawModelPointerType;
+    RawModelPointerType pRawStatisticalModel;
+    if(opt.strOptionalModelPath != "") {
+		try{
+			typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
+			pRawStatisticalModel.reset(RawModelType::Load(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str()));
+			pStatModelKernel.reset(new statismo::StatisticalModelKernel<DataType>(pRawStatisticalModel.get()));
+			pModelBuildingKernel.reset(new statismo::SumKernel<PointType>(pStatModelKernel.get(), pScaledKernel.get()));
+		}
+		catch (statismo::StatisticalModelException& s) {
+			itkGenericExceptionMacro(<< "Failed to read the optional model: "<< s.what());
+		}
+    } else {
+        pModelBuildingKernel = pScaledKernel;
+    }
 
     typename DataReaderType::Pointer pReferenceReader = DataReaderType::New();
     pReferenceReader->SetFileName(opt.strReferenceFile);
@@ -193,15 +214,16 @@ void buildAndSaveModel(programOptions opt) {
     typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
     gpModelBuilder->SetRepresenter(pRepresenter);
 
+
     typedef itk::StatisticalModel<DataType> StatisticalModelType;
-    typename StatisticalModelType::Pointer model;
+    typename StatisticalModelType::Pointer pModel;
     if (isShapeModel == true) {
-        model = gpModelBuilder->BuildNewModel(pReferenceReader->GetOutput(), scaledGk, opt.iNrOfBasisFunctions);
+        pModel = gpModelBuilder->BuildNewModel(pReferenceReader->GetOutput(), *pModelBuildingKernel.get(), opt.iNrOfBasisFunctions);
     } else {
-        model = gpModelBuilder->BuildNewZeroMeanModel(scaledGk, opt.iNrOfBasisFunctions);
+        pModel = gpModelBuilder->BuildNewZeroMeanModel(*pModelBuildingKernel.get(), opt.iNrOfBasisFunctions);
     }
 
-    model->Save(opt.strOutputFileName.c_str());
+    pModel->Save(opt.strOutputFileName.c_str());
 }
 
 string getAvailableKernelsStr() {
@@ -236,6 +258,7 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     ;
     po::options_description optAdditional("Optional options");
     optAdditional.add_options()
+    ("input-model,m", po::value<string>(&poParameters.strOptionalModelPath), "Extends an existing model with data from the specified kernel. This is useful to extend existing models in case of insufficient data.")
     ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
     ;
 

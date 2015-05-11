@@ -35,13 +35,12 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
-#include <boost/math/distributions/normal.hpp>
 
 #include <itkImage.h>
 #include <itkMesh.h>
 
-#include "KernelCombinators.h"
-#include "Kernels.h"
+#include <KernelCombinators.h>
+#include <Kernels.h>
 
 /*
 You can add your kernels here:
@@ -55,9 +54,11 @@ You can add your kernels here:
 
 const unsigned Dimensionality3D = 3;
 typedef itk::Mesh<float, Dimensionality3D> DataTypeShape;
-typedef itk::Image< itk::Vector<float, Dimensionality3D>, Dimensionality3D > DataType3DDeformation;
+typedef itk::Vector<float, Dimensionality3D> VectorPixel3DType;
+typedef itk::Image<VectorPixel3DType, Dimensionality3D> DataType3DDeformation;
 const unsigned Dimensionality2D = 2;
-typedef itk::Image< itk::Vector<float, Dimensionality2D>, Dimensionality2D > DataType2DDeformation;
+typedef itk::Vector<float, Dimensionality2D> VectorPixel2DType;
+typedef itk::Image<VectorPixel2DType, Dimensionality2D> DataType2DDeformation;
 
 struct KernelContainer {
     const statismo::ScalarValuedKernel<DataTypeShape::PointType>* (*createKernelShape)(std::vector<std::string> kernelArgs);
@@ -75,7 +76,7 @@ class GaussianKernel : public statismo::ScalarValuedKernel<TPoint> {
     typedef vnl_vector<CoordRepType> VectorType;
 
 
-    GaussianKernel(double sigma) : m_sigma(sigma), m_sigma2(1.0 / (sigma * sigma)) {
+    GaussianKernel(double sigma) : m_sigma(sigma), m_sigma2(-1.0 / (sigma * sigma)) {
 
     }
 
@@ -85,7 +86,7 @@ class GaussianKernel : public statismo::ScalarValuedKernel<TPoint> {
 
         VectorType r = yv - xv;
 
-        return exp(-dot_product(r, r) * m_sigma2);
+        return exp((double)dot_product(r, r) * m_sigma2);
     }
 
     std::string GetKernelInfo() const {
@@ -127,5 +128,5 @@ const statismo::ScalarValuedKernel<TPoint>* createGaussianKernel(std::vector<std
 }
 
 void createKernelMap() {
-    addKernelToKernelMap("gauss", createGaussianKernel)
+    addKernelToKernelMap("gaussian", createGaussianKernel)
 }

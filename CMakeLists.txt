@@ -92,8 +92,12 @@ set( REQUIRED_BOOST_COMPONENTS thread system date_time )
 option( BUILD_CLI_TOOLS "Build command-line tools" ON )
 #make the option to build the cli documentation available if and only if the cli tools will be built
 include(CMakeDependentOption)
-CMAKE_DEPENDENT_OPTION( BUILD_CLI_TOOLS_DOC "Build documentation for the command-line tools" ON
+cmake_dependent_option( BUILD_CLI_TOOLS_DOC "Build documentation for the command-line tools" ON
   "BUILD_CLI_TOOLS" OFF
+)
+#it's only possible to enable the long running CLI tests if testing is enabled and the CLI tools will be built.
+cmake_dependent_option( BUILD_LONG_RUNNING_CLI_TESTS "Run the cli examples(the execution of these tests can take some time)" OFF
+  "BUILD_CLI_TOOLS;BUILD_TESTING" OFF
 )
 if( ${BUILD_CLI_TOOLS} MATCHES "ON" )
   if( ${BUILD_CLI_TOOLS_DOC} MATCHES "ON" )

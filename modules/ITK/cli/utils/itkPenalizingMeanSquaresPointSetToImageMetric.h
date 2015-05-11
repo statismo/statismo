@@ -64,7 +64,7 @@ class ITK_EXPORT PenalizingMeanSquaresPointSetToImageMetric :
 
     // Get the value for single valued optimizers.
     MeasureType GetValue(const ParametersType& parameters) const {
-        double value = Superclass::GetValue(parameters);
+        MeasureType value = Superclass::GetValue(parameters);
         return value + CalculateValuePenalty(parameters);
     }
 
@@ -75,34 +75,32 @@ class ITK_EXPORT PenalizingMeanSquaresPointSetToImageMetric :
         CalculateDerivativePenalty(parameters, derivative);
     }
 
-    void SetRegularizationParameter(double regParameter) {
-        m_regularizationParameter = regParameter;
-    }
+    itkSetMacro(RegularizationParameter, MeasureType)
+    itkGetMacro(RegularizationParameter, MeasureType)
 
-    void SetNumberOfModelComponents(unsigned nrOfComponents) {
-        u_modelComponentCount = nrOfComponents;
-    }
+    itkSetMacro(NumberOfModelComponents, unsigned)
+    itkGetMacro(NumberOfModelComponents, unsigned)
 
   protected:
-    PenalizingMeanSquaresPointSetToImageMetric() : m_regularizationParameter(0) {}
+    PenalizingMeanSquaresPointSetToImageMetric() : m_RegularizationParameter(0) {}
     virtual ~PenalizingMeanSquaresPointSetToImageMetric() {}
+    MeasureType m_RegularizationParameter;
+    unsigned m_NumberOfModelComponents;
   private:
-    double CalculateValuePenalty(const ParametersType& parameters) const {
-        double regValue = 0;
-        for (unsigned int par = 0; par < u_modelComponentCount; ++par) {
+    MeasureType CalculateValuePenalty(const ParametersType& parameters) const {
+        MeasureType regValue = 0;
+        for (unsigned int par = 0; par < m_NumberOfModelComponents; ++par) {
             regValue += parameters[par] * parameters[par];
         }
-        return regValue * m_regularizationParameter;
+        return regValue * m_RegularizationParameter;
     }
     void CalculateDerivativePenalty(const ParametersType& parameters, DerivativeType & derivative) const {
-        for (unsigned int i = 0; i < u_modelComponentCount; ++i) {
-            derivative[i] += parameters[i] * 2 * m_regularizationParameter;
+        for (unsigned int i = 0; i < m_NumberOfModelComponents; ++i) {
+            derivative[i] += parameters[i] * 2 * m_RegularizationParameter;
         }
     }
     PenalizingMeanSquaresPointSetToImageMetric(const Self &); //purposely not implemented
     void operator=(const Self &); //purposely not implemented
-    double m_regularizationParameter;
-    unsigned u_modelComponentCount;
 };
 } // end namespace itk
 #endif

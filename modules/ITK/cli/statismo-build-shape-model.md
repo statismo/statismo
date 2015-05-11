@@ -76,3 +76,5 @@ Fits a model iteratively in to a target mesh.
 *statismo-fit-image* (8).
 Fits a model iteratively to an image.
 
+*statismo-warp-image* (8).
+Applies a deformation field to an image.

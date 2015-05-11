@@ -25,7 +25,7 @@ statismo-fit-image iteratively fits a target image with the help of a model and 
 :	*IMAGE_FILE* is the path to the reference image.
 
 -w, \--regularization-weight *WEIGHT*
-:	*WEIGHT* is the regularization weight that is used to ensure that the model parameters don't deviate too much from the mean. The higher this weight is, the closer the model parameters should stay to the mean.
+:	*WEIGHT* is the regularization weight that is used to ensure that the model parameters don't deviate too much from the mean. The higher this weight is, the closer the model parameters should stay to the mean. Note: The regularization is the sum over the square of all model parameters.
 
 -d, \--dimensionality 
 :	Specifies the dimensionality of the images and the model (either 2 or 3).
@@ -90,6 +90,9 @@ Fit a 2D image without landmarks, print fitting information and save both the de
 
     statismo-fit-image -d 2 -i model.h5 -t target-image.vtk -w 0.25 -r reference-image.vtk -o projection.vtk -e model-deform-field.vtk -a entire-deform-field.vtk -p
 
+Hint
+:	Use *statismo-warp-image* to apply the deformation fields to images.
+
 
 # SEE ALSO
 
@@ -120,4 +123,5 @@ Fits a model iteratively in to a target mesh.
 *statismo-fit-image* (8).
 Fits a model iteratively to an image.
 
-
+*statismo-warp-image* (8).
+Applies a deformation field to an image.

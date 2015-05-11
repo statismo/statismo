@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     } catch (itk::ExceptionObject & e) {
         coSilencer.enableOutput();
-        cerr << "Could not build the model:" << endl;
+        cerr << "Could not fit the model:" << endl;
         cerr << e.what() << endl;
         return EXIT_FAILURE;
     }
@@ -158,7 +158,7 @@ bool isOptionsConflictPresent(programOptions& opt) {
     }
 
     //at least one thing has to be saved/displayed, otherwise running it is pointless
-    if (opt.strOutputEntireTransformFileName == "" && opt.strOutputFittedImageFileName == "" && opt.strOutputModelTransformFileName == "" && opt.bPrintFittingInformation == false) {
+    if (opt.strOutputEntireTransformFileName == "" && opt.strOutputFittedImageFileName == "" && opt.strOutputModelTransformFileName == "") {
         return true;
     }
 
@@ -215,8 +215,9 @@ void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
     pTargetReader->Update();
     typename ImageType::Pointer pTargetImage = pTargetReader->GetOutput();
 
-    typedef itk::Image< itk::Vector<float, Dimensions>, Dimensions > VectorImageType;
-    typedef itk::StandardImageRepresenter<typename VectorImageType::PixelType, Dimensions> RepresenterType;
+    typedef itk::Vector<float, Dimensions> VectorPixelType;
+    typedef itk::Image<VectorPixelType, Dimensions> VectorImageType;
+    typedef itk::StandardImageRepresenter<VectorPixelType, Dimensions> RepresenterType;
     typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
 
     typedef itk::StatisticalModel<VectorImageType> StatisticalModelType;

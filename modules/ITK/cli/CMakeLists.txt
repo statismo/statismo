@@ -8,6 +8,7 @@ set( _cli_files
   statismo-fit-surface
   statismo-fit-image
   statismo-posterior
+  statismo-warp-image
 )
 
 foreach( e ${_cli_files} )
@@ -78,3 +79,6 @@ if( ${BUILD_CLI_TOOLS_DOC} MATCHES "ON" )
   endif()
 endif()
 
+if( ${BUILD_LONG_RUNNING_CLI_TESTS} )
+  add_subdirectory( test )
+endif()

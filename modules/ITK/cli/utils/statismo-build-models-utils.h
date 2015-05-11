@@ -114,6 +114,10 @@ std::vector<typename MeshType::Pointer> superimposeMeshes(std::vector<typename M
         LandmarkContainerType fixedLandmarks;
         typename MeshType::Pointer movingMesh = *it;
 
+        if (movingMesh->GetNumberOfPoints() != referenceMesh->GetNumberOfPoints() || movingMesh->GetNumberOfCells() != referenceMesh->GetNumberOfCells()) {
+            itkGenericExceptionMacro(<< "All meshes must have the same number of Edges & Vertices");
+        }
+
         //Only use a subset of the meshes' points for the alignment since we don't have that many degrees of freedom anyways and since calculating a SVD with too many points is expensive
         for (std::set<unsigned>::const_iterator rng = landmarkIndices.begin(); rng != landmarkIndices.end(); ++rng) {
             movingLandmarks.push_back(movingMesh->GetPoint(*rng));
