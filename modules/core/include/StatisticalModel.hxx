@@ -506,10 +506,17 @@ template <typename T>
 MatrixType
 StatisticalModel<T>::GetJacobian(const PointType& pt) const {
 
+    unsigned ptId = m_representer->GetPointIdForPoint(pt);
+
+    return GetJacobian(ptId);
+}
+
+template <typename T>
+MatrixType
+StatisticalModel<T>::GetJacobian(unsigned ptId) const {
+
     unsigned Dimensions = m_representer->GetDimensions();
     MatrixType J = MatrixType::Zero(Dimensions, GetNumberOfPrincipalComponents());
-
-    unsigned ptId = m_representer->GetPointIdForPoint(pt);
 
     for(unsigned i = 0; i < Dimensions; i++) {
         unsigned idx = m_representer->MapPointIdToInternalIdx(ptId, i);

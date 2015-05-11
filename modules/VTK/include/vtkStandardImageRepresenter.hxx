@@ -43,6 +43,8 @@
 #include <vtkDataArray.h>
 #include <vtkVersion.h>
 
+#include <boost/filesystem.hpp>
+
 #include "CommonTypes.h"
 #include "HDF5Utils.h"
 #include "StatismoUtils.h"
@@ -264,6 +266,7 @@ vtkStructuredPoints* vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load
     vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
     reader->SetFileName(tmpfilename.c_str());
     reader->Update();
+    boost::filesystem::remove(tmpfilename);
     if (reader->GetErrorCode() != 0) {
         throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
     }
@@ -465,6 +468,8 @@ void vtkStandardImageRepresenter<TScalar, Dimensions>::Save(
     }
 
     H5::Group pdGroup = fg.createGroup("pointData");
+    statismo::HDF5Utils::writeInt(pdGroup, "pixelDimension", GetDimensions());
+
 
     H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup,
                      "pixelValues", pixelMat);

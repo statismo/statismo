@@ -87,7 +87,7 @@ if( WIN32 )
   set( Boost_USE_STATIC_LIBS ON )
 endif()
 
-set( REQUIRED_BOOST_COMPONENTS thread system date_time )
+set( REQUIRED_BOOST_COMPONENTS thread system date_time filesystem )
 
 option( BUILD_CLI_TOOLS "Build command-line tools" ON )
 #make the option to build the cli documentation available if and only if the cli tools will be built
@@ -114,7 +114,7 @@ find_package( Boost 1.50 COMPONENTS ${REQUIRED_BOOST_COMPONENTS} REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 link_directories( ${Boost_LIBRARY_DIRS} )
-add_definitions( -DBOOST_THREAD_VERSION=3 )
+add_definitions( -DBOOST_THREAD_VERSION=3 -DBOOST_FILESYSTEM_VERSION=3 )
 
 find_package( HDF5  COMPONENTS C CXX)
 include_directories( ${HDF5_INCLUDE_DIRS} )
