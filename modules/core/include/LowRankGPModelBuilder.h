@@ -139,14 +139,7 @@ class LowRankGPModelBuilder: public ModelBuilder<T> {
         const MatrixValuedKernelType& kernel, unsigned numComponents,
         unsigned numPointsForNystrom = 500) const {
 
-        VectorType zeroVec = VectorType::Zero(
-                                 m_representer->GetDomain().GetNumberOfPoints()
-                                 * m_representer->GetDimensions());
-
-        typename RepresenterType::DatasetConstPointerType zeroMean =
-            m_representer->SampleVectorToSample(zeroVec);
-
-        return BuildNewModel(zeroMean, kernel, numComponents,
+        return BuildNewModel(m_representer->IdentitySample(), kernel, numComponents,
                              numPointsForNystrom);
     }
 
