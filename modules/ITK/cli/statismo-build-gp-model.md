@@ -55,6 +55,7 @@ statismo-build-gp-model is used to build a shape or deformation model from a gau
 :	*MODEL_FILE* Extends an existing model with data from the specified kernel. This is useful to extend existing models in case of insufficient data.
 
 
+
 # Examples 
 
 Build a shape model with a gaussian kernel and 50 basis functions:

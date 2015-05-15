@@ -43,7 +43,7 @@ add_test( NAME statismo-build-gp-model-test-2d-image
   WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
 
 add_test( NAME statismo-build-gp-model-test-2d-image-extend-existing-model
-    COMMAND statismo-build-gp-model -d 2 -t deformation -k gaussian -p 75 -s 100 -n 100 -r "${STATISMO_DATA_DIR}hand_images/hand-1.vtk" -m "${FILENAME_GAUSSDEFORMATION_MODEL_2D}" "${TEST_DEFORMATION_DATA_DIR}2d extended gaussian deformationmodel.h5"
+    COMMAND statismo-build-gp-model -d 2 -t deformation -k gaussian -p 75 -s 100 -n 100 -m "${FILENAME_GAUSSDEFORMATION_MODEL_2D}" "${TEST_DEFORMATION_DATA_DIR}2d extended gaussian deformationmodel.h5"
     WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
 set_property( TEST statismo-build-gp-model-test-2d-image-extend-existing-model APPEND PROPERTY DEPENDS statismo-build-gp-model-test-2d-image )
 
