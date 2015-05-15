@@ -18,11 +18,11 @@ statismo-fit-image iteratively fits a target image with the help of a model and 
 -i, \--input-model *MODEL_FILE*
 :	*MODEL_FILE* is the path to the model.
 
--t, \--input-targetimage *IMAGE_FILE*
-:	*IMAGE_FILE* is the path to the target image.
+-m, \--input-movingimage *IMAGE_FILE*
+:	*IMAGE_FILE* is the path to the moving image.
 
--r, \--input-referenceimage *IMAGE_FILE*
-:	*IMAGE_FILE* is the path to the reference image.
+-f, \--input-fixedimage *IMAGE_FILE*
+:	*IMAGE_FILE* is the path to the fixed image.
 
 -w, \--regularization-weight *WEIGHT*
 :	*WEIGHT* is the regularization weight that is used to ensure that the model parameters don't deviate too much from the mean. The higher this weight is, the closer the model parameters should stay to the mean. Note: The regularization is the sum over the square of all model parameters.
@@ -42,10 +42,10 @@ statismo-fit-image iteratively fits a target image with the help of a model and 
 
 ## Landmarks (optional, if one is set then all have to be set)
 
--f, \--landmarks-fixed *FIXED_LANDMARKS_FILE*
+\--landmarks-fixed *FIXED_LANDMARKS_FILE*
 :	*FIXED_LANDMARKS_FILE* is the path to the the file containing the fixed landmarks.
 
--m, \--landmarks-moving *MOVING_LANDMARKS_FILE*
+\--landmarks-moving *MOVING_LANDMARKS_FILE*
 :	*MOVING_LANDMARKS_FILE* is the path to the the file containing the moving landmarks. (That's the landmarks on the target image)
 
 -v, \--landmarks-variance *VARIANCE*
@@ -75,20 +75,20 @@ Remark
 # Examples 
 Fit a 3D image without landmarks:
 
-    statismo-fit-image  -i model.h5 -w 0 -t target-image.vtk  -r reference-image.vtk -o projection.vtk
+    statismo-fit-image  -i model.h5 -w 0 -m moving-image.vtk  -f fixed-image.vtk -o projection.vtk
 
 
 Fit a 3D image with landmarks and print fitting information:
 
-    statismo-fit-image -i model.h5 -t target-image.vtk -w 0.1 -r reference-image.vtk -o projection.vtk -f fixed-landmarks.csv -m moving-landmarks-from-target-image.csv -v 0.1 -p
+    statismo-fit-image -i model.h5 -m moving-image.vtk -w 0.1 -f fixed-image.vtk -o projection.vtk --fixed-landmarks fixed-landmarks.csv --moving-landmarks moving-landmarks-from-target-image.csv -v 0.1 -p
 
 Fit a 2D image with landmarks and print fitting information:
 
-    statismo-fit-image -d 2 -i model.h5 -t target-image.vtk -w 0.25 -r reference-image.vtk -o projection.vtk -f fixed-landmarks.csv -m moving-landmarks-from-target-image.csv -v 0.1 -p
+    statismo-fit-image -d 2 -i model.h5 -m moving-image.vtk -w 0.25 -f fixed-image.vtk -o projection.vtk --fixed-landmarks fixed-landmarks.csv --moving-landmarks moving-landmarks-from-target-image.csv -v 0.1 -p
 
 Fit a 2D image without landmarks, print fitting information and save both the deformation field caused by the model and the entire deformation field:
 
-    statismo-fit-image -d 2 -i model.h5 -t target-image.vtk -w 0.25 -r reference-image.vtk -o projection.vtk -e model-deform-field.vtk -a entire-deform-field.vtk -p
+    statismo-fit-image -d 2 -i model.h5 -m moving-image.vtk -w 0.25 -f fixed-image.vtk -o projection.vtk -e model-deform-field.vtk -a entire-deform-field.vtk -p
 
 Hint
 :	Use *statismo-warp-image* to apply the deformation fields to images.

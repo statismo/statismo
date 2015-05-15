@@ -65,8 +65,8 @@ struct programOptions {
     bool bDisplayHelp;
 
     string strInputModelFileName;
-    string strInputTargetImageFileName;
-    string strInputReferenceImageFileName;
+    string strInputMovingImageFileName;
+    string strInputFixedImageFileName;
 
     string strOutputFittedImageFileName;
     string strOutputModelTransformFileName;
@@ -149,7 +149,7 @@ bool isOptionsConflictPresent(programOptions& opt) {
         return true;
     }
 
-    if (opt.strInputReferenceImageFileName == "" || opt.strInputModelFileName == "" || opt.strInputTargetImageFileName == "") {
+    if (opt.strInputFixedImageFileName == "" || opt.strInputModelFileName == "" || opt.strInputMovingImageFileName == "") {
         return true;
     }
 
@@ -205,15 +205,15 @@ template<unsigned Dimensions, class RotationAndTranslationTransformType>
 void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
     typedef itk::Image<float, Dimensions> ImageType;
     typedef itk::ImageFileReader<ImageType> ImageReaderType;
-    typename ImageReaderType::Pointer pReferenceReader = ImageReaderType::New();
-    pReferenceReader->SetFileName(opt.strInputReferenceImageFileName.c_str());
-    pReferenceReader->Update();
-    typename ImageType::Pointer pReferenceImage = pReferenceReader->GetOutput();
+    typename ImageReaderType::Pointer pFixedImageReader = ImageReaderType::New();
+    pFixedImageReader->SetFileName(opt.strInputFixedImageFileName.c_str());
+    pFixedImageReader->Update();
+    typename ImageType::Pointer pFixedImage = pFixedImageReader->GetOutput();
 
-    typename ImageReaderType::Pointer pTargetReader = ImageReaderType::New();
-    pTargetReader->SetFileName(opt.strInputTargetImageFileName.c_str());
-    pTargetReader->Update();
-    typename ImageType::Pointer pTargetImage = pTargetReader->GetOutput();
+    typename ImageReaderType::Pointer pMovingImageReader = ImageReaderType::New();
+    pMovingImageReader->SetFileName(opt.strInputMovingImageFileName.c_str());
+    pMovingImageReader->Update();
+    typename ImageType::Pointer pMovingImage = pMovingImageReader->GetOutput();
 
     typedef itk::Vector<float, Dimensions> VectorPixelType;
     typedef itk::Image<VectorPixelType, Dimensions> VectorImageType;
@@ -269,25 +269,26 @@ void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
     pRegistration->SetOptimizer(pOptimizer);
     pRegistration->SetTransform(pTransform);
     pRegistration->SetInterpolator(pInterpolator);
-    pRegistration->SetFixedImage(pTargetImage);
-    pRegistration->SetFixedImageRegion(pTargetImage->GetBufferedRegion());
-    pRegistration->SetMovingImage(pReferenceImage);
+    pRegistration->SetFixedImage(pFixedImage);
+    pRegistration->SetFixedImageRegion(pFixedImage->GetBufferedRegion());
+    pRegistration->SetMovingImage(pMovingImage);
 
     pCOSilencer->disableOutput();
     pRegistration->Update();
     pCOSilencer->enableOutput();
 
-    typename VectorImageType::Pointer pDisplacementField = generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(pReferenceImage, pTransform, opt.strOutputEntireTransformFileName);
-    generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(pReferenceImage, (typename TransformType::Pointer) pModelTransform, opt.strOutputModelTransformFileName);
+    typename VectorImageType::Pointer pDisplacementField = generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(
+            pFixedImage, pTransform, opt.strOutputEntireTransformFileName);
+    generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(pFixedImage, (typename TransformType::Pointer) pModelTransform, opt.strOutputModelTransformFileName);
 
     if (opt.strOutputFittedImageFileName != "") {
         typedef itk::WarpImageFilter<ImageType, ImageType, VectorImageType> WarpFilterType;
         typename WarpFilterType::Pointer pWarper = WarpFilterType::New();
-        pWarper->SetInput(pReferenceImage);
+        pWarper->SetInput(pMovingImage);
         pWarper->SetInterpolator(pInterpolator);
-        pWarper->SetOutputSpacing(pTargetImage->GetSpacing());
-        pWarper->SetOutputOrigin(pTargetImage->GetOrigin());
-        pWarper->SetOutputDirection(pTargetImage->GetDirection());
+        pWarper->SetOutputSpacing(pFixedImage->GetSpacing());
+        pWarper->SetOutputOrigin(pFixedImage->GetOrigin());
+        pWarper->SetOutputDirection(pFixedImage->GetDirection());
         pWarper->SetDisplacementField(pDisplacementField);
         pWarper->Update();
 
@@ -301,8 +302,8 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     optMandatory.add_options()
 
     ("input-model,i", po::value<string>(&poParameters.strInputModelFileName), "The path to the model file.")
-    ("input-targetimage,t", po::value<string>(&poParameters.strInputTargetImageFileName), "The path to the target image.")
-    ("input-referenceimage,r", po::value<string>(&poParameters.strInputReferenceImageFileName), "The path to the reference image.")
+    ("input-movingimage,m", po::value<string>(&poParameters.strInputMovingImageFileName), "The path to the moving image.")
+    ("input-fixedimage,f", po::value<string>(&poParameters.strInputFixedImageFileName), "The path to the fixed image.")
     ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input images & model")
     ("regularization-weight,w", po::value<double>(&poParameters.dRegularizationWeight), "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.")
     ;
@@ -316,8 +317,8 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
 
     po::options_description optLandmarks("Landmarks (optional - if you set one you have to set all)");
     optLandmarks.add_options()
-    ("landmarks-fixed,f", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
-    ("landmarks-moving,m", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
+    ("landmarks-fixed", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
+    ("landmarks-moving", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
     ("landmarks-variance,v", po::value<double>(&poParameters.dLandmarksVariance), "The variance that will be used to build the posterior model.")
     ;
 
