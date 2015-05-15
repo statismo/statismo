@@ -302,8 +302,8 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     optMandatory.add_options()
 
     ("input-model,i", po::value<string>(&poParameters.strInputModelFileName), "The path to the model file.")
-    ("input-movingimage,m", po::value<string>(&poParameters.strInputMovingImageFileName), "The path to the moving image.")
-    ("input-fixedimage,f", po::value<string>(&poParameters.strInputFixedImageFileName), "The path to the fixed image.")
+    ("moving-image,m", po::value<string>(&poParameters.strInputMovingImageFileName), "The path to the moving image.")
+    ("fixed-image,f", po::value<string>(&poParameters.strInputFixedImageFileName), "The path to the fixed image.")
     ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input images & model")
     ("regularization-weight,w", po::value<double>(&poParameters.dRegularizationWeight), "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.")
     ;
@@ -317,8 +317,8 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
 
     po::options_description optLandmarks("Landmarks (optional - if you set one you have to set all)");
     optLandmarks.add_options()
-    ("landmarks-fixed", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
-    ("landmarks-moving", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
+    ("fixed-landmarks", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
+    ("moving-landmarks", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
     ("landmarks-variance,v", po::value<double>(&poParameters.dLandmarksVariance), "The variance that will be used to build the posterior model.")
     ;
 
