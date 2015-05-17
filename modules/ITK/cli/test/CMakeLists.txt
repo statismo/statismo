@@ -43,7 +43,7 @@ add_test( NAME statismo-build-gp-model-test-2d-image
   WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
 
 add_test( NAME statismo-build-gp-model-test-2d-image-extend-existing-model
-    COMMAND statismo-build-gp-model -d 2 -t deformation -k gaussian -p 75 -s 100 -n 100 -r "${STATISMO_DATA_DIR}hand_images/hand-1.vtk" -m "${FILENAME_GAUSSDEFORMATION_MODEL_2D}" "${TEST_DEFORMATION_DATA_DIR}2d extended gaussian deformationmodel.h5"
+    COMMAND statismo-build-gp-model -d 2 -t deformation -k gaussian -p 75 -s 100 -n 100 -m "${FILENAME_GAUSSDEFORMATION_MODEL_2D}" "${TEST_DEFORMATION_DATA_DIR}2d extended gaussian deformationmodel.h5"
     WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
 set_property( TEST statismo-build-gp-model-test-2d-image-extend-existing-model APPEND PROPERTY DEPENDS statismo-build-gp-model-test-2d-image )
 
@@ -54,12 +54,12 @@ set_property( TEST statismo-sample-test-2d-image APPEND PROPERTY DEPENDS statism
 
 set( FILENAME_DEFORMATION_FIELD "${TEST_DEFORMATION_DATA_DIR}model-deform-field-no-landmarks.vtk" )
 add_test( NAME statismo-fit-image-test-2d-no-landmarks
-  COMMAND statismo-fit-image -d 2 -i "${FILENAME_GAUSSDEFORMATION_MODEL_2D}" -t "${STATISMO_DATA_DIR}/hand_images/hand-2.vtk" -w 0.25 -r "${STATISMO_DATA_DIR}/hand_images/hand-1.vtk" -o "${TEST_DEFORMATION_DATA_DIR}projection-hand2-no-landmarks.vtk" -e "${FILENAME_DEFORMATION_FIELD}" -a "${TEST_DEFORMATION_DATA_DIR}entire-deform-field-no-landmarks.vtk" -p
+  COMMAND statismo-fit-image -d 2 -i "${FILENAME_GAUSSDEFORMATION_MODEL_2D}" -m "${STATISMO_DATA_DIR}/hand_images/hand-2.vtk" -w 0.25 -f "${STATISMO_DATA_DIR}/hand_images/hand-1.vtk" -o "${TEST_DEFORMATION_DATA_DIR}projection-hand2-no-landmarks.vtk" -e "${FILENAME_DEFORMATION_FIELD}" -a "${TEST_DEFORMATION_DATA_DIR}entire-deform-field-no-landmarks.vtk" -p
   WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
 set_property( TEST statismo-fit-image-test-2d-no-landmarks APPEND PROPERTY DEPENDS statismo-build-gp-model-test-2d-image )
 
 add_test( NAME statismo-fit-image-test-2d-with-landmarks
-  COMMAND statismo-fit-image -d 2 -i "${FILENAME_GAUSSDEFORMATION_MODEL_2D}" -t "${STATISMO_DATA_DIR}/hand_images/hand-2.vtk" -w 0.25 -r "${STATISMO_DATA_DIR}/hand_images/hand-1.vtk" -o "${TEST_DEFORMATION_DATA_DIR}projection-hand2-with-landmarks.vtk" -f "${STATISMO_DATA_DIR}/hand_landmarks/hand-2.csv" -m "${STATISMO_DATA_DIR}/hand_landmarks/hand-1.csv" -v 0.1 -p
+  COMMAND statismo-fit-image -d 2 -i "${FILENAME_GAUSSDEFORMATION_MODEL_2D}" -m "${STATISMO_DATA_DIR}/hand_images/hand-2.vtk" -w 0.25 -f "${STATISMO_DATA_DIR}/hand_images/hand-1.vtk" -o "${TEST_DEFORMATION_DATA_DIR}projection-hand2-with-landmarks.vtk" --fixed-landmarks "${STATISMO_DATA_DIR}/hand_landmarks/hand-2.csv" --moving-landmarks "${STATISMO_DATA_DIR}/hand_landmarks/hand-1.csv" -v 0.1 -p
   WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
 set_property( TEST statismo-fit-image-test-2d-with-landmarks APPEND PROPERTY DEPENDS statismo-build-gp-model-test-2d-image )
 

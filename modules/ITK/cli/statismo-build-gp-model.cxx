@@ -136,7 +136,13 @@ bool isOptionsConflictPresent(programOptions& opt) {
         return true;
     }
 
-    if (opt.strOutputFileName == "" || opt.strReferenceFile == "") {
+    if ((opt.strOptionalModelPath == "" && opt.strReferenceFile == "")
+            || (opt.strOptionalModelPath != "" & opt.strReferenceFile != "")) {
+        return true;
+    }
+
+
+    if (opt.strOutputFileName == "") {
         return true;
     }
 
@@ -155,6 +161,7 @@ bool isOptionsConflictPresent(programOptions& opt) {
     if (opt.strType == "shape" && opt.uNumberOfDimensions != 3) {
         return true;
     }
+
 
     return false;
 }
@@ -188,10 +195,15 @@ void buildAndSaveModel(programOptions opt) {
 
     typedef statismo::StatisticalModel<DataType> RawModelType;
     typedef boost::shared_ptr<RawModelType> RawModelPointerType;
+    typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
+
     RawModelPointerType pRawStatisticalModel;
+    typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
+    DatasetPointerType pMean;
+
+
     if(opt.strOptionalModelPath != "") {
 		try{
-			typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
 			pRawStatisticalModel.reset(RawModelType::Load(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str()));
 			pStatModelKernel.reset(new statismo::StatisticalModelKernel<DataType>(pRawStatisticalModel.get()));
 			pModelBuildingKernel.reset(new statismo::SumKernel<PointType>(pStatModelKernel.get(), pScaledKernel.get()));
@@ -199,16 +211,19 @@ void buildAndSaveModel(programOptions opt) {
 		catch (statismo::StatisticalModelException& s) {
 			itkGenericExceptionMacro(<< "Failed to read the optional model: "<< s.what());
 		}
+        pMean = pRawStatisticalModel->DrawMean();
     } else {
         pModelBuildingKernel = pScaledKernel;
+        typename DataReaderType::Pointer pReferenceReader = DataReaderType::New();
+        pReferenceReader->SetFileName(opt.strReferenceFile);
+        pReferenceReader->Update();
+        pRepresenter->SetReference(pReferenceReader->GetOutput());
+        pMean = pRepresenter->IdentitySample();
+
     }
 
-    typename DataReaderType::Pointer pReferenceReader = DataReaderType::New();
-    pReferenceReader->SetFileName(opt.strReferenceFile);
-    pReferenceReader->Update();
 
-    typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
-    pRepresenter->SetReference(pReferenceReader->GetOutput());
+
 
     typedef itk::LowRankGPModelBuilder<DataType> ModelBuilderType;
     typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
@@ -217,11 +232,7 @@ void buildAndSaveModel(programOptions opt) {
 
     typedef itk::StatisticalModel<DataType> StatisticalModelType;
     typename StatisticalModelType::Pointer pModel;
-    if (isShapeModel == true) {
-        pModel = gpModelBuilder->BuildNewModel(pReferenceReader->GetOutput(), *pModelBuildingKernel.get(), opt.iNrOfBasisFunctions);
-    } else {
-        pModel = gpModelBuilder->BuildNewZeroMeanModel(*pModelBuildingKernel.get(), opt.iNrOfBasisFunctions);
-    }
+    pModel = gpModelBuilder->BuildNewModel(pMean, *pModelBuildingKernel.get(), opt.iNrOfBasisFunctions);
 
     pModel->Save(opt.strOutputFileName.c_str());
 }
@@ -252,14 +263,15 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     ("kernel,k", po::value<string>(&poParameters.strKernel), kernelHelp.c_str())
     ("parameters,p", po::value<vector<string> >(&poParameters.vKernelParameters)->multitoken(), "Specifies the kernel parameters. The Parameters depend on the kernel")
     ("scale,s", po::value<float>(&poParameters.fKernelScale)->default_value(1), "A Scaling factor with which the Kernel will be scaled")
-    ("numberofbasisfunctions,n", po::value<int>(&poParameters.iNrOfBasisFunctions)->default_value(25), "Number of basis functions/parameters the model will have")
-    ("reference,r", po::value<string>(&poParameters.strReferenceFile), "The reference that will be used to build the model")
+    ("numberofbasisfunctions,n", po::value<int>(&poParameters.iNrOfBasisFunctions), "Number of basis functions/parameters the model will have")
     ("output-file,o", po::value<string>(&poParameters.strOutputFileName), "Name of the output file where the model will be saved")
     ;
     po::options_description optAdditional("Optional options");
     optAdditional.add_options()
+    ("reference,r", po::value<string>(&poParameters.strReferenceFile), "The reference that will be used to build the model")
     ("input-model,m", po::value<string>(&poParameters.strOptionalModelPath), "Extends an existing model with data from the specified kernel. This is useful to extend existing models in case of insufficient data.")
     ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
+
     ;
 
     po::options_description optAllOptions;
