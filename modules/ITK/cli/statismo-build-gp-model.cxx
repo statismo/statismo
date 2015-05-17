@@ -136,11 +136,8 @@ bool isOptionsConflictPresent(programOptions& opt) {
         return true;
     }
 
-    if (opt.strOptionalModelPath == "" && opt.strReferenceFile == "") {
-        return true;
-    }
-
-    if (opt.strOptionalModelPath != "" & opt.strReferenceFile != "") {
+    if ((opt.strOptionalModelPath == "" && opt.strReferenceFile == "")
+            || (opt.strOptionalModelPath != "" & opt.strReferenceFile != "")) {
         return true;
     }
 

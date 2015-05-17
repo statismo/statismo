@@ -42,10 +42,10 @@ statismo-fit-image iteratively fits a target image with the help of a model and 
 
 ## Landmarks (optional, if one is set then all have to be set)
 
-\--landmarks-fixed *FIXED_LANDMARKS_FILE*
+\--fixed-landmarks *FIXED_LANDMARKS_FILE*
 :	*FIXED_LANDMARKS_FILE* is the path to the the file containing the fixed landmarks.
 
-\--landmarks-moving *MOVING_LANDMARKS_FILE*
+\--moving-landmarks *MOVING_LANDMARKS_FILE*
 :	*MOVING_LANDMARKS_FILE* is the path to the the file containing the moving landmarks. (That's the landmarks on the target image)
 
 -v, \--landmarks-variance *VARIANCE*
