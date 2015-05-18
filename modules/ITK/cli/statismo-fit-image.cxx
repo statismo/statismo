@@ -278,7 +278,7 @@ void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
     pCOSilencer->enableOutput();
 
     typename VectorImageType::Pointer pDisplacementField = generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(
-            pFixedImage, pTransform, opt.strOutputEntireTransformFileName);
+                pFixedImage, pTransform, opt.strOutputEntireTransformFileName);
     generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(pFixedImage, (typename TransformType::Pointer) pModelTransform, opt.strOutputModelTransformFileName);
 
     if (opt.strOutputFittedImageFileName != "") {

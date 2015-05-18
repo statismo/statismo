@@ -126,7 +126,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
     RowVectorType mu = X.colwise().mean(); // needs to be row vector
     MatrixType X0 = X.rowwise() - mu;
 
-    switch(method){
+    switch(method) {
     case JacobiSVD:
 
         typedef Eigen::JacobiSVD<MatrixType> SVDType;
@@ -194,8 +194,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
         }
         break;
 
-    case SelfAdjointEigenSolver:
-    {
+    case SelfAdjointEigenSolver: {
         // we compute the eigenvalues/eigenvectors of the full p x p  covariance matrix 1/(n-1) X0^TX0 directly
 
         typedef Eigen::SelfAdjointEigenSolver<MatrixType> SelfAdjointEigenSolver;
@@ -216,7 +215,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
         StatisticalModelType* model = StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
         return model;
     }
-        break;
+    break;
 
     default:
         throw StatisticalModelException("Unrecognized decomposition/eigenvalue solver method.");

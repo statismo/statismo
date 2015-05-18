@@ -135,7 +135,7 @@ int main(int argc, char* argv[]) {
 
     double noiseVariance = 0;
     if (argc > 4) {
-      noiseVariance = atof(argv[4]);
+        noiseVariance = atof(argv[4]);
     }
 
     if (dimension==2) {

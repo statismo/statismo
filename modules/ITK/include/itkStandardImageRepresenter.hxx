@@ -189,7 +189,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::LoadRefLegacy(const H5::Group&
     try {
         reader->Update();
     } catch (itk::ImageFileReaderException& e) {
-      boost::filesystem::remove(tmpfilename);
+        boost::filesystem::remove(tmpfilename);
         throw statismo::StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
     }
     typename DatasetType::Pointer img = reader->GetOutput();

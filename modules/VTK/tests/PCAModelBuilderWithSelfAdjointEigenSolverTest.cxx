@@ -78,10 +78,10 @@ void writePolyData(vtkPolyData* pd, const std::string& filename) {
     writer->Update();
 }
 
-vtkPolyData* ReducePoints(vtkPolyData* poly, unsigned num_points){
+vtkPolyData* ReducePoints(vtkPolyData* poly, unsigned num_points) {
     vtkPoints* points = vtkPoints::New();
     unsigned step = unsigned(std::ceil(double(poly->GetPoints()->GetNumberOfPoints())/double(num_points)));
-    for(unsigned i=0; i<poly->GetPoints()->GetNumberOfPoints(); i+=step){
+    for(unsigned i=0; i<poly->GetPoints()->GetNumberOfPoints(); i+=step) {
         points->InsertNextPoint(poly->GetPoints()->GetPoint(i));
     }
     vtkPolyData* res = vtkPolyData::New();
@@ -89,11 +89,11 @@ vtkPolyData* ReducePoints(vtkPolyData* poly, unsigned num_points){
     return res;
 }
 
-double CompareVectors(const VectorType& v1, const VectorType& v2){
+double CompareVectors(const VectorType& v1, const VectorType& v2) {
     return (v1-v2).norm();
 }
 
-double CompareMatrices(const MatrixType& m1, const MatrixType& m2){
+double CompareMatrices(const MatrixType& m1, const MatrixType& m2) {
     return (m1-m2).norm();
 }
 
@@ -165,7 +165,7 @@ int main(int argc, char** argv) {
     boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
     std::vector<std::string>::const_iterator it = filenames.begin();
-    for(; it!=filenames.end(); it++){
+    for(; it!=filenames.end(); it++) {
         vtkPolyData* testDataset = loadPolyData((*it));
         testDataset = ReducePoints(testDataset, num_points);
         dataManager->AddDataset(testDataset, "dataset");
@@ -193,11 +193,10 @@ int main(int argc, char** argv) {
     VectorType variance2 = jacobiModel->GetPCAVarianceVector();
     MatrixType pcbasis2 = jacobiModel->GetPCABasisMatrix();
 
-    if(CompareVectors(variance1, variance2)==0 && CompareMatrices(pcbasis1, pcbasis2) == 0){
+    if(CompareVectors(variance1, variance2)==0 && CompareMatrices(pcbasis1, pcbasis2) == 0) {
         std::clock_t end = std::clock();
         std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t[passed]" << std::endl;
-    }
-    else{
+    } else {
         std::cout << " \t[failed]" << std::endl;
         std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t\t\t" << "- something went wrong with the standard argument!" << std::endl;
         testsOk = false;
@@ -209,7 +208,7 @@ int main(int argc, char** argv) {
     // ----------------------------------------------------------
     boost::scoped_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer));
     dataManager->AddDataset(reference, "ref");
-    for(unsigned i=0; i<5000; i++){
+    for(unsigned i=0; i<5000; i++) {
         std::stringstream ss;
         ss << "sample" << i;
         dataManager2->AddDataset(jacobiModel->DrawSample(), ss.str().c_str());
@@ -233,7 +232,7 @@ int main(int argc, char** argv) {
     std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "comparing principal components... " << std::flush;
     begin = std::clock();
     double error = 0;
-    for(unsigned i=0; i<std::min(jacobiModel->GetNumberOfPrincipalComponents(), saesModel->GetNumberOfPrincipalComponents()); i++){
+    for(unsigned i=0; i<std::min(jacobiModel->GetNumberOfPrincipalComponents(), saesModel->GetNumberOfPrincipalComponents()); i++) {
         VectorType coeff1 = VectorType::Zero(jacobiModel->GetNumberOfPrincipalComponents());
         coeff1[i] = 2;
         VectorType coeff2 = VectorType::Zero(saesModel->GetNumberOfPrincipalComponents());
@@ -241,14 +240,14 @@ int main(int argc, char** argv) {
 
         // it might be, that the direction of the pc is in the opposite direction
         double equal_direction = CompareVectors(jacobiModel->DrawSampleVector(coeff1, false),
-                                        saesModel->DrawSampleVector(coeff2, false));
+                                                saesModel->DrawSampleVector(coeff2, false));
         coeff2[i] = -2;
         double oppo_direction = CompareVectors(jacobiModel->DrawSampleVector(coeff1, false),
-                                        saesModel->DrawSampleVector(coeff2, false));
+                                               saesModel->DrawSampleVector(coeff2, false));
 
         error += std::min(equal_direction, oppo_direction);
 
-        if(output_dir.size() >0){
+        if(output_dir.size() >0) {
             std::stringstream ss1;
             ss1 << output_dir << "/jacobi-" << i << ".vtk";
             writePolyData(jacobiModel->DrawSample(coeff1, false), ss1.str().c_str());
@@ -261,35 +260,33 @@ int main(int argc, char** argv) {
     }
 
     double threshold = 150;
-    if(error < threshold){
+    if(error < threshold) {
         std::clock_t end = std::clock();
         std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t\t[passed]" << std::endl;
-    }
-    else{
+    } else {
         std::cout << " \t[failed]" << std::endl;
         std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "- pc error("<< error << ") exceeds threshold ("<< threshold <<")!" << std::endl;
         testsOk = false;
     }
 
     double var_error = 0;
-    for(unsigned i=0; i<std::min(jacobiModel->GetNumberOfPrincipalComponents(), saesModel->GetNumberOfPrincipalComponents()); i++){
+    for(unsigned i=0; i<std::min(jacobiModel->GetNumberOfPrincipalComponents(), saesModel->GetNumberOfPrincipalComponents()); i++) {
         var_error += std::sqrt(std::pow(jacobiModel->GetPCAVarianceVector()[i] - saesModel->GetPCAVarianceVector()[i],2));
     }
 
     std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "comparing variances... " << std::flush;
     double var_threshold = 250;
-    if(var_error < var_threshold){
+    if(var_error < var_threshold) {
         std::clock_t end = std::clock();
         std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t\t\t[passed]" << std::endl;
-    }
-    else{
+    } else {
         std::cout << " \t[failed]" << std::endl;
         std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "- variance error("<< var_error << ") exceeds threshold ("<< var_threshold <<")!" << std::endl;
         testsOk = false;
     }
 
 
-    if(output_dir.size() >0){
+    if(output_dir.size() >0) {
         std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "The results can be visually inspected in the directory " << output_dir << std::endl;
     }
 
