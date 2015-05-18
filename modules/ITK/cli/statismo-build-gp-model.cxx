@@ -203,14 +203,13 @@ void buildAndSaveModel(programOptions opt) {
 
 
     if(opt.strOptionalModelPath != "") {
-		try{
-			pRawStatisticalModel.reset(RawModelType::Load(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str()));
-			pStatModelKernel.reset(new statismo::StatisticalModelKernel<DataType>(pRawStatisticalModel.get()));
-			pModelBuildingKernel.reset(new statismo::SumKernel<PointType>(pStatModelKernel.get(), pScaledKernel.get()));
-		}
-		catch (statismo::StatisticalModelException& s) {
-			itkGenericExceptionMacro(<< "Failed to read the optional model: "<< s.what());
-		}
+        try {
+            pRawStatisticalModel.reset(RawModelType::Load(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str()));
+            pStatModelKernel.reset(new statismo::StatisticalModelKernel<DataType>(pRawStatisticalModel.get()));
+            pModelBuildingKernel.reset(new statismo::SumKernel<PointType>(pStatModelKernel.get(), pScaledKernel.get()));
+        } catch (statismo::StatisticalModelException& s) {
+            itkGenericExceptionMacro(<< "Failed to read the optional model: "<< s.what());
+        }
         pMean = pRawStatisticalModel->DrawMean();
     } else {
         pModelBuildingKernel = pScaledKernel;

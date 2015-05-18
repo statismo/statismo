@@ -108,8 +108,8 @@ int main(int argc, char** argv) {
 
     try {
         if (poParameters.strType == "shape") {
-			typedef itk::Mesh<float, Dimensionality3D> DataType;
-			typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
+            typedef itk::Mesh<float, Dimensionality3D> DataType;
+            typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
             typedef itk::MeshFileWriter<DataType> DataWriterType;
             drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
         } else {

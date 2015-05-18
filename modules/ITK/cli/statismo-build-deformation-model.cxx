@@ -150,7 +150,7 @@ void buildAndSaveDeformationModel(programOptions opt) {
         typename ImageReaderType::Pointer reader = ImageReaderType::New();
         reader->SetFileName(it->c_str());
         reader->Update();
-		//itk::PCAModelBuilder is not a Filter in the ITK world, so the pipeline would not get executed if its main method is called. So the pipeline before calling itk::PCAModelBuilder must be executed by the means of calls to Update() (at least for last elements needed by itk::PCAModelBuilder).
+        //itk::PCAModelBuilder is not a Filter in the ITK world, so the pipeline would not get executed if its main method is called. So the pipeline before calling itk::PCAModelBuilder must be executed by the means of calls to Update() (at least for last elements needed by itk::PCAModelBuilder).
         images.push_back(reader);
     }
 

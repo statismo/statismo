@@ -292,22 +292,22 @@ class Representer {
     virtual DatasetPointerType IdentitySample() const {
 
         switch (this->GetType()) {
-            case POINT_SET:
-            case POLYGON_MESH:
-            case VOLUME_MESH: {
-                return CloneDataset(this->GetReference());
-                break;
-            }
-            case IMAGE:
-            case VECTOR: {
-                VectorType zeroVec = VectorType::Zero(GetDomain().GetNumberOfPoints() * GetDimensions());
-                return SampleVectorToSample(zeroVec);
-                break;
-            }
-            default: {
-                throw statismo::StatisticalModelException(
-                        "No cannonical identityDataset method is defined for custom Representers.");
-            }
+        case POINT_SET:
+        case POLYGON_MESH:
+        case VOLUME_MESH: {
+            return CloneDataset(this->GetReference());
+            break;
+        }
+        case IMAGE:
+        case VECTOR: {
+            VectorType zeroVec = VectorType::Zero(GetDomain().GetNumberOfPoints() * GetDimensions());
+            return SampleVectorToSample(zeroVec);
+            break;
+        }
+        default: {
+            throw statismo::StatisticalModelException(
+                "No cannonical identityDataset method is defined for custom Representers.");
+        }
         }
     }
 };
