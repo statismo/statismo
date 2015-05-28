@@ -35,7 +35,7 @@
 #include <string>
 
 #include <boost/algorithm/string.hpp>
-
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <itkImage.h>
 #include <itkMesh.h>
 
@@ -71,7 +71,7 @@ KernelMapType kernelMap;
 
 template <class TPoint>
 class GaussianKernel : public statismo::ScalarValuedKernel<TPoint> {
-  public:
+public:
     typedef typename  TPoint::CoordRepType CoordRepType;
     typedef vnl_vector<CoordRepType> VectorType;
 
@@ -95,10 +95,172 @@ class GaussianKernel : public statismo::ScalarValuedKernel<TPoint> {
         return os.str();
     }
 
-  private:
+private:
     double m_sigma;
     double m_sigma2;
 };
+
+
+
+
+
+template <class TPoint>
+class BSplineKernel : public statismo::ScalarValuedKernel<TPoint> {
+public:
+    typedef typename  TPoint::CoordRepType CoordRepType;
+    typedef vnl_vector<CoordRepType> VectorType;
+
+
+    BSplineKernel(double support) : m_support(support) {
+
+    }
+
+
+    // the 3rd order b-spline basis function
+    double bspline3(const double& x) const {
+        double absX = std::fabs(x);
+        double absXSquared = absX * absX;
+        double absXCube = absXSquared * absX;
+        double twoMinAbsX = 2.0 - absX;
+        double twoByThree = 2.0 / 3.0;
+
+        double value = 0;
+        if (absX >= 0 && absX < 1) {
+            value = twoByThree - absXSquared + 0.5 * absXCube;
+        }
+        else if (absX >= 1 && absX < 2) {
+            value = twoMinAbsX * twoMinAbsX * twoMinAbsX / 6.0;
+        }
+        else {
+            value = 0;
+        }
+        return value;
+    }
+
+    double tensorProductSpline(const VectorType& x) const {
+        double prod = 1;
+        for (unsigned d = 0; d < x.size(); ++d) {
+            prod *= bspline3(x[d]);
+        }
+        return prod;
+    }
+
+
+    inline double operator()(const TPoint& x, const TPoint& y) const {
+
+        assert(x.Size() == y.Size());
+        const unsigned dim = x.Size();
+
+        if (dim < 1 || dim > 3) {
+            throw statismo::StatisticalModelException("Currently only dimensions 1 - 3 are supported");
+        }
+
+        const double order = 3;
+        const double supportBasisFunction = 4.0;
+        const double scale = -1.0 * std::log(m_support / supportBasisFunction) / std::log(2);
+
+        VectorType xScaled = x.GetVnlVector() * std::pow(2.0, scale);
+        VectorType yScaled = y.GetVnlVector() * std::pow(2.0, scale);
+
+        VectorType kLower(dim);
+        VectorType kUpper(dim);
+        for (unsigned d = 0; d < dim; ++d) {
+            kLower[d] = static_cast<int>(std::ceil(std::max(xScaled[d], yScaled[d]) - 0.5 * supportBasisFunction));
+            kUpper[d] = static_cast<int>(std::floor(std::min(xScaled[d], yScaled[d]) + 0.5 * supportBasisFunction));
+        }
+
+
+        // We need to generate the cartesian product k_1 x ... x k_d, where k_i goes through all the integers
+        // within the given bounds. A non-recursive solution requires d loops. Here we just write down the cases
+        // for 1 2 and 3D
+        double sum = 0.0;
+        double kx = kLower[0];
+        while (kx <= kUpper[0]) {
+            if (dim == 1) {
+                VectorType k(1);
+                k[0] = kx;
+                sum += (tensorProductSpline(xScaled - k) * tensorProductSpline(yScaled - k));
+
+            } else {
+                double ky = kLower[1];
+                while (ky <= kUpper[1]) {
+                    if (dim == 2) {
+                        VectorType k(2);
+                        k[0] = kx; k[1] = ky;
+                        sum += (tensorProductSpline(xScaled - k) * tensorProductSpline(yScaled - k));
+                    } else {
+                        double kz = kLower[2];
+                        while (kz <= kUpper[2]) {
+                            VectorType k(3);
+                            k[0] = kx; k[1] = ky; k[2] = kz;
+                            sum += (tensorProductSpline(xScaled - k) * tensorProductSpline(yScaled - k));
+                            kz += 1;
+                        }
+                    }
+                    ky += 1;
+                }
+            }
+
+            kx += 1;
+        }
+
+        return sum;
+    }
+
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << "BSplineKernel(" << m_support << ")";
+        return os.str();
+    }
+
+private:
+    double m_support;
+};
+
+template <class TPoint>
+class MultiscaleKernel : public statismo::ScalarValuedKernel<TPoint> {
+public:
+    typedef typename  TPoint::CoordRepType CoordRepType;
+    typedef vnl_vector<CoordRepType> VectorType;
+
+
+    MultiscaleKernel(double supportBaseLevel, unsigned numberOfLevels) :
+            m_supportBaseLevel(supportBaseLevel),
+            m_numberOfLevels(numberOfLevels)
+    {
+        double support = supportBaseLevel;
+        for (unsigned i = 0; i < numberOfLevels; ++i) {
+            m_kernels.push_back(new BSplineKernel<TPoint>(m_supportBaseLevel * std::pow(2, -1.0 * i)));
+            std::cout << "added kernel with support " << m_supportBaseLevel * std::pow(2, -1.0 * i) << std::endl;
+        }
+    }
+
+
+
+    inline double operator()(const TPoint& x, const TPoint& y) const {
+
+        assert(x.Size() == y.Size());
+        const unsigned dim = x.Size();
+        double sum = 0;
+        for (unsigned i = 0; i < m_kernels.size(); ++i) {
+            sum += m_kernels[i](x, y) * std::pow(2, -1.0 * i);
+        }
+
+        return sum;
+    }
+
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << "MultiscaleKernel(" << m_supportBaseLevel << ", " << m_numberOfLevels << ")";
+        return os.str();
+    }
+
+private:
+    double m_supportBaseLevel;
+    unsigned m_numberOfLevels;
+    boost::ptr_vector<BSplineKernel<TPoint> >  m_kernels;
+};
+
 
 
 template <class TPoint>
@@ -119,6 +281,27 @@ const statismo::ScalarValuedKernel<TPoint>* createGaussianKernel(std::vector<std
     }
 }
 
+template <class TPoint>
+const statismo::ScalarValuedKernel<TPoint>* createMultiscaleKernel(std::vector<std::string> kernelArgs) {
+    if (kernelArgs.size() == 2) {
+        try {
+            double baseLevel = boost::lexical_cast<double>(kernelArgs[0]);
+            unsigned numberOfLevels = boost::lexical_cast<unsigned>(kernelArgs[1]);
+
+            if (baseLevel <= 0) {
+                itkGenericExceptionMacro( << "Error: baselevel has to be > 0");
+            }
+            //The kernel will be deleted automatically once it's no longer being used
+            return new MultiscaleKernel<TPoint>(baseLevel, numberOfLevels);
+        } catch (boost::bad_lexical_cast &) {
+            itkGenericExceptionMacro( << "Error: could not parse the kernel argument");
+        }
+    } else {
+        itkGenericExceptionMacro( <<"The Multiscale Kernel takes two arguments: the support of the base level and the number of levels. You provided" <<kernelArgs.size()<< " Arguments.");
+    }
+}
+
+
 #define addKernelToKernelMap(kernelName, functionName){ \
     KernelContainer kernel; \
     kernel.createKernel3DDeformation = &functionName < DataType3DDeformation::PointType >; \
@@ -128,5 +311,6 @@ const statismo::ScalarValuedKernel<TPoint>* createGaussianKernel(std::vector<std
 }
 
 void createKernelMap() {
-    addKernelToKernelMap("gaussian", createGaussianKernel)
+    addKernelToKernelMap("gaussian", createGaussianKernel);
+    addKernelToKernelMap("multiscale", createMultiscaleKernel);
 }
