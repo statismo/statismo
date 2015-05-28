@@ -74,7 +74,7 @@ struct programOptions {
     string strOutputProjectedMeshFileName;
 
     double dRegularizationWeight;
-
+    unsigned uNumberOfIterations;
     string strInputFixedLandmarksFileName;
     string strInputMovingLandmarksFileName;
     double dLandmarksVariance;
@@ -264,7 +264,7 @@ void fitMesh(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
 
     typedef itk::LBFGSOptimizer OptimizerType;
     OptimizerType::Pointer pOptimizer = OptimizerType::New();
-    initializeOptimizer<OptimizerType>(pOptimizer, pModel->GetNumberOfPrincipalComponents(), pTransform->GetNumberOfParameters(), opt.bPrintFittingInformation, pCOSilencer);
+    initializeOptimizer<OptimizerType>(pOptimizer, opt.uNumberOfIterations, pModel->GetNumberOfPrincipalComponents(), pTransform->GetNumberOfParameters(), opt.bPrintFittingInformation, pCOSilencer);
 
     typedef itk::LinearInterpolateImageFunction<DistanceImageType, double> InterpolatorType;
     InterpolatorType::Pointer pInterpolator = InterpolatorType::New();
@@ -323,6 +323,7 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
 
     ("input-model,i", po::value<string>(&poParameters.strInputModelFileName), "The path to the model file.")
     ("input-targetmesh,t", po::value<string>(&poParameters.strInputTargetMeshFileName), "The path to the target mesh.")
+    ("number-of-iterations,n", po::value<unsigned>(&poParameters.uNumberOfIterations)->default_value(100), "Number of iterations")
     ("regularization-weight,w", po::value<double>(&poParameters.dRegularizationWeight), "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.")
     ;
 

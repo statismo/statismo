@@ -49,7 +49,7 @@ typename StatisticalModelType::Pointer buildPosteriorShapeModel(typename Statist
 template<class DataType, class StatisticalModelType>
 typename StatisticalModelType::Pointer buildPosteriorDeformationModel(typename StatisticalModelType::Pointer pModel, const std::string& strFixedLandmarksFileName, const std::string& strMovingLandmarksFileName, const double dLandmarksVariance);
 template<class OptimizerType>
-void initializeOptimizer(typename OptimizerType::Pointer pOptimizer, const unsigned uNumberOfModelComponents, const unsigned uTotalNumberOfOptimizationParameters, const bool bPrintFittingInformation, ConsoleOutputSilencer* pCOSilencer);
+void initializeOptimizer(typename OptimizerType::Pointer pOptimizer, const unsigned uNumberOfIterations, const unsigned uNumberOfModelComponents, const unsigned uTotalNumberOfOptimizationParameters, const bool bPrintFittingInformation, ConsoleOutputSilencer* pCOSilencer);
 
 #ifdef _WIN32
 #include <io.h>
@@ -173,8 +173,7 @@ class IterationStatusObserver : public itk::Command {
 
 
 template<class OptimizerType>
-void initializeOptimizer(typename OptimizerType::Pointer pOptimizer, const unsigned uNumberOfModelComponents, const unsigned uTotalNumberOfOptimizationParameters, const bool bPrintFittingInformation, ConsoleOutputSilencer* pCOSilencer) {
-    const unsigned uNumberOfIterations = 150;
+void initializeOptimizer(typename OptimizerType::Pointer pOptimizer, const unsigned uNumberOfIterations, const unsigned uNumberOfModelComponents, const unsigned uTotalNumberOfOptimizationParameters, const bool bPrintFittingInformation, ConsoleOutputSilencer* pCOSilencer) {
     const unsigned uNumberOfRigid2DtransformComponents = 3;
     const unsigned uNumberOfRigid3DtransformComponents = 6;
 
