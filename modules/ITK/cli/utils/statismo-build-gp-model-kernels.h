@@ -111,30 +111,29 @@ public:
     typedef vnl_vector<CoordRepType> VectorType;
 
 
-    BSplineKernel(double support) : m_support(support) {
-
-    }
+    BSplineKernel(double support) : m_support(support) {}
 
 
     // the 3rd order b-spline basis function
     double bspline3(const double& x) const {
-        double absX = std::fabs(x);
-        double absXSquared = absX * absX;
-        double absXCube = absXSquared * absX;
-        double twoMinAbsX = 2.0 - absX;
-        double twoByThree = 2.0 / 3.0;
+        const double absX = std::fabs(x);
+        const double absXSquared = absX * absX;
+        const double absXCube = absXSquared * absX;
+        const double twoMinAbsX = 2.0 - absX;
+        const double twoMinAbsXCube = twoMinAbsX * twoMinAbsX * twoMinAbsX;
+        const double twoByThree = 2.0 / 3.0;
 
-        double value = 0;
+        double splineValue = 0;
         if (absX >= 0 && absX < 1) {
-            value = twoByThree - absXSquared + 0.5 * absXCube;
+            splineValue = twoByThree - absXSquared + 0.5 * absXCube;
         }
         else if (absX >= 1 && absX < 2) {
-            value = twoMinAbsX * twoMinAbsX * twoMinAbsX / 6.0;
+            splineValue = twoMinAbsXCube / 6.0;
         }
         else {
-            value = 0;
+            splineValue = 0;
         }
-        return value;
+        return splineValue;
     }
 
     double tensorProductSpline(const VectorType& x) const {
@@ -152,7 +151,9 @@ public:
         const unsigned dim = x.Size();
 
         if (dim < 1 || dim > 3) {
-            throw statismo::StatisticalModelException("Currently only dimensions 1 - 3 are supported");
+            std::ostringstream os;
+            os << "Currently only dimensions 1 - 3 are supported.  ( Received" << dim << ")";
+            throw statismo::StatisticalModelException(os.str().c_str());
         }
 
         const double order = 3;
@@ -217,6 +218,13 @@ private:
     double m_support;
 };
 
+
+//
+// A kernel that represents deformations on different scale levels.
+// Each scale level is modeled as a b-spline kernel, which leads to a "wavelet style"
+// decomposition of the deformation. See
+// Opfer, Roland. "Multiscale kernels." Advances in computational mathematics 25.4 (2006): 357-380.
+//
 template <class TPoint>
 class MultiscaleKernel : public statismo::ScalarValuedKernel<TPoint> {
 public:
@@ -231,7 +239,6 @@ public:
         double support = supportBaseLevel;
         for (unsigned i = 0; i < numberOfLevels; ++i) {
             m_kernels.push_back(new BSplineKernel<TPoint>(m_supportBaseLevel * std::pow(2, -1.0 * i)));
-            std::cout << "added kernel with support " << m_supportBaseLevel * std::pow(2, -1.0 * i) << std::endl;
         }
     }
 
