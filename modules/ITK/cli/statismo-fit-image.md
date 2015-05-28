@@ -27,6 +27,10 @@ statismo-fit-image iteratively fits a target image with the help of a model and 
 -w, \--regularization-weight *WEIGHT*
 :	*WEIGHT* is the regularization weight that is used to ensure that the model parameters don't deviate too much from the mean. The higher this weight is, the closer the model parameters should stay to the mean. Note: The regularization is the sum over the square of all model parameters.
 
+-n, \--number-of-iterations *NUM_ITERATIONS*
+:	the number of iterations used in the fitting process
+
+
 -d, \--dimensionality 
 :	Specifies the dimensionality of the images and the model (either 2 or 3).
 

@@ -29,6 +29,8 @@ statismo-fit-surface fits a model iteratively in to a target mesh and then saves
 
 -j, \--output-projected *PROJECTED_MESH_FILE*
 :	*PROJECTED_MESH_FILE* is the path where the projected mesh will be saved. At least one of the two output meshes has to be specified. It's also possible to save both.
+-n, \--number-of-iterations *NUM_ITERATIONS*
+:	the number of iterations used in the fitting process
 
 ## Landmarks (optional, if one is set then all have to be set)
 

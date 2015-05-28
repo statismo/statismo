@@ -77,6 +77,7 @@ struct programOptions {
     double dLandmarksVariance;
 
     unsigned uNumberOfDimensions;
+    unsigned uNumberOfIterations;
     double dRegularizationWeight;
 
     bool bPrintFittingInformation;
@@ -252,7 +253,7 @@ void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
 
     typedef itk::LBFGSOptimizer OptimizerType;
     OptimizerType::Pointer pOptimizer = OptimizerType::New();
-    initializeOptimizer<OptimizerType>(pOptimizer, pModel->GetNumberOfPrincipalComponents(), pTransform->GetNumberOfParameters(), opt.bPrintFittingInformation, pCOSilencer);
+    initializeOptimizer<OptimizerType>(pOptimizer, opt.uNumberOfIterations, pModel->GetNumberOfPrincipalComponents(), pTransform->GetNumberOfParameters(), opt.bPrintFittingInformation, pCOSilencer);
 
     typedef itk::PenalizingMeanSquaresImageToImageMetric<ImageType, ImageType> MetricType;
     typename MetricType::Pointer pMetric = MetricType::New();
@@ -305,6 +306,7 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     ("moving-image,m", po::value<string>(&poParameters.strInputMovingImageFileName), "The path to the moving image.")
     ("fixed-image,f", po::value<string>(&poParameters.strInputFixedImageFileName), "The path to the fixed image.")
     ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input images & model")
+    ("number-of-iterations,n", po::value<unsigned>(&poParameters.uNumberOfIterations)->default_value(100), "Number of iterations")
     ("regularization-weight,w", po::value<double>(&poParameters.dRegularizationWeight), "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.")
     ;
 
