@@ -74,12 +74,13 @@ Extend a 2D deformation model with a gaussian kernel and scale it up to 100 basi
 
     statismo-build-gp-model -d 2 -t deformation -k gaussian -p 75 -s 100 -n 100 -r reference-image.vtk -m input-model.h5 extended-model.h5
 
-<!-- 
-Build a shape model with a multi-parameter kernel and 50 basis functions: (this is an example on how to use multiple kernel parameters for future documentation writers)
 
-    statismo-build-gp-model -t shape -k multi-parameter[float,bool,int] -p 5.12 true -99 -s 100 -n 50 -r reference-mesh.vtk model.h5
+Build a shape model with a multiscale kernel using 50 basis functions. This is an example of a kernel that takes 2 parameters
+ (the support and number of levels)
+
+    statismo-build-gp-model -t shape -k multiscale -p 128 5 -s 100 -n 50 -r reference-mesh.vtk model.h5
 	
---> 
+
 
 # SEE ALSO
 

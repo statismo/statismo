@@ -156,15 +156,14 @@ public:
             throw statismo::StatisticalModelException(os.str().c_str());
         }
 
-        const double order = 3;
         const double supportBasisFunction = 4.0;
         const double scale = -1.0 * std::log(m_support / supportBasisFunction) / std::log(2);
 
         VectorType xScaled = x.GetVnlVector() * std::pow(2.0, scale);
         VectorType yScaled = y.GetVnlVector() * std::pow(2.0, scale);
 
-        VectorType kLower(dim);
-        VectorType kUpper(dim);
+        std::vector<int> kLower(dim);
+        std::vector<int> kUpper(dim);
         for (unsigned d = 0; d < dim; ++d) {
             kLower[d] = static_cast<int>(std::ceil(std::max(xScaled[d], yScaled[d]) - 0.5 * supportBasisFunction));
             kUpper[d] = static_cast<int>(std::floor(std::min(xScaled[d], yScaled[d]) + 0.5 * supportBasisFunction));
@@ -239,6 +238,7 @@ public:
         double support = supportBaseLevel;
         for (unsigned i = 0; i < numberOfLevels; ++i) {
             m_kernels.push_back(new BSplineKernel<TPoint>(m_supportBaseLevel * std::pow(2, -1.0 * i)));
+            m_kernelWeights.push_back(std::pow(2, -1.0 * i));
         }
     }
 
@@ -250,7 +250,7 @@ public:
         const unsigned dim = x.Size();
         double sum = 0;
         for (unsigned i = 0; i < m_kernels.size(); ++i) {
-            sum += m_kernels[i](x, y) * std::pow(2, -1.0 * i);
+            sum += m_kernels[i](x, y) * m_kernelWeights[i];
         }
 
         return sum;
@@ -266,6 +266,7 @@ private:
     double m_supportBaseLevel;
     unsigned m_numberOfLevels;
     boost::ptr_vector<BSplineKernel<TPoint> >  m_kernels;
+    std::vector<double> m_kernelWeights;
 };
 
 
