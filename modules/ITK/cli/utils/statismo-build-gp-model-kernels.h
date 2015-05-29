@@ -157,7 +157,7 @@ public:
         }
 
         const double supportBasisFunction = 4.0;
-        const double scale = -1.0 * std::log(m_support / supportBasisFunction) / std::log(2);
+        const double scale = -1.0 * std::log(m_support / supportBasisFunction) / std::log(2.0);
 
         VectorType xScaled = x.GetVnlVector() * std::pow(2.0, scale);
         VectorType yScaled = y.GetVnlVector() * std::pow(2.0, scale);
