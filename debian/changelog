@@ -1,4 +1,12 @@
-statismo (0.10.2) UNRELEASED; urgency=medium
+statismo (0.11) UNRELEASED; urgency=medium
+
+  *  new upstream release
+
+  * added command line tools (statismo-tools)
+
+ -- Stefan Schlager <zarquon42@gmail.com>  Fri, 29 May 2015 13:52:37 +0200
+
+statismo (0.10.2) unstable; urgency=medium
 
   * new upstream release
 
