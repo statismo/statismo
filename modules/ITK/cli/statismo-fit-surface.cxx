@@ -335,8 +335,8 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
 
     po::options_description optLandmarks("Landmarks (optional - if you set one you have to set all)");
     optLandmarks.add_options()
-    ("landmarks-fixed,f", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
-    ("landmarks-moving,m", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
+    ("fixed-landmarks,f", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
+    ("moving-landmarks,m", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
     ("landmarks-variance,v", po::value<double>(&poParameters.dLandmarksVariance), "The variance that will be used to build the posterior model.")
     ;
 
