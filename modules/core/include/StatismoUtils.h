@@ -46,6 +46,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <boost/filesystem.hpp>
 
 #ifdef _WIN32
 #define NOMINMAX // avoid including the min and max macro
@@ -132,22 +133,9 @@ class Utils {
 
 
     static std::string CreateTmpName(const std::string& extension) {
-#ifdef _WIN32
-        std::string tmpDirectoryName;
-        TCHAR szTempFileName[MAX_PATH];
-        DWORD dwRetVal = 0;
-        //  Gets the temp path env string (no guarantee it's a valid path).
-        dwRetVal = GetTempPath(MAX_PATH,          // length of the buffer
-                               szTempFileName); // buffer for path
-        tmpDirectoryName.assign(szTempFileName);
-        std::string tmpfilename = tmpDirectoryName + "/" + tmpnam(0) +extension;
-        return tmpfilename;
-#else
-        std::string tmpfilename = tmpnam(0);
-        tmpfilename += extension;
-        return tmpfilename;
-#endif
-
+        boost::filesystem::path temp = boost::filesystem::unique_path();
+        const std::string tempstr    = temp.string();
+        return tempstr;
     }
 
 };

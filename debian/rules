@@ -6,6 +6,8 @@ configure-stamp:
 		-DBUILD_DOCUMENTATION:BOOL=ON \
 		-DBUILD_TESTING:BOOL=OFF \
 		-DBUILD_EXAMPLES:BOOL=OFF \
+		-DBUILD_CLI_TOOLS:BOOL=ON \
+		-DBUILD_CLI_TOOLS_DOC:BOOL=ON \
 	#mkdir -p debian/docu-build/
 	mkdir -p debian/example-data/
 

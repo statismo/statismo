@@ -32,7 +32,7 @@ cp -f changelog changelog.bck
 cp -f control control.bck
 vtk=libvtk$vtk-dev
 echo $vtk
-sed -i "s|libvtk5-dev|$vtk|g" control
+sed -i "s|libvtk6-dev|$vtk|g" control
 cd ../
 dch -r -D $distrib
 debuild -S -I

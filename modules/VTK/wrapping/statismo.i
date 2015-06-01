@@ -394,10 +394,12 @@ public:
 	typedef typename DataManager<T> DataManagerType;
 	typedef typename DataManagerType::DataItemListType DataItemListType;	
 
+        typedef enum { JacobiSVD, SelfAdjointEigenSolver } EigenValueMethod;
+
 	%newobject Create;
 	static PCAModelBuilder* Create();
 	
-	 StatisticalModel<T>* BuildNewModel(const DataItemListType& sampleList, double noiseVariance, bool computeScores=true) const;	 
+         StatisticalModel<T>* BuildNewModel(const DataItemListType& sampleList, double noiseVariance, bool computeScores=true, EigenValueMethod method = JacobiSVD) const;
 private:
 	PCAModelBuilder();
 

@@ -1,6 +1,4 @@
-# Statismo - Flexible Shape Modeling 
-
-*Build Status (master): &nbsp; [![Build Status](https://travis-ci.org/statismo/statismo.svg?branch=master)](https://travis-ci.org/statismo/statismo) &nbsp;&nbsp; Build Status (develop): &nbsp; [![Build Status](https://travis-ci.org/statismo/statismo.svg?branch=develop)](https://travis-ci.org/statismo/statismo)*
+# Statismo - Flexible Shape Modeling [![Build Status](https://travis-ci.org/statismo/statismo.svg?branch=develop)](https://travis-ci.org/statismo/statismo)
 
 
 Statismo is a c++ framework for statistical shape modeling. It supports all shape modeling tasks, from model building to shape analysis. Although the main focus of statismo lies on shape modeling, it is designed such that it supports any kind of PCA based statistical model, including statistical deformation models and intensiy models. One of the main goals of statismo is to make the exchange of statistical shape models easy. This is achieved by using a well documented file format based on [HDF5](http://hdf5group.org).

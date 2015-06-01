@@ -207,7 +207,7 @@ H5::DataSet HDF5Utils::writeMatrixOfType<unsigned int>(const H5::CommonFG& fg, c
         throw StatisticalModelException("Empty matrix provided to writeMatrix");
     }
 
-    hsize_t dims[2] = {matrix.rows(), matrix.cols()};
+    hsize_t dims[2] = {static_cast<hsize_t>(matrix.rows()), static_cast<hsize_t>(matrix.cols())};
     H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_UINT, H5::DataSpace(2, dims));
     ds.write( matrix.data(), H5::PredType::NATIVE_UINT );
     return ds;
@@ -222,7 +222,7 @@ H5::DataSet HDF5Utils::writeMatrixOfType<float>(const H5::CommonFG& fg, const ch
         throw StatisticalModelException("Empty matrix provided to writeMatrix");
     }
 
-    hsize_t dims[2] = {matrix.rows(), matrix.cols()};
+    hsize_t dims[2] = {static_cast<hsize_t>(matrix.rows()), static_cast<hsize_t>(matrix.cols())};
     H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_FLOAT, H5::DataSpace(2, dims));
     ds.write( matrix.data(), H5::PredType::NATIVE_FLOAT );
     return ds;
@@ -237,7 +237,7 @@ H5::DataSet HDF5Utils::writeMatrixOfType<double>(const H5::CommonFG& fg, const c
         throw StatisticalModelException("Empty matrix provided to writeMatrix");
     }
 
-    hsize_t dims[2] = {matrix.rows(), matrix.cols()};
+    hsize_t dims[2] = {static_cast<hsize_t>(matrix.rows()), static_cast<hsize_t>(matrix.cols())};
     H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_DOUBLE, H5::DataSpace(2, dims));
     ds.write( matrix.data(), H5::PredType::NATIVE_DOUBLE );
     return ds;
@@ -335,7 +335,7 @@ H5::DataSet HDF5Utils::writeVectorOfType(const H5::CommonFG& fg, const char* nam
 template <>
 inline
 H5::DataSet HDF5Utils::writeVectorOfType<double>(const H5::CommonFG& fg, const char* name, const GenericEigenType<double>::VectorType& vector) {
-    hsize_t dims[1] = {vector.size()};
+    hsize_t dims[1] = {static_cast<hsize_t>(vector.size())};
     H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_DOUBLE, H5::DataSpace(1, dims));
     ds.write( vector.data(), H5::PredType::NATIVE_DOUBLE );
     return ds;
@@ -344,7 +344,7 @@ H5::DataSet HDF5Utils::writeVectorOfType<double>(const H5::CommonFG& fg, const c
 template <>
 inline
 H5::DataSet HDF5Utils::writeVectorOfType<float>(const H5::CommonFG& fg, const char* name, const GenericEigenType<float>::VectorType& vector) {
-    hsize_t dims[1] = {vector.size()};
+    hsize_t dims[1] = {static_cast<hsize_t>(vector.size())};
     H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_FLOAT, H5::DataSpace(1, dims));
     ds.write( vector.data(), H5::PredType::NATIVE_FLOAT );
     return ds;
@@ -353,7 +353,7 @@ H5::DataSet HDF5Utils::writeVectorOfType<float>(const H5::CommonFG& fg, const ch
 template <>
 inline
 H5::DataSet HDF5Utils::writeVectorOfType<int>(const H5::CommonFG& fg, const char* name, const GenericEigenType<int>::VectorType& vector) {
-    hsize_t dims[1] = {vector.size()};
+    hsize_t dims[1] = {static_cast<hsize_t>(vector.size())};
     H5::DataSet ds = fg.createDataSet( name, H5::PredType::NATIVE_INT, H5::DataSpace(1, dims));
     ds.write( vector.data(), H5::PredType::NATIVE_INT );
     return ds;
@@ -552,3 +552,4 @@ HDF5Utils::existsObjectWithName(const H5::CommonFG& fg, const std::string& name)
 } //namespace statismo
 
 #endif
+
