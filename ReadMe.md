@@ -84,6 +84,7 @@ In the meantime, many people have contributed to statismo, including
 - Thomas Gerig
 - Christoph Jud
 - Christoph Langguth
+- Frank Mueller
 - Stefan Schlager
 - Sandro Schönborn
 
