@@ -337,7 +337,7 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     optLandmarks.add_options()
     ("fixed-landmarks,f", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
     ("moving-landmarks,m", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
-    ("landmarks-variance,v", po::value<double>(&poParameters.dLandmarksVariance), "The variance that will be used to build the posterior model.")
+    ("landmarks-variance,v", po::value<double>(&poParameters.dLandmarksVariance)->default_value(1), "The variance that will be used to build the posterior model.")
     ;
 
     po::options_description optAdditional("Optional options");
