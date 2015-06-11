@@ -33,6 +33,7 @@ sudo apt-get install statismo-doc statismo-example-data
 ##### Installation on Mac via homebrew
 To install statismo using hombrew simply issue the following commands
 ```
+    $ brew tap homebrew/science
     $ brew install statismo 
     $ statismo-buid-gp-model -h
 ```
