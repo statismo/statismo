@@ -10,7 +10,7 @@ if [ "$#" -lt 2 ]; then
     helpcall
 fi
 
-vtk=5
+vtk=6
 
 while getopts "v:d:" opt; do
     case "$opt" in

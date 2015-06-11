@@ -1,6 +1,6 @@
-statismo (0.11) UNRELEASED; urgency=medium
+statismo (0.11.0) UNRELEASED; urgency=medium
 
-  *  new upstream release
+  * new upstream release
 
   * added command line tools (statismo-tools)
 
