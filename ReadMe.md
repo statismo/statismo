@@ -5,57 +5,42 @@ Statismo is a c++ framework for statistical shape modeling. It supports all shap
 
 ## Getting Started and Documentation
 
-The best way to get started is to check the main concepts on the [Wiki](https://github.com/statismo/statismo/wiki) page and then look at the 
-[example code](https://github.com/statismo/statismo/tree/master/Examples) that is provided with statismo.
-These example programs are kept simple to illustrate the main principles and meant as a starting point for more complicated applications. Nevertheless, the examples are all working programs and can directly be used for simple shape modeling tasks.
+The easiest way to explore statismo is by using the command line interface. The command line interface provides easy to use tools for the most common shape modelling task. Two example scenarios that show the use of the command line interface are documented [here](https://github.com/statismo/statismo/wiki/statismo-cli) along with a detailed description for each command line tool. 
+
+To perform more complex tasks you can include statismo as a library in your own c++ application. The best way to get started is to check the main concepts on the [Wiki](https://github.com/statismo/statismo/wiki) page and then look at the example code ([ITK Examples](https://github.com/statismo/statismo/tree/master/modules/ITK/examples), [VTK Examples](https://github.com/statismo/statismo/tree/master/modules/VTK/examples)) that are provided with statismo.These example programs are kept simple to illustrate the main principles and meant as a starting point for more complicated applications.
 
 More detailed documentation and links to presentations and articles that describe the underlying theory can be found in the 
 [documentation section](https://github.com/statismo/statismo/wiki/Documentation).
 
 There is also the [statismo-users](https://groups.google.com/forum/#!forum/statismo-users) google group for general questions and discussion regarding statismo and shape models in general.
 
-## How to build Statismo:
+## Installing statismo:
 
-In the minimal configuration, statismo depends on [Eigen](http://eigen.tuxfamily.org), [Boost](http://www.boost.org) and [HDF5](http://www.hdfgroup.org). For building the example programs, also [ITK](http://www.itk.org) and [VTK](http://www.vtk.org)  need to be installed. To make the installation easier, statismo provides a superbuild that downloads and compiles all the dependencies.
+Statismo comes with binary packages for Debian/Ubuntu and Mac (via homebrew). On all other platforms, statismo needs to be compiled from the sources (using [CMake](http://www.cmake.org)). You can find detailed [build instructions](https://github.com/statismo/statismo/wiki/buildinstructions) on the statismo wiki.
 
-Statismo uses [CMake](http://www.cmake.org) as a build system and the build follows a typical cmake workflow. 
-
-#### Building the superbuild 
-
-We illustrate the workflow for unix systems, assuming that the statismo sources are in the folder statismo-src-dir. 
-
+##### Installation on Ubuntu and Debian
+For Ubuntu 14.04, 14.10 and 15.04 you can install statismo using the following commands:
 ```
-mkdir build   # create a build directory
-cd build
-ccmake statismo-src-dir/superbuild
+sudo apt-addrepository ppa:zarquon42/ppa
+sudo apt-get update
+sudo apt-get install statismo statismo-tools
 ```
-
-In the dialog, the dependencies that should be built by the system are selected, or the corresponding path of the system libraries are set. To build all dependencies, type
-
+and optionally to get docs and example data:
 ```
-make 
+sudo apt-get install statismo-doc statismo-example-data
 ```
 
-
-#### Configuring and installing statismo
-
-After all dependencies have been set up, statismo itself can be configured and install
+##### Installation on Mac via homebrew
+To install statismo using hombrew simply issue the following commands
 ```
-cd Statismo-build
-ccmake .
+    $ brew install statismo 
+    $ statismo-buid-gp-model -h
 ```
-
-Here, statismo specific options can be configured. Once this is done, type
+Updating an existing statismo installation can be achieved by issuing
 ```
-make install
+    $ brew update && brew upgrade —all
+    $ statismo-buid-gp-model -h
 ```
-to install statismo in the installation directory that was specified in the previous step.
-
-#### Buidling an application that uses statismo as a library
-
-An example CMakeLists file that shows how you can setup your own project to use statismo can be
-found on the [Wiki](https://github.com/statismo/statismo/wiki/compilation).
-
 
 ## Tools
 
@@ -66,10 +51,10 @@ Sometimes it is useful to look at the statismo file itself. [Hdfview](http://www
 
 Statismo is a C++ framework and at the current stage the only the C++ interface is supported and maintained on all platform. However, some work has already been done to make statismo available from other languages: 
 
-* For Statismo's vtk module, experimental Python wrappers are available, which are known to work on Linux systems. These wrappers are internally used for our [unit tests](https://github.com/statismo/statismo/tree/master/Tests/statismoTests), which also serve as usage examples.
+* For Statismo's vtk module, experimental Python wrappers are available, which are known to work on Linux systems. These wrappers are internally used for our [unit tests](https://github.com/statismo/statismo/tree/master/modules/VTK/wrapping/tests/statismoTests), which also serve as usage examples.
 * Statismo's VTK module can also be acccessed from [R](http://www.r-project.org) using Stefan Schlager's [RvtkStatismo](https://github.com/zarquon42b/RvtkStatismo). 
 
-In principle it should also be easy to wrap the statismo ITK module by using ITK's WrapITK mechanism. However, we currently have no working wrappers for ITK and do not have the resources to work on it. Any help is greatly appreciated. 
+In principle it should also be easy to wrap the statismo ITK module by using ITK's WrapITK or SimpleITK. However, we currently have no working wrappers for ITK and do not have the resources to work on it. Any help is greatly appreciated. 
 
 ## History
 
@@ -91,6 +76,17 @@ In the meantime, many people have contributed to statismo, including
 
 The main development is currently done by the [Graphics and Vision Research Group](http://gravis.cs.unibas.ch) at the University of Basel.
 
+
+## Related Projects
+* [Scalismo](http://github.com/unibas-gravis/scalismo) Scalismo is a library for image analysis and shape modelling for the Java Virtual Machine. It is written in [Scala](www.scala-lang.org) and based on the same underlying concepts as statismo (and partly developed by the same people).
+
+* [Morpho](http://cran.r-project.org/web/packages/Morpho/index.html) An R toolset for Geometric Morphometrics and mesh processing, which can be used together with statismo using the package [RvtkStatismo](https://github.com/zarquon42b/RvtkStatismo).
+
+* [Deformetrica](http://www.deformetrica.org/) Deformetrica is a software, written in C++, for the statistical analysis of 2D and 3D shape data.
+
+* [Spharm-PDM Toolbox](https://www.nitrc.org/projects/spharm-pdm) is a shape correspondence software package using a parametric boundary description based on spherical harmonics.
+
+
 ## License:
 
-Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. Most notably, these are [Eigen](http://eigen.tuxfamily.org), [Boost](http://www.boost.org) and [HDF5](http://www.hdfgroup.org) and, depending on the configuration [ITK](http://www.itk.org) and [VTK](http://www.vtk.org)
+Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. Most notably, these are [Eigen](http://eigen.tuxfamily.org), [Boost](http://www.boost.org) and [HDF5](http://www.hdfgroup.org) and, depending on the configuration, [ITK](http://www.itk.org) and [VTK](http://www.vtk.org).
