@@ -39,6 +39,6 @@ Description: Statismo is a c++ framework for statistical shape modeling. This pa
 
 Package: statismo-tools
 Architecture: any
-Depends: ${misc:Depends}, statismo, statismo-core
-Suggests: statismo-dev, statismo-example-data
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Suggests: statismo, statismo-doc, statismo-dev, statismo-example-data
 Description: Statismo is a c++ framework for statistical shape modeling. This package contains command line tools based on ITK and statismo allowing shape/deformation model generation and model fitting.
