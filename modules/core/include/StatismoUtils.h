@@ -133,9 +133,8 @@ class Utils {
 
 
     static std::string CreateTmpName(const std::string& extension) {
-        boost::filesystem::path temp = boost::filesystem::unique_path();
-        const std::string tempstr    = temp.string();
-        return tempstr;
+        boost::filesystem::path uniquePath = boost::filesystem::unique_path();
+        return uniquePath.replace_extension(extension).string();
     }
 
 };
