@@ -21,7 +21,7 @@ Statismo comes with binary packages for Debian/Ubuntu and Mac (via homebrew). On
 ##### Installation on Ubuntu and Debian
 For Ubuntu 14.04, 14.10 and 15.04 you can install statismo using the following commands:
 ```
-sudo apt-addrepository ppa:zarquon42/ppa
+sudo add-apt-repository ppa:zarquon42/ppa
 sudo apt-get update
 sudo apt-get install statismo statismo-tools
 ```
