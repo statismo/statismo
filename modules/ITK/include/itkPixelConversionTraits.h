@@ -291,7 +291,7 @@ template <> struct PixelConversionTrait<itk::Vector<float, 4> > {
         itkVec[0] = v(0);
         itkVec[1] = v(1);
         itkVec[2] = v(2);
-		itkVec[3] = v(3);
+        itkVec[3] = v(3);
         return itkVec;
     }
     static  unsigned  GetDataType() {
@@ -357,11 +357,11 @@ template <> struct PixelConversionTrait<itk::Vector<double, 4> > {
         itkVec[0] = v(0);
         itkVec[1] = v(1);
         itkVec[2] = v(2);
-		itkVec[3] = v(3);
+        itkVec[3] = v(3);
         return itkVec;
     }
     static  unsigned  GetDataType() {
-		return statismo::DOUBLE;
+        return statismo::DOUBLE;
     }
     static unsigned GetPixelDimension() {
         return 4;
