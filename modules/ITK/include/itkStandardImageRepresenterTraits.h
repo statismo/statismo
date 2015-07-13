@@ -45,6 +45,38 @@
 namespace statismo {
 
 template<>
+struct RepresenterTraits<itk::Image<itk::Vector<double, 4u>, 4u> > {
+
+    typedef itk::Image<itk::Vector<double, 4u>, 4u> VectorImageType;
+    typedef VectorImageType::Pointer DatasetPointerType;
+    typedef VectorImageType::Pointer DatasetConstPointerType;
+    typedef VectorImageType::PointType PointType;
+    typedef VectorImageType::PixelType ValueType;
+};
+
+template<>
+struct RepresenterTraits<itk::Image<itk::Vector<double, 3u>, 3u> > {
+
+    typedef itk::Image<itk::Vector<double, 3u>, 3u> VectorImageType;
+    typedef VectorImageType::Pointer DatasetPointerType;
+    typedef VectorImageType::Pointer DatasetConstPointerType;
+    typedef VectorImageType::PointType PointType;
+    typedef VectorImageType::PixelType ValueType;
+};
+
+template<>
+struct RepresenterTraits<itk::Image<itk::Vector<double, 2u>, 2u> > {
+
+    typedef itk::Image<itk::Vector<double, 2u>, 2u> VectorImageType;
+    typedef VectorImageType::Pointer DatasetPointerType;
+    typedef VectorImageType::Pointer DatasetConstPointerType;
+    typedef VectorImageType::PointType PointType;
+    typedef VectorImageType::PixelType ValueType;
+};
+
+
+
+template<>
 struct RepresenterTraits<itk::Image<itk::Vector<float, 4u>, 4u> > {
 
     typedef itk::Image<itk::Vector<float, 4u>, 4u> VectorImageType;

@@ -279,6 +279,94 @@ template <> struct PixelConversionTrait<itk::Vector<float, 3> > {
     }
 };
 
+template <> struct PixelConversionTrait<itk::Vector<float, 4> > {
+    static statismo::VectorType ToVector(const itk::Vector<float, 4>& pixel) {
+        statismo::VectorType v(4);
+        v << pixel[0] , pixel[1], pixel[2], pixel[3];
+        return v;
+    }
+    static itk::Vector<float, 4> FromVector(const statismo::VectorType& v) {
+        assert(v.size() == 4);
+        itk::Vector<double, 4> itkVec;
+        itkVec[0] = v(0);
+        itkVec[1] = v(1);
+        itkVec[2] = v(2);
+        itkVec[3] = v(3);
+        return itkVec;
+    }
+    static  unsigned  GetDataType() {
+        return statismo::FLOAT;
+    }
+    static unsigned GetPixelDimension() {
+        return 4;
+    }
+};
+
+template <> struct PixelConversionTrait<itk::Vector<double, 2> > {
+    static statismo::VectorType ToVector(const itk::Vector<double, 2>& pixel) {
+        statismo::VectorType v(2);
+        v << pixel[0] , pixel[1];
+        return v;
+    }
+    static itk::Vector<double, 2> FromVector(const statismo::VectorType& v) {
+        assert(v.size() == 2);
+        itk::Vector<double, 2> itkVec;
+        itkVec[0] = v(0);
+        itkVec[1] = v(1);
+        return itkVec;
+    }
+    static  unsigned  GetDataType() {
+        return statismo::DOUBLE;
+    }
+    static unsigned GetPixelDimension() {
+        return 2;
+    }
+};
+
+template <> struct PixelConversionTrait<itk::Vector<double, 3> > {
+    static statismo::VectorType ToVector(const itk::Vector<double, 3>& pixel) {
+        statismo::VectorType v(3);
+        v << pixel[0] , pixel[1], pixel[2];
+        return v;
+    }
+    static itk::Vector<float, 3> FromVector(const statismo::VectorType& v) {
+        assert(v.size() == 3);
+        itk::Vector<double, 3> itkVec;
+        itkVec[0] = v(0);
+        itkVec[1] = v(1);
+        itkVec[2] = v(2);
+        return itkVec;
+    }
+    static  unsigned  GetDataType() {
+        return statismo::DOUBLE;
+    }
+    static unsigned GetPixelDimension() {
+        return 3;
+    }
+};
+
+template <> struct PixelConversionTrait<itk::Vector<double, 4> > {
+    static statismo::VectorType ToVector(const itk::Vector<double, 4>& pixel) {
+        statismo::VectorType v(4);
+        v << pixel[0] , pixel[1], pixel[2], pixel[3];
+        return v;
+    }
+    static itk::Vector<double, 4> FromVector(const statismo::VectorType& v) {
+        assert(v.size() == 4);
+        itk::Vector<double, 4> itkVec;
+        itkVec[0] = v(0);
+        itkVec[1] = v(1);
+        itkVec[2] = v(2);
+        itkVec[3] = v(3);
+        return itkVec;
+    }
+    static  unsigned  GetDataType() {
+        return statismo::DOUBLE;
+    }
+    static unsigned GetPixelDimension() {
+        return 4;
+    }
+};
 
 } // namespace itk
 
