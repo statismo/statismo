@@ -39,13 +39,14 @@
 #include <errno.h>
 #include <iostream>
 
-#include <itkDirectory.h>
-#include <itkImageFileReader.h>
-
 #include "itkDataManager.h"
 #include "itkPCAModelBuilder.h"
 #include "itkStandardImageRepresenter.h"
 #include "itkStatisticalModel.h"
+
+#include <itkDirectory.h>
+#include <itkImageFileReader.h>
+
 
 /*
  * This example shows the ITK Wrapping of statismo can be used to build a deformation model.

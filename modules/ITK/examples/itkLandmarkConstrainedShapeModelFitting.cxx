@@ -47,6 +47,13 @@
  *
  */
 
+#include "itkPosteriorModelBuilder.h"
+#include "itkStandardMeshRepresenter.h"
+#include "itkStatisticalModel.h"
+#include "itkStatisticalShapeModelTransform.h"
+
+
+
 #include <itkBinaryThresholdImageFilter.h>
 #include <itkCannyEdgeDetectionImageFilter.h>
 #include <itkCastImageFilter.h>
@@ -66,11 +73,6 @@
 #include <itkRigid3DTransform.h>
 #include <itkSignedDanielssonDistanceMapImageFilter.h>
 #include <itkTransformMeshFilter.h>
-
-#include "itkPosteriorModelBuilder.h"
-#include "itkStandardMeshRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkStatisticalShapeModelTransform.h"
 
 const unsigned Dimensions = 3;
 typedef itk::PointSet<float, Dimensions  > PointSetType;

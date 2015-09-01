@@ -38,6 +38,12 @@
 /*
  * This example shows how the fitting of a statistical shape model to a Mesh can be performed with Statismo and the itk Registration framework.
  */
+
+#include "itkStandardMeshRepresenter.h"
+#include "itkStatisticalModel.h"
+#include "itkStatisticalShapeModelTransform.h"
+
+
 #include <itkCommand.h>
 #include <itkEuclideanDistancePointMetric.h>
 #include <itkLevenbergMarquardtOptimizer.h>
@@ -45,9 +51,6 @@
 #include <itkMeshFileReader.h>
 #include <itkPointSetToPointSetRegistrationMethod.h>
 
-#include "itkStandardMeshRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkStatisticalShapeModelTransform.h"
 
 
 const unsigned Dimensions = 3;

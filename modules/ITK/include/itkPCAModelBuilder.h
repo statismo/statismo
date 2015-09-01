@@ -39,6 +39,8 @@
 #ifndef ITKMODELBUILDER_H_
 #define ITKMODELBUILDER_H_
 
+#include "statismoITKConfig.h"
+
 #include <itkObject.h>
 #include <itkObjectFactory.h>
 
@@ -46,7 +48,7 @@
 #include "itkStatisticalModel.h"
 
 #include "PCAModelBuilder.h"
-#include "statismoITKConfig.h"
+
 
 namespace itk {
 

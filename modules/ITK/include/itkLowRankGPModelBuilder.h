@@ -38,6 +38,8 @@
 #ifndef ITKLOWRANKMODELBUILDER_H_
 #define ITKLOWRANKMODELBUILDER_H_
 
+#include "statismoITKConfig.h"
+
 #include <itkObject.h>
 #include <itkObjectFactory.h>
 
@@ -46,7 +48,7 @@
 #include "Kernels.h"
 #include "LowRankGPModelBuilder.h"
 #include "Representer.h"
-#include "statismoITKConfig.h"
+
 
 namespace itk {
 

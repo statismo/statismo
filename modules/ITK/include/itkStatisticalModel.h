@@ -38,8 +38,10 @@
 #ifndef ITKSTATISTICALMODEL_H_
 #define ITKSTATISTICALMODEL_H_
 
-#include <boost/bind.hpp>
-#include <boost/utility/result_of.hpp>
+#include "statismoITKConfig.h"
+#include "ModelInfo.h"
+#include "Representer.h"
+#include "StatisticalModel.h"
 
 #include <itkObject.h>
 #include <itkObjectFactory.h>
@@ -47,10 +49,9 @@
 #include <vnl/vnl_matrix.h>
 #include <vnl/vnl_vector.h>
 
-#include "ModelInfo.h"
-#include "Representer.h"
-#include "StatisticalModel.h"
-#include "statismoITKConfig.h"
+#include <boost/bind.hpp>
+#include <boost/utility/result_of.hpp>
+
 
 namespace itk {
 

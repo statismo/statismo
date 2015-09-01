@@ -39,13 +39,15 @@
 #ifndef ITKMODELBUILDER_H_
 #define ITKMODELBUILDER_H_
 
+#include "statismoITKConfig.h"
+
 #include <itkObject.h>
 #include <itkObjectFactory.h>
 
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
 #include "ConditionalModelBuilder.h"
-#include "statismoITKConfig.h"
+
 
 namespace itk {
 

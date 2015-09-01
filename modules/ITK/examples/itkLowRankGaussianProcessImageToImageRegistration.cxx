@@ -55,6 +55,14 @@
 #include <iomanip>
 #include <string>
 
+#include "itkDataManager.h"
+#include "itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "itkLowRankGPModelBuilder.h"
+#include "itkPosteriorModelBuilder.h"
+#include "itkStandardImageRepresenter.h"
+#include "itkStatisticalModel.h"
+
+
 #include <itkCommand.h>
 #include <itkDirectory.h>
 #include <itkImage.h>
@@ -70,12 +78,6 @@
 #include "Kernels.h"
 #include "KernelCombinators.h"
 
-#include "itkDataManager.h"
-#include "itkInterpolatingStatisticalDeformationModelTransform.h"
-#include "itkLowRankGPModelBuilder.h"
-#include "itkPosteriorModelBuilder.h"
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
 
 /**
  * A scalar valued gaussian kernel.

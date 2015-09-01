@@ -44,6 +44,12 @@
 #include <iomanip>
 #include <string>
 
+#include "itkDataManager.h"
+#include "itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "itkLowRankGPModelBuilder.h"
+#include "itkStandardImageRepresenter.h"
+#include "itkStatisticalModel.h"
+
 
 #include "itkCommand.h"
 #include "itkDirectory.h"
@@ -57,12 +63,6 @@
 
 #include "Kernels.h"
 #include "KernelCombinators.h"
-
-#include "itkDataManager.h"
-#include "itkInterpolatingStatisticalDeformationModelTransform.h"
-#include "itkLowRankGPModelBuilder.h"
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
 
 #define GaussianSigma 70
 #define GaussianScale 100

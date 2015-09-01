@@ -42,10 +42,10 @@
 
 #include <boost/unordered_map.hpp>
 
+#include "statismoITKConfig.h" // this needs to be the first include file
+
 #include <itkMesh.h>
 #include <itkObject.h>
-
-#include "statismoITKConfig.h" // this needs to be the first include file
 
 #include "CommonTypes.h"
 #include "Exceptions.h"

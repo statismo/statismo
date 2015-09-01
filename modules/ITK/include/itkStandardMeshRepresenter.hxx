@@ -38,6 +38,8 @@
 #ifndef __itkStandardMeshRepresenter_hxx
 #define __itkStandardMeshRepresenter_hxx
 
+#include "statismoITKConfig.h" // this needs to be the first include file
+
 #include "itkStandardMeshRepresenter.h"
 
 #include <iostream>

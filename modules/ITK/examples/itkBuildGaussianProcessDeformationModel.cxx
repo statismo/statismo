@@ -38,13 +38,13 @@
 #include <errno.h>
 #include <iostream>
 
-#include <itkDirectory.h>
-#include <itkImageFileReader.h>
-
 #include "itkDataManager.h"
 #include "itkLowRankGPModelBuilder.h"
 #include "itkStandardImageRepresenter.h"
 #include "itkStatisticalModel.h"
+
+#include <itkDirectory.h>
+#include <itkImageFileReader.h>
 
 #include "Kernels.h"
 #include "KernelCombinators.h"

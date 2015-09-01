@@ -39,13 +39,15 @@
 #ifndef ITK_PARTIALLY_FIXED_MODELBUILDER_H_
 #define ITK_PARTIALLY_FIXED_MODELBUILDER_H_
 
+#include "statismoITKConfig.h"
+
 #include <itkObject.h>
 
 #include "itkDataManager.h"
 #include "itkStatisticalModel.h"
 
 #include "ReducedVarianceModelBuilder.h"
-#include "statismoITKConfig.h"
+
 #include "StatismoUtils.h"
 
 namespace itk {

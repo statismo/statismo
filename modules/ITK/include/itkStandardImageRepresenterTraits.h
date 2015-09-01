@@ -38,6 +38,7 @@
 #ifndef __itkStandardImageRepresenterTraits_h
 #define __itkStandardImageRepresenterTraits_h
 
+#include "statismoITKConfig.h"
 #include "itkImage.h"
 #include "itkVector.h"
 #include "Representer.h"

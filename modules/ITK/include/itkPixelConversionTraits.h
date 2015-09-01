@@ -39,6 +39,8 @@
 #ifndef __ITK_TYPE_CONVERSION_TRAIT
 #define __ITK_TYPE_CONVERSION_TRAIT
 
+#include "statismoITKConfig.h"
+
 #include <itkVector.h>
 
 #include "Exceptions.h"

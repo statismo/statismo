@@ -40,6 +40,7 @@
 
 
 #include <iostream>
+#include "statismoITKConfig.h"
 
 #include <itkImageDuplicator.h>
 #include <itkImageIterator.h>

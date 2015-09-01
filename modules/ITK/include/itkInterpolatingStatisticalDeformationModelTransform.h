@@ -40,6 +40,7 @@
 
 #include <iostream>
 
+#include "statismoITKConfig.h"
 #include <itkImage.h>
 #include <itkVector.h>
 #include <itkVectorLinearInterpolateImageFunction.h>
