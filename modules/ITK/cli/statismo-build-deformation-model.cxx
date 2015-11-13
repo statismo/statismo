@@ -143,8 +143,8 @@ void buildAndSaveDeformationModel(programOptions opt) {
 
     typedef itk::ImageFileReader<ImageType> ImageReaderType;
     typedef vector<typename ImageReaderType::Pointer> ImageReaderList;
-    ImageReaderList images;
-    images.reserve(fileNames.size());
+    // ImageReaderList images;
+    // images.reserve(fileNames.size());
 
     // for (StringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
     //     typename ImageReaderType::Pointer reader = ImageReaderType::New();
