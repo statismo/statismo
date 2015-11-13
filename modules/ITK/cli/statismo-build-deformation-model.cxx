@@ -143,27 +143,36 @@ void buildAndSaveDeformationModel(programOptions opt) {
 
     typedef itk::ImageFileReader<ImageType> ImageReaderType;
     typedef vector<typename ImageReaderType::Pointer> ImageReaderList;
-    ImageReaderList images;
-    images.reserve(fileNames.size());
+    // ImageReaderList images;
+    // images.reserve(fileNames.size());
 
+    // for (StringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
+    //     typename ImageReaderType::Pointer reader = ImageReaderType::New();
+    //     reader->SetFileName(it->c_str());
+    //     reader->Update();
+    //     //itk::PCAModelBuilder is not a Filter in the ITK world, so the pipeline would not get executed if its main method is called. So the pipeline before calling itk::PCAModelBuilder must be executed by the means of calls to Update() (at least for last elements needed by itk::PCAModelBuilder).
+    //     images.push_back(reader);
+    // }
+
+    if (fileNames.size() == 0) {
+      itkGenericExceptionMacro( << "No Data was loaded and thus the model can't be built.");
+    }
+    // typename  ImageReaderType::Pointer referenceReader = *images.begin();
+    // representer->SetReference(referenceReader->GetOutput());
+    // dataManager->SetRepresenter(representer);
+    int cc = 0;
     for (StringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
+     
         typename ImageReaderType::Pointer reader = ImageReaderType::New();
+
         reader->SetFileName(it->c_str());
         reader->Update();
-        //itk::PCAModelBuilder is not a Filter in the ITK world, so the pipeline would not get executed if its main method is called. So the pipeline before calling itk::PCAModelBuilder must be executed by the means of calls to Update() (at least for last elements needed by itk::PCAModelBuilder).
-        images.push_back(reader);
-    }
-
-    if (images.size() == 0) {
-        itkGenericExceptionMacro( << "No Data was loaded and thus the model can't be built.");
-    }
-    typename  ImageReaderType::Pointer referenceReader = *images.begin();
-    representer->SetReference(referenceReader->GetOutput());
-    dataManager->SetRepresenter(representer);
-
-    for (typename ImageReaderList::const_iterator it = images.begin(); it != images.end(); ++it) {
-        typename ImageReaderType::Pointer reader = *it;
+	if ( cc == 0) {
+	  representer->SetReference(reader->GetOutput());
+	  dataManager->SetRepresenter(representer);
+	}
         dataManager->AddDataset(reader->GetOutput(), reader->GetFileName().c_str());
+	cc += 1;
     }
 
     typedef itk::StatisticalModel<ImageType> StatisticalModelType;
