@@ -97,7 +97,6 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
     
     // compute the scores if requested
     MatrixType scores;
-    computeScores = false;
     if (computeScores) {
       scores = this->ComputeScores(sampleDataList, model);
     }
