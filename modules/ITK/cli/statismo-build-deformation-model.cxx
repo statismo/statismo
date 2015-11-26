@@ -47,7 +47,6 @@ using namespace std;
 
 struct programOptions {
     bool bDisplayHelp;
-    bool bComputeScores;
     string strDataListFile;
     string strOutputFileName;
     float fNoiseVariance;
@@ -168,7 +167,7 @@ void buildAndSaveDeformationModel(programOptions opt) {
 
     typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance, opt.bComputeScores);
+    model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance);
     model->Save(opt.strOutputFileName.c_str());
 }
 
@@ -182,7 +181,6 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     po::options_description optAdditional("Optional options");
     optAdditional.add_options()
     ("noise,n", po::value<float>(&poParameters.fNoiseVariance)->default_value(0), "Noise variance of the PPCA model")
-    ("scores,s", po::value<bool>(&poParameters.bComputeScores)->default_value(true), "Compute scores (default true)")
     ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
     ;
 
