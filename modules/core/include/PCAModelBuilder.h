@@ -115,7 +115,7 @@ class PCAModelBuilder : public ModelBuilder<T> {
     PCAModelBuilder(const PCAModelBuilder& orig);
     PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
 
-    StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance, EigenValueMethod method = JacobiSVD) const;
+    StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, const VectorType& mu, double noiseVariance, EigenValueMethod method = JacobiSVD) const;
 
 
 };

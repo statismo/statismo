@@ -75,6 +75,22 @@ class ModelBuilder {
     }
 
 
+    MatrixType ComputeScores(const DataItemListType& sampleDataList, const StatisticalModelType* model) const {
+
+      unsigned p = sampleDataList.front()->GetSampleVector().rows();
+      MatrixType scores(model->GetNumberOfPrincipalComponents(), p);
+
+      unsigned i = 0;
+      for (typename DataItemListType::const_iterator it = sampleDataList.begin();
+        it != sampleDataList.end(); ++it) {
+        // Todo: for sample or for dataset??
+        scores.col(i++) = model->ComputeCoefficientsForSampleVector((*it)->GetSampleVector());
+      }
+      return scores;
+    }
+
+
+
     ModelBuilder() {}
 
     ModelInfo CollectModelInfo() const;
