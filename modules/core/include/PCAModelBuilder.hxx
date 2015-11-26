@@ -78,6 +78,7 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
       assert((*it)->GetRepresenter() == representer); // all samples have the same representer
       mu += (*it)->GetSampleVector();
     }
+    mu /= n;
     
     // Build the mean free sample matrix X0
     MatrixType X0(n, p);
@@ -96,6 +97,7 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
     
     // compute the scores if requested
     MatrixType scores;
+    computeScores = false;
     if (computeScores) {
       scores = this->ComputeScores(sampleDataList, model);
     }
