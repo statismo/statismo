@@ -77,8 +77,8 @@ class ModelBuilder {
 
     MatrixType ComputeScores(const DataItemListType& sampleDataList, const StatisticalModelType* model) const {
 
-      unsigned p = sampleDataList.front()->GetSampleVector().rows();
-      MatrixType scores(model->GetNumberOfPrincipalComponents(), p);
+      unsigned n = sampleDataList.size();
+      MatrixType scores(model->GetNumberOfPrincipalComponents(), n);
 
       unsigned i = 0;
       for (typename DataItemListType::const_iterator it = sampleDataList.begin();
