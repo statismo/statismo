@@ -193,10 +193,12 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
             return model;
         } else {
             // we compute an SVD of the full p x p  covariance matrix 1/(n-1) X0^TX0 directly
-            SVDType SVD(X0.transpose() * X0 * 1.0/(n-1), Eigen::ComputeThinU);
+            SVDType SVD(X0.transpose() * X0, Eigen::ComputeThinU);
             VectorType singularValues = SVD.singularValues();
             unsigned numComponentsToKeep = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
-            MatrixType pcaBasis = SVD.matrixU().topLeftCorner(p, numComponentsToKeep);
+            MatrixType pcaBasis = SVD.matrixU();
+            pcaBasis /= sqrt(n - 1.0);
+            pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
 
             if (numComponentsToKeep == 0) {
                 throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
@@ -214,12 +216,15 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
 
         typedef Eigen::SelfAdjointEigenSolver<MatrixType> SelfAdjointEigenSolver;
         SelfAdjointEigenSolver es;
-        es.compute(X0.transpose() * X0 * 1.0/(n-1));
+        es.compute(X0.transpose() * X0);
         VectorType eigenValues = es.eigenvalues().reverse(); // SelfAdjointEigenSolver orders the eigenvalues in increasing order
 
 
         unsigned numComponentsToKeep = ((eigenValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
-        MatrixType pcaBasis = es.eigenvectors().rowwise().reverse().topLeftCorner(p, numComponentsToKeep);
+        MatrixType pcaBasis = es.eigenvectors().rowwise().reverse(); 
+        pcaBasis /= sqrt(n - 1.0);
+        pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
+
 
         if (numComponentsToKeep == 0) {
             throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
