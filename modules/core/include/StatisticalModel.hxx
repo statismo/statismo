@@ -342,22 +342,15 @@ VectorType
 StatisticalModel<T>::ComputeCoefficientsForPointValuesWithCovariance(const PointValueWithCovarianceListType&  pointValuesWithCovariance) const
 {
  
-
   // The naming of the variables correspond to those used in the paper
   // Posterior Shape Models,
   // Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
   //
-  const MatrixType& Q = this->GetPCABasisMatrix();
-  const VectorType& mu = this->GetMeanVector();
-
-  // this method only makes sense for a proper PPCA model (e.g. the noise term is properly defined)
-  // if the model has zero noise, we assume a small amount of noise
-  double TOLERANCE = 1e-5;
-  double rho2 = std::max((double)this->GetNoiseVariance(), TOLERANCE);
+  const MatrixType& Q = m_pcaBasisMatrix;
+  const VectorType& mu = m_mean;
 
   unsigned dim = m_representer->GetDimensions();
-
-
+  
   // build the part matrices with , considering only the points that are fixed
   //
   unsigned numPrincipalComponents = this->GetNumberOfPrincipalComponents();
@@ -386,7 +379,7 @@ StatisticalModel<T>::ComputeCoefficientsForPointValuesWithCovariance(const Point
     i++;
   }
 
-  VectorType D2 = this->GetPCAVarianceVector().array();
+  VectorType D2 = m_pcaVariance.array();
 
   const MatrixType& Q_gT = Q_g.transpose();
 

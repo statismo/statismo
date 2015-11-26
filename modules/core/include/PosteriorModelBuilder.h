@@ -62,7 +62,7 @@ namespace statismo {
  *
  * For mathematical detailes see the paper
  * Posterior Shape Models
- * Thomas Albrecht, Marcel L ̈thi, Thomas Gerig, Thomas Vetter
+ * Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
  * Medical Image Analysis 2013
  *
  * Add method that allows for the use of the pointId in the constraint.
