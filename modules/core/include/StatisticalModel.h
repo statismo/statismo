@@ -117,6 +117,11 @@ class StatisticalModel {
     typedef std::list<PointValuePairType> PointValueListType;
     typedef std::list<PointIdValuePairType> PointIdValueListType;
 
+    // Maybe at some point, we can statically define a 3x3 resp. 2x3 matrix type.
+    typedef MatrixType PointCovarianceMatrixType;
+    typedef std::pair<PointValuePairType, PointCovarianceMatrixType> PointValueWithCovariancePairType;
+    typedef std::list<PointValueWithCovariancePairType> PointValueWithCovarianceListType;
+
 
 
 
@@ -476,6 +481,10 @@ class StatisticalModel {
      * \sa ComputeCoefficientsForDataset
      */
     VectorType ComputeCoefficientsForPointValues(const PointValueListType&  pointValues, double pointValueNoiseVariance=0.0) const;
+
+
+    VectorType ComputeCoefficientsForPointValuesWithCovariance(const PointValueWithCovarianceListType&  pointValuesWithCovariance) const;
+
 
     /**
      * Same as ComputeCoefficientsForPointValues(const PointValueListType&  pointValues), but used when the

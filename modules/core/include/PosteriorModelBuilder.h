@@ -80,12 +80,11 @@ class PosteriorModelBuilder : public ModelBuilder<T> {
     typedef typename StatisticalModelType::PointValueListType PointValueListType;
     typedef typename DataManagerType::DataItemListType DataItemListType;
 
-    // Maybe at some point, we can statically define a 3x3 resp. 2x3 matrix type.
-    typedef MatrixType PointCovarianceMatrixType;
 
     typedef typename StatisticalModelType::PointValuePairType PointValuePairType;
-    typedef typename std::pair<PointValuePairType, PointCovarianceMatrixType> PointValueWithCovariancePairType;
-    typedef typename std::list<PointValueWithCovariancePairType> PointValueWithCovarianceListType;
+    typedef typename StatisticalModelType::PointCovarianceMatrixType PointCovarianceMatrixType;
+    typedef typename StatisticalModelType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
+    typedef typename StatisticalModelType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
 
     /**
      * Factory method to create a new PosteriorModelBuilder
