@@ -209,10 +209,10 @@ int main(int argc, char** argv) {
     }
 
     
-    auto coeffs = fullModel->ComputeCoefficientsForPointValuesWithCovariance(pointValueWithCovarianceList);
-    auto coeffsFromPosteriorMean = fullModel->ComputeCoefficientsForDataset(posteriorMean);
+    VectorType coeffs = fullModel->ComputeCoefficientsForPointValuesWithCovariance(pointValueWithCovarianceList);
+    VectorType coeffsFromPosteriorMean = fullModel->ComputeCoefficientsForDataset(posteriorMean);
     VectorType difference = coeffs - coeffsFromPosteriorMean;
-    auto norm_difference = difference.norm();
+    double norm_difference = difference.norm();
     if(norm_difference > tolerance)
     {
       testsOk = false;
