@@ -337,6 +337,65 @@ StatisticalModel<T>::ComputeCoefficientsForPointIDValues(const PointIdValueListT
     return coeffs;
 }
 
+template <typename T>
+VectorType 
+StatisticalModel<T>::ComputeCoefficientsForPointValuesWithCovariance(const PointValueWithCovarianceListType&  pointValuesWithCovariance) const
+{
+ 
+  // The naming of the variables correspond to those used in the paper
+  // Posterior Shape Models,
+  // Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
+  //
+  const MatrixType& Q = m_pcaBasisMatrix;
+  const VectorType& mu = m_mean;
+
+  unsigned dim = m_representer->GetDimensions();
+  
+  // build the part matrices with , considering only the points that are fixed
+  //
+  unsigned numPrincipalComponents = this->GetNumberOfPrincipalComponents();
+  MatrixType Q_g(pointValuesWithCovariance.size()* dim, numPrincipalComponents);
+  VectorType mu_g(pointValuesWithCovariance.size() * dim);
+  VectorType s_g(pointValuesWithCovariance.size() * dim);
+
+  MatrixType LQ_g(pointValuesWithCovariance.size()* dim, numPrincipalComponents);
+
+  unsigned i = 0;
+  for (typename PointValueWithCovarianceListType::const_iterator it = pointValuesWithCovariance.begin(); it != pointValuesWithCovariance.end(); ++it) {
+    VectorType val = m_representer->PointSampleToPointSampleVector(it->first.second);
+    unsigned pt_id = m_representer->GetPointIdForPoint(it->first.first);
+
+    // In the formulas, we actually need the precision matrix, which is the inverse of the covariance.
+    const MatrixType pointPrecisionMatrix = it->second.inverse();
+
+    // Get the three rows pertaining to this point:
+    const MatrixType Qrows_for_pt_id = Q.block(pt_id * dim, 0, dim, numPrincipalComponents);
+
+    Q_g.block(i * dim, 0, dim, numPrincipalComponents) = Qrows_for_pt_id;
+    mu_g.block(i * dim, 0, dim, 1) = mu.block(pt_id * dim, 0, dim, 1);
+    s_g.block(i * dim, 0, dim, 1) = val;
+
+    LQ_g.block(i * dim, 0, dim, numPrincipalComponents) = pointPrecisionMatrix * Qrows_for_pt_id;
+    i++;
+  }
+
+  VectorType D2 = m_pcaVariance.array();
+
+  const MatrixType& Q_gT = Q_g.transpose();
+
+  MatrixType M = Q_gT * LQ_g;
+  M.diagonal() += VectorType::Ones(Q_g.cols());
+
+  MatrixTypeDoublePrecision Minv = M.cast<double>().inverse();
+
+  // the MAP solution for the latent variables (coefficients)
+  VectorType coeffs = Minv.cast<ScalarType>() * LQ_g.transpose() * (s_g - mu_g);
+
+  return coeffs;
+
+}
+
+
 
 template <typename T>
 double
