@@ -110,7 +110,7 @@ class PosteriorModelBuilder : public Object {
     typename StatisticalModelType::Pointer BuildNewModelFromModel(const StatisticalModelType* model, const PointValueWithCovarianceListType& pointValuesWithCovariance,  bool computeScores=true) {
       try {
         StatismoStatisticalModelType* model_statismo = model->GetstatismoImplObj();
-        StatismoStatisticalModelType* new_model_statismo = this->m_impl->BuildNewModelFromModel(this->m_impl, model_statismo, pointValuesWithCovariance, computeScores);
+        StatismoStatisticalModelType* new_model_statismo = this->m_impl->BuildNewModelFromModel(model_statismo, pointValuesWithCovariance, computeScores);
         typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
         model_itk->SetstatismoImplObj(new_model_statismo);
         return model_itk;
@@ -121,7 +121,7 @@ class PosteriorModelBuilder : public Object {
 
     typename StatisticalModelType::Pointer BuildNewModel(const DataItemListType& DataItemList, const PointValueWithCovarianceListType& pointValuesWithCovariance, 	double noiseVariance) {
       try {
-        StatismoStatisticalModelType* model_statismo = this->m_impl->BuildNewModel(this->m_impl, DataItemList, pointValuesWithCovariance, noiseVariance);
+        StatismoStatisticalModelType* model_statismo = this->m_impl->BuildNewModel(DataItemList, pointValuesWithCovariance, noiseVariance);
         typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
         model_itk->SetstatismoImplObj(model_statismo);
         return model_itk;
