@@ -446,13 +446,13 @@ class StatisticalModel {
 
     /**
     * Similar to ComputeCoefficientsForPointValues, only here there is no global pointValueNoiseVariance.
-    * Instead, a covariance matrix with noise values is specified for each point. 
-    * The returned coefficients are the mean of the posterior model described in 
+    * Instead, a covariance matrix with noise values is specified for each point.
+    * The returned coefficients are the mean of the posterior model described in
     *
     * Posterior Shape Models
     * Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
-    * Medical Image Analysis 2013    
-    * 
+    * Medical Image Analysis 2013
+    *
     * To get the full posterior model, use the PosteriorModelBuilder
     *
     * \param pointValuesWithCovariance A list with PointValuePairs and PointCovarianceMatrices.

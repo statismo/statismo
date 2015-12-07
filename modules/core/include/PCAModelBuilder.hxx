@@ -73,19 +73,19 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
     VectorType mu = VectorType::Zero(p);
 
     for (typename DataItemListType::const_iterator it = sampleDataList.begin();
-      it != sampleDataList.end();  ++it) {
-      assert((*it)->GetSampleVector().rows() == p); // all samples must have same number of rows
-      assert((*it)->GetRepresenter() == representer); // all samples have the same representer
-      mu += (*it)->GetSampleVector();
+            it != sampleDataList.end();  ++it) {
+        assert((*it)->GetSampleVector().rows() == p); // all samples must have same number of rows
+        assert((*it)->GetRepresenter() == representer); // all samples have the same representer
+        mu += (*it)->GetSampleVector();
     }
     mu /= n;
-    
+
     // Build the mean free sample matrix X0
     MatrixType X0(n, p);
     unsigned i = 0;
     for (typename DataItemListType::const_iterator it = sampleDataList.begin();
-      it != sampleDataList.end(); ++it) {
-      X0.row(i++) = (*it)->GetSampleVector() - mu;
+            it != sampleDataList.end(); ++it) {
+        X0.row(i++) = (*it)->GetSampleVector() - mu;
     }
 
 
@@ -94,11 +94,11 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
 
     // build the model
     StatisticalModelType* model = BuildNewModelInternal(representer, X0, mu, noiseVariance, method);
-    
+
     // compute the scores if requested
     MatrixType scores;
     if (computeScores) {
-      scores = this->ComputeScores(sampleDataList, model);
+        scores = this->ComputeScores(sampleDataList, model);
     }
 
 
@@ -132,8 +132,7 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
 template <typename T>
 typename PCAModelBuilder<T>::StatisticalModelType*
 PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X0, const VectorType& mu,
-    double noiseVariance, EigenValueMethod method) const 
-{
+        double noiseVariance, EigenValueMethod method) const {
 
     unsigned n = X0.rows();
     unsigned p = X0.cols();
@@ -171,9 +170,9 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
                 assert(singSqrt(i) > Superclass::TOLERANCE);
                 singSqrtInv(i) = 1.0 / singSqrt(i);
             }
-            
+
             if (numComponentsToKeep == 0) {
-              throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
+                throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
             }
 
             // we recover the eigenvectors U of the full covariance matrix from the eigenvectors V of the inner product matrix.
@@ -181,7 +180,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
             // of the matrix U and V from the SVD). The additional factor sqrt(n-1) is to compensate for the 1/sqrt(n-1) in the formula
             // for the covariance matrix.
 
-            MatrixType pcaBasis = X0.transpose() * V * singSqrtInv.asDiagonal(); 
+            MatrixType pcaBasis = X0.transpose() * V * singSqrtInv.asDiagonal();
             pcaBasis /= sqrt(n - 1.0);
             pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
 
@@ -222,7 +221,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
 
 
         unsigned numComponentsToKeep = ((eigenValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
-        MatrixType pcaBasis = es.eigenvectors().rowwise().reverse(); 
+        MatrixType pcaBasis = es.eigenvectors().rowwise().reverse();
         pcaBasis /= sqrt(n - 1.0);
         pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
 
