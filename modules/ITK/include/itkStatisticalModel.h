@@ -126,22 +126,6 @@ class StatisticalModel : public Object {
     typedef typename statismo::StatisticalModel<T>::DomainType DomainType;
 
 
-    void Load(RepresenterType* representer, const char* filename) {
-        try {
-            SetstatismoImplObj(ImplType::Load(representer, filename));
-        } catch (statismo::StatisticalModelException& s) {
-            itkExceptionMacro(<< s.what());
-        }
-    }
-
-
-    void Load(RepresenterType* representer, const H5::Group& modelRoot) {
-        try {
-            SetstatismoImplObj(ImplType::Load(modelRoot));
-        } catch (statismo::StatisticalModelException& s) {
-            itkExceptionMacro(<< s.what());
-        }
-    }
 
     //TODO: wrap StatisticalModel* BuildReducedVarianceModel( double pcvar );
 
@@ -241,16 +225,6 @@ class StatisticalModel : public Object {
 
     unsigned GetNumberOfPrincipalComponents() const {
         return callstatismoImpl(boost::bind(&ImplType::GetNumberOfPrincipalComponents, this->m_impl));
-    }
-
-    void Save(const char* modelname) {
-        typedef void (ImplType::*functype)(const std::string&) const;
-        callstatismoImpl(boost::bind(static_cast<functype>(&ImplType::Save), this->m_impl, modelname));
-    }
-
-    void Save(const H5::Group& modelRoot) {
-        typedef void (ImplType::*functype)(const H5::Group&) const;
-        callstatismoImpl(boost::bind(static_cast<functype>(&ImplType::Save), this->m_impl, modelRoot));
     }
 
     float GetNoiseVariance() const {

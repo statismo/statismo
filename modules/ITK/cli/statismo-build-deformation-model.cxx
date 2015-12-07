@@ -38,6 +38,7 @@
 #include <itkImageFileReader.h>
 #include <itkPCAModelBuilder.h>
 #include <itkStandardImageRepresenter.h>
+#include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 
 #include "utils/statismo-build-models-utils.h"
@@ -169,7 +170,7 @@ void buildAndSaveDeformationModel(programOptions opt) {
     typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance, opt.bComputeScores);
-    model->Save(opt.strOutputFileName.c_str());
+    itk::StatismoIO<ImageType>::Save(model, opt.strOutputFileName.c_str());
 }
 
 po::options_description initializeProgramOptions(programOptions& poParameters) {
