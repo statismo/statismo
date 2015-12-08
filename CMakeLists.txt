@@ -154,6 +154,13 @@ option( BUILD_EXAMPLES "Build examples" ON )
 option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
 mark_as_advanced(BUILD_WRAPPING)
 
+#make sure the executables have access to the dll's created by the superbuild on windows to make them runnable even without installing & adding the isntall path to the cmd PATH
+if( NOT INSTALL_DEPENDENCIES_DIR )
+  set( TESTS_WORKING_DIR "." CACHE INTERNAL "")
+else()
+  set( TEST_WORKING_DIR "${INSTALL_DEPENDENCIES_DIR}/bin" CACHE INTERNAL "")
+endif()
+
 add_subdirectory( modules )
 add_subdirectory( doc )
 # -------------------------------------------------------------

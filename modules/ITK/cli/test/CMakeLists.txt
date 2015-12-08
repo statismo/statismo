@@ -4,12 +4,6 @@
 set( TEST_DEFORMATION_DATA_DIR "${CMAKE_BINARY_DIR}/tests-cli/deformation/" )
 set( TEST_SHAPE_DATA_DIR "${CMAKE_BINARY_DIR}/tests-cli/shape/" )
 set( STATISMO_DATA_DIR "${statismo_SOURCE_DIR}/data/" )
-#make sure the executables have access to the dll's created by the superbuild on windows
-if( NOT INSTALL_DEPENDENCIES_DIR )
-  set( TEST_WORKING_DIR "." )
-else()
-  set( TEST_WORKING_DIR "${INSTALL_DEPENDENCIES_DIR}/bin" )
-endif()
 
 #write a file containing the paths to the deformation fields/meshes to build the models.
 #in this test the absolute paths are used so that it's independent from the current working directory. Paths relative to the current working directory can be used as well.
