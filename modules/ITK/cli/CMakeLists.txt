@@ -11,6 +11,11 @@ set( _cli_files
   statismo-warp-image
 )
 
+# fix for (some?) Windows compilers which otherwise don't find utils/*.h includes
+include_directories( BEFORE
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
+
 foreach( e ${_cli_files} )
   add_executable( ${e} "${e}.cxx" )
   target_link_libraries( ${e} statismo_core ${ITK_LIBRARIES} ${Boost_LIBRARIES} )
