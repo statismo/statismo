@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
                     it != testSamplesList.end();
                     ++it) {
                 vtkPolyData* testSample = (*it)->GetSample();
-                std::cout << "probability of test sample under the model: " << model->ComputeProbabilityOfDataset(testSample) << std::endl;
+                std::cout << "probability of test sample under the model: " << model->ComputeProbability(testSample) << std::endl;
 
                 // We are responsible for deleting the sample.
                 testSample->Delete();

@@ -82,16 +82,6 @@ StatisticalModel<T>::~StatisticalModel() {
 }
 
 
-
-template <typename T>
-typename StatisticalModel<T>::DatasetPointerType
-StatisticalModel<T>::DatasetToSample(DatasetConstPointerType ds) const {
-    DatasetPointerType sample;
-    sample = m_representer->CloneDataset(ds);
-    return sample;
-}
-
-
 template <typename T>
 typename StatisticalModel<T>::ValueType
 StatisticalModel<T>::EvaluateSampleAtPoint(const DatasetConstPointerType sample, const PointType& point) const {
@@ -262,20 +252,11 @@ StatisticalModel<T>::GetCovarianceMatrix() const {
 }
 
 
-template <typename T>
-VectorType
-StatisticalModel<T>::ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const {
-    DatasetPointerType sample;
-    sample = m_representer->CloneDataset(dataset);
-    VectorType v = ComputeCoefficientsForSample(sample);
-    m_representer->DeleteDataset(sample);
-    return v;
-}
 
 template <typename T>
 VectorType
-StatisticalModel<T>::ComputeCoefficientsForSample(DatasetConstPointerType sample) const {
-    return ComputeCoefficientsForSampleVector(m_representer->SampleToSampleVector(sample));
+StatisticalModel<T>::ComputeCoefficients(DatasetConstPointerType ds) const {
+    return ComputeCoefficientsForSampleVector(m_representer->SampleToSampleVector(ds));
 }
 
 template <typename T>
@@ -399,15 +380,15 @@ StatisticalModel<T>::ComputeCoefficientsForPointValuesWithCovariance(const Point
 
 template <typename T>
 double
-StatisticalModel<T>::ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
-    VectorType alpha = ComputeCoefficientsForDataset(ds);
+StatisticalModel<T>::ComputeLogProbability(DatasetConstPointerType ds) const {
+    VectorType alpha = ComputeCoefficients(ds);
     return ComputeLogProbabilityOfCoefficients(alpha);
 }
 
 template <typename T>
 double
-StatisticalModel<T>::ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
-    VectorType alpha = ComputeCoefficientsForDataset(ds);
+StatisticalModel<T>::ComputeProbability(DatasetConstPointerType ds) const {
+    VectorType alpha = ComputeCoefficients(ds);
     return ComputeProbabilityOfCoefficients(alpha);
 }
 
@@ -427,77 +408,10 @@ StatisticalModel<T>::ComputeProbabilityOfCoefficients(const VectorType& coeffici
 
 template <typename T>
 double
-StatisticalModel<T>::ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
-    VectorType alpha = ComputeCoefficientsForDataset(ds);
+StatisticalModel<T>::ComputeMahalanobisDistance(DatasetConstPointerType ds) const {
+    VectorType alpha = ComputeCoefficients(ds);
     return std::sqrt(alpha.squaredNorm());
 }
-
-
-template <typename T>
-VectorType
-StatisticalModel<T>::RobustlyComputeCoefficientsForDataset(DatasetConstPointerType ds, unsigned nIterations, unsigned nu, double sigma2) const {
-    throw NotImplementedException("StatisticalModel", "RobustlyComputeCoefficientsForDataset");
-    /*
-    unsigned dim = Representer::GetDimensions();
-
-    // we use double to improve the stability
-    MatrixType U = Utils::toDouble(this->m_pcaBasisMatrix);
-    VectorType yfloat;
-    m_representer->DatasetToSample(ds,&yfloat);
-
-    MatrixTypeDoublePrecision y = Eigen::Map::toDouble(yfloat);
-    VectorTypeDoublePrecision mu = Utils::toDouble(this->m_mean);
-
-
-    const MatrixTypeDoublePrecision& UT = U.transpose();
-
-    unsigned nPCA = GetNumberOfPrincipalComponents();
-
-    typedef typename Representer::DatasetTraitsType DatasetTraitsType;
-
-
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision> Vinv(VectorTypeDoublePrecision::Zero(y.size());
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision> VinvSqrt(VectorTypeDoublePrecision::Zero(y.size()));
-
-    y -= mu;
-    VectorTypeDoublePrecision f = VectorTypeDoublePrecistion::Zero(y.size());
-
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision> D(Utils::toDouble(m_pcaVariance.topLeftCorner(nPCA)));
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision> Dinv = D.inverse();
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision>  D2 = D * D;
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision>  D2inv = D2.inverse();
-
-    for (unsigned i = 0; i < nIterations; i++) {
-
-    	// E step
-    	for (unsigned j = 0; j < Vinv.size(); j++) {
-    		// student-t case
-    		Vinv(j) = (nu + 1.0) / (nu * sigma2 + pow(y(j) -  f(j), 2));
-
-    		// for later use
-    		VinvSqrt(j) = sqrt(Vinv(j));
-    	}
-
-    	// M step
-    	const MatrixTypeDoublePrecision W = VinvSqrt * U * D;
-    	const MatrixTypeDoublePrecision WT = W.transpose();
-
-    	const VectorTypeDoublePrecision outer_term = (Vinv * y);
-    	const MatrixTypeDoublePrecision IWTWInv = vnl_matrix_inverse<double>(vnl_diag_matrix<double>(nPCA, 1) + WT * W);
-    	const VectorTypeDoublePrecision fst_term = (U * (D2 * (UT * outer_term)));
-    	const VectorTypeDoublePrecision snd_term = (U * (D2 * (UT * (Vinv * (U * (D2 * (UT * outer_term)))))));
-    	const VectorTypeDoublePrecision trd_term = (U * (D2 * (UT * (VinvSqrt * (W * (IWTWInv * (WT * (VinvSqrt * (U * (D2 * (UT * outer_term)))))))))));
-    	f = fst_term - snd_term + trd_term;
-    }
-
-    // the latent variable f is now a robust approximation for the data set. We return its coefficients.
-    DatasetConstPointerType newds = m_representer->sampleToDataset(f);
-    VectorType coeffs = GetCoefficientsForData(newds);
-    Representer::DeleteDataset(newds);
-    return coeffs;
-    */
-}
-
 
 
 

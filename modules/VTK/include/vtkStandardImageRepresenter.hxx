@@ -291,23 +291,6 @@ statismo::VectorType vtkStandardImageRepresenter<TScalar, PixelDimensions>::Poin
 }
 
 template<class TScalar, unsigned PixelDimensions>
-typename vtkStandardImageRepresenter<TScalar, PixelDimensions>::DatasetPointerType vtkStandardImageRepresenter<
-TScalar, PixelDimensions>::DatasetToSample(
-    DatasetConstPointerType dataset) const {
-    // for this representer, a dataset is always the same as a sample
-    vtkStructuredPoints* clone = vtkStructuredPoints::New();
-    clone->DeepCopy(const_cast<vtkStructuredPoints*>(dataset));
-
-    if (const_cast<vtkStructuredPoints*>(m_reference)->GetNumberOfPoints()
-            != const_cast<vtkStructuredPoints*>(dataset)->GetNumberOfPoints()) {
-        throw StatisticalModelException(
-            "The dataset need to have the same number of points as the reference");
-    }
-
-    return clone;
-}
-
-template<class TScalar, unsigned PixelDimensions>
 VectorType vtkStandardImageRepresenter<TScalar, PixelDimensions>::SampleToSampleVector(
     DatasetConstPointerType _sp) const {
 

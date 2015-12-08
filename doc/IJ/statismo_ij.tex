@@ -411,10 +411,8 @@ discretized, normalized and converted into a consistent vectorial
 form.  The discretization and normalization step are specific to the
 type of object that are modeled.  A \code{Representer} class in
 \Statismo needs to provide the methods
-\code{Representer::DatasetToSample},
 \code{Representer::SampleToSampleVector} and
-\code{Representer::SampleVectorToSample}.  The first method takes care
-of the discretization and normalization, the second method is used to
+\code{Representer::SampleVectorToSample}.  The first method is used to
 convert a dataset to its vectorial representation.  The last method is
 used to convert the vectorial representation back to an object of the
 modeled type. Figure~\ref{fig:statismo-flow} illustrates this concept.
@@ -594,13 +592,13 @@ obtained by computing the PCA coefficients for a given dataset and then restorin
 \code{DrawSample} method:
 \begin{verbatim}
 vtkPolyData* dataset = someAlgorithm();
-VectorType coeffs = model->ComputeCoefficientsForDataset(dataset);
+VectorType coeffs = model->ComputeCoefficients(dataset);
 vtkPolyData* projection = model->DrawSample(coeffs);
 \end{verbatim}
 Often, an algorithm is regularized by penalizing unlikely solutions. For this purpose, \Statismo 
 provides a method to compute a (log) probability of a given dataset. 
 \begin{verbatim}
-float logProbability = model->ComputeLogProbabilityForDataset(aDataset);
+float logProbability = model->ComputeLogProbability(aDataset);
 \end{verbatim}
 
 \subsection{Cross validation}
@@ -635,7 +633,7 @@ for (CVFoldListType::const_iterator it = cvFoldList.begin();
     {
         vtkPolyData* testSample = (*it)->GetAsNewSample();
         vtkPolyData* projection = model->DrawSample(
-                                         model->ComputeCoefficientsForDataset(dataset));
+                                         model->ComputeCoefficients(dataset));
         /// here we could for example compute the approximation error between the 
         /// projection and the test sample - omitted
 

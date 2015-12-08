@@ -229,17 +229,6 @@ class StatisticalModel {
     ///@{
 
 
-    /**
-     * Returns a sample for the given Dataset by calling the representers internal functions.
-     * The resulting sample will have the same topology and alignment as all the other samples in the model.
-     *
-     * The exact semantics of this call depends on the representer. It typically includes a
-     * rigid alignment of the dataset to the model but could even reparametrization or registration.
-     *
-     * \param dataset
-     * \returns A new sample corresponding to the dataset
-     */
-    DatasetPointerType DatasetToSample(DatasetConstPointerType dataset) const;
 
     /**
      * Returns the value of the given sample at the point specified with the ptId
@@ -397,10 +386,10 @@ class StatisticalModel {
      * \f$
      *
      *
-     * \param datatset The dataset
+     * \param dataset The dataset
      * \return The probability
      */
-    double ComputeProbabilityOfDataset(DatasetConstPointerType dataset) const ;
+    double ComputeProbability(DatasetConstPointerType dataset) const ;
 
     /**
      * Returns the log probability of observing a given dataset.
@@ -409,7 +398,7 @@ class StatisticalModel {
      * \return The log probability
      *
      */
-    double ComputeLogProbabilityOfDataset(DatasetConstPointerType dataset) const ;
+    double ComputeLogProbability(DatasetConstPointerType dataset) const ;
 
 
     /**
@@ -438,29 +427,17 @@ class StatisticalModel {
     /**
       * Returns the mahalonoibs distance for the given dataset.
       */
-    double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType dataset) const;
-
-    /**
-     *
-     * Converts the given dataset to a sample of the model and compute the latent variable
-     * coefficients of this sample under the model.
-     *
-     * @param dataset The dataset
-     *
-     * @returns The coefficient vectro \f$\alpha\f$
-     * \sa ComputeCoefficientsForDataset
-     */
-    VectorType ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const;
+    double ComputeMahalanobisDistance(DatasetConstPointerType dataset) const;
 
 
     /**
-     * Returns the coefficients of the latent variables for the given sample, i.e.
+     * Returns the coefficients of the latent variables for the given dataset, i.e.
      * the vectors of numbers \f$\alpha \f$, such that for the dataset \f$S\f$ it holds that
      * \f$ S = \mu + U \alpha\f$
      *
-     * @returns The coefficient vectro \f$\alpha\f$
+     * @returns The coefficient vector \f$\alpha\f$
      */
-    VectorType ComputeCoefficientsForSample(DatasetConstPointerType sample) const;
+    VectorType ComputeCoefficients(DatasetConstPointerType dataset) const;
 
 
     /**
@@ -474,11 +451,6 @@ class StatisticalModel {
      * \param pointValues A list with PointValuePairs .
      * \param pointValueNoiseVariance The variance of estimated (gaussian) noise at the known points
      *
-     * \warning While in the method ComputeCoefficientsForDataset the Representer is called to do the
-     * necesary alignment steps, this cannot be done for this method. Make sure that the points you provide
-     * are already aligned and in correspondence with the model.
-     *
-     * \sa ComputeCoefficientsForDataset
      */
     VectorType ComputeCoefficientsForPointValues(const PointValueListType&  pointValues, double pointValueNoiseVariance=0.0) const;
 
@@ -495,11 +467,6 @@ class StatisticalModel {
     *
     * \param pointValuesWithCovariance A list with PointValuePairs and PointCovarianceMatrices.
     *
-    * \warning While in the method ComputeCoefficientsForDataset the Representer is called to do the
-    * necesary alignment steps, this cannot be done for this method. Make sure that the points you provide
-    * are already aligned and in correspondence with the model.
-    *
-    * \sa ComputeCoefficientsForDataset
     */
     VectorType ComputeCoefficientsForPointValuesWithCovariance(const PointValueWithCovarianceListType&  pointValuesWithCovariance) const;
 
@@ -514,20 +481,6 @@ class StatisticalModel {
     //RB: I had to modify the method name, to avoid prototype collisions when the PointType corresponds to unsigned (= type of the point id)
     VectorType ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointValues, double pointValueNoiseVariance=0.0) const;
 
-    /**
-     * Computes the coefficients of the latent variables in a robust way.
-     * Instead of assuming Normally distributed noise on the data set points such as it is
-     * implicitely assumed in the ComputeCoefficientsForDataset, A student-t distribution is assumed for the noise.
-     * The solution is obtained using an EM algorithm.
-     *
-     * \param dataset The dataset
-     * \param nIterations The number of iterations for the EM algorithm
-     * \param nu The number of degrees of Freedom for the Student-t distribution defining the noise model
-     * \param sigma2 The scale parameter of the t-distribution
-     *
-     */
-    VectorType RobustlyComputeCoefficientsForDataset(DatasetConstPointerType dataset, unsigned nIterations=100, unsigned nu=6, double sigma2=1) const;
-    ///@}
 
     /**
      * @name Low level access
