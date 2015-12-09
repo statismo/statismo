@@ -10,8 +10,9 @@ endforeach()
 
 add_test( NAME itkStandardImageRepresenterTest
   COMMAND itkStandardImageRepresenterTest ${statismo_SOURCE_DIR}/data
-)
+  WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
+
 add_test( NAME itkStandardMeshRepresenterTest
   COMMAND itkStandardMeshRepresenterTest ${statismo_SOURCE_DIR}/data
-)
+  WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
 
