@@ -220,11 +220,11 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
         SelfAdjointEigenSolver es;
         es.compute(X0.transpose() * X0);
         VectorType eigenValues = es.eigenvalues().reverse(); // SelfAdjointEigenSolver orders the eigenvalues in increasing order
+        eigenValues /= (n -1.0);
 
 
         unsigned numComponentsToKeep = ((eigenValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
         MatrixType pcaBasis = es.eigenvectors().rowwise().reverse(); 
-        pcaBasis /= sqrt(n - 1.0);
         pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
 
 
