@@ -203,9 +203,14 @@ class LowRankGPModelBuilder: public ModelBuilder<T> {
                                res.resultForPoints;
             delete futvec[i];
         }
-
-
         VectorType pcaVariance = nystrom->getEigenvalues();
+        VectorType pcaBasisNorm = pcaBasis.colwise().norm();
+        for (unsigned i = 0; i < pcaBasisNorm.size(); i++) {
+	  pcaBasis.col(i) /= pcaBasisNorm[i];
+	  pcaVariance[i] /= pcaBasisNorm[i];
+        }
+	
+        
 
         RowVectorType mu = m_representer->SampleToSampleVector(mean);
 
