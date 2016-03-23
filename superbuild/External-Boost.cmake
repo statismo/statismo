@@ -41,13 +41,19 @@ elseif(MSVC_VERSION EQUAL 1900) #VS2015
 set(boost_toolset "--toolset=msvc-14.0")
 endif(MSVC_VERSION EQUAL 1500)
 
+if(${BUILD_SHARED_LIBS} MATCHES OFF)
+  set(BUILD_LIBS "static")
+elseif(${BUILD_SHARED_LIBS} MATCHES ON)
+  set(BUILD_LIBS "shared")
+endif()
+
 ExternalProject_Add(Boost
   BUILD_IN_SOURCE 1
   URL ${Boost_url}
   URL_MD5 ${Boost_md5}
   UPDATE_COMMAND ""
   CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPENDENCIES_DIR}/lib
-  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPENDENCIES_DIR} --with-thread --with-filesystem --with-system --with-date_time --with-program_options address-model=${Boost_address_model} ${boost_toolset}
+BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPENDENCIES_DIR} --with-thread --with-filesystem --with-system --with-date_time --with-program_options address-model=${Boost_address_model} link=${BUILD_LIBS} ${boost_toolset}
   INSTALL_COMMAND ""
 )
 

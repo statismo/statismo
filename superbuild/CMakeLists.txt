@@ -32,6 +32,8 @@ if( CMAKE_HOST_WIN32 )
 
 endif()
 
+option( BUILD_SHARED_LIBS "Build shared libraries" ON )
+
 include( ExternalProject )
 
 set( BUILD_TYPE ${CMAKE_BUILD_TYPE} )
