@@ -146,6 +146,8 @@ if( ${VTK_SUPPORT} MATCHES "ON" )
   include( ${VTK_USE_FILE} )
 endif()
 
+option( BUILD_SHARED_LIBS "Build shared libraries" ON )
+
 option( BUILD_EXAMPLES "Build examples" ON )
 
 
