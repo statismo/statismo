@@ -169,31 +169,31 @@ struct RepresenterTraits<itk::Image<short, 2u> > {
 template<>
 struct RepresenterTraits<itk::Image<unsigned short, 4u> > {
 
-  typedef itk::Image<unsigned short, 4u> ImageType;
-  typedef ImageType::Pointer DatasetPointerType;
-  typedef ImageType::Pointer DatasetConstPointerType;
-  typedef ImageType::PointType PointType;
-  typedef ImageType::PixelType ValueType;
+    typedef itk::Image<unsigned short, 4u> ImageType;
+    typedef ImageType::Pointer DatasetPointerType;
+    typedef ImageType::Pointer DatasetConstPointerType;
+    typedef ImageType::PointType PointType;
+    typedef ImageType::PixelType ValueType;
 };
 
 template<>
 struct RepresenterTraits<itk::Image<unsigned short, 3u> > {
 
-  typedef itk::Image<unsigned short, 3u> ImageType;
-  typedef ImageType::Pointer DatasetPointerType;
-  typedef ImageType::Pointer DatasetConstPointerType;
-  typedef ImageType::PointType PointType;
-  typedef ImageType::PixelType ValueType;
+    typedef itk::Image<unsigned short, 3u> ImageType;
+    typedef ImageType::Pointer DatasetPointerType;
+    typedef ImageType::Pointer DatasetConstPointerType;
+    typedef ImageType::PointType PointType;
+    typedef ImageType::PixelType ValueType;
 };
 
 template<>
 struct RepresenterTraits<itk::Image<unsigned short, 2u> > {
 
-  typedef itk::Image<float, 2u> ImageType;
-  typedef ImageType::Pointer DatasetPointerType;
-  typedef ImageType::Pointer DatasetConstPointerType;
-  typedef ImageType::PointType PointType;
-  typedef ImageType::PixelType ValueType;
+    typedef itk::Image<float, 2u> ImageType;
+    typedef ImageType::Pointer DatasetPointerType;
+    typedef ImageType::Pointer DatasetConstPointerType;
+    typedef ImageType::PointType PointType;
+    typedef ImageType::PixelType ValueType;
 };
 
 template<>

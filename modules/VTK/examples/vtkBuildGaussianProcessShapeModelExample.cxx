@@ -45,6 +45,7 @@
 #include "KernelCombinators.h"
 #include "LowRankGPModelBuilder.h"
 #include "StatisticalModel.h"
+#include "StatismoIO.h"
 
 #include "vtkStandardMeshRepresenter.h"
 
@@ -119,7 +120,7 @@ int main(int argc, char** argv) {
         // we load an existing statistical model and create a StatisticalModelKernel from it. The statisticlModelKernel
         // takes the covariance (matrix) of the model and defines a kernel function from it.
         vtkStandardMeshRepresenter* representer = vtkStandardMeshRepresenter::Create();
-        boost::scoped_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, modelFilename));
+        boost::scoped_ptr<StatisticalModelType> model(statismo::IO<vtkPolyData>::Load(representer, modelFilename));
         const MatrixValuedKernelType& statModelKernel = StatisticalModelKernel<vtkPolyData>(model.get());
 
         // Create a (scalar valued) gaussian kernel. This kernel is then made matrix-valued. We use a UncorrelatedMatrixValuedKernel,
@@ -140,7 +141,7 @@ int main(int argc, char** argv) {
         boost::scoped_ptr<StatisticalModelType> combinedModel(modelBuilder->BuildNewModel(model->DrawMean(), combinedModelAndGaussKernel, numberOfComponents));
 
         // Once we have built the model, we can save it to disk.
-        combinedModel->Save(outputModelFilename);
+        statismo::IO<vtkPolyData>::Save(combinedModel.get(), outputModelFilename);
         std::cout << "Successfully saved shape model as " << outputModelFilename << std::endl;
 
     } catch (StatisticalModelException& e) {

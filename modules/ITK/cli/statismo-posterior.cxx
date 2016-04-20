@@ -40,6 +40,7 @@
 #include <itkPointsLocator.h>
 #include <itkStandardImageRepresenter.h>
 #include <itkStandardMeshRepresenter.h>
+#include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 #include <itkVersorRigid3DTransform.h>
 
@@ -172,7 +173,7 @@ void buildPosteriorShapeModel(programOptions& opt) {
     typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
     RepresenterType::Pointer pRepresenter = RepresenterType::New();
     StatisticalModelType::Pointer pModel = StatisticalModelType::New();
-    pModel->Load(pRepresenter.GetPointer(), opt.strInputModelFileName.c_str());
+    pModel = itk::StatismoIO<DataType>::Load(pRepresenter.GetPointer(), opt.strInputModelFileName.c_str());
 
     StatisticalModelType::Pointer pConstrainedModel;
     if (opt.strInputMeshFileName == "") {
@@ -187,7 +188,7 @@ void buildPosteriorShapeModel(programOptions& opt) {
         pConstrainedModel = buildPosteriorShapeModel<DataType, StatisticalModelType>(pModel, pMeshInCorrespondence, opt.dVariance);
     }
 
-    pConstrainedModel->Save(opt.strOutputModelFileName.c_str());
+    itk::StatismoIO<DataType>::Save(pConstrainedModel, opt.strOutputModelFileName.c_str());
 }
 
 template<unsigned Dimensionality>
@@ -198,12 +199,12 @@ void buildPosteriorDeformationModel(programOptions& opt) {
     typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality> RepresenterType;
     typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
     typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
-    pModel->Load(pRepresenter.GetPointer(), opt.strInputModelFileName.c_str());
+    pModel = itk::StatismoIO<DataType>::Load(pRepresenter.GetPointer(), opt.strInputModelFileName.c_str());
 
     typename StatisticalModelType::Pointer pConstrainedModel;
     pConstrainedModel = buildPosteriorDeformationModel<DataType, StatisticalModelType>(pModel, opt.strInputFixedLandmarksFileName, opt.strInputMovingLandmarksFileName, opt.dVariance);
 
-    pConstrainedModel->Save(opt.strOutputModelFileName.c_str());
+    itk::StatismoIO<DataType>::Save(pConstrainedModel, opt.strOutputModelFileName.c_str());
 }
 
 

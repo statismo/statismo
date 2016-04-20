@@ -38,6 +38,7 @@
 #include <itkImageFileReader.h>
 #include <itkPCAModelBuilder.h>
 #include <itkStandardImageRepresenter.h>
+#include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 
 #include "utils/statismo-build-models-utils.h"
@@ -146,20 +147,20 @@ void buildAndSaveDeformationModel(programOptions opt) {
     typedef vector<typename ImageReaderType::Pointer> ImageReaderList;
 
     if (fileNames.size() == 0) {
-      itkGenericExceptionMacro( << "No Data was loaded and thus the model can't be built.");
+        itkGenericExceptionMacro( << "No Data was loaded and thus the model can't be built.");
     }
     bool firstPass = true;
     for (StringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
-     
+
         typename ImageReaderType::Pointer reader = ImageReaderType::New();
 
         reader->SetFileName(it->c_str());
         reader->Update();
-	if ( firstPass ) {
-	  representer->SetReference(reader->GetOutput());
-	  dataManager->SetRepresenter(representer);
-	  firstPass = false;
-	}
+        if ( firstPass ) {
+            representer->SetReference(reader->GetOutput());
+            dataManager->SetRepresenter(representer);
+            firstPass = false;
+        }
         dataManager->AddDataset(reader->GetOutput(), reader->GetFileName().c_str());
     }
 
@@ -169,7 +170,7 @@ void buildAndSaveDeformationModel(programOptions opt) {
     typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance, opt.bComputeScores);
-    model->Save(opt.strOutputFileName.c_str());
+    itk::StatismoIO<ImageType>::Save(model, opt.strOutputFileName.c_str());
 }
 
 po::options_description initializeProgramOptions(programOptions& poParameters) {
