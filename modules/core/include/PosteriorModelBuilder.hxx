@@ -253,7 +253,7 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(
         for (unsigned i = 0; i < inputScores.cols(); i++) {
             // reconstruct the sample from the input model and project it back into the model
             typename RepresenterType::DatasetPointerType ds = inputModel->DrawSample(inputScores.col(i));
-            scores.col(i) = PosteriorModel->ComputeCoefficientsForDataset(ds);
+            scores.col(i) = PosteriorModel->ComputeCoefficients(ds);
             representer->DeleteDataset(ds);
         }
     }

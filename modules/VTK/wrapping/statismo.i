@@ -331,7 +331,6 @@ public:
 
 
 	 ValueType EvaluateSampleAtPoint(DatasetConstPointerType sample, const PointType& point) const;
-	 DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
 	 DatasetPointerType DrawMean() const;	
 	 ValueType DrawMeanAtPoint(const PointType& pt) const;
 	 %rename("DrawMeanAtPointId") DrawMeanAtPoint(unsigned) const;
@@ -347,15 +346,14 @@ public:
        DatasetPointerType DrawPCABasisSample(unsigned componentNumber) const;
 
 	 
-	 statismo::VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const;
-     statismo::VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const;
+	 statismo::VectorType ComputeCoefficients(DatasetConstPointerType ds) const;
      statismo::VectorType ComputeCoefficientsForSampleVector(const statismo::VectorType& sample) const;
 	 statismo::VectorType ComputeCoefficientsForPointValues(const PointValueListType&  pointValues) const;
 	 statismo::VectorType ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointValues) const;
 
-	 double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const;
-	 double ComputeProbabilityOfDataset(DatasetConstPointerType ds) const;
-         double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const;
+	 double ComputeLogProbability(DatasetConstPointerType ds) const;
+	 double ComputeProbability(DatasetConstPointerType ds) const;
+         double ComputeMahalanobisDistance(DatasetConstPointerType ds) const;
 
 	 statismo::MatrixType GetCovarianceAtPoint(const PointType& pt1, const PointType& pt2) const;
 	 statismo::MatrixType GetCovarianceAtPoint(unsigned ptId1, unsigned ptId2) const;

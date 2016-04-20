@@ -177,24 +177,16 @@ class StatisticalModel : public Object {
     }
 
 
-    VectorType ComputeCoefficientsForDataset(DatasetConstPointerType ds) const {
-        return toVnlVector(callstatismoImpl(boost::bind(&ImplType::ComputeCoefficientsForDataset, this->m_impl, ds)));
+    VectorType ComputeCoefficients(DatasetConstPointerType ds) const {
+        return toVnlVector(callstatismoImpl(boost::bind(&ImplType::ComputeCoefficients, this->m_impl, ds)));
     }
 
-    VectorType ComputeCoefficientsForSample(DatasetConstPointerType ds) const {
-        return toVnlVector(callstatismoImpl(boost::bind(&ImplType::ComputeCoefficientsForSample, this->m_impl, ds)));
+    double ComputeLogProbability(DatasetConstPointerType ds) const {
+        return callstatismoImpl(boost::bind(&ImplType::ComputeLogProbability, this->m_impl, ds));
     }
 
-    VectorType ComputeCoefficientsForDataSample(const DataItemType* sample) const {
-        return toVnlVector(callstatismoImpl(boost::bind(&ImplType::ComputeCoefficientsForDataSample, this->m_impl, sample)));
-    }
-
-    double ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
-        return callstatismoImpl(boost::bind(&ImplType::ComputeLogProbabilityOfDataset, this->m_impl, ds));
-    }
-
-    double ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
-        return callstatismoImpl(boost::bind(&ImplType::ComputeProbabilityOfDataset, this->m_impl, ds));
+    double ComputeProbability(DatasetConstPointerType ds) const {
+        return callstatismoImpl(boost::bind(&ImplType::ComputeProbability, this->m_impl, ds));
     }
 
     double ComputeLogProbabilityOfCoefficients(const VectorType& coeffs) const {
@@ -205,8 +197,8 @@ class StatisticalModel : public Object {
         return callstatismoImpl(boost::bind(&ImplType::ComputeProbabilityOfCoefficients, this->m_impl, fromVnlVector(coeffs)));
     }
 
-    double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
-        return callstatismoImpl(boost::bind(&ImplType::ComputeMahalanobisDistanceForDataset, this->m_impl, ds));
+    double ComputeMahalanobisDistance(DatasetConstPointerType ds) const {
+        return callstatismoImpl(boost::bind(&ImplType::ComputeMahalanobisDistance, this->m_impl, ds));
     }
 
     VectorType ComputeCoefficientsForPointValues(const PointValueListType& pvlist, double variance) const {
@@ -217,10 +209,6 @@ class StatisticalModel : public Object {
     VectorType ComputeCoefficientsForPointValuesWithCovariance(const PointValueWithCovarianceListType& pvclist) const {
         typedef statismo::VectorType(ImplType::*functype)(const PointValueWithCovarianceListType&) const;
         return toVnlVector(callstatismoImpl(boost::bind(static_cast<functype>(&ImplType::ComputeCoefficientsForPointValuesWithCovariance), this->m_impl, pvclist)));
-    }
-
-    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const {
-        return callstatismoImpl(boost::bind(&ImplType::DatasetToSample, this->m_impl, ds));
     }
 
     unsigned GetNumberOfPrincipalComponents() const {

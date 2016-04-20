@@ -143,9 +143,6 @@ class TrivialVectorialRepresenter : public Representer<statismo::VectorType> {
         v(0) = pt.ptId;
         return v;
     }
-    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const {
-        return ds;
-    }
     VectorType SampleToSampleVector(DatasetConstPointerType sample) const {
         return sample;
     }

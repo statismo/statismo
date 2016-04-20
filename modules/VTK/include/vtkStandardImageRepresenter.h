@@ -130,7 +130,6 @@ class vtkStandardImageRepresenter  : public Representer<vtkStructuredPoints> {
     }
 
     statismo::VectorType PointToVector(const PointType& pt) const;
-    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
     statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
     DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 
