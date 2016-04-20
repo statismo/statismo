@@ -48,9 +48,6 @@
 #include "ModelInfo.h"
 #include "Representer.h"
 
-namespace H5 {
-class Group;
-}
 
 namespace statismo {
 
@@ -132,11 +129,11 @@ class StatisticalModel {
 
 
     /**
-     * @name Loading and creating models
+     * @name Creating models
      */
     ///@{
 
-    /*
+    /**
     * Factory method that creates a new Model.
     *
     * \warning The use of this constructor is discouraged. If possible, use a ModelBuilder to create
@@ -159,26 +156,6 @@ class StatisticalModel {
 
 
     /**
-     * Returns a new statistical model, which is loaded from the given HDF5 file
-     * \param filename The filename
-     * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
-     * to create the model.
-     */
-    static StatisticalModel* Load(Representer<T>* representer, const std::string& filename,  unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
-
-
-    /**
-     * Returns a new statistical model, which is stored in the given HDF5 Group
-     *
-     * \param modelroot A h5 group where the model is saved
-     * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
-     * to create the model.
-     */
-    static StatisticalModel* Load(Representer<T>* representer, const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
-
-
-
-    /**
      * Destroy the object.
      * The same effect can be achieved by deleting the object in the usual
      * way using the c++ delete keyword.
@@ -186,21 +163,6 @@ class StatisticalModel {
     void Delete() const {
         delete this;
     }
-
-
-
-    /**
-     * Saves the statistical model to a HDF5 file
-     * \param filename The filename (preferred extension is .h5)
-     * */
-    void Save(const std::string& filename) const;
-
-    /**
-     * Saves the statistical model to the given HDF5 group.
-     *
-     * \param modelRoot the group where to store the model
-     * */
-    void Save(const H5::Group& modelRoot) const;
 
     ///@}
 
@@ -484,13 +446,13 @@ class StatisticalModel {
 
     /**
     * Similar to ComputeCoefficientsForPointValues, only here there is no global pointValueNoiseVariance.
-    * Instead, a covariance matrix with noise values is specified for each point. 
-    * The returned coefficients are the mean of the posterior model described in 
+    * Instead, a covariance matrix with noise values is specified for each point.
+    * The returned coefficients are the mean of the posterior model described in
     *
     * Posterior Shape Models
     * Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
-    * Medical Image Analysis 2013    
-    * 
+    * Medical Image Analysis 2013
+    *
     * To get the full posterior model, use the PosteriorModelBuilder
     *
     * \param pointValuesWithCovariance A list with PointValuePairs and PointCovarianceMatrices.
@@ -621,9 +583,6 @@ class StatisticalModel {
      */
     StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
 
-    /** Create an empty model. This is only used for the load method, which then sets all the parameters manually */
-    StatisticalModel(const RepresenterType* representer);
-
     // to prevent use
     StatisticalModel(const StatisticalModel& rhs);
     StatisticalModel& operator=(const StatisticalModel& rhs);
@@ -643,7 +602,6 @@ class StatisticalModel {
     mutable MatrixType m_MInverseMatrix;
 
     ModelInfo m_modelInfo;
-    bool m_modelLoaded;
 };
 
 } // namespace statismo
