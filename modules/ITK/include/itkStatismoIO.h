@@ -59,7 +59,7 @@ class StatismoIO {
             unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
         try {
             ITKStatisticalModelTypePointer pModel = ITKStatisticalModelType::New();
-            pModel->SetstatismoImplObj(statismo::IO<T>::Load(representer, filename, maxNumberOfPCAComponents));
+            pModel->SetstatismoImplObj(statismo::IO<T>::LoadStatisticalModel(representer, filename, maxNumberOfPCAComponents));
             return pModel;
         } catch (const statismo::StatisticalModelException& e) {
             itkGenericExceptionMacro(<< e.what());
@@ -71,7 +71,7 @@ class StatismoIO {
             unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
         try {
             ITKStatisticalModelTypePointer pModel = ITKStatisticalModelType::New();
-            pModel->SetstatismoImplObj(statismo::IO<T>::Load(representer, modelRoot, maxNumberOfPCAComponents));
+            pModel->SetstatismoImplObj(statismo::IO<T>::LoadStatisticalModel(representer, modelRoot, maxNumberOfPCAComponents));
             return pModel;
         } catch (const statismo::StatisticalModelException& e) {
             itkGenericExceptionMacro(<< e.what());
@@ -80,7 +80,7 @@ class StatismoIO {
 
     static void SaveStatisticalModel(const ITKStatisticalModelType *const model, const std::string &filename) {
         try {
-            statismo::IO<T>::Save(model->GetstatismoImplObj(), filename);
+            statismo::IO<T>::SaveStatisticalModel(model->GetstatismoImplObj(), filename);
         } catch (const statismo::StatisticalModelException& e) {
             itkGenericExceptionMacro(<< e.what());
         }
@@ -88,7 +88,7 @@ class StatismoIO {
 
     static void SaveStatisticalModel(const ITKStatisticalModelType *model, const H5::Group &modelRoot) {
         try {
-            statismo::IO<T>::Save(model->GetstatismoImplObj(), modelRoot);
+            statismo::IO<T>::SaveStatisticalModel(model->GetstatismoImplObj(), modelRoot);
         } catch (const statismo::StatisticalModelException& e) {
             itkGenericExceptionMacro(<< e.what());
         }

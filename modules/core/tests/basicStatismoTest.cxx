@@ -85,10 +85,11 @@ int main(int argc, char* argv[]) {
             return EXIT_FAILURE;
         }
 
-        statismo::IO<statismo::VectorType>::Save(model.get(), "test.h5");
+        statismo::IO<statismo::VectorType>::SaveStatisticalModel(model.get(), "test.h5");
 
         RepresenterType* newRepresenter = RepresenterType::Create();
-        boost::scoped_ptr<StatisticalModelType> loadedModel(statismo::IO<statismo::VectorType>::Load(newRepresenter, "test.h5"));
+        boost::scoped_ptr<StatisticalModelType> loadedModel(
+                statismo::IO<statismo::VectorType>::LoadStatisticalModel(newRepresenter, "test.h5"));
         if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents()) {
             return EXIT_FAILURE;
         }

@@ -205,7 +205,8 @@ void buildAndSaveModel(programOptions opt) {
 
     if(opt.strOptionalModelPath != "") {
         try {
-            pRawStatisticalModel.reset(statismo::IO<DataType>::Load(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str()));
+            pRawStatisticalModel.reset(statismo::IO<DataType>::LoadStatisticalModel(pRepresenter.GetPointer(),
+                                                                                    opt.strOptionalModelPath.c_str()));
             pStatModelKernel.reset(new statismo::StatisticalModelKernel<DataType>(pRawStatisticalModel.get()));
             pModelBuildingKernel.reset(new statismo::SumKernel<PointType>(pStatModelKernel.get(), pScaledKernel.get()));
         } catch (statismo::StatisticalModelException& s) {
