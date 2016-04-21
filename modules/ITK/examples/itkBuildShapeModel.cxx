@@ -111,7 +111,7 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
 
     ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0);
-    itk::StatismoIO<MeshType>::Save(model, modelname);
+    itk::StatismoIO<MeshType>::SaveStatisticalModel(model, modelname);
 
 
 

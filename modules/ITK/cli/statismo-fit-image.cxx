@@ -224,7 +224,7 @@ void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
 
     typedef itk::StatisticalModel<VectorImageType> StatisticalModelType;
     typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
-    pModel = itk::StatismoIO<VectorImageType>::Load(pRepresenter, opt.strInputModelFileName.c_str());
+    pModel = itk::StatismoIO<VectorImageType>::LoadStatisticalModel(pRepresenter, opt.strInputModelFileName.c_str());
 
     typedef itk::Transform<double, Dimensions, Dimensions> TransformType;
     typename TransformType::Pointer pTransform;

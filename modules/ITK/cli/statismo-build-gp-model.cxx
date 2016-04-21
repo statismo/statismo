@@ -229,7 +229,7 @@ void buildAndSaveModel(programOptions opt) {
     typename StatisticalModelType::Pointer pModel;
     pModel = gpModelBuilder->BuildNewModel(pMean, *pModelBuildingKernel.get(), opt.iNrOfBasisFunctions);
 
-    itk::StatismoIO<DataType>::Save(pModel, opt.strOutputFileName.c_str());
+    itk::StatismoIO<DataType>::SaveStatisticalModel(pModel, opt.strOutputFileName.c_str());
 }
 
 string getAvailableKernelsStr() {

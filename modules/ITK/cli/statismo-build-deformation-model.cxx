@@ -170,7 +170,7 @@ void buildAndSaveDeformationModel(programOptions opt) {
     typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance, opt.bComputeScores);
-    itk::StatismoIO<ImageType>::Save(model, opt.strOutputFileName.c_str());
+    itk::StatismoIO<ImageType>::SaveStatisticalModel(model, opt.strOutputFileName.c_str());
 }
 
 po::options_description initializeProgramOptions(programOptions& poParameters) {

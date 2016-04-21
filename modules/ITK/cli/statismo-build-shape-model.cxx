@@ -213,7 +213,7 @@ void buildAndSaveShapeModel(programOptions opt) {
     typedef itk::PCAModelBuilder<MeshType> PCAModelBuilder;
     PCAModelBuilder::Pointer pcaModelBuilder = PCAModelBuilder::New();
     model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance);
-    itk::StatismoIO<MeshType>::Save(model, opt.strOutputFileName.c_str());
+    itk::StatismoIO<MeshType>::SaveStatisticalModel(model, opt.strOutputFileName.c_str());
 }
 
 po::options_description initializeProgramOptions(programOptions& poParameters) {

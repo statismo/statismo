@@ -120,7 +120,7 @@ void itkExample(const char* dir, const char* modelname, double noiseVariance) {
 
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), noiseVariance);
-    itk::StatismoIO<ImageType>::Save(model, modelname);
+    itk::StatismoIO<ImageType>::SaveStatisticalModel(model, modelname);
 
 }
 

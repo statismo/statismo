@@ -54,7 +54,9 @@ class StatismoIO {
     typedef typename ITKStatisticalModelType::Pointer   ITKStatisticalModelTypePointer;
 
   public:
-    static ITKStatisticalModelTypePointer Load(typename StatisticalModelType::RepresenterType* representer, const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
+    static ITKStatisticalModelTypePointer LoadStatisticalModel(
+            typename StatisticalModelType::RepresenterType *representer, const std::string &filename,
+            unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
         try {
             ITKStatisticalModelTypePointer pModel = ITKStatisticalModelType::New();
             pModel->SetstatismoImplObj(statismo::IO<T>::Load(representer, filename, maxNumberOfPCAComponents));
@@ -64,7 +66,9 @@ class StatismoIO {
         }
     }
 
-    static ITKStatisticalModelTypePointer Load(typename ITKStatisticalModelType::RepresenterType* representer, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
+    static ITKStatisticalModelTypePointer LoadStatisticalModel(
+            typename ITKStatisticalModelType::RepresenterType *representer, const H5::Group &modelRoot,
+            unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
         try {
             ITKStatisticalModelTypePointer pModel = ITKStatisticalModelType::New();
             pModel->SetstatismoImplObj(statismo::IO<T>::Load(representer, modelRoot, maxNumberOfPCAComponents));
@@ -74,7 +78,7 @@ class StatismoIO {
         }
     }
 
-    static void Save(const ITKStatisticalModelType* const model, const std::string& filename) {
+    static void SaveStatisticalModel(const ITKStatisticalModelType *const model, const std::string &filename) {
         try {
             statismo::IO<T>::Save(model->GetstatismoImplObj(), filename);
         } catch (const statismo::StatisticalModelException& e) {
@@ -82,7 +86,7 @@ class StatismoIO {
         }
     }
 
-    static void Save(const ITKStatisticalModelType* model, const H5::Group& modelRoot) {
+    static void SaveStatisticalModel(const ITKStatisticalModelType *model, const H5::Group &modelRoot) {
         try {
             statismo::IO<T>::Save(model->GetstatismoImplObj(), modelRoot);
         } catch (const statismo::StatisticalModelException& e) {

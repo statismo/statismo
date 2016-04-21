@@ -225,7 +225,8 @@ void fitMesh(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
     typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
     RepresenterType::Pointer pRepresenter = RepresenterType::New();
     StatisticalModelType::Pointer pModel = StatisticalModelType::New();
-    pModel = itk::StatismoIO<DataType>::Load(pRepresenter.GetPointer(), opt.strInputModelFileName.c_str());
+    pModel = itk::StatismoIO<DataType>::LoadStatisticalModel(pRepresenter.GetPointer(),
+                                                             opt.strInputModelFileName.c_str());
 
     StatisticalModelType::Pointer pConstrainedModel;
     typedef itk::StatisticalShapeModelTransform<DataType, double, Dimensions> StatisticalModelTransformType;
