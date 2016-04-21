@@ -145,7 +145,7 @@ int main(int argc, char* argv[]) {
 
     RepresenterType::Pointer representer = RepresenterType::New();
     StatisticalModelType::Pointer model = StatisticalModelType::New();
-    model = itk::StatismoIO<VectorImageType>::Load(representer, modelname);
+    model = itk::StatismoIO<VectorImageType>::LoadStatisticalModel(representer, modelname);
 
     // do the fitting
     TransformType::Pointer transform = TransformType::New();

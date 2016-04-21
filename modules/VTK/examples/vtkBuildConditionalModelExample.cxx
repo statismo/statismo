@@ -137,7 +137,7 @@ int main(int argc, char** argv) {
 
         // The resulting model is a normal statistical model, from which we could for example sample examples.
         // Here we simply  save it to disk for later use.
-        statismo::IO<vtkStructuredPoints>::Save(model.get(), modelname);
+        statismo::IO<vtkStructuredPoints>::SaveStatisticalModel(model.get(), modelname);
         reference->Delete();
         std::cout << "save model as " << modelname << std::endl;
     } catch (StatisticalModelException& e) {

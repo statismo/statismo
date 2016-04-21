@@ -54,37 +54,41 @@ class StatismoIO {
     typedef typename ITKStatisticalModelType::Pointer   ITKStatisticalModelTypePointer;
 
   public:
-    static ITKStatisticalModelTypePointer Load(typename StatisticalModelType::RepresenterType* representer, const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
+    static ITKStatisticalModelTypePointer LoadStatisticalModel(
+            typename StatisticalModelType::RepresenterType *representer, const std::string &filename,
+            unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
         try {
             ITKStatisticalModelTypePointer pModel = ITKStatisticalModelType::New();
-            pModel->SetstatismoImplObj(statismo::IO<T>::Load(representer, filename, maxNumberOfPCAComponents));
+            pModel->SetstatismoImplObj(statismo::IO<T>::LoadStatisticalModel(representer, filename, maxNumberOfPCAComponents));
             return pModel;
         } catch (const statismo::StatisticalModelException& e) {
             itkGenericExceptionMacro(<< e.what());
         }
     }
 
-    static ITKStatisticalModelTypePointer Load(typename ITKStatisticalModelType::RepresenterType* representer, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
+    static ITKStatisticalModelTypePointer LoadStatisticalModel(
+            typename ITKStatisticalModelType::RepresenterType *representer, const H5::Group &modelRoot,
+            unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
         try {
             ITKStatisticalModelTypePointer pModel = ITKStatisticalModelType::New();
-            pModel->SetstatismoImplObj(statismo::IO<T>::Load(representer, modelRoot, maxNumberOfPCAComponents));
+            pModel->SetstatismoImplObj(statismo::IO<T>::LoadStatisticalModel(representer, modelRoot, maxNumberOfPCAComponents));
             return pModel;
         } catch (const statismo::StatisticalModelException& e) {
             itkGenericExceptionMacro(<< e.what());
         }
     }
 
-    static void Save(const ITKStatisticalModelType* const model, const std::string& filename) {
+    static void SaveStatisticalModel(const ITKStatisticalModelType *const model, const std::string &filename) {
         try {
-            statismo::IO<T>::Save(model->GetstatismoImplObj(), filename);
+            statismo::IO<T>::SaveStatisticalModel(model->GetstatismoImplObj(), filename);
         } catch (const statismo::StatisticalModelException& e) {
             itkGenericExceptionMacro(<< e.what());
         }
     }
 
-    static void Save(const ITKStatisticalModelType* model, const H5::Group& modelRoot) {
+    static void SaveStatisticalModel(const ITKStatisticalModelType *model, const H5::Group &modelRoot) {
         try {
-            statismo::IO<T>::Save(model->GetstatismoImplObj(), modelRoot);
+            statismo::IO<T>::SaveStatisticalModel(model->GetstatismoImplObj(), modelRoot);
         } catch (const statismo::StatisticalModelException& e) {
             itkGenericExceptionMacro(<< e.what());
         }

@@ -311,7 +311,7 @@ int main(int argc, char* argv[]) {
     // load the model create a shape model transform with it
     StatisticalModelType::Pointer model = StatisticalModelType::New();
     RepresenterType::Pointer representer = RepresenterType::New();
-    model = itk::StatismoIO<MeshType>::Load(representer, modelName);
+    model = itk::StatismoIO<MeshType>::LoadStatisticalModel(representer, modelName);
 
     StatisticalModelType::Pointer constraintModel = computePosteriorModel(rigidTransform, model, fixedLandmarks, movingLandmarks, lmVariance);
 

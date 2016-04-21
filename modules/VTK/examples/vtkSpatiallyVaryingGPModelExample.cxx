@@ -159,7 +159,7 @@ int main(int argc, char** argv) {
         StatisticalModelType* newModel = modelBuilder->BuildNewModel(referenceMesh, temperedKernel, numberOfComponents);
 
         // Once we have built the model, we can save it to disk.
-        statismo::IO<vtkPolyData>::Save(newModel, outputModelFilename);
+        statismo::IO<vtkPolyData>::SaveStatisticalModel(newModel, outputModelFilename);
         std::cout << "Successfully saved shape model as " << outputModelFilename << std::endl;
 
         referenceMesh->Delete();

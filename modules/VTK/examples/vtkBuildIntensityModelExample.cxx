@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
         }
         boost::scoped_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
         boost::scoped_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
-        statismo::IO<vtkStructuredPoints>::Save(model.get(), modelname);
+        statismo::IO<vtkStructuredPoints>::SaveStatisticalModel(model.get(), modelname);
 
         reference->Delete();
         std::cout << "Successfully saved model as " << modelname << std::endl;

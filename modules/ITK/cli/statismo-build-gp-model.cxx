@@ -205,7 +205,8 @@ void buildAndSaveModel(programOptions opt) {
 
     if(opt.strOptionalModelPath != "") {
         try {
-            pRawStatisticalModel.reset(statismo::IO<DataType>::Load(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str()));
+            pRawStatisticalModel.reset(statismo::IO<DataType>::LoadStatisticalModel(pRepresenter.GetPointer(),
+                                                                                    opt.strOptionalModelPath.c_str()));
             pStatModelKernel.reset(new statismo::StatisticalModelKernel<DataType>(pRawStatisticalModel.get()));
             pModelBuildingKernel.reset(new statismo::SumKernel<PointType>(pStatModelKernel.get(), pScaledKernel.get()));
         } catch (statismo::StatisticalModelException& s) {
@@ -229,7 +230,7 @@ void buildAndSaveModel(programOptions opt) {
     typename StatisticalModelType::Pointer pModel;
     pModel = gpModelBuilder->BuildNewModel(pMean, *pModelBuildingKernel.get(), opt.iNrOfBasisFunctions);
 
-    itk::StatismoIO<DataType>::Save(pModel, opt.strOutputFileName.c_str());
+    itk::StatismoIO<DataType>::SaveStatisticalModel(pModel, opt.strOutputFileName.c_str());
 }
 
 string getAvailableKernelsStr() {

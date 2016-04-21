@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
         boost::scoped_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
 
         // Once we have built the model, we can save it to disk.
-        statismo::IO<vtkPolyData>::Save(model.get(), modelname);
+        statismo::IO<vtkPolyData>::SaveStatisticalModel(model.get(), modelname);
         std::cout << "Successfully saved shape model as " << modelname << std::endl;
 
         reference->Delete();

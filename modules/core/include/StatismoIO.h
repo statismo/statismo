@@ -66,7 +66,9 @@ class IO {
      * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
      * to create the model.
      */
-    static StatisticalModelType* Load(typename StatisticalModelType::RepresenterType* representer, const std::string& filename, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
+    static StatisticalModelType* LoadStatisticalModel(typename StatisticalModelType::RepresenterType *representer,
+                                                      const std::string &filename,
+                                                      unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
 
         StatisticalModelType* newModel = 0;
 
@@ -80,7 +82,7 @@ class IO {
 
         H5::Group modelRoot = file.openGroup("/");
 
-        newModel = Load(representer, modelRoot, maxNumberOfPCAComponents);
+        newModel = LoadStatisticalModel(representer, modelRoot, maxNumberOfPCAComponents);
 
         modelRoot.close();
         file.close();
@@ -94,7 +96,9 @@ class IO {
      * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
      * to create the model.
      */
-    static StatisticalModelType* Load(typename StatisticalModelType::RepresenterType* representer, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
+    static StatisticalModelType* LoadStatisticalModel(typename StatisticalModelType::RepresenterType *representer,
+                                                      const H5::Group &modelRoot,
+                                                      unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max()) {
 
         StatisticalModelType* newModel;
         ModelInfo modelInfo;
@@ -164,11 +168,11 @@ class IO {
      * \param model A pointer to the model you'd like to save.
      * \param filename The filename (preferred extension is .h5)
      * */
-    static void Save(const StatisticalModelType* const model, const std::string& filename) {
+    static void SaveStatisticalModel(const StatisticalModelType *const model, const std::string &filename) {
         if(model == NULL) {
             throw new StatisticalModelException("Passing on a NULL_Pointer when trying to save a model is not possible.");
         }
-        Save(*model, filename);
+        SaveStatisticalModel(*model, filename);
     }
 
     /**
@@ -176,7 +180,7 @@ class IO {
      * \param model The model you'd like to save
      * \param filename The filename (preferred extension is .h5)
      * */
-    static void Save(const StatisticalModelType& model, const std::string& filename) {
+    static void SaveStatisticalModel(const StatisticalModelType &model, const std::string &filename) {
         using namespace H5;
 
         H5File file;
@@ -197,7 +201,7 @@ class IO {
         HDF5Utils::writeInt(versionGroup, "minorVersion", 9);
         versionGroup.close();
 
-        Save(model, modelRoot);
+        SaveStatisticalModel(model, modelRoot);
         modelRoot.close();
         file.close();
     };
@@ -207,7 +211,7 @@ class IO {
      * \param model the model you'd like to save
      * \param modelRoot the group where to store the model
      * */
-    static void Save(const StatisticalModelType& model, const H5::Group& modelRoot) {
+    static void SaveStatisticalModel(const StatisticalModelType &model, const H5::Group &modelRoot) {
         try {
             // create the group structure
 
