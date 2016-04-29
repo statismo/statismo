@@ -35,7 +35,7 @@
 
 #include <itkBoundingBox.h>
 #include <itkCompositeTransform.h>
-#include <itkDanielssonDistanceMapImageFilter.h>
+#include <itkSignedMaurerDistanceMapImageFilter.h>
 #include <itkLBFGSOptimizer.h>
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkMesh.h>
@@ -184,7 +184,7 @@ DistanceImageType::Pointer computeDistanceImageForMesh(DataType::Pointer pMesh, 
 
     // compute a distance map to the points in the pointset
     BinaryImageType::Pointer pBinaryImage = pointsToImageFilter->GetOutput();
-    typedef itk::DanielssonDistanceMapImageFilter<BinaryImageType, DistanceImageType> DistanceFilterType;
+    typedef itk::SignedMaurerDistanceMapImageFilter<BinaryImageType, DistanceImageType> DistanceFilterType;
     DistanceFilterType::Pointer distanceFilter = DistanceFilterType::New();
     distanceFilter->SetInput(pBinaryImage);
     distanceFilter->Update();
