@@ -222,6 +222,7 @@ void initializeOptimizer(typename OptimizerType::Pointer pOptimizer, const unsig
         for (unsigned i = 0; i < uNumberOfModelComponents; ++i, ++count) {
           scales[count] = 1.0/(dModelParamScale);
         }
+        pOptimizer->SetScales(scales);
     }
 }
 
