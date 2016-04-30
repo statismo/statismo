@@ -211,14 +211,16 @@ void initializeOptimizer(typename OptimizerType::Pointer pOptimizer, const unsig
         const double dTranslationScale = 1;
         // set the scales of the optimizer, to compensate for potentially different scales of translation, rotation and shape parameters
         typename OptimizerType::ScalesType scales(uTotalNumberOfOptimizationParameters);
-        for (unsigned i = 0; i < uNumberOfModelComponents; ++i) {
-            scales[i] = 1.0 / (dModelParamScale);
+        unsigned count = 0;
+
+        for (unsigned i = 0; i < uNrOfRotationComponents; ++i, ++count) {
+          scales[count] = 1.0/(dRotationScale);
         }
-        for (unsigned i = uNumberOfModelComponents; i < uNumberOfModelComponents + uNrOfRotationComponents; ++i) {
-            scales[i] = 1.0 / (dRotationScale);
+        for (unsigned i = 0; i < uNrOfTranslationComponents; ++i, ++count) {
+          scales[count] = 1.0/(dTranslationScale);
         }
-        for (unsigned i = uNumberOfModelComponents + uNrOfRotationComponents; i < uTotalNumberOfOptimizationParameters; ++i) {
-            scales[i] = 1.0 / (dTranslationScale);
+        for (unsigned i = 0; i < uNumberOfModelComponents; ++i, ++count) {
+          scales[count] = 1.0/(dModelParamScale);
         }
         pOptimizer->SetScales(scales);
     }

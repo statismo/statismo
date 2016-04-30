@@ -35,7 +35,7 @@
 
 #include <itkBoundingBox.h>
 #include <itkCompositeTransform.h>
-#include <itkDanielssonDistanceMapImageFilter.h>
+#include <itkSignedMaurerDistanceMapImageFilter.h>
 #include <itkLBFGSOptimizer.h>
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkMesh.h>
@@ -184,7 +184,7 @@ DistanceImageType::Pointer computeDistanceImageForMesh(DataType::Pointer pMesh, 
 
     // compute a distance map to the points in the pointset
     BinaryImageType::Pointer pBinaryImage = pointsToImageFilter->GetOutput();
-    typedef itk::DanielssonDistanceMapImageFilter<BinaryImageType, DistanceImageType> DistanceFilterType;
+    typedef itk::SignedMaurerDistanceMapImageFilter<BinaryImageType, DistanceImageType> DistanceFilterType;
     DistanceFilterType::Pointer distanceFilter = DistanceFilterType::New();
     distanceFilter->SetInput(pBinaryImage);
     distanceFilter->Update();
@@ -233,8 +233,18 @@ void fitMesh(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
 
     typedef itk::PointsLocator< DataType::PointsContainer > PointsLocatorType;
     if (opt.strInputFixedLandmarksFileName == "") {
-        pConstrainedModel = pModel;
+        typedef  itk::BoundingBox<int, Dimensions, float, DataType::PointsContainer> BoundingBoxType;
+        //Compute bounding box of model mesh
+        BoundingBoxType::Pointer pModelMeshBox = BoundingBoxType::New();
+        pModelMeshBox->SetPoints(pModel->GetRepresenter()->GetReference()->GetPoints());
+        pModelMeshBox->ComputeBoundingBox();
 
+        //Compute bounding box of target mesh
+        BoundingBoxType::Pointer pTargetMeshBox = BoundingBoxType::New();
+        pTargetMeshBox->SetPoints(pTargetMesh->GetPoints());
+        pTargetMeshBox->ComputeBoundingBox();
+
+        pConstrainedModel = pModel;
         StatisticalModelTransformType::Pointer pModelTransform = StatisticalModelTransformType::New();
         pModelTransform->SetStatisticalModel(pModel);
         pModelTransform->SetIdentity();
@@ -243,6 +253,12 @@ void fitMesh(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
         typedef itk::VersorRigid3DTransform<double> RotationAndTranslationTransformType;
         RotationAndTranslationTransformType::Pointer pRotationAndTranslationTransform = RotationAndTranslationTransformType::New();
         pRotationAndTranslationTransform->SetIdentity();
+
+        RotationAndTranslationTransformType::CenterType center = pModelMeshBox->GetCenter();
+        pRotationAndTranslationTransform->SetCenter(center);
+
+        RotationAndTranslationTransformType::TranslationType translation = pTargetMeshBox->GetCenter() - pModelMeshBox->GetCenter();
+        pRotationAndTranslationTransform->SetTranslation(translation);
 
         typedef itk::CompositeTransform<double, Dimensions> CompositeTransformType;
         CompositeTransformType::Pointer pCompositeTransform = CompositeTransformType::New();
