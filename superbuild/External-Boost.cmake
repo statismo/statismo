@@ -10,14 +10,14 @@ set( Boost_Bootstrap_Command )
 # while on Windows, we need CR/LF line feeds (only available in the .zip)
 
 if( UNIX )
-  set( Boost_url "http://sourceforge.net/projects/boost/files/boost/1.56.0/boost_1_56_0.tar.gz")
-  set( Boost_md5 8c54705c424513fa2be0042696a3a162 )
+  set( Boost_url "http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz")
+  set( Boost_md5 08d29a2d85db3ebc8c6fdfa3a1f2b83c )
   set( Boost_Bootstrap_Command ./bootstrap.sh )
   set( Boost_b2_Command ./b2 )
 else()
   if( WIN32 )
-    set( Boost_url "http://sourceforge.net/projects/boost/files/boost/1.56.0/boost_1_56_0.zip")
-    set( Boost_md5 fc16da21d641e03715a4144cb093964e )
+    set( Boost_url "http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.zip")
+    set( Boost_md5 08d29a2d85db3ebc8c6fdfa3a1f2b83c )
     set( Boost_Bootstrap_Command cmd /C bootstrap.bat msvc )
     set( Boost_b2_Command b2.exe )
   endif()
@@ -53,12 +53,12 @@ ExternalProject_Add(Boost
   URL_MD5 ${Boost_md5}
   UPDATE_COMMAND ""
   CONFIGURE_COMMAND ${Boost_Bootstrap_Command} --prefix=${INSTALL_DEPENDENCIES_DIR}/lib
-BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPENDENCIES_DIR} --with-thread --with-filesystem --with-system --with-date_time --with-program_options address-model=${Boost_address_model} link=${BUILD_LIBS} ${boost_toolset}
+  BUILD_COMMAND ${Boost_b2_Command} install -j8   --prefix=${INSTALL_DEPENDENCIES_DIR} --with-thread --with-filesystem --with-system --with-date_time --with-program_options  --with-atomic  address-model=${Boost_address_model} link=${BUILD_LIBS} ${boost_toolset}
   INSTALL_COMMAND ""
 )
 
 if( WIN32 )
-  set( Boost_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include/boost-1_56 )
+  set( Boost_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include/boost-1_59 )
   set( BOOST_ROOT ${INSTALL_DEPENDENCIES_DIR} )
 else()
   set( Boost_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include )

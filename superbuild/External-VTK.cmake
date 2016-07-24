@@ -14,10 +14,6 @@ endif()
 
 set( VTK_DEPENDENCIES )
 
-if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
-  set( VTK_DEPENDENCIES HDF5 )
-endif()
-
 set( _vtkOptions )
 if( APPLE )
   set( _vtkOptions -DVTK_REQUIRED_OBJCXX_FLAGS:STRING="" )
@@ -26,7 +22,7 @@ endif()
 ExternalProject_Add(VTK
   DEPENDS ${VTK_DEPENDENCIES}
   GIT_REPOSITORY ${git_protocol}://vtk.org/VTK.git
-  GIT_TAG v6.1.0
+  GIT_TAG v6.3.0
   SOURCE_DIR VTK
   BINARY_DIR VTK-build
   UPDATE_COMMAND ""
@@ -35,14 +31,12 @@ ExternalProject_Add(VTK
   CMAKE_ARGS
     ${ep_common_args}
     ${_vtkOptions}
-  	${cmake_hdf5_libs}
     -DBUILD_EXAMPLES:BOOL=OFF
     -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
     -DBUILD_TESTING:BOOL=OFF
     -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
     -DVTK_BUILD_ALL_MODULES:BOOL=OFF
-    -DVTK_USE_SYSTEM_HDF5:BOOL=ON
-    -DHDF5_DIR:PATH=${HDF5_DIR}
+    -DVTK_USE_SYSTEM_HDF5:BOOL=OFF
     -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPENDENCIES_DIR}
 )
 
