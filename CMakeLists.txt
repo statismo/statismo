@@ -110,7 +110,7 @@ if( ${BUILD_CLI_TOOLS} MATCHES "ON" )
   set( REQUIRED_BOOST_COMPONENTS ${REQUIRED_BOOST_COMPONENTS} program_options )
 endif()
 
-find_package( Boost 1.56 COMPONENTS ${REQUIRED_BOOST_COMPONENTS} REQUIRED )
+find_package( Boost 1.50 COMPONENTS ${REQUIRED_BOOST_COMPONENTS} REQUIRED )
 include_directories( ${Boost_INCLUDE_DIRS} )
 
 link_directories( ${Boost_LIBRARY_DIRS} )
@@ -132,10 +132,16 @@ if( ${ITK_SUPPORT} MATCHES "ON" )
   include( ${ITK_USE_FILE} )
 endif()
 
-
 # We rely on the hdf5 libraries that are shipped with ITK, as this will reduce version conflicts.
+set(ITK_VERSION ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR})
 set(HDF5_INCLUDE_DIRS ${ITK_INCLUDE_DIRS}/itkhdf5  ${ITK_INCLUDE_DIRS}/itkhdf5/cpp)
-set(HDF5_LIBRARIES itkhdf5_cpp-4.10 itkhdf5-4.10 itkzlib-4.10)
+
+if ( ON_TRAVIS ) # travis runs using systems ITK, which does not have the zlib
+set(HDF5_LIBRARIES itkhdf5_cpp-${ITK_VERSION} itkhdf5-${ITK_VERSION})
+else()
+set(HDF5_LIBRARIES itkhdf5_cpp-${ITK_VERSION} itkhdf5-${ITK_VERSION} itkzlib-${ITK_VERSION})
+endif()
+
 set(HDF5_LIBRARY_DIR ${INSTALL_DEPENDENCIES_DIR}/lib)
 include_directories( ${HDF5_INCLUDE_DIRS} )
 

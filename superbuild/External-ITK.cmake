@@ -49,4 +49,4 @@ ExternalProject_Add(ITK
     ${_vtkoptions}
 )
 
-set( ITK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/ITK-4.5/ )
+set( ITK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/ITK-4.10/ )

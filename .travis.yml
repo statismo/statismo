@@ -6,10 +6,10 @@ compiler:
 before_install:
   - sudo add-apt-repository ppa:zarquon42/precise-backports -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y cmake libboost1.55-dev libboost1.55 libeigen3-dev libhdf5-serial-dev libvtk6-dev libinsighttoolkit4-dev
+  - sudo apt-get install -y cmake libboost1.55-dev libboost1.55 libeigen3-dev libvtk6-dev libinsighttoolkit4-dev
 
 script:
   - mkdir -p build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE:STRING=Release ../
+  - cmake -DCMAKE_BUILD_TYPE:STRING=Release -DON_TRAVIS=True ../
   - make -j2
