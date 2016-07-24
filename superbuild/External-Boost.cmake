@@ -11,7 +11,7 @@ set( Boost_Bootstrap_Command )
 
 if( UNIX )
   set( Boost_url "http://sourceforge.net/projects/boost/files/boost/1.59.0/boost_1_59_0.tar.gz")
-  set( Boost_md5 08d29a2d85db3ebc8c6fdfa3a1f2b83c )
+  set( Boost_md5 51528a0e3b33d9e10aaa311d9eb451e3 )
   set( Boost_Bootstrap_Command ./bootstrap.sh )
   set( Boost_b2_Command ./b2 )
 else()
