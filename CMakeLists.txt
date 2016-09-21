@@ -137,12 +137,8 @@ set(ITK_VERSION ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR})
 find_path(ITK_INCLUDE_WITH_HDF5 NAMES itkhdf5/hdf5.h PATHS ${ITK_INCLUDE_DIRS} )
 set(ITK_HDF5_DIR ${ITK_INCLUDE_WITH_HDF5}/itkhdf5)
 set(HDF5_INCLUDE_DIRS ${ITK_HDF5_DIR} ${ITK_HDF5_DIR}/cpp)
+set(HDF5_LIBRARIES ${ITKHDF5_LIBRARIES})
 
-if ( ON_TRAVIS ) # travis runs using systems ITK, which does not have the zlib
-set(HDF5_LIBRARIES itkhdf5_cpp-${ITK_VERSION} itkhdf5-${ITK_VERSION})
-else()
-set(HDF5_LIBRARIES itkhdf5_cpp-${ITK_VERSION} itkhdf5-${ITK_VERSION} itkzlib-${ITK_VERSION})
-endif()
 
 set(HDF5_LIBRARY_DIR ${INSTALL_DEPENDENCIES_DIR}/lib)
 include_directories( ${HDF5_INCLUDE_DIRS} )
