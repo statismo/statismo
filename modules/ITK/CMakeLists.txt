@@ -6,6 +6,7 @@ if(MSVC11) #i.e. Visual Studio 2012
   add_definitions( -D BOOST_NO_0X_HDR_INITIALIZER_LIST )
 endif()
 
+include( ${ITK_USE_FILE} )
 
 include_directories( BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/include

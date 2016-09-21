@@ -46,6 +46,7 @@
 #include "DataManager.h"
 #include "PCAModelBuilder.h"
 #include "StatisticalModel.h"
+#include "StatismoIO.h"
 #include "vtkStandardImageRepresenter.h"
 
 using namespace statismo;
@@ -105,7 +106,7 @@ int main(int argc, char** argv) {
         }
         boost::scoped_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
         boost::scoped_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
-        model->Save(modelname);
+        statismo::IO<vtkStructuredPoints>::SaveStatisticalModel(model.get(), modelname);
 
         reference->Delete();
         std::cout << "Successfully saved model as " << modelname << std::endl;

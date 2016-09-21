@@ -44,6 +44,7 @@
 
 #include "ReducedVarianceModelBuilder.h"
 #include "StatisticalModel.h"
+#include "StatismoIO.h"
 
 #include "vtkStandardMeshRepresenter.h"
 
@@ -73,7 +74,8 @@ int main(int argc, char** argv) {
         // To load a model, we call the static Load method, which returns (a pointer to) a
         // new StatisticalModel object
         RepresenterType* representer = RepresenterType::Create();
-        boost::scoped_ptr<StatisticalModelType> model(StatisticalModelType::Load(representer, inputModelName));
+        boost::scoped_ptr<StatisticalModelType> model(
+                statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, inputModelName));
         std::cout << "loaded model with variance of " << model->GetPCAVarianceVector().sum()  << std::endl;
 
         boost::scoped_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
@@ -82,7 +84,7 @@ int main(int argc, char** argv) {
         boost::scoped_ptr<StatisticalModelType> reducedModel(reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5));
         std::cout << "new model has variance of " << reducedModel->GetPCAVarianceVector().sum()  << std::endl;
 
-        reducedModel->Save(outputModelName);
+        statismo::IO<vtkPolyData>::SaveStatisticalModel(reducedModel.get(), outputModelName);
     } catch (StatisticalModelException& e) {
         std::cout << "Exception occured while building the shape model" << std::endl;
         std::cout << e.what() << std::endl;

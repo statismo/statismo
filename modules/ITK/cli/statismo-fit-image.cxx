@@ -43,6 +43,7 @@
 #include <itkNormalizedCorrelationImageToImageMetric.h>
 #include <itkRigid2DTransform.h>
 #include <itkStandardImageRepresenter.h>
+#include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 #if (ITK_VERSION_MAJOR >= 4 && ITK_VERSION_MINOR >= 6)
 #include <itkTransformToDisplacementFieldFilter.h>
@@ -223,7 +224,7 @@ void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
 
     typedef itk::StatisticalModel<VectorImageType> StatisticalModelType;
     typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
-    pModel->Load(pRepresenter, opt.strInputModelFileName.c_str());
+    pModel = itk::StatismoIO<VectorImageType>::LoadStatisticalModel(pRepresenter, opt.strInputModelFileName.c_str());
 
     typedef itk::Transform<double, Dimensions, Dimensions> TransformType;
     typename TransformType::Pointer pTransform;

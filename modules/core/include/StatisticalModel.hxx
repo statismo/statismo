@@ -57,15 +57,9 @@ StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const 
       m_mean(m),
       m_pcaVariance(pcaVariance),
       m_noiseVariance(noiseVariance),
-      m_cachedValuesValid(false),
-      m_modelLoaded(false) {
+      m_cachedValuesValid(false) {
     VectorType D = pcaVariance.array().sqrt();
     m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
-}
-
-template <typename T>
-StatisticalModel<T>::StatisticalModel(const RepresenterType* representer)
-    : m_representer(representer->Clone()),  m_noiseVariance(0), m_cachedValuesValid(0) {
 }
 
 
@@ -79,16 +73,6 @@ StatisticalModel<T>::~StatisticalModel() {
         m_representer = 0;
     }
 
-}
-
-
-
-template <typename T>
-typename StatisticalModel<T>::DatasetPointerType
-StatisticalModel<T>::DatasetToSample(DatasetConstPointerType ds) const {
-    DatasetPointerType sample;
-    sample = m_representer->CloneDataset(ds);
-    return sample;
 }
 
 
@@ -262,20 +246,11 @@ StatisticalModel<T>::GetCovarianceMatrix() const {
 }
 
 
-template <typename T>
-VectorType
-StatisticalModel<T>::ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const {
-    DatasetPointerType sample;
-    sample = m_representer->CloneDataset(dataset);
-    VectorType v = ComputeCoefficientsForSample(sample);
-    m_representer->DeleteDataset(sample);
-    return v;
-}
 
 template <typename T>
 VectorType
-StatisticalModel<T>::ComputeCoefficientsForSample(DatasetConstPointerType sample) const {
-    return ComputeCoefficientsForSampleVector(m_representer->SampleToSampleVector(sample));
+StatisticalModel<T>::ComputeCoefficients(DatasetConstPointerType ds) const {
+    return ComputeCoefficientsForSampleVector(m_representer->SampleToSampleVector(ds));
 }
 
 template <typename T>
@@ -337,18 +312,76 @@ StatisticalModel<T>::ComputeCoefficientsForPointIDValues(const PointIdValueListT
     return coeffs;
 }
 
+template <typename T>
+VectorType
+StatisticalModel<T>::ComputeCoefficientsForPointValuesWithCovariance(const PointValueWithCovarianceListType&  pointValuesWithCovariance) const {
+
+    // The naming of the variables correspond to those used in the paper
+    // Posterior Shape Models,
+    // Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
+    //
+    const MatrixType& Q = m_pcaBasisMatrix;
+    const VectorType& mu = m_mean;
+
+    unsigned dim = m_representer->GetDimensions();
+
+    // build the part matrices with , considering only the points that are fixed
+    //
+    unsigned numPrincipalComponents = this->GetNumberOfPrincipalComponents();
+    MatrixType Q_g(pointValuesWithCovariance.size()* dim, numPrincipalComponents);
+    VectorType mu_g(pointValuesWithCovariance.size() * dim);
+    VectorType s_g(pointValuesWithCovariance.size() * dim);
+
+    MatrixType LQ_g(pointValuesWithCovariance.size()* dim, numPrincipalComponents);
+
+    unsigned i = 0;
+    for (typename PointValueWithCovarianceListType::const_iterator it = pointValuesWithCovariance.begin(); it != pointValuesWithCovariance.end(); ++it) {
+        VectorType val = m_representer->PointSampleToPointSampleVector(it->first.second);
+        unsigned pt_id = m_representer->GetPointIdForPoint(it->first.first);
+
+        // In the formulas, we actually need the precision matrix, which is the inverse of the covariance.
+        const MatrixType pointPrecisionMatrix = it->second.inverse();
+
+        // Get the three rows pertaining to this point:
+        const MatrixType Qrows_for_pt_id = Q.block(pt_id * dim, 0, dim, numPrincipalComponents);
+
+        Q_g.block(i * dim, 0, dim, numPrincipalComponents) = Qrows_for_pt_id;
+        mu_g.block(i * dim, 0, dim, 1) = mu.block(pt_id * dim, 0, dim, 1);
+        s_g.block(i * dim, 0, dim, 1) = val;
+
+        LQ_g.block(i * dim, 0, dim, numPrincipalComponents) = pointPrecisionMatrix * Qrows_for_pt_id;
+        i++;
+    }
+
+    VectorType D2 = m_pcaVariance.array();
+
+    const MatrixType& Q_gT = Q_g.transpose();
+
+    MatrixType M = Q_gT * LQ_g;
+    M.diagonal() += VectorType::Ones(Q_g.cols());
+
+    MatrixTypeDoublePrecision Minv = M.cast<double>().inverse();
+
+    // the MAP solution for the latent variables (coefficients)
+    VectorType coeffs = Minv.cast<ScalarType>() * LQ_g.transpose() * (s_g - mu_g);
+
+    return coeffs;
+
+}
+
+
 
 template <typename T>
 double
-StatisticalModel<T>::ComputeLogProbabilityOfDataset(DatasetConstPointerType ds) const {
-    VectorType alpha = ComputeCoefficientsForDataset(ds);
+StatisticalModel<T>::ComputeLogProbability(DatasetConstPointerType ds) const {
+    VectorType alpha = ComputeCoefficients(ds);
     return ComputeLogProbabilityOfCoefficients(alpha);
 }
 
 template <typename T>
 double
-StatisticalModel<T>::ComputeProbabilityOfDataset(DatasetConstPointerType ds) const {
-    VectorType alpha = ComputeCoefficientsForDataset(ds);
+StatisticalModel<T>::ComputeProbability(DatasetConstPointerType ds) const {
+    VectorType alpha = ComputeCoefficients(ds);
     return ComputeProbabilityOfCoefficients(alpha);
 }
 
@@ -368,77 +401,10 @@ StatisticalModel<T>::ComputeProbabilityOfCoefficients(const VectorType& coeffici
 
 template <typename T>
 double
-StatisticalModel<T>::ComputeMahalanobisDistanceForDataset(DatasetConstPointerType ds) const {
-    VectorType alpha = ComputeCoefficientsForDataset(ds);
+StatisticalModel<T>::ComputeMahalanobisDistance(DatasetConstPointerType ds) const {
+    VectorType alpha = ComputeCoefficients(ds);
     return std::sqrt(alpha.squaredNorm());
 }
-
-
-template <typename T>
-VectorType
-StatisticalModel<T>::RobustlyComputeCoefficientsForDataset(DatasetConstPointerType ds, unsigned nIterations, unsigned nu, double sigma2) const {
-    throw NotImplementedException("StatisticalModel", "RobustlyComputeCoefficientsForDataset");
-    /*
-    unsigned dim = Representer::GetDimensions();
-
-    // we use double to improve the stability
-    MatrixType U = Utils::toDouble(this->m_pcaBasisMatrix);
-    VectorType yfloat;
-    m_representer->DatasetToSample(ds,&yfloat);
-
-    MatrixTypeDoublePrecision y = Eigen::Map::toDouble(yfloat);
-    VectorTypeDoublePrecision mu = Utils::toDouble(this->m_mean);
-
-
-    const MatrixTypeDoublePrecision& UT = U.transpose();
-
-    unsigned nPCA = GetNumberOfPrincipalComponents();
-
-    typedef typename Representer::DatasetTraitsType DatasetTraitsType;
-
-
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision> Vinv(VectorTypeDoublePrecision::Zero(y.size());
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision> VinvSqrt(VectorTypeDoublePrecision::Zero(y.size()));
-
-    y -= mu;
-    VectorTypeDoublePrecision f = VectorTypeDoublePrecistion::Zero(y.size());
-
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision> D(Utils::toDouble(m_pcaVariance.topLeftCorner(nPCA)));
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision> Dinv = D.inverse();
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision>  D2 = D * D;
-    Eigen::DiagonalWrapper<VectorTypeDoublePrecision>  D2inv = D2.inverse();
-
-    for (unsigned i = 0; i < nIterations; i++) {
-
-    	// E step
-    	for (unsigned j = 0; j < Vinv.size(); j++) {
-    		// student-t case
-    		Vinv(j) = (nu + 1.0) / (nu * sigma2 + pow(y(j) -  f(j), 2));
-
-    		// for later use
-    		VinvSqrt(j) = sqrt(Vinv(j));
-    	}
-
-    	// M step
-    	const MatrixTypeDoublePrecision W = VinvSqrt * U * D;
-    	const MatrixTypeDoublePrecision WT = W.transpose();
-
-    	const VectorTypeDoublePrecision outer_term = (Vinv * y);
-    	const MatrixTypeDoublePrecision IWTWInv = vnl_matrix_inverse<double>(vnl_diag_matrix<double>(nPCA, 1) + WT * W);
-    	const VectorTypeDoublePrecision fst_term = (U * (D2 * (UT * outer_term)));
-    	const VectorTypeDoublePrecision snd_term = (U * (D2 * (UT * (Vinv * (U * (D2 * (UT * outer_term)))))));
-    	const VectorTypeDoublePrecision trd_term = (U * (D2 * (UT * (VinvSqrt * (W * (IWTWInv * (WT * (VinvSqrt * (U * (D2 * (UT * outer_term)))))))))));
-    	f = fst_term - snd_term + trd_term;
-    }
-
-    // the latent variable f is now a robust approximation for the data set. We return its coefficients.
-    DatasetConstPointerType newds = m_representer->sampleToDataset(f);
-    VectorType coeffs = GetCoefficientsForData(newds);
-    Representer::DeleteDataset(newds);
-    return coeffs;
-    */
-}
-
 
 
 
@@ -525,168 +491,6 @@ StatisticalModel<T>::GetJacobian(unsigned ptId) const {
         }
     }
     return J;
-}
-
-
-template <typename T>
-StatisticalModel<T>*
-StatisticalModel<T>::Load(Representer<T>* representer, const std::string& filename, unsigned maxNumberOfPCAComponents) {
-
-    StatisticalModel* newModel = 0;
-
-    H5::H5File file;
-    try {
-        file = H5::H5File(filename.c_str(), H5F_ACC_RDONLY);
-    } catch (H5::Exception& e) {
-        std::string msg(std::string("could not open HDF5 file \n") + e.getCDetailMsg());
-        throw StatisticalModelException(msg.c_str());
-    }
-
-    H5::Group modelRoot = file.openGroup("/");
-
-    newModel =  Load(representer, modelRoot, maxNumberOfPCAComponents);
-
-    modelRoot.close();
-    file.close();
-    return newModel;
-
-}
-
-
-template <typename T>
-StatisticalModel<T>*
-StatisticalModel<T>::Load(Representer<T>* representer, const H5::Group& modelRoot, unsigned maxNumberOfPCAComponents) {
-
-    StatisticalModel* newModel = 0;
-
-    try {
-        H5::Group representerGroup = modelRoot.openGroup("./representer");
-
-        representer->Load(representerGroup);
-        representerGroup.close();
-
-        newModel = new StatisticalModel(representer);
-
-        int minorVersion = 0;
-        int majorVersion = 0;
-
-        if (HDF5Utils::existsObjectWithName(modelRoot, "version") == false) {
-            // this is an old statismo format, that had not been versioned. We set the version to 0.8 as this is the last version
-            // that stores the old format
-            std::cout << "Warning: version attribute does not exist in hdf5 file. Assuming version 0.8" <<std::endl;
-            minorVersion = 8;
-            majorVersion = 0;
-        } else {
-            H5::Group versionGroup = modelRoot.openGroup("./version");
-            minorVersion = HDF5Utils::readInt(versionGroup, "./minorVersion");
-            majorVersion = HDF5Utils::readInt(versionGroup, "./majorVersion");
-        }
-
-        H5::Group modelGroup = modelRoot.openGroup("./model");
-        HDF5Utils::readVector(modelGroup, "./mean", newModel->m_mean);
-        statismo::VectorType pcaVariance;
-        HDF5Utils::readVector(modelGroup, "./pcaVariance", maxNumberOfPCAComponents, pcaVariance);
-        newModel->m_pcaVariance = pcaVariance;
-
-        // Depending on the statismo version, the pcaBasis matrix was stored as U*D or U (where U are the orthonormal PCA Basis functions and D the standard deviations).
-        // Here we make sure that we fill the pcaBasisMatrix (which statismo stores as U*D) with the right values.
-        if (majorVersion == 0 && minorVersion == 8) {
-            HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, newModel->m_pcaBasisMatrix);
-        } else if (majorVersion ==0 && minorVersion == 9) {
-            MatrixType orthonormalPCABasis;
-            HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, orthonormalPCABasis);
-
-            VectorType D = pcaVariance.array().sqrt();
-            newModel->m_pcaBasisMatrix = orthonormalPCABasis * DiagMatrixType(D);
-        } else {
-            std::ostringstream os;
-            os << "an invalid statismo version was provided (" << majorVersion << "." << minorVersion << ")";
-            throw StatisticalModelException(os.str().c_str());
-        }
-        newModel->m_noiseVariance = HDF5Utils::readFloat(modelGroup, "./noiseVariance");
-
-        modelGroup.close();
-        newModel->m_modelInfo.Load(modelRoot);
-
-    } catch (H5::Exception& e) {
-        std::string msg(std::string("an exeption occured while reading HDF5 file") +
-                        "The most likely cause is that the hdf5 file does not contain the required objects. \n" + e.getCDetailMsg());
-        throw StatisticalModelException(msg.c_str());
-    }
-
-    assert(newModel != 0);
-    newModel->m_cachedValuesValid = false;
-
-    newModel->m_modelLoaded = true;
-
-    return newModel;
-}
-
-template <typename T>
-void
-StatisticalModel<T>::Save(const std::string& filename) const {
-    using namespace H5;
-
-    if (m_modelLoaded == true) {
-        throw StatisticalModelException("Cannot save the model: Note, to prevent inconsistencies in the model's history, only models that have been newly created can be saved, and not those loaded from an hdf5 file.");
-    }
-
-
-
-    H5File file;
-    std::ifstream ifile(filename.c_str());
-
-    try {
-        file = H5::H5File( filename.c_str(), H5F_ACC_TRUNC);
-    } catch (H5::FileIException& e) {
-        std::string msg(std::string("Could not open HDF5 file for writing \n") + e.getCDetailMsg());
-        throw StatisticalModelException(msg.c_str());
-    }
-
-
-    H5::Group modelRoot = file.openGroup("/");
-
-    H5::Group versionGroup = modelRoot.createGroup("version");
-    HDF5Utils::writeInt(versionGroup, "majorVersion", 0);
-    HDF5Utils::writeInt(versionGroup, "minorVersion", 9);
-    versionGroup.close();
-
-    Save(modelRoot);
-    modelRoot.close();
-    file.close();
-}
-
-template <typename T>
-void
-StatisticalModel<T>::Save(const H5::Group& modelRoot) const {
-
-    try {
-        // create the group structure
-
-        std::string dataTypeStr = RepresenterType::TypeToString(m_representer->GetType());
-
-        H5::Group representerGroup = modelRoot.createGroup("./representer");
-        HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
-        HDF5Utils::writeStringAttribute(representerGroup, "version", m_representer->GetVersion());
-        HDF5Utils::writeStringAttribute(representerGroup, "datasetType", dataTypeStr);
-
-        this->m_representer->Save(representerGroup);
-        representerGroup.close();
-
-        H5::Group modelGroup = modelRoot.createGroup( "./model" );
-        HDF5Utils::writeMatrix(modelGroup, "./pcaBasis", GetOrthonormalPCABasisMatrix());
-        HDF5Utils::writeVector(modelGroup, "./pcaVariance", m_pcaVariance);
-        HDF5Utils::writeVector(modelGroup, "./mean", m_mean);
-        HDF5Utils::writeFloat(modelGroup, "./noiseVariance", m_noiseVariance);
-        modelGroup.close();
-
-        m_modelInfo.Save(modelRoot);
-
-
-    } catch (H5::Exception& e) {
-        std::string msg(std::string("an exception occurred while writing HDF5 file \n") + e.getCDetailMsg());
-        throw StatisticalModelException(msg.c_str());
-    }
 }
 
 template <typename T>

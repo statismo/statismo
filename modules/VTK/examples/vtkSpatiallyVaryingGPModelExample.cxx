@@ -18,6 +18,7 @@
 #include "KernelCombinators.h"
 #include "LowRankGPModelBuilder.h"
 #include "StatisticalModel.h"
+#include "StatismoIO.h"
 #include "vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
@@ -158,7 +159,7 @@ int main(int argc, char** argv) {
         StatisticalModelType* newModel = modelBuilder->BuildNewModel(referenceMesh, temperedKernel, numberOfComponents);
 
         // Once we have built the model, we can save it to disk.
-        newModel->Save(outputModelFilename);
+        statismo::IO<vtkPolyData>::SaveStatisticalModel(newModel, outputModelFilename);
         std::cout << "Successfully saved shape model as " << outputModelFilename << std::endl;
 
         referenceMesh->Delete();

@@ -427,21 +427,21 @@ font-family="Sans Serif" font-size="10" font-weight="400" font-style="normal"
 font-family="Sans Serif" font-size="10" font-weight="400" font-style="normal" 
 >
 <text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="807" y="353" font-family="Sans Serif" font-size="10" font-weight="400" font-style="normal" 
- >ComputeProbabilityOfDataset()</text>
+ >ComputeProbability()</text>
 </g>
 
 <g fill="#ffffc0" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,-179,-157)"
 font-family="Sans Serif" font-size="10" font-weight="400" font-style="normal" 
 >
 <text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="807" y="369" font-family="Sans Serif" font-size="10" font-weight="400" font-style="normal" 
- >ComputeLogProbabilityOfDataset()</text>
+ >ComputeLogProbability()</text>
 </g>
 
 <g fill="#ffffc0" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,-179,-157)"
 font-family="Sans Serif" font-size="10" font-weight="400" font-style="normal" 
 >
 <text fill="#000000" fill-opacity="1" stroke="none" xml:space="preserve" x="807" y="385" font-family="Sans Serif" font-size="10" font-weight="400" font-style="normal" 
- >ComputeCoefficientsForDataset()</text>
+ >ComputeCoefficients()</text>
 </g>
 
 <g fill="#ffffc0" fill-opacity="1" stroke="#000000" stroke-opacity="1" stroke-width="1" stroke-linecap="square" stroke-linejoin="bevel" transform="matrix(1,0,0,1,-179,-157)"

@@ -9,4 +9,4 @@ endforeach()
 
 add_test( NAME basicStatismoTest
   COMMAND basicStatismoTest
-)
+  WORKING_DIRECTORY "${TEST_WORKING_DIR}" )

@@ -44,6 +44,7 @@
 #include "itkDataManager.h"
 #include "itkLowRankGPModelBuilder.h"
 #include "itkStandardImageRepresenter.h"
+#include "itkStatismoIO.h"
 #include "itkStatisticalModel.h"
 
 #include "Kernels.h"
@@ -128,9 +129,7 @@ void itkExample(const char* referenceFilename, double gaussianKernelSigma, const
     typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
     gpModelBuilder->SetRepresenter(representer);
     typename StatisticalModelType::Pointer model = gpModelBuilder->BuildNewZeroMeanModel(scaledGk, 100);
-    model->Save(modelname);
-
-
+    itk::StatismoIO<ImageType>::SaveStatisticalModel(model, modelname);
 }
 
 int main(int argc, char* argv[]) {

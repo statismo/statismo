@@ -68,24 +68,37 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
     unsigned p = sampleDataList.front()->GetSampleVector().rows();
     const Representer<T>* representer = sampleDataList.front()->GetRepresenter();
 
-    // Build the sample matrix X
-    MatrixType X(n, p);
 
+    // Compute the mean vector mu
+    VectorType mu = VectorType::Zero(p);
+
+    for (typename DataItemListType::const_iterator it = sampleDataList.begin();
+            it != sampleDataList.end();  ++it) {
+        assert((*it)->GetSampleVector().rows() == p); // all samples must have same number of rows
+        assert((*it)->GetRepresenter() == representer); // all samples have the same representer
+        mu += (*it)->GetSampleVector();
+    }
+    mu /= n;
+
+    // Build the mean free sample matrix X0
+    MatrixType X0(n, p);
     unsigned i = 0;
     for (typename DataItemListType::const_iterator it = sampleDataList.begin();
-            it != sampleDataList.end();
-            ++it) {
-        assert ((*it)->GetSampleVector().rows() == p); // all samples must have same number of rows
-        assert ((*it)->GetRepresenter() == representer); // all samples have the same representer
-        X.row(i++) = (*it)->GetSampleVector();
+            it != sampleDataList.end(); ++it) {
+        X0.row(i++) = (*it)->GetSampleVector() - mu;
     }
 
 
+
+
+
     // build the model
-    StatisticalModelType* model = BuildNewModelInternal(representer, X, noiseVariance, method);
+    StatisticalModelType* model = BuildNewModelInternal(representer, X0, mu, noiseVariance, method);
+
+    // compute the scores if requested
     MatrixType scores;
     if (computeScores) {
-        scores = this->ComputeScores(X, model);
+        scores = this->ComputeScores(sampleDataList, model);
     }
 
 
@@ -118,13 +131,11 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType& sampleDataList, double
 
 template <typename T>
 typename PCAModelBuilder<T>::StatisticalModelType*
-PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, double noiseVariance, EigenValueMethod method) const {
+PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X0, const VectorType& mu,
+        double noiseVariance, EigenValueMethod method) const {
 
-    unsigned n = X.rows();
-    unsigned p = X.cols();
-
-    RowVectorType mu = X.colwise().mean(); // needs to be row vector
-    MatrixType X0 = X.rowwise() - mu;
+    unsigned n = X0.rows();
+    unsigned p = X0.cols();
 
     switch(method) {
     case JacobiSVD:
@@ -160,15 +171,19 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
                 singSqrtInv(i) = 1.0 / singSqrt(i);
             }
 
+            if (numComponentsToKeep == 0) {
+                throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
+            }
+
             // we recover the eigenvectors U of the full covariance matrix from the eigenvectors V of the inner product matrix.
             // We use the fact that if we decompose X as X=UDV^T, then we get X^TX = UD^2U^T and XX^T = VD^2V^T (exploiting the orthogonormality
             // of the matrix U and V from the SVD). The additional factor sqrt(n-1) is to compensate for the 1/sqrt(n-1) in the formula
             // for the covariance matrix.
-            MatrixType pcaBasis = (X0.transpose() * V * singSqrtInv.asDiagonal() / sqrt(n-1.0)).topLeftCorner(p, numComponentsToKeep);;
 
-            if (numComponentsToKeep == 0) {
-                throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
-            }
+            MatrixType pcaBasis = X0.transpose() * V * singSqrtInv.asDiagonal();
+            pcaBasis /= sqrt(n - 1.0);
+            pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
+
 
             VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
             VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
@@ -178,10 +193,13 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
             return model;
         } else {
             // we compute an SVD of the full p x p  covariance matrix 1/(n-1) X0^TX0 directly
-            SVDType SVD(X0.transpose() * X0 * 1.0/(n-1), Eigen::ComputeThinU);
+            SVDType SVD(X0.transpose() * X0, Eigen::ComputeThinU);
             VectorType singularValues = SVD.singularValues();
+            singularValues /= (n - 1.0);
             unsigned numComponentsToKeep = ((singularValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
-            MatrixType pcaBasis = SVD.matrixU().topLeftCorner(p, numComponentsToKeep);
+            MatrixType pcaBasis = SVD.matrixU();
+            
+            pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
 
             if (numComponentsToKeep == 0) {
                 throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");
@@ -199,12 +217,15 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T>* representer, con
 
         typedef Eigen::SelfAdjointEigenSolver<MatrixType> SelfAdjointEigenSolver;
         SelfAdjointEigenSolver es;
-        es.compute(X0.transpose() * X0 * 1.0/(n-1));
+        es.compute(X0.transpose() * X0);
         VectorType eigenValues = es.eigenvalues().reverse(); // SelfAdjointEigenSolver orders the eigenvalues in increasing order
+        eigenValues /= (n -1.0);
 
 
         unsigned numComponentsToKeep = ((eigenValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
-        MatrixType pcaBasis = es.eigenvectors().rowwise().reverse().topLeftCorner(p, numComponentsToKeep);
+        MatrixType pcaBasis = es.eigenvectors().rowwise().reverse(); 
+        pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
+
 
         if (numComponentsToKeep == 0) {
             throw StatisticalModelException("All the eigenvalues are below the given tolerance. Model cannot be built.");

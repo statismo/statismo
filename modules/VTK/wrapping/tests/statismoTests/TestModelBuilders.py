@@ -85,7 +85,7 @@ class Test(unittest.TestCase):
         samples = self.dataManager.GetData()
         sample = samples[0].GetSample()
         print sample.GetNumberOfPoints()
-        coeffs_sample = model.ComputeCoefficientsForDataset(sample)
+        coeffs_sample = model.ComputeCoefficients(sample)
         restored_sample = model.DrawSample(coeffs_sample)
  
         self.assertEqual(sample.GetNumberOfPoints(), restored_sample.GetNumberOfPoints())
@@ -180,8 +180,8 @@ class Test(unittest.TestCase):
         pca_model = pcamodelbuilder.BuildNewModel(self.dataManager.GetData(), 0.1)
         
         sample  =  self.dataManager.GetData()[0].GetSample()
-        coeffs_pf_model = pf_model.ComputeCoefficientsForDataset(sample)
-        coeffs_pca_model =   pca_model.ComputeCoefficientsForDataset(sample)
+        coeffs_pf_model = pf_model.ComputeCoefficients(sample)
+        coeffs_pca_model =   pca_model.ComputeCoefficients(sample)
         for i in xrange(0, len(coeffs_pf_model)):
             # the sign is allowed to change
             self.assertAlmostEqual(abs(coeffs_pf_model[i]), abs(coeffs_pca_model[i]), 1)
@@ -280,8 +280,8 @@ class Test(unittest.TestCase):
         pca_model = pcamodelbuilder.BuildNewModel(self.dataManager.GetData(), 0.1)
         
         sample  =  self.dataManager.GetData()[0].GetSample()
-        coeffs_pf_model = pf_model.ComputeCoefficientsForDataset(sample)
-        coeffs_pca_model =   pca_model.ComputeCoefficientsForDataset(sample)
+        coeffs_pf_model = pf_model.ComputeCoefficients(sample)
+        coeffs_pca_model =   pca_model.ComputeCoefficients(sample)
         for i in xrange(0, len(coeffs_pf_model)):
             # the sign is allowed to change
             self.assertAlmostEqual(abs(coeffs_pf_model[i]), abs(coeffs_pca_model[i]), 1)

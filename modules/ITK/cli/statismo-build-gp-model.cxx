@@ -42,6 +42,7 @@
 #include <itkMeshFileReader.h>
 #include <itkStandardImageRepresenter.h>
 #include <itkStandardMeshRepresenter.h>
+#include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 
 //Add new kernels in this file (and document their usage in the statismo-build-gp-model.md file)
@@ -204,7 +205,8 @@ void buildAndSaveModel(programOptions opt) {
 
     if(opt.strOptionalModelPath != "") {
         try {
-            pRawStatisticalModel.reset(RawModelType::Load(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str()));
+            pRawStatisticalModel.reset(statismo::IO<DataType>::LoadStatisticalModel(pRepresenter.GetPointer(),
+                                                                                    opt.strOptionalModelPath.c_str()));
             pStatModelKernel.reset(new statismo::StatisticalModelKernel<DataType>(pRawStatisticalModel.get()));
             pModelBuildingKernel.reset(new statismo::SumKernel<PointType>(pStatModelKernel.get(), pScaledKernel.get()));
         } catch (statismo::StatisticalModelException& s) {
@@ -218,22 +220,17 @@ void buildAndSaveModel(programOptions opt) {
         pReferenceReader->Update();
         pRepresenter->SetReference(pReferenceReader->GetOutput());
         pMean = pRepresenter->IdentitySample();
-
     }
-
-
-
 
     typedef itk::LowRankGPModelBuilder<DataType> ModelBuilderType;
     typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
     gpModelBuilder->SetRepresenter(pRepresenter);
 
-
     typedef itk::StatisticalModel<DataType> StatisticalModelType;
     typename StatisticalModelType::Pointer pModel;
     pModel = gpModelBuilder->BuildNewModel(pMean, *pModelBuildingKernel.get(), opt.iNrOfBasisFunctions);
 
-    pModel->Save(opt.strOutputFileName.c_str());
+    itk::StatismoIO<DataType>::SaveStatisticalModel(pModel, opt.strOutputFileName.c_str());
 }
 
 string getAvailableKernelsStr() {

@@ -157,31 +157,15 @@ class Test(unittest.TestCase):
         self.assertEqual(newModelSub.GetNumberOfPrincipalComponents(), 2)
         self.assertTrue((newModelSub.GetPCAVarianceVector()[0:1] == self.model.GetPCAVarianceVector()[0:1]).all)
         self.assertTrue((abs(newModelSub.GetPCABasisMatrix()[:,0:1] - self.model.GetPCABasisMatrix()[:,0:1]) < 1e-3).all())
-  
-  
-  
-    def testDatasetToSample(self):
-         """ Checks wheter DatasetToSample applied to a Sample returns the same sample """
-           
-         meanSample = self.model.DrawMean()
-         meanSampleNew = self.model.DatasetToSample(meanSample)
-         num_pts = meanSample.GetNumberOfPoints()
-         pt_ids = xrange(0, num_pts, num_pts / 10) 
-   
-         for ptId in pt_ids:
-            mp = meanSample.GetPoints().GetPoint(ptId)
-            mpn = meanSampleNew.GetPoints().GetPoint(ptId)
-            self.assertTrue((mp[0] ==  mpn[0]) and  (mp[1] == mpn[1]) and (mp[2] == mpn[2]))
-          
-      
+
     def testProbabilityOfDatasetPlausibility(self):
         num_samples = 100
         nComps = self.model.GetNumberOfPrincipalComponents()
-        p_mean = self.model.ComputeProbabilityOfDataset(self.model.DrawMean())
+        p_mean = self.model.ComputeProbability(self.model.DrawMean())
         for i in xrange(0, num_samples):
             coeffs = randn(nComps)
             s = self.model.DrawSample(coeffs)
-            p = self.model.ComputeProbabilityOfDataset(s)
+            p = self.model.ComputeProbability(s)
 
             # as the distribution we are looking for is just a standard mv normal, all the
             # components are independent. We can thus use a 1d normal distribution to compute the
@@ -198,19 +182,19 @@ class Test(unittest.TestCase):
         for i in xrange(0, num_samples):
             coeffs = randn(self.model.GetNumberOfPrincipalComponents())
             s = self.model.DrawSample(coeffs)
-            p = self.model.ComputeProbabilityOfDataset(s)
-            lp = self.model.ComputeLogProbabilityOfDataset(s)
+            p = self.model.ComputeProbability(s)
+            lp = self.model.ComputeLogProbability(s)
             self.assertTrue(log(p) -lp < 0.05, "Log probability should roughtly equal the log of the probability")
          
     def testMahalanobisDistanceComputation(self):
     	mean = self.model.DrawMean()
-    	mdMean = self.model.ComputeMahalanobisDistanceForDataset(mean)
+    	mdMean = self.model.ComputeMahalanobisDistance(mean)
     	self.assertEqual(mdMean, 0)
          
     	coeffs = zeros(self.model.GetNumberOfPrincipalComponents())
     	coeffs[0] = 3
     	s = self.model.DrawSample(coeffs)
-    	mdSample = self.model.ComputeMahalanobisDistanceForDataset(s)
+    	mdSample = self.model.ComputeMahalanobisDistance(s)
     	self.assertAlmostEqual(mdSample, 3, places=3)
 
 
@@ -218,7 +202,7 @@ class Test(unittest.TestCase):
     def testCoefficientsGenerateCorrectDataset(self):
         coeffs = randn(self.model.GetNumberOfPrincipalComponents())
         s = self.model.DrawSample(coeffs)
-        computed_coeffs = self.model.ComputeCoefficientsForDataset(s)
+        computed_coeffs = self.model.ComputeCoefficients(s)
         diff = (coeffs - computed_coeffs)[:-1] # we ignore the last coefficient
         self.assertTrue((diff < 1e-3).all()) #don't make the threshold too small, as we are dealing with floats
               

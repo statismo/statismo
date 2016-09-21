@@ -45,7 +45,9 @@
 #include "itkDataManager.h"
 #include "itkPCAModelBuilder.h"
 #include "itkStandardImageRepresenter.h"
+#include "itkStatismoIO.h"
 #include "itkStatisticalModel.h"
+
 
 /*
  * This example shows the ITK Wrapping of statismo can be used to build a deformation model.
@@ -118,7 +120,7 @@ void itkExample(const char* dir, const char* modelname, double noiseVariance) {
 
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), noiseVariance);
-    model->Save(modelname);
+    itk::StatismoIO<ImageType>::SaveStatisticalModel(model, modelname);
 
 }
 

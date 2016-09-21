@@ -42,8 +42,6 @@ set(boost_toolset "--toolset=msvc-14.0")
 endif(MSVC_VERSION EQUAL 1500)
 
 
-
-
 if(${BUILD_SHARED_LIBS} MATCHES OFF)
   set(BUILD_LIBS "static")
 elseif(${BUILD_SHARED_LIBS} MATCHES ON)

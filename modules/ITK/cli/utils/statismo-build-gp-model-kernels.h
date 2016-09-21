@@ -71,7 +71,7 @@ KernelMapType kernelMap;
 
 template <class TPoint>
 class GaussianKernel : public statismo::ScalarValuedKernel<TPoint> {
-public:
+  public:
     typedef typename  TPoint::CoordRepType CoordRepType;
     typedef vnl_vector<CoordRepType> VectorType;
 
@@ -95,7 +95,7 @@ public:
         return os.str();
     }
 
-private:
+  private:
     double m_sigma;
     double m_sigma2;
 };
@@ -106,7 +106,7 @@ private:
 
 template <class TPoint>
 class BSplineKernel : public statismo::ScalarValuedKernel<TPoint> {
-public:
+  public:
     typedef typename  TPoint::CoordRepType CoordRepType;
     typedef vnl_vector<CoordRepType> VectorType;
 
@@ -126,11 +126,9 @@ public:
         double splineValue = 0;
         if (absX >= 0 && absX < 1) {
             splineValue = twoByThree - absXSquared + 0.5 * absXCube;
-        }
-        else if (absX >= 1 && absX < 2) {
+        } else if (absX >= 1 && absX < 2) {
             splineValue = twoMinAbsXCube / 6.0;
-        }
-        else {
+        } else {
             splineValue = 0;
         }
         return splineValue;
@@ -186,13 +184,16 @@ public:
                 while (ky <= kUpper[1]) {
                     if (dim == 2) {
                         VectorType k(2);
-                        k[0] = kx; k[1] = ky;
+                        k[0] = kx;
+                        k[1] = ky;
                         sum += (tensorProductSpline(xScaled - k) * tensorProductSpline(yScaled - k));
                     } else {
                         double kz = kLower[2];
                         while (kz <= kUpper[2]) {
                             VectorType k(3);
-                            k[0] = kx; k[1] = ky; k[2] = kz;
+                            k[0] = kx;
+                            k[1] = ky;
+                            k[2] = kz;
                             sum += (tensorProductSpline(xScaled - k) * tensorProductSpline(yScaled - k));
                             kz += 1;
                         }
@@ -213,7 +214,7 @@ public:
         return os.str();
     }
 
-private:
+  private:
     double m_support;
 };
 
@@ -226,15 +227,14 @@ private:
 //
 template <class TPoint>
 class MultiscaleKernel : public statismo::ScalarValuedKernel<TPoint> {
-public:
+  public:
     typedef typename  TPoint::CoordRepType CoordRepType;
     typedef vnl_vector<CoordRepType> VectorType;
 
 
     MultiscaleKernel(double supportBaseLevel, unsigned numberOfLevels) :
-            m_supportBaseLevel(supportBaseLevel),
-            m_numberOfLevels(numberOfLevels)
-    {
+        m_supportBaseLevel(supportBaseLevel),
+        m_numberOfLevels(numberOfLevels) {
         double support = supportBaseLevel;
         for (unsigned i = 0; i < numberOfLevels; ++i) {
             m_kernels.push_back(new BSplineKernel<TPoint>(m_supportBaseLevel * std::pow(2, -1.0 * i)));
@@ -262,7 +262,7 @@ public:
         return os.str();
     }
 
-private:
+  private:
     double m_supportBaseLevel;
     unsigned m_numberOfLevels;
     boost::ptr_vector<BSplineKernel<TPoint> >  m_kernels;

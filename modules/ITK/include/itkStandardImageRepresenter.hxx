@@ -232,17 +232,6 @@ StandardImageRepresenter<TPixel, ImageDimension>::PointToVector(const PointType&
 
 
 
-template <class TPixel, unsigned ImageDimension>
-typename StandardImageRepresenter<TPixel, ImageDimension>::DatasetPointerType
-StandardImageRepresenter<TPixel, ImageDimension>::DatasetToSample(DatasetConstPointerType image) const {
-    // we don't do any alignment for images, but simply return a copy of the image
-
-    typename itk::ImageDuplicator<ImageType>::Pointer duplicator = itk::ImageDuplicator<ImageType>::New();
-    duplicator->SetInputImage(image);
-    duplicator->Update();
-    return duplicator->GetOutput();
-
-}
 
 template <class TPixel, unsigned ImageDimension>
 statismo::VectorType

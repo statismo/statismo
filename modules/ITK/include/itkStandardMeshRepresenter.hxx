@@ -227,13 +227,6 @@ StandardMeshRepresenter<TPixel, MeshDimension>::PointToVector(const PointType& p
 }
 
 template <class TPixel, unsigned MeshDimension>
-typename StandardMeshRepresenter<TPixel, MeshDimension>::DatasetPointerType
-StandardMeshRepresenter<TPixel, MeshDimension>::DatasetToSample(DatasetConstPointerType ds) const {
-    // we don't do any alignment, but simply return a clone of the dataset
-    return this->CloneDataset(ds);
-}
-
-template <class TPixel, unsigned MeshDimension>
 statismo::VectorType
 StandardMeshRepresenter<TPixel, MeshDimension>::SampleToSampleVector(DatasetConstPointerType mesh) const {
     statismo::VectorType sample(GetNumberOfPoints() * GetDimensions());
