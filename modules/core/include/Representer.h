@@ -38,7 +38,7 @@
 #define REPRESENTER_H_
 
 #include <string>
-#include <H5Cpp.h>
+#include <itk_H5Cpp.h>
 
 #include "CommonTypes.h"
 #include "Domain.h"

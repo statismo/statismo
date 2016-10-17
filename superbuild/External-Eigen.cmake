@@ -1,6 +1,6 @@
 message( "External project - Eigen" )
 
-set( Eigen3_VERSION "3.2.0" )
+set( Eigen3_VERSION "3.2.9" )
 
 ExternalProject_Add( Eigen3
   URL "http://bitbucket.org/eigen/eigen/get/${Eigen3_VERSION}.tar.gz"
