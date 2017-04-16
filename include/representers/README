@@ -1,0 +1,4 @@
+This directory contains different Representers for the ITK and the VTK
+toolkit. 
+
+The Representers provide the interface from the generic statismo functionality, to the library specific representation of shapes and images. 
