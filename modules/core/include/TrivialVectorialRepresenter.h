@@ -40,7 +40,7 @@
 #define TRIVIALVECTORIALREPRESENTER_H
 
 #include <memory>
-#include <H5Cpp.h>
+#include <itk_H5Cpp.h>
 
 #include "CommonTypes.h"
 #include "Domain.h"
