@@ -39,7 +39,7 @@
 #ifndef VTK_STANDARD_MESH_REPRESENTER_H_
 #define VTK_STANDARD_MESH_REPRESENTER_H_
 
-#include <H5Cpp.h>
+#include <itk_H5Cpp.h>
 
 #include <vtkPolyData.h>
 #include <vtkSmartPointer.h>

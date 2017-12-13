@@ -38,7 +38,7 @@
 #ifndef VTKSTANDARDIMAGERESENTER_H_
 #define VTKSTANDARDIMAGERESENTER_H_
 
-#include <H5Cpp.h>
+#include <itk_H5Cpp.h>
 
 #include <vtkSmartPointer.h>
 #include <vtkStructuredPoints.h>
