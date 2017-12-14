@@ -38,6 +38,7 @@
 #include <itkImageFileReader.h>
 #include <itkPCAModelBuilder.h>
 #include <itkStandardImageRepresenter.h>
+#include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 
 #include "utils/statismo-build-models-utils.h"
@@ -47,6 +48,7 @@ using namespace std;
 
 struct programOptions {
     bool bDisplayHelp;
+    bool bComputeScores;
     string strDataListFile;
     string strOutputFileName;
     float fNoiseVariance;
@@ -143,26 +145,22 @@ void buildAndSaveDeformationModel(programOptions opt) {
 
     typedef itk::ImageFileReader<ImageType> ImageReaderType;
     typedef vector<typename ImageReaderType::Pointer> ImageReaderList;
-    ImageReaderList images;
-    images.reserve(fileNames.size());
 
-    for (StringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
-        typename ImageReaderType::Pointer reader = ImageReaderType::New();
-        reader->SetFileName(it->c_str());
-        reader->Update();
-        //itk::PCAModelBuilder is not a Filter in the ITK world, so the pipeline would not get executed if its main method is called. So the pipeline before calling itk::PCAModelBuilder must be executed by the means of calls to Update() (at least for last elements needed by itk::PCAModelBuilder).
-        images.push_back(reader);
-    }
-
-    if (images.size() == 0) {
+    if (fileNames.size() == 0) {
         itkGenericExceptionMacro( << "No Data was loaded and thus the model can't be built.");
     }
-    typename  ImageReaderType::Pointer referenceReader = *images.begin();
-    representer->SetReference(referenceReader->GetOutput());
-    dataManager->SetRepresenter(representer);
+    bool firstPass = true;
+    for (StringList::const_iterator it = fileNames.begin(); it != fileNames.end(); ++it) {
 
-    for (typename ImageReaderList::const_iterator it = images.begin(); it != images.end(); ++it) {
-        typename ImageReaderType::Pointer reader = *it;
+        typename ImageReaderType::Pointer reader = ImageReaderType::New();
+
+        reader->SetFileName(it->c_str());
+        reader->Update();
+        if ( firstPass ) {
+            representer->SetReference(reader->GetOutput());
+            dataManager->SetRepresenter(representer);
+            firstPass = false;
+        }
         dataManager->AddDataset(reader->GetOutput(), reader->GetFileName().c_str());
     }
 
@@ -171,8 +169,8 @@ void buildAndSaveDeformationModel(programOptions opt) {
 
     typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance);
-    model->Save(opt.strOutputFileName.c_str());
+    model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance, opt.bComputeScores);
+    itk::StatismoIO<ImageType>::SaveStatisticalModel(model, opt.strOutputFileName.c_str());
 }
 
 po::options_description initializeProgramOptions(programOptions& poParameters) {
@@ -185,6 +183,7 @@ po::options_description initializeProgramOptions(programOptions& poParameters) {
     po::options_description optAdditional("Optional options");
     optAdditional.add_options()
     ("noise,n", po::value<float>(&poParameters.fNoiseVariance)->default_value(0), "Noise variance of the PPCA model")
+    ("scores,s", po::value<bool>(&poParameters.bComputeScores)->default_value(true), "Compute scores (default true)")
     ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
     ;
 

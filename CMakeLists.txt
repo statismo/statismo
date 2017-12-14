@@ -57,7 +57,7 @@ set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include CACHE PATH
   "Installation directory for header files")
-set(INSTALL_DOC_DIR share/doc/statismo CACHE PATH 
+set(INSTALL_DOC_DIR share/doc/statismo CACHE PATH
   "Installation directory for documentation")
 
 if(WIN32 AND NOT CYGWIN)
@@ -116,8 +116,6 @@ include_directories( ${Boost_INCLUDE_DIRS} )
 link_directories( ${Boost_LIBRARY_DIRS} )
 add_definitions( -DBOOST_THREAD_VERSION=3 -DBOOST_FILESYSTEM_VERSION=3 )
 
-find_package( HDF5  COMPONENTS C CXX)
-include_directories( ${HDF5_INCLUDE_DIRS} )
 
 if(WIN32)
   # On Windows, we can only build static libraries, as the dynamic libraries would be
@@ -127,22 +125,29 @@ if(WIN32)
   set(statismo_LIB_TYPE STATIC)
 endif()
 
-foreach( _library ${HDF5_LIBRARIES} )
-  get_filename_component( _tempDir${_library} ${_library} PATH )
-  list( APPEND HDF5_LIBRARY_DIR ${_tempDir${_library}} )
-endforeach()
-
 option( ITK_SUPPORT "Build ITK Support" ON )
 
 if( ${ITK_SUPPORT} MATCHES "ON" )
-  find_package( ITK REQUIRED )
+  find_package( ITK REQUIRED PATHS ${INSTALL_DEPENDENCIES_DIR})
   include( ${ITK_USE_FILE} )
 endif()
+
+# We rely on the hdf5 libraries that are shipped with ITK, as this will reduce version conflicts.
+set(ITK_VERSION ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR})
+find_path(ITK_INCLUDE_WITH_HDF5 NAMES itkhdf5/hdf5.h PATHS ${ITK_INCLUDE_DIRS} )
+set(ITK_HDF5_DIR ${ITK_INCLUDE_WITH_HDF5}/itkhdf5)
+set(HDF5_INCLUDE_DIRS ${ITK_HDF5_DIR} ${ITK_HDF5_DIR}/cpp)
+set(HDF5_LIBRARIES ${ITKHDF5_LIBRARIES})
+
+
+set(HDF5_LIBRARY_DIR ${INSTALL_DEPENDENCIES_DIR}/lib)
+include_directories( ${HDF5_INCLUDE_DIRS} )
+
 
 option( VTK_SUPPORT "Build VTK Support" ON )
 
 if( ${VTK_SUPPORT} MATCHES "ON" )
-  find_package( VTK REQUIRED )
+  find_package( VTK REQUIRED PATHS ${INSTALL_DEPENDENCIES_DIR})
   include( ${VTK_USE_FILE} )
 endif()
 
@@ -151,6 +156,13 @@ option( BUILD_EXAMPLES "Build examples" ON )
 
 option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
 mark_as_advanced(BUILD_WRAPPING)
+
+#make sure the executables have access to the dll's created by the superbuild on windows to make them runnable even without installing & adding the isntall path to the cmd PATH
+if( NOT INSTALL_DEPENDENCIES_DIR )
+  set( TESTS_WORKING_DIR "." CACHE INTERNAL "")
+else()
+  set( TEST_WORKING_DIR "${INSTALL_DEPENDENCIES_DIR}/bin" CACHE INTERNAL "")
+endif()
 
 add_subdirectory( modules )
 add_subdirectory( doc )

@@ -26,14 +26,10 @@ else()
   endif()
 endif()
 
-if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
-  set( ITK_DEPENDENCIES HDF5 ${ITK_DEPENDENCIES} )
-endif()
-
 ExternalProject_Add(ITK
   DEPENDS ${ITK_DEPENDENCIES}
   GIT_REPOSITORY ${git_protocol}://itk.org/ITK.git
-  GIT_TAG v4.5.0
+  GIT_TAG v4.10.0
   SOURCE_DIR ITK
   BINARY_DIR ITK-build
   UPDATE_COMMAND ""
@@ -41,7 +37,6 @@ ExternalProject_Add(ITK
   CMAKE_GENERATOR ${EP_CMAKE_GENERATOR}
   CMAKE_ARGS
     ${ep_common_args}
-  	${cmake_hdf5_libs}
     -DBUILD_EXAMPLES:BOOL=OFF
     -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
     -DBUILD_TESTING:BOOL=OFF
@@ -50,9 +45,8 @@ ExternalProject_Add(ITK
     -DModule_ITKReview:BOOL=ON
     -DITK_LEGACY_REMOVE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPENDENCIES_DIR}
-    -DITK_USE_SYSTEM_HDF5:BOOL=ON
-    -DHDF5_DIR:PATH=${HDF5_DIR}
+    -DITK_USE_SYSTEM_HDF5:BOOL=OFF
     ${_vtkoptions}
 )
 
-set( ITK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/ITK-4.5/ )
+set( ITK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/ITK-4.10/ )

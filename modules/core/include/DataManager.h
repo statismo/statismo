@@ -103,8 +103,7 @@ class CrossValidationFold {
  * to leave a few datasets out to validate the model. For this purpose, the DataManager class implements basic
  * crossvalidation functionality.
  *
- * Note that while Dataset are provided, the Representer class automatically converts them into Samples (Representer::DatasetToSample)
- * For efficiency purposes, the data is internally stored as a large matrix, using the internal SampleVector representation (Representer::DatasetToSample).
+ * For efficiency purposes, the data is internally stored as a large matrix, using the internal SampleVector representation.
  * Furthermore, Statismo emphasizes on traceability, and ties information with the datasets, such as the original filename.
  * This means that when accessing the data stored in the DataManager, one gets a DataItem structure
  * \sa Representer

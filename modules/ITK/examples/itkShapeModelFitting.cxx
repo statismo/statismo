@@ -46,6 +46,7 @@
 #include <itkPointSetToPointSetRegistrationMethod.h>
 
 #include "itkStandardMeshRepresenter.h"
+#include "itkStatismoIO.h"
 #include "itkStatisticalModel.h"
 #include "itkStatisticalShapeModelTransform.h"
 
@@ -124,7 +125,7 @@ int main(int argc, char* argv[]) {
     // load the model
     RepresenterType::Pointer representer = RepresenterType::New();
     StatisticalModelType::Pointer model = StatisticalModelType::New();
-    model->Load(representer, modelname);
+    model = itk::StatismoIO<MeshType>::LoadStatisticalModel(representer, modelname);
     MeshType::Pointer fixedPointSet  = model->GetRepresenter()->GetReference();
     std::cout << "model succesully loaded " << std::endl;
 

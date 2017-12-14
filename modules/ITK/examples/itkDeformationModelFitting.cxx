@@ -50,6 +50,7 @@
 #include "itkInterpolatingStatisticalDeformationModelTransform.h"
 #include "itkStandardImageRepresenter.h"
 #include "itkStatisticalModel.h"
+#include "itkStatismoIO.h"
 
 const unsigned Dimensions = 2;
 typedef itk::Image<unsigned short int, Dimensions> ImageType;
@@ -144,7 +145,7 @@ int main(int argc, char* argv[]) {
 
     RepresenterType::Pointer representer = RepresenterType::New();
     StatisticalModelType::Pointer model = StatisticalModelType::New();
-    model->Load(representer, modelname);
+    model = itk::StatismoIO<VectorImageType>::LoadStatisticalModel(representer, modelname);
 
     // do the fitting
     TransformType::Pointer transform = TransformType::New();

@@ -47,6 +47,7 @@
 #include "itkDataManager.h"
 #include "itkPCAModelBuilder.h"
 #include "itkStandardMeshRepresenter.h"
+#include "itkStatismoIO.h"
 #include "itkStatisticalModel.h"
 
 /*
@@ -110,7 +111,7 @@ void buildShapeModel(const char* referenceFilename, const char* dir, const char*
 
     ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0);
-    model->Save(modelname);
+    itk::StatismoIO<MeshType>::SaveStatisticalModel(model, modelname);
 
 
 

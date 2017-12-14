@@ -43,6 +43,7 @@
 #include "DataManager.h"
 #include "PCAModelBuilder.h"
 #include "StatisticalModel.h"
+#include "StatismoIO.h"
 #include "vtkStandardMeshRepresenter.h"
 
 using namespace statismo;
@@ -133,7 +134,7 @@ int main(int argc, char** argv) {
         boost::scoped_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
 
         // Once we have built the model, we can save it to disk.
-        model->Save(modelname);
+        statismo::IO<vtkPolyData>::SaveStatisticalModel(model.get(), modelname);
         std::cout << "Successfully saved shape model as " << modelname << std::endl;
 
         reference->Delete();

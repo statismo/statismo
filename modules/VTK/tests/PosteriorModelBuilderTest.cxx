@@ -196,7 +196,7 @@ int main(int argc, char** argv) {
 
     vtkPolyData* posteriorMean = anisotropicPosteriorModel->DrawMean();
 
-    double probability = fullModel->ComputeLogProbabilityOfDataset(posteriorMean);
+    double probability = fullModel->ComputeLogProbability(posteriorMean);
 
     //writePolyData(posteriorMean,"/local/tmp/hand-test.vtk");
     //fullModel->Save("/local/tmp/hand-model.h5");
@@ -209,11 +209,16 @@ int main(int argc, char** argv) {
     }
 
 
-
-
-
-
-
+    VectorType coeffs = fullModel->ComputeCoefficientsForPointValuesWithCovariance(pointValueWithCovarianceList);
+    VectorType coeffsFromPosteriorMean = fullModel->ComputeCoefficients(posteriorMean);
+    VectorType difference = coeffs - coeffsFromPosteriorMean;
+    double norm_difference = difference.norm();
+    if(norm_difference > tolerance) {
+        testsOk = false;
+        std::cout << "The posterior mean computed by the StatisticalShapeModel class" << std::endl;
+        std::cout << "and the one computed by the PosteriorModelBuilder are different." << std::endl;
+        std::cout << "The norm of their difference is " << norm_difference << std::endl;
+    }
 
 
     vtkPolyData* onePointPD = vtkPolyData::New();

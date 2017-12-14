@@ -69,6 +69,7 @@
 
 #include "itkPosteriorModelBuilder.h"
 #include "itkStandardMeshRepresenter.h"
+#include "itkStatismoIO.h"
 #include "itkStatisticalModel.h"
 #include "itkStatisticalShapeModelTransform.h"
 
@@ -310,7 +311,7 @@ int main(int argc, char* argv[]) {
     // load the model create a shape model transform with it
     StatisticalModelType::Pointer model = StatisticalModelType::New();
     RepresenterType::Pointer representer = RepresenterType::New();
-    model->Load(representer, modelName);
+    model = itk::StatismoIO<MeshType>::LoadStatisticalModel(representer, modelName);
 
     StatisticalModelType::Pointer constraintModel = computePosteriorModel(rigidTransform, model, fixedLandmarks, movingLandmarks, lmVariance);
 

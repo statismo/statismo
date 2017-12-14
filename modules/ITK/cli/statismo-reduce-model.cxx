@@ -40,6 +40,7 @@
 #include <itkReducedVarianceModelBuilder.h>
 #include <itkStandardImageRepresenter.h>
 #include <itkStandardMeshRepresenter.h>
+#include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 
 
@@ -161,7 +162,7 @@ void reduceModel(programOptions opt) {
     typedef typename itk::StatisticalModel<DataType> StatisticalModelType;
     typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
 
-    pModel->Load(pRepresenter, opt.strInputFileName.c_str());
+    pModel = itk::StatismoIO<DataType>::LoadStatisticalModel(pRepresenter, opt.strInputFileName.c_str());
 
     typedef typename itk::ReducedVarianceModelBuilder<DataType> ReducedVarianceModelBuilderType;
     typename ReducedVarianceModelBuilderType::Pointer pReducedVarModelBuilder = ReducedVarianceModelBuilderType::New();
@@ -176,7 +177,7 @@ void reduceModel(programOptions opt) {
         pOutputModel = pReducedVarModelBuilder->BuildNewModelWithVariance(pModel.GetPointer(), opt.dTotalVariance);
     }
 
-    pOutputModel->Save(opt.strOutputFileName.c_str());
+    itk::StatismoIO<DataType>::SaveStatisticalModel(pOutputModel, opt.strOutputFileName.c_str());
 }
 
 

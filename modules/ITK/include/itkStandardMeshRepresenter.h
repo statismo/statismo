@@ -153,11 +153,6 @@ class StandardMeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, M
 
 
     /**
-     * Create a sample from the dataset. No alignment or registration is done
-     */
-    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
-
-    /**
      * Converts a sample to its vectorial representation
      */
     statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;

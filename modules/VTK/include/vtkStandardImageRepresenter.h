@@ -38,7 +38,7 @@
 #ifndef VTKSTANDARDIMAGERESENTER_H_
 #define VTKSTANDARDIMAGERESENTER_H_
 
-#include <H5Cpp.h>
+#include <itk_H5Cpp.h>
 
 #include <vtkSmartPointer.h>
 #include <vtkStructuredPoints.h>
@@ -130,7 +130,6 @@ class vtkStandardImageRepresenter  : public Representer<vtkStructuredPoints> {
     }
 
     statismo::VectorType PointToVector(const PointType& pt) const;
-    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
     statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
     DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
 

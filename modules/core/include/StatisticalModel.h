@@ -48,9 +48,6 @@
 #include "ModelInfo.h"
 #include "Representer.h"
 
-namespace H5 {
-class Group;
-}
 
 namespace statismo {
 
@@ -117,6 +114,11 @@ class StatisticalModel {
     typedef std::list<PointValuePairType> PointValueListType;
     typedef std::list<PointIdValuePairType> PointIdValueListType;
 
+    // Maybe at some point, we can statically define a 3x3 resp. 2x3 matrix type.
+    typedef MatrixType PointCovarianceMatrixType;
+    typedef std::pair<PointValuePairType, PointCovarianceMatrixType> PointValueWithCovariancePairType;
+    typedef std::list<PointValueWithCovariancePairType> PointValueWithCovarianceListType;
+
 
 
 
@@ -127,11 +129,11 @@ class StatisticalModel {
 
 
     /**
-     * @name Loading and creating models
+     * @name Creating models
      */
     ///@{
 
-    /*
+    /**
     * Factory method that creates a new Model.
     *
     * \warning The use of this constructor is discouraged. If possible, use a ModelBuilder to create
@@ -154,26 +156,6 @@ class StatisticalModel {
 
 
     /**
-     * Returns a new statistical model, which is loaded from the given HDF5 file
-     * \param filename The filename
-     * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
-     * to create the model.
-     */
-    static StatisticalModel* Load(Representer<T>* representer, const std::string& filename,  unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
-
-
-    /**
-     * Returns a new statistical model, which is stored in the given HDF5 Group
-     *
-     * \param modelroot A h5 group where the model is saved
-     * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
-     * to create the model.
-     */
-    static StatisticalModel* Load(Representer<T>* representer, const H5::Group& modelroot, unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max());
-
-
-
-    /**
      * Destroy the object.
      * The same effect can be achieved by deleting the object in the usual
      * way using the c++ delete keyword.
@@ -181,21 +163,6 @@ class StatisticalModel {
     void Delete() const {
         delete this;
     }
-
-
-
-    /**
-     * Saves the statistical model to a HDF5 file
-     * \param filename The filename (preferred extension is .h5)
-     * */
-    void Save(const std::string& filename) const;
-
-    /**
-     * Saves the statistical model to the given HDF5 group.
-     *
-     * \param modelRoot the group where to store the model
-     * */
-    void Save(const H5::Group& modelRoot) const;
 
     ///@}
 
@@ -224,17 +191,6 @@ class StatisticalModel {
     ///@{
 
 
-    /**
-     * Returns a sample for the given Dataset by calling the representers internal functions.
-     * The resulting sample will have the same topology and alignment as all the other samples in the model.
-     *
-     * The exact semantics of this call depends on the representer. It typically includes a
-     * rigid alignment of the dataset to the model but could even reparametrization or registration.
-     *
-     * \param dataset
-     * \returns A new sample corresponding to the dataset
-     */
-    DatasetPointerType DatasetToSample(DatasetConstPointerType dataset) const;
 
     /**
      * Returns the value of the given sample at the point specified with the ptId
@@ -392,10 +348,10 @@ class StatisticalModel {
      * \f$
      *
      *
-     * \param datatset The dataset
+     * \param dataset The dataset
      * \return The probability
      */
-    double ComputeProbabilityOfDataset(DatasetConstPointerType dataset) const ;
+    double ComputeProbability(DatasetConstPointerType dataset) const ;
 
     /**
      * Returns the log probability of observing a given dataset.
@@ -404,7 +360,7 @@ class StatisticalModel {
      * \return The log probability
      *
      */
-    double ComputeLogProbabilityOfDataset(DatasetConstPointerType dataset) const ;
+    double ComputeLogProbability(DatasetConstPointerType dataset) const ;
 
 
     /**
@@ -433,29 +389,17 @@ class StatisticalModel {
     /**
       * Returns the mahalonoibs distance for the given dataset.
       */
-    double ComputeMahalanobisDistanceForDataset(DatasetConstPointerType dataset) const;
-
-    /**
-     *
-     * Converts the given dataset to a sample of the model and compute the latent variable
-     * coefficients of this sample under the model.
-     *
-     * @param dataset The dataset
-     *
-     * @returns The coefficient vectro \f$\alpha\f$
-     * \sa ComputeCoefficientsForDataset
-     */
-    VectorType ComputeCoefficientsForDataset(DatasetConstPointerType dataset) const;
+    double ComputeMahalanobisDistance(DatasetConstPointerType dataset) const;
 
 
     /**
-     * Returns the coefficients of the latent variables for the given sample, i.e.
+     * Returns the coefficients of the latent variables for the given dataset, i.e.
      * the vectors of numbers \f$\alpha \f$, such that for the dataset \f$S\f$ it holds that
      * \f$ S = \mu + U \alpha\f$
      *
-     * @returns The coefficient vectro \f$\alpha\f$
+     * @returns The coefficient vector \f$\alpha\f$
      */
-    VectorType ComputeCoefficientsForSample(DatasetConstPointerType sample) const;
+    VectorType ComputeCoefficients(DatasetConstPointerType dataset) const;
 
 
     /**
@@ -469,13 +413,25 @@ class StatisticalModel {
      * \param pointValues A list with PointValuePairs .
      * \param pointValueNoiseVariance The variance of estimated (gaussian) noise at the known points
      *
-     * \warning While in the method ComputeCoefficientsForDataset the Representer is called to do the
-     * necesary alignment steps, this cannot be done for this method. Make sure that the points you provide
-     * are already aligned and in correspondence with the model.
-     *
-     * \sa ComputeCoefficientsForDataset
      */
     VectorType ComputeCoefficientsForPointValues(const PointValueListType&  pointValues, double pointValueNoiseVariance=0.0) const;
+
+    /**
+    * Similar to ComputeCoefficientsForPointValues, only here there is no global pointValueNoiseVariance.
+    * Instead, a covariance matrix with noise values is specified for each point.
+    * The returned coefficients are the mean of the posterior model described in
+    *
+    * Posterior Shape Models
+    * Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
+    * Medical Image Analysis 2013
+    *
+    * To get the full posterior model, use the PosteriorModelBuilder
+    *
+    * \param pointValuesWithCovariance A list with PointValuePairs and PointCovarianceMatrices.
+    *
+    */
+    VectorType ComputeCoefficientsForPointValuesWithCovariance(const PointValueWithCovarianceListType&  pointValuesWithCovariance) const;
+
 
     /**
      * Same as ComputeCoefficientsForPointValues(const PointValueListType&  pointValues), but used when the
@@ -487,20 +443,6 @@ class StatisticalModel {
     //RB: I had to modify the method name, to avoid prototype collisions when the PointType corresponds to unsigned (= type of the point id)
     VectorType ComputeCoefficientsForPointIDValues(const PointIdValueListType&  pointValues, double pointValueNoiseVariance=0.0) const;
 
-    /**
-     * Computes the coefficients of the latent variables in a robust way.
-     * Instead of assuming Normally distributed noise on the data set points such as it is
-     * implicitely assumed in the ComputeCoefficientsForDataset, A student-t distribution is assumed for the noise.
-     * The solution is obtained using an EM algorithm.
-     *
-     * \param dataset The dataset
-     * \param nIterations The number of iterations for the EM algorithm
-     * \param nu The number of degrees of Freedom for the Student-t distribution defining the noise model
-     * \param sigma2 The scale parameter of the t-distribution
-     *
-     */
-    VectorType RobustlyComputeCoefficientsForDataset(DatasetConstPointerType dataset, unsigned nIterations=100, unsigned nu=6, double sigma2=1) const;
-    ///@}
 
     /**
      * @name Low level access
@@ -594,9 +536,6 @@ class StatisticalModel {
      */
     StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance);
 
-    /** Create an empty model. This is only used for the load method, which then sets all the parameters manually */
-    StatisticalModel(const RepresenterType* representer);
-
     // to prevent use
     StatisticalModel(const StatisticalModel& rhs);
     StatisticalModel& operator=(const StatisticalModel& rhs);
@@ -616,7 +555,6 @@ class StatisticalModel {
     mutable MatrixType m_MInverseMatrix;
 
     ModelInfo m_modelInfo;
-    bool m_modelLoaded;
 };
 
 } // namespace statismo

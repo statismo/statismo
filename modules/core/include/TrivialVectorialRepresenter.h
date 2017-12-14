@@ -40,7 +40,7 @@
 #define TRIVIALVECTORIALREPRESENTER_H
 
 #include <memory>
-#include <H5Cpp.h>
+#include <itk_H5Cpp.h>
 
 #include "CommonTypes.h"
 #include "Domain.h"
@@ -142,9 +142,6 @@ class TrivialVectorialRepresenter : public Representer<statismo::VectorType> {
         VectorType v(1);
         v(0) = pt.ptId;
         return v;
-    }
-    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const {
-        return ds;
     }
     VectorType SampleToSampleVector(DatasetConstPointerType sample) const {
         return sample;

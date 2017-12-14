@@ -40,7 +40,7 @@
 
 #include "statismoITKConfig.h" // this needs to be the first include
 
-#include <H5Cpp.h>
+#include <itk_H5Cpp.h>
 
 #include <itkObject.h>
 #include <itkImage.h>
@@ -126,7 +126,6 @@ class StandardImageRepresenter: public Object, public statismo::Representer<
      * Alignment.
      */
     statismo::VectorType PointToVector(const PointType& pt) const;
-    DatasetPointerType DatasetToSample(DatasetConstPointerType ds) const;
     statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
     DatasetPointerType SampleVectorToSample(
         const statismo::VectorType& sample) const;

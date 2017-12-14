@@ -46,6 +46,7 @@
 #include <itkMeshFileWriter.h>
 #include <itkStandardImageRepresenter.h>
 #include <itkStandardMeshRepresenter.h>
+#include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 
 
@@ -202,7 +203,7 @@ void drawSampleFromModel(programOptions opt) {
     typedef itk::StatisticalModel<DataType> StatisticalModelType;
     typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
 
-    pModel->Load(pRepresenter, opt.strInputFileName.c_str());
+    pModel = itk::StatismoIO<DataType>::LoadStatisticalModel(pRepresenter, opt.strInputFileName.c_str());
 
     typename DataType::Pointer output;
     if (opt.bSampleMean == true) {

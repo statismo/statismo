@@ -53,6 +53,7 @@
 #include "DataManager.h"
 #include "PosteriorModelBuilder.h"
 #include "StatisticalModel.h"
+#include "StatismoIO.h"
 
 #include "vtkStandardMeshRepresenter.h"
 
@@ -116,7 +117,8 @@ int main(int argc, char** argv) {
         vtkPolyData* partialShape = loadVTKPolyData(partialShapeMeshName);
 
         RepresenterType* representer = RepresenterType::Create();
-        boost::scoped_ptr<StatisticalModelType> inputModel(StatisticalModelType::Load(representer, inputModelName));
+        boost::scoped_ptr<StatisticalModelType> inputModel(
+                statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, inputModelName));
         vtkPolyData* refPd = const_cast<vtkPolyData*>(inputModel->GetRepresenter()->GetReference());
 
 
@@ -146,7 +148,7 @@ int main(int argc, char** argv) {
 
         // The resulting model is a normal statistical model, from which we could for example sample examples.
         // Here we simply  save it to disk for later use.
-        constraintModel->Save(posteriorModelName);
+        statismo::IO<vtkPolyData>::SaveStatisticalModel(constraintModel.get(), posteriorModelName);
         std::cout << "successfully saved the model to " << posteriorModelName << std::endl;
 
         // The mean of the constraint model is the optimal reconstruction
