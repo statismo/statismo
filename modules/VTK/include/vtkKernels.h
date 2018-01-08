@@ -35,65 +35,40 @@
  *
  */
 
-%{
-#include "Representer.h"
-#include "vtkStandardMeshRepresenter.h"
+#ifndef __VTK_KERNELS_H
+#define __VTK_KERNELS_H
+
+#include "Kernels.h"
 #include "vtkHelper.h"
-#include "vtkPolyData.h"
-%}
-
-%include "Representer.i"
-
+#include "vtkStandardMeshRepresenter.h"
 
 namespace statismo {
 
+class GaussianKernel: public ScalarValuedKernel<vtkPoint> {
+  public:
 
-class vtkPoint {
-	public:
-	vtkPoint(double x, double y, double z);
+    GaussianKernel(double sigma) : m_sigma(sigma), m_sigma2(sigma * sigma) {
+    }
+
+    inline double operator()(const vtkPoint& x, const vtkPoint& y) const {
+        VectorType r(3);
+        r << x[0] - y[0], x[1] - y[1], x[2] - y[2];
+        return exp(-r.dot(r) / m_sigma2);
+    }
+
+    std::string GetKernelInfo() const {
+        std::ostringstream os;
+        os << "GaussianKernel(" << m_sigma << ")";
+        return os.str();
+    }
+
+  private:
+
+    double m_sigma;
+    double m_sigma2;
 };
 
-
-
-
-
-%rename(representerTraitsVtkPolyData) RepresenterTraits<vtkPolyData>;
-class RepresenterTraits<vtkPolyData> {
-public:
-	typedef const vtkPolyData* DatasetConstPointerType;
-	typedef vtkPolyData* DatasetPointerType;
-	typedef vtkPoint PointType;
-	typedef vtkPoint ValueType;
-};
-
-
-
-}
-%template(RepresenterVTK) statismo::Representer<vtkPolyData>;
-
-
-namespace statismo {
-
-class vtkStandardMeshRepresenter : public Representer<vtkPolyData> {
-public:
-
-	virtual ~vtkStandardMeshRepresenter();
-
-typedef statismo::Domain<PointType> DomainType;
-
-
- %newobject Create;
- static vtkStandardMeshRepresenter* Create();
- static vtkStandardMeshRepresenter* Create(const vtkPolyData* reference);
-
-  const DomainType& GetDomain() const;
-
- unsigned GetNumberOfPoints();
-// unsigned GetPointIdForPoint(const vtkPoint& pt);
-
-private:
-
- vtkStandardMeshRepresenter();
-
-};
 } // namespace statismo
+
+
+#endif // __VTK_KERNELS_H

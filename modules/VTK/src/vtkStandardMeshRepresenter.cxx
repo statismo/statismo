@@ -83,7 +83,6 @@ vtkStandardMeshRepresenter::Clone() const {
 
 void vtkStandardMeshRepresenter::Load(const H5::Group& fg) {
     vtkPolyData* ref = 0;
-
     std::string repName = HDF5Utils::readStringAttribute(fg, "name");
     if (repName == "vtkPolyDataRepresenter" || repName == "itkMeshRepresenter") {
         ref = LoadRefLegacy(fg);
@@ -96,7 +95,6 @@ void vtkStandardMeshRepresenter::Load(const H5::Group& fg) {
 
 
 vtkPolyData* vtkStandardMeshRepresenter::LoadRef(const H5::Group& fg) const {
-
     statismo::MatrixType vertexMat;
     HDF5Utils::readMatrix(fg, "./points", vertexMat);
 
@@ -173,7 +171,6 @@ vtkPolyData* vtkStandardMeshRepresenter::LoadRef(const H5::Group& fg) const {
 
 vtkPolyData* vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group& fg) const {
     std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
-
     HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
     vtkPolyData* pd = vtkPolyData::New();
     vtkPolyDataReader* reader = vtkPolyDataReader::New();
@@ -272,8 +269,8 @@ statismo::VectorType vtkStandardMeshRepresenter::PointToVector(const PointType& 
 
 statismo::VectorType vtkStandardMeshRepresenter::SampleToSampleVector(
     DatasetConstPointerType _sample) const {
-    assert(m_reference != 0);
 
+    assert(m_reference != 0);
     vtkPolyData* sample = const_cast<vtkPolyData*>(_sample);
 
     VectorType sampleVec = VectorType::Zero(
@@ -290,7 +287,6 @@ statismo::VectorType vtkStandardMeshRepresenter::SampleToSampleVector(
 
 vtkStandardMeshRepresenter::DatasetPointerType vtkStandardMeshRepresenter::SampleVectorToSample(
     const VectorType& sample) const {
-
     assert(m_reference != 0);
 
     vtkPolyData* reference = const_cast<vtkPolyData*>(m_reference);

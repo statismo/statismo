@@ -34,12 +34,14 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
+
 #if defined(SWIGPYTHON)
 
 	%{
+    #include <iostream>
 	#include "vtkPythonUtil.h"
 	#include "vtkVersion.h"
+    #include "vtkKernels.h"
 #if (VTK_MAJOR_VERSION > 5 ||((VTK_MAJOR_VERSION == 5)&&(VTK_MINOR_VERSION > 6)))
 #define vtkPythonGetObjectFromPointer vtkPythonUtil::GetObjectFromPointer
 #define vtkPythonGetPointerFromObject vtkPythonUtil::GetPointerFromObject
@@ -51,21 +53,19 @@
 	%init %{
 	import_array();
 	%}
-		
-	
-	
+
 	%typemap (out) statismo::MatrixType
 	{
 		npy_intp dims[2];
 		dims[0] = $1.rows();
 		dims[1] = $1.cols();
-		PyObject* c = PyArray_SimpleNew(2, dims, NPY_FLOAT);		
+		PyObject* c = PyArray_SimpleNew(2, dims, NPY_FLOAT);
 		memcpy(PyArray_DATA(c), $1.data(), dims[0] * dims[1] * sizeof(float));
 		$result = c;
-		  
+
 	}
-	
-	
+
+
 	%typemap (out) statismo::MatrixType&
 	{
 		npy_intp dims[2];
@@ -81,13 +81,13 @@
     npy_intp dims[2];
     dims[0] = $1.rows();
     dims[1] = $1.cols();
-    PyObject* c = PyArray_SimpleNew(2, dims, NPY_FLOAT);    
+    PyObject* c = PyArray_SimpleNew(2, dims, NPY_FLOAT);
     memcpy(PyArray_DATA(c), $1.data(), dims[0] * dims[1] * sizeof(float));
     $result = c;
-      
+
   }
-  
-  
+
+
   %typemap (out) const statismo::MatrixType&
   {
     npy_intp dims[2];
@@ -98,21 +98,21 @@
     $result = c;
   }
 
-	
+
 	%typemap (out) statismo::VectorType&
 	{
 		npy_intp dims[1];
 		dims[0] = $1->rows();
-		$result= PyArray_SimpleNewFromData(1, dims, NPY_FLOAT, $1->data());  
+		$result= PyArray_SimpleNewFromData(1, dims, NPY_FLOAT, $1->data());
 	}
 
 	%typemap (out) statismo::VectorType
 	{
 		npy_intp dims[1];
 		dims[0] = $1.rows();
-		PyObject* c = PyArray_SimpleNew(1, dims, NPY_FLOAT);		
+		PyObject* c = PyArray_SimpleNew(1, dims, NPY_FLOAT);
 		memcpy(PyArray_DATA(c), $1.data(), dims[0] * sizeof(float));
-		$result= c;  
+		$result= c;
 	}
 
 
@@ -121,11 +121,11 @@
 		int is_new_object1 = 0;
 		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 1, 1);
 		unsigned dim = array->dimensions[0];
-		
+
                 statismo::VectorType* v = new statismo::VectorType(dim);
-		for (unsigned i = 0; i < dim; i++) { 
+		for (unsigned i = 0; i < dim; i++) {
 			(*v)(i) = (float) ((double*) array->data)[i];
-		}		 
+		}
 		$1= v ;
 	}
 
@@ -134,11 +134,11 @@
 		int is_new_object1 = 0;
 		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 1, 1);
 		unsigned dim = array->dimensions[0];
-		
+
                 statismo::VectorType* v = new statismo::VectorType(dim);
-		for (unsigned i = 0; i < dim; i++) { 
+		for (unsigned i = 0; i < dim; i++) {
 			(*v)(i) = (float) ((double*) array->data)[i];
-		}		 
+		}
 		$1= *v ;
 		delete v;
 	}
@@ -149,29 +149,29 @@
 		PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 2, 2);
 		unsigned dim1 = array->dimensions[0];
 		unsigned dim2 = array->dimensions[1];
-		
+
 		statismo::MatrixType* m = new statismo::MatrixType(dim1, dim2);
-		for (unsigned i = 0; i < dim1; i++) { 
+		for (unsigned i = 0; i < dim1; i++) {
 			for (unsigned j = 0; j < dim2; j++) {
 				(*m)(i,j) = (float) ((double*) array->data)[i* dim2 + j];
 			}
-		}		 
+		}
 		$1= m ;
 	}
-	
+
   %typemap (in) (const statismo::MatrixType)
   {
     int is_new_object1 = 0;
     PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 2, 2);
     unsigned dim1 = array->dimensions[0];
     unsigned dim2 = array->dimensions[1];
-    
+
     statismo::MatrixType* m = new statismo::MatrixType(dim1, dim2);
-    for (unsigned i = 0; i < dim1; i++) { 
+    for (unsigned i = 0; i < dim1; i++) {
       for (unsigned j = 0; j < dim2; j++) {
         (*m)(i,j) = (float) ((double*) array->data)[i* dim2 + j];
       }
-    }    
+    }
     $1= *m ;
     delete m;
   }
@@ -182,29 +182,29 @@
     PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 2, 2);
     unsigned dim1 = array->dimensions[0];
     unsigned dim2 = array->dimensions[1];
-    
+
     statismo::MatrixType* m = new statismo::MatrixType(dim1, dim2);
-    for (unsigned i = 0; i < dim1; i++) { 
+    for (unsigned i = 0; i < dim1; i++) {
       for (unsigned j = 0; j < dim2; j++) {
         (*m)(i,j) = (float) ((double*) array->data)[i* dim2 + j];
       }
-    }    
+    }
     $1= m ;
   }
-  
+
   %typemap (in) (statismo::MatrixType)
   {
     int is_new_object1 = 0;
     PyArrayObject* array = (PyArrayObject*) PyArray_ContiguousFromObject($input, PyArray_DOUBLE, 2, 2);
     unsigned dim1 = array->dimensions[0];
     unsigned dim2 = array->dimensions[1];
-    
+
     statismo::MatrixType* m = new statismo::MatrixType(dim1, dim2);
-    for (unsigned i = 0; i < dim1; i++) { 
+    for (unsigned i = 0; i < dim1; i++) {
       for (unsigned j = 0; j < dim2; j++) {
         (*m)(i,j) = (float) ((double*) array->data)[i* dim2 + j];
       }
-    }    
+    }
     $1= *m ;
     delete m;
   }
@@ -227,10 +227,10 @@
         statismo::vtkPoint pt = $1;
     	PyTuple_SetItem($result,0,PyFloat_FromDouble(pt[0]));
     	PyTuple_SetItem($result,1,PyFloat_FromDouble(pt[1]));
-    	PyTuple_SetItem($result,2,PyFloat_FromDouble(pt[2]));            	
+    	PyTuple_SetItem($result,2,PyFloat_FromDouble(pt[2]));
 	}
 
-	
+
 	// convert vtkPolyData To Corresponding type
 	%typemap (in) vtkPolyData*
 	{
@@ -247,9 +247,9 @@
 	PyImport_ImportModule("vtk");
 	    $result =  vtkPythonGetObjectFromPointer((vtkPolyData*) $1);
 	}
-	
 
-	
+
+
 	// the typecheck is needed to disambiguate char* from vtkPolyData* in overloaded method
 	%typecheck(SWIG_TYPECHECK_POINTER) vtkPolyData * {
 	  vtkPolyData *ptr;
@@ -260,8 +260,8 @@
 	    $1 = 1;
 	  }
 	}
-	
-	
+
+
   // convert vtkUnstructuredGrid To Corresponding type
   %typemap (in) vtkUnstructuredGrid*
   {
@@ -278,9 +278,9 @@
   PyImport_ImportModule("vtk");
       $result =  vtkPythonGetObjectFromPointer((vtkUnstructuredGrid*) $1);
   }
-  
 
-  
+
+
   // the typecheck is needed to disambiguate char* from vtkUnstructuredGrid* in overloaded method
   %typecheck(SWIG_TYPECHECK_POINTER) vtkUnstructuredGrid * {
     vtkUnstructuredGrid *ptr;
@@ -291,8 +291,8 @@
       $1 = 1;
     }
   }
-  
-  	
+
+
 
 	// convert vtkStructuredPoints To Corresponding type
 	%typemap (in) vtkStructuredPoints*
@@ -308,8 +308,8 @@
 	{
 	PyImport_ImportModule("vtk");
 	    $result =  vtkPythonGetObjectFromPointer((vtkStructuredPoints*) $1);
-	}	
-	
+	}
+
 	// the typecheck is needed to disambiguate char* from vtkStructuredPoints* in overloaded method
 	%typecheck(SWIG_TYPECHECK_POINTER) vtkStructuredPoints * {
 	  vtkStructuredPoints *ptr;
@@ -320,9 +320,7 @@
 	    $1 = 1;
 	  }
 	}
-	
 
-	
 	// Grab a 3 element array as a Python 3-tuple
 	%typemap(in) double[3](double temp[3]) {   // temp[3] becomes a local variable
 	  if (PyTuple_Check($input)) {
@@ -340,4 +338,3 @@
 #else
   #warning no "in" typemap defined
 #endif
-
