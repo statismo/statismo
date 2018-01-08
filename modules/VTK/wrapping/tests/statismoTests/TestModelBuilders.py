@@ -422,8 +422,24 @@ class Test(unittest.TestCase):
         self.assertTrue(newModelWithNComponents.GetNumberOfPrincipalComponents() == ncomponentsToKeep)
         self.assertTrue(newModelWithNComponents.GetModelInfo().GetScoresMatrix().shape[0] == 0)
 
+    def testBuildZeroMeanModel(self):
+        # simple test to create a zero mean model (the test is rather slow)
+        sigma = 1.0
+        nPointsTest = 1000
 
-
+        gk = statismo.GaussianKernel(sigma)
+        mvgk = statismo.UncorrelatedMatrixValuedKernel_vtkPD(gk, self.representer.GetDimensions())
+        builder = statismo.LowRankGPModelBuilder_vtkPD.Create(self.representer)
+        model = builder.BuildNewZeroMeanModel(mvgk, 100)
+        # The mean model should match the input model.
+        mean = model.DrawMean()
+        ref = self.representer.GetReference()
+        for pt_id in xrange(0, mean.GetNumberOfPoints(), mean.GetNumberOfPoints() / nPointsTest):
+            mean_pt = getPDPointWithId(mean, pt_id)
+            ref_pt = getPDPointWithId(ref, pt_id)
+            self.assertAlmostEqual(mean_pt[0], ref_pt[0], 6)
+            self.assertAlmostEqual(mean_pt[1], ref_pt[1], 6)
+            self.assertAlmostEqual(mean_pt[2], ref_pt[2], 6)
 
 
 
