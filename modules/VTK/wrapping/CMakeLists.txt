@@ -19,19 +19,17 @@ link_directories(
 
 # The process of wrapping requires some numpy headers.
 # (Not entirely sure what requires it though)
-if( True )
-  exec_program( ${PYTHON_EXECUTABLE}
-                ARGS "-c \"import numpy; print(numpy.get_include())\""
-                OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
-                RETURN_VALUE NUMPY_NOT_FOUND
-               )
-  set( NUMPY_INCLUDE_DIR ${NUMPY_INCLUDE_DIR} CACHE STRING "Numpy include path" )
-  MARK_AS_ADVANCED( NUMPY_INCLUDE_DIR )
-  if( NUMPY_NOT_FOUND )
-    message( FATAL_ERROR "Numpy package/header is missing" )
-  else()
-    include_directories( "${NUMPY_INCLUDE_DIR}" )
-  endif()
+exec_program( ${PYTHON_EXECUTABLE}
+            ARGS "-c \"import numpy; print(numpy.get_include())\""
+            OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
+            RETURN_VALUE NUMPY_NOT_FOUND
+           )
+set( NUMPY_INCLUDE_DIR ${NUMPY_INCLUDE_DIR} CACHE STRING "Numpy include path" )
+MARK_AS_ADVANCED( NUMPY_INCLUDE_DIR )
+if( NUMPY_NOT_FOUND )
+message( FATAL_ERROR "Numpy package/header is missing" )
+else()
+include_directories( "${NUMPY_INCLUDE_DIR}" )
 endif()
 
 # Find SWIG
