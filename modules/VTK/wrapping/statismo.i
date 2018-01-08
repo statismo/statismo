@@ -426,8 +426,7 @@ public:
 //////////////////////////////////////////////////////
 
 namespace statismo {
-%newobject *::BuildNewZeroModel;
-//%newobject *::BuildNewModel;
+%newobject *::BuildNewZeroMeanModel;
 template<typename T>
 class LowRankGPModelBuilder {
     typedef ModelBuilder<T> Superclass;
@@ -435,7 +434,7 @@ public:
     typedef Representer<T>                            RepresenterType;
     typedef typename RepresenterType::PointType       PointType;
     typedef ModelBuilder<T>                           Superclass;
-    typedef typename Superclass::StatisticalModelType StatisticalModelType;
+    typedef StatisticalModel<T>                       StatisticalModelType;
     typedef Domain<PointType>                         DomainType;
     typedef typename DomainType::DomainPointsListType DomainPointsListType;
     typedef MatrixValuedKernel<PointType>             MatrixValuedKernelType;
@@ -445,7 +444,7 @@ public:
     virtual ~LowRankGPModelBuilder();
 
     StatisticalModelType* BuildNewZeroMeanModel(
-        const MatrixValuedKernelType* kernel,
+        const MatrixValuedKernelType& kernel,
         unsigned numComponents,
         unsigned numPointsForNystrom = 500) const;
  private:
