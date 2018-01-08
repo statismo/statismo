@@ -17,8 +17,7 @@ link_directories(
   ${HDF5_LIBRARY_DIR}
 )
 
-# The process of wrapping requires some numpy headers.
-# (Not entirely sure what requires it though)
+# The wrapper requires access to numpy headers (see numpy.i).
 exec_program( ${PYTHON_EXECUTABLE}
             ARGS "-c \"import numpy; print(numpy.get_include())\""
             OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
