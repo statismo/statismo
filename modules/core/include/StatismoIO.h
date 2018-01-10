@@ -55,11 +55,12 @@ namespace statismo {
 template <typename T >
 class IO {
   private:
-    typedef StatisticalModel<T>  StatisticalModelType;
     //This class is made up of static methods only and as such the Constructor is private to prevent misunderstandings.
     IO() {}
 
   public:
+    typedef StatisticalModel<T>  StatisticalModelType;
+    
     /**
      * Returns a new statistical model, which is loaded from the given HDF5 file
      * \param filename The filename
