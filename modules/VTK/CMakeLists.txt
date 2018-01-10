@@ -21,13 +21,16 @@ if(VTK_MAJOR_VERSION GREATER 5)
     vtkIOXML
     vtkIOXMLParser
     )
-  list(FIND VTK_MODULES_ENABLED "vtkIOMPIParallel" HasOMPI)
+  if( ${BUILD_WRAPPING} )
+    list( APPEND required_vtk_modules vtkWrappingPythonCore )
+  endif()
 
+  list(FIND VTK_MODULES_ENABLED "vtkIOMPIParallel" HasOMPI)
   if(NOT HasOMPI EQUAL -1)
     list(APPEND required_vtk_modules vtkIOMPIParallel)
   endif()
   find_package( VTK REQUIRED COMPONENTS ${required_vtk_modules} )
-  
+
 else()
   find_package( VTK REQUIRED )
 endif()
