@@ -37,6 +37,7 @@
 #include <itkDataManager.h>
 #include <itkDirectory.h>
 #include <itkImage.h>
+#include <itkImageFileReader.h>
 #include <itkLandmarkBasedTransformInitializer.h>
 #include <itkMesh.h>
 #include <itkMeshFileReader.h>
