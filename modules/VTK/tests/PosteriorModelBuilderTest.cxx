@@ -38,7 +38,6 @@
 
 #include <Eigen/Geometry>
 
-#include <vtkMath.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
@@ -75,6 +74,16 @@ void writePolyData(vtkPolyData* pd, const std::string& filename) {
 #endif
     writer->Update();
 }
+
+inline double Distance2BetweenPoints(const double p1[3], const double p2[3]){
+    double ret = 0;
+    for(int i = 0; i < 3; i++){
+	double dist = p1[i]-p2[i];
+	ret += dist*dist;
+    }
+    return ret;
+}
+
 
 
 
@@ -156,7 +165,7 @@ int main(int argc, char** argv) {
         PointType posteriorMeanPoint = posterior_mean->GetPoint(pt_id);
         PointType testPoint = testSample->GetPoint(pt_id);
 
-        double distance2 = vtkMath::Distance2BetweenPoints(posteriorMeanPoint.data(),testPoint.data());
+        double distance2 = Distance2BetweenPoints(posteriorMeanPoint.data(),testPoint.data());
         if(distance2 > tolerance * tolerance) {
             std::cout << "Hand model test failed: Posterior mean not correct." << std::endl;
             testsOk = false;

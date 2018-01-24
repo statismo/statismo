@@ -41,7 +41,6 @@
 
 #include <Eigen/Geometry>
 
-#include <vtkMath.h>
 #include <vtkPoints.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
