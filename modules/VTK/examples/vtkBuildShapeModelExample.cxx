@@ -35,7 +35,7 @@
  *
  */
 #include <iostream>
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 #include <vtkDirectory.h>
 #include <vtkPolyDataReader.h>
@@ -107,10 +107,10 @@ int main(int argc, char** argv) {
         // will use will later be aligned to the reference.
 
         vtkPolyData* reference = loadVTKPolyData(datadir + "/" + filenames[0]);
-        boost::scoped_ptr<RepresenterType> representer(RepresenterType::Create(reference));
+        std::unique_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 
         // We create a datamanager and provide it with a pointer  to the representer
-        boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+        std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
 
         // Now we add our data to the data manager
@@ -129,9 +129,9 @@ int main(int argc, char** argv) {
         // To actually build a model, we need to create a model builder object.
         // Calling the build model with a list of samples from the data manager, returns a new model.
         // The second parameter to BuildNewModel is the variance of the noise on our data
-        boost::scoped_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
+        std::unique_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
 
-        boost::scoped_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
+        std::unique_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
 
         // Once we have built the model, we can save it to disk.
         statismo::IO<vtkPolyData>::SaveStatisticalModel(model.get(), modelname);

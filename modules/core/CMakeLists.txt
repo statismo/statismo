@@ -1,6 +1,5 @@
 include_directories( BEFORE
   ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${Boost_INCLUDE_DIRS}
 )
 
 add_subdirectory( src )

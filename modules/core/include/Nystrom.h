@@ -12,8 +12,6 @@
  * Statismo is licensed under the BSD licence (3 clause) license
  */
 
-#include <boost/thread.hpp>
-
 #include "CommonTypes.h"
 #include "Config.h"
 #include "Kernels.h"

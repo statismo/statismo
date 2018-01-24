@@ -36,7 +36,7 @@
  */
 #include <iostream>
 
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
@@ -83,7 +83,7 @@ int main(int argc, char** argv) {
         // To load a model, we call the static Load method, which returns (a pointer to) a
         // new StatisticalModel object
         RepresenterType* representer = RepresenterType::Create();
-        boost::scoped_ptr<StatisticalModelType> model(
+        std::unique_ptr<StatisticalModelType> model(
                 statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, modelname));
         std::cout << "loaded model with " << model->GetNumberOfPrincipalComponents() << " Principal Components" << std::endl;
 

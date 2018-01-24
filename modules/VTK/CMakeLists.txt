@@ -24,6 +24,12 @@ if(VTK_MAJOR_VERSION GREATER 5)
   if( ${BUILD_WRAPPING} )
     list( APPEND required_vtk_modules vtkWrappingPythonCore )
   endif()
+  
+  #Add these filters for vtk7+ to avoid linker errors
+  list(FIND VTK_MODULES_ENABLED "vtkFiltersParallelDIY2" RequiresParallelFilters)
+  if(NOT RequiresParallelFilters EQUAL -1)
+    list(APPEND required_vtk_modules vtkFiltersParallelDIY2)
+  endif()
 
   list(FIND VTK_MODULES_ENABLED "vtkIOMPIParallel" HasOMPI)
   if(NOT HasOMPI EQUAL -1)

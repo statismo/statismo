@@ -83,7 +83,7 @@ class PCAModelBuilder : public Object {
     }
 
     template <class F>
-    typename boost::result_of<F()>::type callstatismoImpl(F f) const {
+    typename std::result_of<F()>::type callstatismoImpl(F f) const {
         try {
             return f();
         } catch (statismo::StatisticalModelException& s) {
@@ -94,7 +94,7 @@ class PCAModelBuilder : public Object {
 
 
     typename StatisticalModel<Representer>::Pointer BuildNewModel(DataItemListType DataItemList, float noiseVariance, bool computeScores = true, EigenValueMethod method = ImplType::JacobiSVD) {
-        statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(boost::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, noiseVariance, computeScores, method));
+        statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, noiseVariance, computeScores, method));
         typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
         model_itk->SetstatismoImplObj(model_statismo);
         return model_itk;

@@ -31,7 +31,8 @@
  *
  */
 
-#include <boost/algorithm/string.hpp>
+#include <algorithm>
+
 #include <boost/program_options.hpp>
 
 #include <itkDataManager.h>
@@ -114,7 +115,7 @@ int main(int argc, char** argv) {
 }
 
 bool isOptionsConflictPresent(programOptions& opt) {
-    boost::algorithm::to_lower(opt.strProcrustesMode);
+    std::transform(opt.strProcrustesMode.begin(), opt.strProcrustesMode.end(), opt.strProcrustesMode.begin(), ::tolower);
 
     if (opt.strProcrustesMode != "reference" && opt.strProcrustesMode != "gpa") {
         return true;

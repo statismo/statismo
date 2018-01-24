@@ -1,7 +1,11 @@
 add_library( statismo_core ${statismo_LIB_TYPE}
   ModelInfo.cxx
+  StatismoUtils.cxx
 )
-target_link_libraries( statismo_core ${HDF5_LIBRARIES} ${Boost_LIBRARIES} )
+
+find_package( Threads )
+
+target_link_libraries( statismo_core ${HDF5_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} )
 
 set_target_properties( statismo_core PROPERTIES
   DEBUG_POSTFIX "-d"

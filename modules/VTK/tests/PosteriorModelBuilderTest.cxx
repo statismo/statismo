@@ -34,7 +34,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Geometry>
 
@@ -112,7 +112,7 @@ int main(int argc, char** argv) {
     vtkPolyData* reference = loadPolyData(referenceFilename);
     RepresenterType* representer = RepresenterType::Create(reference);
 
-    boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+    std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
     vtkPolyData* testDataset = loadPolyData(testDatasetFilename);
     vtkPolyData* testDataset2 = loadPolyData(testDatasetFilename2);

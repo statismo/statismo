@@ -35,7 +35,7 @@
  *
  */
 
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 #include "DataManager.h"
 #include "PCAModelBuilder.h"
@@ -63,8 +63,8 @@ int main(int argc, char* argv[]) {
 
     try {
         const unsigned Dim = 3;
-        boost::scoped_ptr<RepresenterType> representer(RepresenterType::Create(Dim));
-        boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+        std::unique_ptr<RepresenterType> representer(RepresenterType::Create(Dim));
+        std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
         // we create three simple datasets
         statismo::VectorType dataset1(Dim), dataset2(Dim), dataset3(Dim);
@@ -77,8 +77,8 @@ int main(int argc, char* argv[]) {
         dataManager->AddDataset(dataset3, "dataset1");
 
 
-        boost::scoped_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
-        boost::scoped_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
+        std::unique_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
+        std::unique_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
 
         // As we have added 3 linearly independent samples, we get 2 principal components.
         if (model->GetNumberOfPrincipalComponents() != 2) {
@@ -88,7 +88,7 @@ int main(int argc, char* argv[]) {
         statismo::IO<statismo::VectorType>::SaveStatisticalModel(model.get(), "test.h5");
 
         RepresenterType* newRepresenter = RepresenterType::Create();
-        boost::scoped_ptr<StatisticalModelType> loadedModel(
+        std::unique_ptr<StatisticalModelType> loadedModel(
                 statismo::IO<statismo::VectorType>::LoadStatisticalModel(newRepresenter, "test.h5"));
         if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents()) {
             return EXIT_FAILURE;
