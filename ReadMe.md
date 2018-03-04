@@ -9,7 +9,9 @@ The easiest way to explore statismo is by using the command line interface. The 
 
 To perform more complex tasks you can include statismo as a library in your own c++ application. The best way to get started is to check the main concepts on the [Wiki](https://github.com/statismo/statismo/wiki) page and then look at the example code ([ITK Examples](https://github.com/statismo/statismo/tree/master/modules/ITK/examples), [VTK Examples](https://github.com/statismo/statismo/tree/master/modules/VTK/examples)) that are provided with statismo.These example programs are kept simple to illustrate the main principles and meant as a starting point for more complicated applications.
 
-More detailed documentation and links to presentations and articles that describe the underlying theory can be found in the 
+The mathematical principles underlying statismo are described in the paper [Gaussian Process Morphable Models](http://ieeexplore.ieee.org/document/8010438/).
+
+More detailed documentation and links to presentations can be found in the 
 [documentation section](https://github.com/statismo/statismo/wiki/Documentation).
 
 There is also the [statismo-users](https://groups.google.com/forum/#!forum/statismo-users) google group for general questions and discussion regarding statismo and shape models in general.
