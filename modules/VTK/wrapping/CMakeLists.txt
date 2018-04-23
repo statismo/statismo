@@ -66,3 +66,23 @@ install( TARGETS _statismo_VTK
   LIBRARY DESTINATION ${INSTALL_LIB_DIR}
   ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
 )
+
+# Extract the python install directory.
+# Source: https://stackoverflow.com/a/40006251/3388962
+execute_process(
+    COMMAND "${PYTHON_EXECUTABLE}" -c
+        "from distutils import sysconfig as sc;\
+        print(sc.get_python_lib(prefix='', plat_specific=True))"
+    OUTPUT_VARIABLE PYTHON_SITE
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Create a __init__ file for the python module.
+file(WRITE "${swig_outdir}/__init__.py" "from statismo.statismo_VTK import *" )
+
+install( FILES
+  "${swig_outdir}/_statismo_VTK.so"
+  "${swig_outdir}/statismo_VTK.py"
+  "${swig_outdir}/__init__.py"
+  DESTINATION "${CMAKE_INSTALL_PREFIX}/${PYTHON_SITE}/statismo"
+  COMPONENT Development
+)
