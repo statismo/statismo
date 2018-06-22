@@ -1,5 +1,5 @@
 include_directories( BEFORE
-1;5201;0c  ${CMAKE_CURRENT_SOURCE_DIR}/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${statismo_SOURCE_DIR}/modules/core/include
   )
 
