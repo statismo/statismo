@@ -1,5 +1,5 @@
 include_directories( BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
+1;5201;0c  ${CMAKE_CURRENT_SOURCE_DIR}/include
   ${statismo_SOURCE_DIR}/modules/core/include
   )
 
@@ -21,6 +21,11 @@ if(VTK_MAJOR_VERSION GREATER 5)
     vtkIOXML
     vtkIOXMLParser
     )
+  if(TARGET vtkFiltersParallelDIY2)
+    list(APPEND required_vtk_modules vtkFiltersParallelDIY2)
+  endif()
+
+
   if( ${BUILD_WRAPPING} )
     list( APPEND required_vtk_modules vtkWrappingPythonCore )
   endif()
