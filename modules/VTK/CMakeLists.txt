@@ -21,6 +21,11 @@ if(VTK_MAJOR_VERSION GREATER 5)
     vtkIOXML
     vtkIOXMLParser
     )
+  if(TARGET vtkFiltersParallelDIY2)
+    list(APPEND required_vtk_modules vtkFiltersParallelDIY2)
+  endif()
+
+
   if( ${BUILD_WRAPPING} )
     list( APPEND required_vtk_modules vtkWrappingPythonCore )
   endif()
