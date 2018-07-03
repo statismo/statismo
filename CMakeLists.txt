@@ -1,5 +1,9 @@
-cmake_minimum_required(VERSION 2.8.10)
+cmake_minimum_required(VERSION 3.1.0)
 project(statismo)
+
+#enable c++11 standard (requires cmake 3.1)
+set(CMAKE_CXX_STANDARD 11)
+
 
 if( POLICY CMP0042 )
   cmake_policy( SET CMP0042 NEW )
@@ -83,12 +87,6 @@ include( ModuleHeaderTest )
 find_package( Eigen3 REQUIRED )
 include_directories( ${EIGEN3_INCLUDE_DIR} )
 
-if( WIN32 )
-  set( Boost_USE_STATIC_LIBS ON )
-endif()
-
-set( REQUIRED_BOOST_COMPONENTS thread system date_time filesystem )
-
 option( BUILD_CLI_TOOLS "Build command-line tools" ON )
 #make the option to build the cli documentation available if and only if the cli tools will be built
 include(CMakeDependentOption)
@@ -106,15 +104,18 @@ if( ${BUILD_CLI_TOOLS} MATCHES "ON" )
     mark_as_advanced( PANDOC )
   endif()
 
+  if( WIN32 )
+    set( Boost_USE_STATIC_LIBS ON )
+  endif()
+
   #the cli tools require the program_options component from boost
-  set( REQUIRED_BOOST_COMPONENTS ${REQUIRED_BOOST_COMPONENTS} program_options )
+  find_package( Boost COMPONENTS program_options REQUIRED )
+  include_directories( ${Boost_INCLUDE_DIRS} )
+  link_directories( ${Boost_LIBRARY_DIRS} )
 endif()
 
-find_package( Boost 1.50 COMPONENTS ${REQUIRED_BOOST_COMPONENTS} REQUIRED )
-include_directories( ${Boost_INCLUDE_DIRS} )
 
-link_directories( ${Boost_LIBRARY_DIRS} )
-add_definitions( -DBOOST_THREAD_VERSION=3 -DBOOST_FILESYSTEM_VERSION=3 )
+
 
 
 if(WIN32)
@@ -218,6 +219,7 @@ file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
 set( CONF_INCLUDE_DIRS
   "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/core"
 )
+
 if( ${VTK_SUPPORT} )
   set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/VTK" )
 endif()

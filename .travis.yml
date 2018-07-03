@@ -4,10 +4,11 @@ compiler:
   - gcc
 
 before_install:
-  - sudo apt-get install -y cmake libboost1.55-dev libboost1.55 libeigen3-dev libvtk6-dev libinsighttoolkit4-dev
+  - sudo apt-get install -y cmake libboost-all-dev libeigen3-dev libvtk6-dev libinsighttoolkit4-dev
 
 script:
   - mkdir -p build
   - cd build
-  - cmake -DCMAKE_BUILD_TYPE:STRING=Release -DON_TRAVIS=True ../
+  - cmake -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_CXX_FLAGS="-fpermissive" -DON_TRAVIS=True ../
   - make -j2
+  - make test

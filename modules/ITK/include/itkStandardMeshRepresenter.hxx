@@ -49,8 +49,6 @@
 #include <itkTransformMeshFilter.h>
 #include <itkVector.h>
 
-#include <boost/filesystem.hpp>
-
 #include "HDF5Utils.h"
 #include "StatismoUtils.h"
 
@@ -180,13 +178,13 @@ StandardMeshRepresenter<TPixel, MeshDimension>::LoadRefLegacy(const H5::Group& f
     reader->SetFileName(tmpfilename);
     try {
         reader->Update();
-    } catch (itk::MeshFileReaderException& e) {
-        boost::filesystem::remove(tmpfilename);
+    } catch (itk::MeshFileReaderException) {
+        std::remove(tmpfilename.c_str());
         throw statismo::StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
     }
 
     typename MeshType::Pointer mesh = reader->GetOutput();
-    boost::filesystem::remove(tmpfilename);
+    std::remove(tmpfilename.c_str());
     return mesh;
 
 }

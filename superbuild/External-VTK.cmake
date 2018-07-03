@@ -1,17 +1,5 @@
 message( "External project - VTK" )
 
-find_package(Git)
-if(NOT GIT_FOUND)
-  message(ERROR "Cannot find git. git is required for Superbuild")
-endif()
-
-option( USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
-
-set(git_protocol "git")
-if(NOT USE_GIT_PROTOCOL)
-  set(git_protocol "http")
-endif()
-
 set( VTK_DEPENDENCIES )
 
 set( _vtkOptions )
@@ -19,10 +7,19 @@ if( APPLE )
   set( _vtkOptions -DVTK_REQUIRED_OBJCXX_FLAGS:STRING="" )
 endif()
 
+#if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
+#  set( VTK_DEPENDENCIES HDF5 )
+#  message(STATUS "${HDF5_DIR}")
+#endif()
+
+set( VTK_DOWNLOAD_VERS "8.1" )
+set( VTK_DOWNLOAD_PATCH 0 )
+set( VTK_DOWNLOAD_SH256 6e269f07b64fb13774f5925161fb4e1f379f4e6a0131c8408c555f6b58ef3cb7)
+
 ExternalProject_Add(VTK
   DEPENDS ${VTK_DEPENDENCIES}
-  GIT_REPOSITORY ${git_protocol}://vtk.org/VTK.git
-  GIT_TAG v6.3.0
+  URL "http://www.vtk.org/files/release/${VTK_DOWNLOAD_VERS}/VTK-${VTK_DOWNLOAD_VERS}.${VTK_DOWNLOAD_PATCH}.tar.gz"
+  URL_HASH "SHA256=${VTK_DOWNLOAD_SH256}"
   SOURCE_DIR VTK
   BINARY_DIR VTK-build
   UPDATE_COMMAND ""
@@ -37,7 +34,8 @@ ExternalProject_Add(VTK
     -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
     -DVTK_BUILD_ALL_MODULES:BOOL=OFF
     -DVTK_USE_SYSTEM_HDF5:BOOL=OFF
+#    -DHDF5_DIR:PATH=${HDF5_DIR}
     -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPENDENCIES_DIR}
 )
 
-set( VTK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/vtk-6.1/ )
+set( VTK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/vtk-${VTK_DOWNLOAD_VERS}/ )

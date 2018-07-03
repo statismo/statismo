@@ -34,13 +34,13 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <boost/scoped_ptr.hpp>
+
 #include <ctime>
+#include <memory>
 #include <vector>
 
 #include <Eigen/Geometry>
 
-#include <vtkMath.h>
 #include <vtkPoints.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
@@ -157,12 +157,13 @@ int main(int argc, char** argv) {
     typedef DomainType::DomainPointsListType DomainPointsListType;
     typedef statismo::StatisticalModel<vtkPolyData> StatisticalModelType;
 
+	Utils::staticallyInitializePRNG(0);
 
     vtkPolyData* reference = loadPolyData(filenames[0]);
     reference = ReducePoints(reference, num_points);
     RepresenterType* representer = RepresenterType::Create(reference);
 
-    boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+    std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
     std::vector<std::string>::const_iterator it = filenames.begin();
     for(; it!=filenames.end(); it++) {
@@ -206,7 +207,7 @@ int main(int argc, char** argv) {
     // ----------------------------------------------------------
     // Generate a lot of samples out of the JacobiSVD model
     // ----------------------------------------------------------
-    boost::scoped_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer));
+    std::unique_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer));
     dataManager->AddDataset(reference, "ref");
     for(unsigned i=0; i<5000; i++) {
         std::stringstream ss;

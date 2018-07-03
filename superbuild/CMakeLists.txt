@@ -1,5 +1,5 @@
-cmake_minimum_required( VERSION 2.8.10 )
-
+cmake_minimum_required( VERSION 3.1.0 )
+message(STATUS ${MSVC_VERSION})
 project( Statismo-Superbuild )
 
 # set CMAKE_MODULE_PATH for cmake macro/function and modules
@@ -59,6 +59,14 @@ else()
   find_package( Eigen3 REQUIRED )
 endif()
 
+set( cmake_hdf5_libs )
+option( USE_SYSTEM_HDF5 "Use system libraries for HDF5" OFF )
+if( ${USE_SYSTEM_HDF5} MATCHES "OFF" )
+  include( External-HDF5.cmake )
+  set( Statismo_DEPENDENCIES ${Statismo_DEPENDENCIES} HDF5 )
+else()
+  find_package( HDF5 COMPONENTS C CXX )
+endif()
 
 option( USE_SYSTEM_VTK "Use system libraries for VTK" OFF )
 if( ${USE_SYSTEM_VTK} MATCHES "OFF" )

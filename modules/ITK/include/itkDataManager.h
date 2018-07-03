@@ -39,8 +39,8 @@
 #ifndef ITK_DATAMANAGER_H_
 #define ITK_DATAMANAGER_H_
 
-#include <boost/bind.hpp>
-#include <boost/utility/result_of.hpp>
+#include <functional>
+#include <type_traits>
 
 #include <itkObject.h>
 #include <itkObjectFactory.h>
@@ -75,7 +75,7 @@ class DataManager : public Object {
     typedef statismo::Representer<T> RepresenterType;
 
     template <class F>
-    typename boost::result_of<F()>::type callstatismoImpl(F f) const {
+    typename std::result_of<F()>::type callstatismoImpl(F f) const {
         if (m_impl == 0) {
             itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
         }
@@ -113,7 +113,7 @@ class DataManager : public Object {
     }
 
     void AddDataset(typename RepresenterType::DatasetType* ds, const char* filename) {
-        callstatismoImpl(boost::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
+        callstatismoImpl(std::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
     }
 
     void Load(const char* filename) {
@@ -125,11 +125,11 @@ class DataManager : public Object {
     }
 
     void Save(const char* filename) {
-        callstatismoImpl(boost::bind(&ImplType::Save, this->m_impl, filename));
+        callstatismoImpl(std::bind(&ImplType::Save, this->m_impl, filename));
     }
 
     typename statismo::DataManager<T>::DataItemListType GetData() const {
-        return callstatismoImpl(boost::bind(&ImplType::GetData, this->m_impl));
+        return callstatismoImpl(std::bind(&ImplType::GetData, this->m_impl));
     }
 
 

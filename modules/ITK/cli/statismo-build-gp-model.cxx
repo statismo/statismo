@@ -31,7 +31,10 @@
  *
  */
 
+#include <algorithm>
 #include <iostream>
+#include <memory>
+#include <string> 
 
 #include <boost/program_options.hpp>
 
@@ -130,8 +133,9 @@ int main(int argc, char** argv) {
 }
 
 bool isOptionsConflictPresent(programOptions& opt) {
-    boost::algorithm::to_lower(opt.strKernel);
-    boost::algorithm::to_lower(opt.strType);
+	#define to_lower_case(str) transform(str.begin(), str.end(), str.begin(), ::tolower);
+	to_lower_case(opt.strKernel);
+	to_lower_case(opt.strType);
 
     if (opt.strType != "shape" && opt.strType != "deformation") {
         return true;
@@ -176,7 +180,7 @@ void buildAndSaveModel(programOptions opt) {
 
 
     typedef typename DataType::PointType PointType;
-    typedef boost::scoped_ptr<const statismo::ScalarValuedKernel<PointType> > MatrixPointerType;
+    typedef std::unique_ptr<const statismo::ScalarValuedKernel<PointType> > MatrixPointerType;
     MatrixPointerType pKernel;
     if (isShapeModel == true) {
         pKernel.reset((statismo::ScalarValuedKernel<PointType>*) it->second.createKernelShape(opt.vKernelParameters));
@@ -188,14 +192,14 @@ void buildAndSaveModel(programOptions opt) {
         }
     }
 
-    typedef boost::shared_ptr<statismo::MatrixValuedKernel<PointType> > KernelPointerType;
+    typedef std::shared_ptr<statismo::MatrixValuedKernel<PointType> > KernelPointerType;
     KernelPointerType pUnscaledKernel(new statismo::UncorrelatedMatrixValuedKernel<PointType>(pKernel.get(), Dimenstionality));
     KernelPointerType pScaledKernel(new statismo::ScaledKernel<PointType>(pUnscaledKernel.get(), opt.fKernelScale));
     KernelPointerType pStatModelKernel;
     KernelPointerType pModelBuildingKernel;
 
     typedef statismo::StatisticalModel<DataType> RawModelType;
-    typedef boost::shared_ptr<RawModelType> RawModelPointerType;
+    typedef std::shared_ptr<RawModelType> RawModelPointerType;
     typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
 
     RawModelPointerType pRawStatisticalModel;

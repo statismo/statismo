@@ -44,8 +44,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/functional/hash.hpp>
-
 #include <Eigen/Dense>
 
 #include "Config.h"
@@ -127,19 +125,44 @@ template <> inline unsigned GetDataTypeId<double>() {
 
 } //namespace statismo
 
-// If we want to store a vector in a boost map, boost requires this function to be present.
-// We define it here once and for all.
-// Because of the way boost looksup the values, it needs to be defined in the namespace Eigen
-namespace Eigen {
-inline size_t hash_value(const statismo::VectorType& v) {
+// If we want to store a vector in a std hash map we are required to define how the hash is derived for our data type
+namespace std {
+    //sort of spoof of the boost::hash_combine function
+    template <class T>
+    inline void hash_combine(std::size_t& value, T const& v)
+    {
+        std::hash<T> hasher;
+        if(sizeof(size_t) == 8){
+            const size_t m = (size_t) 0xc6a4a7935bd1e995ULL;
+            const int r = 47;
+            size_t k = hasher(v);
 
-    size_t value = 0;
-    for (unsigned i = 0; i < v.size(); i++) {
-        boost::hash_combine(value, v(i));
+            k *= m;
+            k ^= k >> r;
+            k *= m;
+
+            value ^= k;
+            value *= m;
+        }else{
+            value ^= hasher(v) + 0x9e3779b9 + (value << 6) + (value >> 2);
+        }
     }
-    return value;
+
+
+    template <>
+    struct hash<statismo::VectorType>
+    {
+        size_t operator()(const statismo::VectorType& v) const
+        {
+            size_t value = 0;
+            for (unsigned i = 0; i < v.size(); i++) {
+                hash_combine(value, v(i));
+            }
+            return value;
+        }
+    };
 }
-}
+
 
 #endif
 

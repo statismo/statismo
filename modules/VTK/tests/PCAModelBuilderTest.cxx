@@ -34,13 +34,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <boost/scoped_ptr.hpp>
 #include <ctime>
+#include <memory>
 #include <vector>
 
 #include <Eigen/Geometry>
 
-#include <vtkMath.h>
 #include <vtkPoints.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
@@ -79,8 +78,17 @@ void writePolyData(vtkPolyData* pd, const std::string& filename) {
   writer->Update();
 }
 
-double CompareVectors(const VectorType& v1, const VectorType& v2) {
-  return (v1-v2).array().abs().maxCoeff();
+VectorType::Scalar CompareVectors(const VectorType& v1, const VectorType& v2) {
+  VectorType v3 = v1 - v2;
+  //permit some slack for small figures to account for numerical inaccuracies (commit b30e7dc1d3c994351d4e6790d071a957f3fb59e0)
+  VectorType::Scalar graceForNumericalInaccuracy = v2.array().maxCoeff()*1e-5; 
+  for (int i = 0; i < v3.size(); i++) {
+	VectorType::Scalar blValue = v2[i];
+	if (blValue != 0 || blValue != blValue) {
+	  v3[i] = v3[i] / (abs(blValue) + graceForNumericalInaccuracy);
+	}
+  }
+  return v3.array().abs().maxCoeff();
 }
 
 vtkPolyData* ReducePoints(vtkPolyData* poly, unsigned num_points) {
@@ -131,6 +139,9 @@ int main(int argc, char** argv) {
   typedef DomainType::DomainPointsListType DomainPointsListType;
   typedef statismo::StatisticalModel<vtkPolyData> StatisticalModelType;
 
+  //max. acceptable difference between expected and calculated values in percent
+  VectorType::Scalar maxPermittedDifference = 0.1; //1‰
+
   // ----------------------------------------------------------
   // First compute PCA model for case n > p
   // ----------------------------------------------------------
@@ -139,7 +150,7 @@ int main(int argc, char** argv) {
   reference = ReducePoints(reference, num_points);
   RepresenterType* representer = RepresenterType::Create(reference);
 
-  boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+  std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
   std::vector<std::string>::const_iterator it = filenames.begin();
   for(; it!=filenames.end(); it++) {
@@ -161,12 +172,13 @@ int main(int argc, char** argv) {
   PCAModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(),data_noise,false);
   VectorType variance1 = PCAModel->GetPCAVarianceVector();
     
-  if(CompareVectors(variance1, baselineVariance1) < 1e-8) {
+  if(CompareVectors(variance1, baselineVariance1) < maxPermittedDifference) {
     std::clock_t end = std::clock();
     std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t[passed]" << std::endl;
   } else {
     std::cout << " \t[failed]" << std::endl;
     std::cout << "PCAModelBuilder for sample size > variables: \t\t\t" << "-  computed variances are incorrect!" << std::endl;
+	std::cout << "Expected a maximum difference of "<<maxPermittedDifference <<"%, found "<< CompareVectors(variance1, baselineVariance1) <<"%" << std::endl;
     testsOk = false;
   }
   
@@ -180,7 +192,7 @@ int main(int argc, char** argv) {
   vtkPolyData* reference2 = loadPolyData(filenames[0]);
   reference2 = ReducePoints(reference2, num_points);
   RepresenterType* representer2 = RepresenterType::Create(reference2);
-  boost::scoped_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer2));
+  std::unique_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer2));
   
   for(it = filenames.begin(); it!=filenames.end(); it++) {
     vtkPolyData* testDataset = loadPolyData((*it));
@@ -198,12 +210,13 @@ int main(int argc, char** argv) {
   PCAModel2 = pcaModelBuilder2->BuildNewModel(dataManager2->GetData(),data_noise,false);
   VectorType variance2 = PCAModel2->GetPCAVarianceVector();
 
-  if(CompareVectors(variance2, baselineVariance2) < 1e-8) {
+  if(CompareVectors(variance2, baselineVariance2) < maxPermittedDifference) {
     std::clock_t end = std::clock();
     std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t[passed]" << std::endl;
   } else {
     std::cout << " \t[failed]" << std::endl;
     std::cout << "PCAModelBuilder for sample size < variables: \t\t\t" << "- computed variances are incorrect!" << std::endl;
+	std::cout << "Expected a maximum difference of " << maxPermittedDifference << "%, found " << CompareVectors(variance2, baselineVariance2) << "%" << std::endl;
     testsOk = false;
   }
     

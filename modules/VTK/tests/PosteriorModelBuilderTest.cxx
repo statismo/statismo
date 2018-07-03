@@ -34,11 +34,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <boost/scoped_ptr.hpp>
+#include <memory>
 
 #include <Eigen/Geometry>
 
-#include <vtkMath.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
@@ -76,6 +75,16 @@ void writePolyData(vtkPolyData* pd, const std::string& filename) {
     writer->Update();
 }
 
+inline double Distance2BetweenPoints(const double p1[3], const double p2[3]){
+    double ret = 0;
+    for(int i = 0; i < 3; i++){
+	double dist = p1[i]-p2[i];
+	ret += dist*dist;
+    }
+    return ret;
+}
+
+
 
 
 int main(int argc, char** argv) {
@@ -112,7 +121,7 @@ int main(int argc, char** argv) {
     vtkPolyData* reference = loadPolyData(referenceFilename);
     RepresenterType* representer = RepresenterType::Create(reference);
 
-    boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+    std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
     vtkPolyData* testDataset = loadPolyData(testDatasetFilename);
     vtkPolyData* testDataset2 = loadPolyData(testDatasetFilename2);
@@ -156,7 +165,7 @@ int main(int argc, char** argv) {
         PointType posteriorMeanPoint = posterior_mean->GetPoint(pt_id);
         PointType testPoint = testSample->GetPoint(pt_id);
 
-        double distance2 = vtkMath::Distance2BetweenPoints(posteriorMeanPoint.data(),testPoint.data());
+        double distance2 = Distance2BetweenPoints(posteriorMeanPoint.data(),testPoint.data());
         if(distance2 > tolerance * tolerance) {
             std::cout << "Hand model test failed: Posterior mean not correct." << std::endl;
             testsOk = false;

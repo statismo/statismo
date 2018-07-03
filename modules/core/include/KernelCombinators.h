@@ -13,9 +13,8 @@
 #ifndef KERNELCOMBINATORS_H
 #define KERNELCOMBINATORS_H
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
+#include <mutex>
 
 #include "CommonTypes.h"
 #include "Kernels.h"
@@ -193,7 +192,7 @@ class TemperingFunction {
 template<class T>
 class SpatiallyVaryingKernel : public MatrixValuedKernel<typename Representer<T>::PointType> {
 
-    typedef boost::unordered_map<statismo::VectorType, statismo::MatrixType> CacheType;
+    typedef std::unordered_map<statismo::VectorType, statismo::MatrixType> CacheType;
 
   public:
 
@@ -295,12 +294,12 @@ class SpatiallyVaryingKernel : public MatrixValuedKernel<typename Representer<T>
     // members
 
     const RepresenterType* m_representer;
-    boost::scoped_ptr<Nystrom<T> > m_nystrom;
+    std::unique_ptr<Nystrom<T> > m_nystrom;
     statismo::VectorType m_eigenvalues;
     const  TemperingFunction<PointType>& m_eta;
     bool m_cacheValues;
     mutable CacheType m_phiCache;
-    mutable boost::mutex _phiCacheLock;
+    mutable std::mutex _phiCacheLock;
 };
 
 
