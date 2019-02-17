@@ -4,7 +4,7 @@ compiler:
   - gcc
 
 before_install:
-  - sudo apt-get install -y cmake libboost1.55-dev libboost1.55 libeigen3-dev libvtk6-dev libinsighttoolkit4-dev
+  - sudo apt-get install -y cmake libboost1.55-dev libboost1.55 libeigen3-dev libhdf5-dev libvtk7-dev libinsighttoolkit4-dev
 
 script:
   - mkdir -p build
