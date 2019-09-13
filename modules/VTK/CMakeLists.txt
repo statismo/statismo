@@ -1,62 +1,53 @@
-include_directories( BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}/include
-  ${statismo_SOURCE_DIR}/modules/core/include
-  )
+# Settings
 
-if(VTK_MAJOR_VERSION GREATER 5)
-  set( required_vtk_modules
-    vtkCommonComputationalGeometry
-    vtkCommonCore
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkCommonMath
-    vtkCommonMisc
-    vtkCommonSystem
-    vtkCommonTransforms
-    vtkFiltersCore
-    vtkFiltersGeneral
-    vtkIOCore
-    vtkIOGeometry
-    vtkIOLegacy
-    vtkIOXML
-    vtkIOXMLParser
-    )
-  if( ${BUILD_WRAPPING} )
-    list( APPEND required_vtk_modules vtkWrappingPythonCore )
-  endif()
 
-  list(FIND VTK_MODULES_ENABLED "vtkIOMPIParallel" HasOMPI)
-  if(NOT HasOMPI EQUAL -1)
-    list(APPEND required_vtk_modules vtkIOMPIParallel)
-  endif()
-  find_package( VTK REQUIRED COMPONENTS ${required_vtk_modules} )
+# Create target
+add_library(statismo_VTK ${statismo_LIB_TYPE}
+  src/vtkStandardMeshRepresenter.cxx
+  src/vtkUnstructuredGridRepresenter.cxx
+)
+target_link_libraries(statismo_VTK statismo_core ${VTK_LIBRARIES})
+target_include_directories(statismo_VTK PUBLIC  
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"  
+    "$<INSTALL_INTERFACE:include/statismo/VTK;>"
+)
+target_compile_features(statismo_VTK PUBLIC cxx_std_17)
+set_target_properties(statismo_VTK PROPERTIES
+  DEBUG_POSTFIX "-d"
+  VERSION "${statismo_LIB_VERSION}"
+  SOVERSION "${statismo_LIB_SOVERSION}"
+)
 
-else()
-  find_package( VTK REQUIRED )
+# Test
+
+if(${BUILD_TESTS})
+  add_subdirectory(tests)
 endif()
 
+# Example
 
-include( ${VTK_USE_FILE} )
-add_subdirectory( src )
-
-if( ${BUILD_TESTING} )
-  add_subdirectory( tests )
+if(${BUILD_EXAMPLES})
+  add_subdirectory(examples)
 endif()
 
-if( ${BUILD_EXAMPLES} )
-  add_subdirectory( examples )
+# Wrapping
+
+if(${BUILD_WRAPPING})
+  add_subdirectory(wrapping)
 endif()
 
-if( ${BUILD_WRAPPING} )
-  add_subdirectory( wrapping )
-endif()
+# Install
 
+install(TARGETS statismo_VTK
+  EXPORT statismoTargets
+  RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+  LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+  ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+)
 
-module_headertest( VTK )
-
-file( GLOB _VTK_hdrs
+file(GLOB TARGET_HEADERS
   include/*.h include/*.hxx include/*.hpp include/*.txx include/*.tpp
-  )
-install( FILES ${_VTK_hdrs}
+)
+install(FILES ${TARGET_HEADERS}
   DESTINATION ${INSTALL_INCLUDE_DIR}/statismo/VTK
-  )
+)

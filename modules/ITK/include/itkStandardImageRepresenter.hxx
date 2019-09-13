@@ -51,8 +51,6 @@
 #include <itkPoint.h>
 #include <itkVector.h>
 
-#include <boost/filesystem.hpp>
-
 #include "HDF5Utils.h"
 #include "StatismoUtils.h"
 
@@ -63,7 +61,7 @@ namespace itk {
 
 template <class TPixel, unsigned ImageDimension>
 StandardImageRepresenter<TPixel, ImageDimension>::StandardImageRepresenter()
-    : m_reference(0) {
+    : m_reference(nullptr) {
 }
 template <class TPixel, unsigned ImageDimension>
 StandardImageRepresenter<TPixel, ImageDimension>::~StandardImageRepresenter() {
@@ -189,12 +187,12 @@ StandardImageRepresenter<TPixel, ImageDimension>::LoadRefLegacy(const H5::Group&
     try {
         reader->Update();
     } catch (itk::ImageFileReaderException& e) {
-        boost::filesystem::remove(tmpfilename);
+        statismo::Utils::RemoveFile(tmpfilename);
         throw statismo::StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
     }
     typename DatasetType::Pointer img = reader->GetOutput();
     img->Register();
-    boost::filesystem::remove(tmpfilename);
+    statismo::Utils::RemoveFile(tmpfilename);
     return img;
 
 }

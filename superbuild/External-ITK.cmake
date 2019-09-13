@@ -1,35 +1,21 @@
-message( "External project - ITK" )
+message("External project - ITK")
 
-find_package(Git)
-if(NOT GIT_FOUND)
-  message(ERROR "Cannot find git. git is required for Superbuild")
-endif()
+set(ITK_DEPENDENCIES)
+set(_vtkoptions)
 
-option( USE_GIT_PROTOCOL "If behind a firewall turn this off to use http instead." ON)
-
-set(git_protocol "git")
-if(NOT USE_GIT_PROTOCOL)
-  set(git_protocol "http")
-endif()
-
-set( ITK_DEPENDENCIES )
-set( _vtkoptions )
-
-if( ${USE_SYSTEM_VTK} MATCHES "OFF" )
-  set( ITK_DEPENDENCIES VTK ${ITK_DEPENDENCIES} )
-else()
-  if( ${VTK_MAJOR_VERSION} EQUAL 6 )
-    set( _vtkoptions
-      -DModule_ITKVtkGlue:BOOL=ON
-      -DVTK_DIR:PATH=${VTK_DIR}
-    )
+if (${VTK_SUPPORT})
+  if(${USE_SYSTEM_VTK})
+    set(_vtkoptions -DVTK_DIR:PATH=${VTK_DIR})
+  else()
+    set(ITK_DEPENDENCIES VTK ${ITK_DEPENDENCIES})
   endif()
+  set(_vtkoptions ${_vtkoptions} -DModule_ITKVtkGlue:BOOL=ON)
 endif()
 
 ExternalProject_Add(ITK
   DEPENDS ${ITK_DEPENDENCIES}
-  GIT_REPOSITORY ${git_protocol}://itk.org/ITK.git
-  GIT_TAG v4.10.0
+  GIT_REPOSITORY https://github.com/InsightSoftwareConsortium/ITK.git
+  GIT_TAG v5.0.1
   SOURCE_DIR ITK
   BINARY_DIR ITK-build
   UPDATE_COMMAND ""
@@ -46,7 +32,6 @@ ExternalProject_Add(ITK
     -DITK_LEGACY_REMOVE:BOOL=ON
     -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPENDENCIES_DIR}
     -DITK_USE_SYSTEM_HDF5:BOOL=OFF
+    -DITK_USE_SYSTEM_EIGEN:BOOL=OFF
     ${_vtkoptions}
 )
-
-set( ITK_DIR ${INSTALL_DEPENDENCIES_DIR}/lib/cmake/ITK-4.10/ )

@@ -23,13 +23,6 @@ statismo-warp-image is used to apply a deformation field to an image. With this 
 -f, \--input-deformation-field *DEFORMATION_FIELD_FILE*
 :	Draws the mean from the model and saves it.
 
--o, \--output-file *OUTPUT_FILE*
-:	*OUTPUT_FILE* is the path where the warped image will be saved.
-
-
-
-
- 
 # Examples 
 Apply a 3D deformation field to a 3D image:
 

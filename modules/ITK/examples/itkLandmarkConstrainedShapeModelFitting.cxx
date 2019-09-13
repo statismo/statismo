@@ -99,7 +99,7 @@ typedef itk::TransformMeshFilter<MeshType, MeshType, CompositeTransformType> Tra
 
 
 typedef itk::PosteriorModelBuilder<MeshType> PosteriorModelBuilderType;
-#if (ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 4)
+#if ((ITK_VERSION_MAJOR == 4 && ITK_VERSION_MINOR >= 4) || ITK_VERSION_MAJOR >= 5)
 typedef itk::PointsLocator< MeshType::PointsContainer > PointsLocatorType;
 #else
 typedef itk::PointsLocator<int, 3, double, MeshType::PointsContainer > PointsLocatorType;

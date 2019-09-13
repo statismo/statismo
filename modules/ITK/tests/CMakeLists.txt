@@ -1,18 +1,18 @@
-set( _ITKTests
-  itkStandardImageRepresenterTest
-  itkStandardMeshRepresenterTest
+set(TARGET_TESTS
+  itkStandardImageRepresenterTest.cxx
+  itkStandardMeshRepresenterTest.cxx
 )
 
-foreach( _test ${_ITKTests} )
-  add_executable( ${_test} ${_test}.cxx )
-  target_link_libraries( ${_test} statismo_core ${ITK_LIBRARIES} )
+create_test_sourcelist( 
+    itkStatismoTest
+    itkStatismoTest_driver.cxx
+    ${TARGET_TESTS}
+)
+
+add_executable(itkStatismoTest itkStatismoTest_driver.cxx ${TARGET_TESTS})
+target_link_libraries(itkStatismoTest statismo_ITK)
+
+foreach(TST ${TARGET_TESTS})
+    get_filename_component(TNAME ${TST} NAME_WE)
+    add_test(NAME ${TNAME} COMMAND itkStatismoTest ${TNAME} ${statismo_SOURCE_DIR}/data WORKING_DIRECTORY "${TEST_WORKING_DIR}")
 endforeach()
-
-add_test( NAME itkStandardImageRepresenterTest
-  COMMAND itkStandardImageRepresenterTest ${statismo_SOURCE_DIR}/data
-  WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
-
-add_test( NAME itkStandardMeshRepresenterTest
-  COMMAND itkStandardMeshRepresenterTest ${statismo_SOURCE_DIR}/data
-  WORKING_DIRECTORY "${TEST_WORKING_DIR}" )
-

@@ -1,13 +1,150 @@
+# Based on https://github.com/Microsoft/GSL/blob/master/.travis.yml
+
 language: cpp
+sudo: false
+notifications:
+  email: false
 
-compiler:
-  - gcc
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/deps
 
-before_install:
-  - sudo apt-get install -y cmake libboost1.55-dev libboost1.55 libeigen3-dev libvtk6-dev libinsighttoolkit4-dev
+matrix:
+  include:
+    ##########################################################################
+    # Clang on Linux Xenial with:
+    # - No ITK/VTK support
+    # - Debug build
+    # - Static libs
+    # - Doc build
+    ##########################################################################
+    - os: linux
+      dist: xenial
+      env: C_COMPILER=clang CXX_COMPILER=clang++ BUILD_TYPE=Debug BUILD_SHARED_LIBS=OFF BUILD_DOCUMENTATION=ON BUILD_TESTS=ON BUILD_CLI_TOOLS=OFF BUILD_LONG_RUNNING_CLI_TESTS=OFF BUILD_LONG_RUNNING_CLI_TESTS=OFF ITK_SUPPORT=OFF VTK_SUPPORT=OFF USE_SYSTEM_HDF5=OFF USE_SYSTEM_Eigen=OFF USE_SYSTEM_ITK=OFF USE_SYSTEM_VTK=OFF
+      addons:
+          apt:
+            packages:
+              - doxygen
+              - graphviz
+              - texlive-full
+    ##########################################################################
+    # Gcc on Linux Xenial with:
+    # - No ITK/VTK support
+    # - Release build
+    # - Shared libs
+    ##########################################################################
+    - os: linux
+      dist: xenial
+      env: C_COMPILER=gcc-7 CXX_COMPILER=g++-7 BUILD_TYPE=Release BUILD_SHARED_LIBS=ON BUILD_DOCUMENTATION=OFF BUILD_TESTS=ON BUILD_CLI_TOOLS=OFF BUILD_LONG_RUNNING_CLI_TESTS=OFF ITK_SUPPORT=OFF VTK_SUPPORT=OFF USE_SYSTEM_HDF5=OFF USE_SYSTEM_Eigen=OFF USE_SYSTEM_ITK=OFF USE_SYSTEM_VTK=OFF
+      addons:
+        apt:
+          packages: 
+            - g++-7
+          sources:
+            - ubuntu-toolchain-r-test
+      after_install:
+        - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60 --slave /usr/bin/g++ g++ /usr/bin/g++-7
+        - sudo update-alternatives --config gcc
+        - gcc --version
+        - g++ --version
+    ##########################################################################
+    # Clang on Linux Bionic with:
+    # - VTK support
+    # - Release build
+    # - Shared libs
+    ##########################################################################
+    - os: linux
+      dist: bionic
+      env: C_COMPILER=clang CXX_COMPILER=clang++ BUILD_TYPE=Release BUILD_SHARED_LIBS=ON BUILD_DOCUMENTATION=OFF BUILD_TESTS=ON BUILD_CLI_TOOLS=OFF BUILD_LONG_RUNNING_CLI_TESTS=OFF ITK_SUPPORT=OFF VTK_SUPPORT=ON USE_SYSTEM_HDF5=OFF USE_SYSTEM_Eigen=ON USE_SYSTEM_ITK=OFF USE_SYSTEM_VTK=OFF
+      addons:
+        apt:
+          packages:
+            - libeigen3-dev
+            - libgl1-mesa-dev
+    ##########################################################################
+    # Gcc on Linux Bionic with:
+    # - ITK support
+    # - Release build
+    # - Shared libs
+    ##########################################################################
+    - os: linux
+      dist: bionic
+      env: C_COMPILER=gcc CXX_COMPILER=g++ BUILD_TYPE=Release BUILD_SHARED_LIBS=ON BUILD_DOCUMENTATION=OFF BUILD_TESTS=ON BUILD_CLI_TOOLS=ON BUILD_LONG_RUNNING_CLI_TESTS=ON ITK_SUPPORT=ON VTK_SUPPORT=OFF USE_SYSTEM_HDF5=OFF USE_SYSTEM_Eigen=OFF USE_SYSTEM_ITK=OFF USE_SYSTEM_VTK=OFF
+install:
+  # Set the compiler variables properly
+  - export CC=${C_COMPILER}
+  - export CXX=${CXX_COMPILER}
+  - ${CXX} --version
+
+  # Dependencies required by the CI are installed in ${TRAVIS_BUILD_DIR}/deps/
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir -p "${DEPS_DIR}"
+  - cd "${DEPS_DIR}"
+
+  # Travis machines have 2 cores
+  - JOBS=2
+
+  ############################################################################
+  # Install a recent CMake (unless already installed on OS X)
+  ############################################################################
+  - CMAKE_VERSION=3.15.3
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      CMAKE_URL="https://cmake.org/files/v${CMAKE_VERSION%.[0-9]}/cmake-${CMAKE_VERSION}-Linux-x86_64.tar.gz"
+      mkdir cmake && travis_retry wget --no-check-certificate -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+    else
+      brew install cmake || brew upgrade cmake
+    fi
+  - cmake --version
+
+  ############################################################################
+  # [linux]: Install the right version of libc++
+  ############################################################################
+  - |
+    LLVM_INSTALL=${DEPS_DIR}/llvm/install
+    # if in linux and compiler clang and llvm not installed
+    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${CXX%%+*}" == "clang" && -n "$(ls -A ${LLVM_INSTALL})" ]]; then
+      if   [[ "${CXX}" == "clang++-3.6" ]]; then LLVM_VERSION="3.6.2";
+      elif [[ "${CXX}" == "clang++-3.7" ]]; then LLVM_VERSION="3.7.1";
+      elif [[ "${CXX}" == "clang++-3.8" ]]; then LLVM_VERSION="3.8.1";
+      elif [[ "${CXX}" == "clang++-3.9" ]]; then LLVM_VERSION="3.9.1";
+      fi
+      LLVM_URL="http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz"
+      LIBCXX_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxx-${LLVM_VERSION}.src.tar.xz"
+      LIBCXXABI_URL="http://llvm.org/releases/${LLVM_VERSION}/libcxxabi-${LLVM_VERSION}.src.tar.xz"
+      mkdir -p llvm llvm/build llvm/projects/libcxx llvm/projects/libcxxabi
+      travis_retry wget -O - ${LLVM_URL} | tar --strip-components=1 -xJ -C llvm
+      travis_retry wget -O - ${LIBCXX_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxx
+      travis_retry wget -O - ${LIBCXXABI_URL} | tar --strip-components=1 -xJ -C llvm/projects/libcxxabi
+      (cd llvm/build && cmake .. -DCMAKE_INSTALL_PREFIX=${LLVM_INSTALL})
+      (cd llvm/build/projects/libcxx && make install -j2)
+      (cd llvm/build/projects/libcxxabi && make install -j2)
+      export CXXFLAGS="-isystem ${LLVM_INSTALL}/include/c++/v1"
+      export LDFLAGS="-L ${LLVM_INSTALL}/lib -l c++ -l c++abi"
+      export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${LLVM_INSTALL}/lib"
+    fi
+before_script:
+  # have CMake to generate build files
+  - cd "${TRAVIS_BUILD_DIR}"
+  - mkdir build && cd build
+  - cmake ../superbuild -DCMAKE_INSTALL_PREFIX=${TRAVIS_BUILD_DIR}/install -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_SHARED_LIBS=$BUILD_SHARED_LIBS -DBUILD_DOCUMENTATION=$BUILD_DOCUMENTATION -DBUILD_TESTS=$BUILD_TESTS -DBUILD_CLI_TOOLS=$BUILD_CLI_TOOLS -DBUILD_LONG_RUNNING_CLI_TESTS=$BUILD_LONG_RUNNING_CLI_TESTS -DITK_SUPPORT:BOOL=$ITK_SUPPORT -DVTK_SUPPORT:BOOL=$VTK_SUPPORT -DUSE_SYSTEM_HDF5=$USE_SYSTEM_HDF5 -DUSE_SYSTEM_Eigen=$USE_SYSTEM_Eigen -DUSE_SYSTEM_VTK=$USE_SYSTEM_VTK -DUSE_SYSTEM_ITK=$USE_SYSTEM_ITK
 
 script:
-  - mkdir -p build
-  - cd build
-  - cmake -DCMAKE_BUILD_TYPE:STRING=Release -DON_TRAVIS=True ../
-  - make -j2
+  - make -j${JOBS}
+  - cd "${TRAVIS_BUILD_DIR}/build/Statismo-build"
+  - make
+  - export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${TRAVIS_BUILD_DIR}/build/INSTALL/lib
+  - ctest
+  - |
+    if [[ "${ITK_SUPPORT}" == "ON" ]]; then
+      cd "${TRAVIS_BUILD_DIR}/build/Statismo-build/bin"
+      sh ../../../modules/ITK/examples/runITKExamples.sh
+    fi
+  - |
+    if [[ "${VTK_SUPPORT}" == "ON" ]]; then
+      cd "${TRAVIS_BUILD_DIR}/build/Statismo-build/bin"
+      sh ../../../modules/VTK/examples/runVTKExamples.sh
+    fi
+  - cd "${TRAVIS_BUILD_DIR}/build/Statismo-build"
+  - make install

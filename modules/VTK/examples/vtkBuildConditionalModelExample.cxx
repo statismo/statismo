@@ -36,14 +36,14 @@
  */
 #include <iostream>
 
-#include <boost/scoped_ptr.hpp>
-
 #include "ConditionalModelBuilder.h"
 #include "DataManager.h"
 #include "StatisticalModel.h"
 #include "StatismoIO.h"
 
 #include "vtkStandardImageRepresenter.h"
+
+#include <memory>
 
 using namespace statismo;
 
@@ -84,13 +84,13 @@ int main(int argc, char** argv) {
 
     try {
         vtkStructuredPoints* reference = loadVTKStructuredPointsData(datadir +"/hand-0.vtk");
-        boost::scoped_ptr<RepresenterType> representer(RepresenterType::Create(reference));
+        std::unique_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 
 
         // We use the SurrogateDataManager, as we need to specify surrogate data in addition to the images.
         // We provide in addition to the representer also a file that contains a description of the surrogate
         // variables (e.g. whether they are categorical or continuous). See the API doc for more details.
-        boost::scoped_ptr<DataManagerWithSurrogatesType> dataManager(DataManagerWithSurrogatesType::Create(representer.get(),
+        std::unique_ptr<DataManagerWithSurrogatesType> dataManager(DataManagerWithSurrogatesType::Create(representer.get(),
                 datadir +"/surrogates/hand_surrogates_types.txt"));
 
         // add the data information. The first argument is the dataset, the second the surrogate information
@@ -127,9 +127,9 @@ int main(int argc, char** argv) {
         conditioningInfo.push_back(ConditionalModelBuilderType::CondVariableValuePair(true, 162.0));
 
         // Create the model builder and build the model
-        boost::scoped_ptr<ConditionalModelBuilderType> modelBuilder(ConditionalModelBuilderType::Create());
+        std::unique_ptr<ConditionalModelBuilderType> modelBuilder(ConditionalModelBuilderType::Create());
 
-        boost::scoped_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(),
+        std::unique_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(),
                 dataManager->GetSurrogateTypeInfo(),
                 conditioningInfo,
                 0.1));

@@ -92,4 +92,4 @@ The main development is currently done by the [Graphics and Vision Research Grou
 
 ## License:
 
-Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. Most notably, these are [Eigen](http://eigen.tuxfamily.org), [Boost](http://www.boost.org) and [HDF5](http://www.hdfgroup.org) and, depending on the configuration, [ITK](http://www.itk.org) and [VTK](http://www.vtk.org).
+Statismo itself is licensed under the BSD license. It depends, however, on other open source projects, which are distributed under different licenses. Most notably, these are [Eigen](http://eigen.tuxfamily.org) and [HDF5](http://www.hdfgroup.org) and, depending on the configuration, [ITK](http://www.itk.org) and [VTK](http://www.vtk.org).

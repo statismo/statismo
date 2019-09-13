@@ -1,10 +1,10 @@
-find_package( WrapITK REQUIRED )
+find_package(WrapITK REQUIRED)
 
-set( PROJECT_SOURCE_DIR
+set(PROJECT_SOURCE_DIR
   ${STATISMO_ROOT_DIR}
   ${STATISMO_ROOT_DIR}/statismo_ITK
 )
-set( WRAPPER_ITK_MODULE_DIR
+set(WRAPPER_ITK_MODULE_DIR
   ${ITK_DIR}/WrapITK/Configuration/Typedefs
 )
 
@@ -26,7 +26,7 @@ link_directories(
 
 # name of python package
 itk_wrap_module("statismo_ITK")
-set( WRAPPER_LIBRARY_DEPENDS
+set(WRAPPER_LIBRARY_DEPENDS
   ITKCommon
   ITKTransform
   ITKPyBase
@@ -36,7 +36,7 @@ set( WRAPPER_LIBRARY_DEPENDS
   ITKMesh
 )
 
-set( WRAPPER_LIBRARY_LINK_LIBRARIES ${ITK_LIBRARIES} )
+set(WRAPPER_LIBRARY_LINK_LIBRARIES ${ITK_LIBRARIES})
 itk_auto_load_submodules() # includes all *.wrap custom files
 itk_end_wrap_module()
 

@@ -37,8 +37,6 @@
 #include <iostream>
 #include <ostream>
 
-#include <boost/scoped_ptr.hpp>
-
 #include <vtkPolyDataReader.h>
 #include <vtkPolyData.h>
 
@@ -48,9 +46,10 @@
 
 #include "vtkStandardMeshRepresenter.h"
 
+#include <memory>
 
 using namespace statismo;
-using boost::scoped_ptr;
+using std::unique_ptr;
 
 
 vtkPolyData* loadVTKPolyData(const std::string& filename) {
@@ -83,10 +82,10 @@ int main(int argc, char** argv) {
 
     try {
         vtkPolyData* reference = loadVTKPolyData(datadir +"/hand-0.vtk");
-        boost::scoped_ptr<RepresenterType> representer(RepresenterType::Create(reference));
+        std::unique_ptr<RepresenterType> representer(RepresenterType::Create(reference));
 
         // create a data manager and add a number of datasets for model building
-        boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+        std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
 
         for (unsigned i = 0; i < 17; i++) {
 
@@ -106,7 +105,7 @@ int main(int argc, char** argv) {
         std::cout << "succesfully loaded "<< dataManager->GetNumberOfSamples() << " samples "<< std::endl;
 
         // create the model builder
-        boost::scoped_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
+        std::unique_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
 
         // We perform 4-fold cross validation
         CVFoldListType cvFoldList = dataManager->GetCrossValidationFolds(4, true);
@@ -116,7 +115,7 @@ int main(int argc, char** argv) {
                 it != cvFoldList.end();
                 ++it) {
             // build the model as usual
-            boost::scoped_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(it->GetTrainingData(), 0.01));
+            std::unique_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(it->GetTrainingData(), 0.01));
             std::cout << "built model with  " << model->GetNumberOfPrincipalComponents() << " principal components"<< std::endl;
 
             // Now we can iterate over the test data and do whatever validation we would like to do.

@@ -7,7 +7,7 @@ Medium Priority
 ----------------
 - Add Logging functionality to library
 - Wrappings may contain memory leaks
-- Statistical model transform does not yet work for PointSets as the TransformPoint is only  valid for deformations. 
+- Statistical model transform does not yet work for PointSets as the TransformPoint is only valid for deformations. 
 
 Low Priority
 ------------

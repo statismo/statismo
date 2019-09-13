@@ -38,21 +38,15 @@
 #include "genericRepresenterTest.hxx"
 #include "vtkStandardImageRepresenter.h"
 
+#include "vtkTestHelper.h"
+
+using namespace statismo::test;
+
 
 typedef statismo::vtkStandardImageRepresenter<double, 2> RepresenterType;
 typedef GenericRepresenterTest< RepresenterType> RepresenterTestType;
 
-vtkStructuredPoints* loadStructuredPoints(const std::string& filename) {
-    vtkStructuredPointsReader* reader = vtkStructuredPointsReader::New();
-    reader->SetFileName(filename.c_str());
-    reader->Update();
-    vtkStructuredPoints* pd = vtkStructuredPoints::New();
-    pd->ShallowCopy(reader->GetOutput());
-    reader->Delete();
-    return pd;
-}
-
-int main(int argc, char** argv) {
+int vtkStandardImageRepresenterTest(int argc, char** argv) {
 
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " datadir" << std::endl;

@@ -34,7 +34,7 @@ statismo-build-gp-model is used to build a shape or deformation model from a gau
 <!-- 
 	- kernel with 2 parameters: this is an example for man writing purposes and is commented out
 		- param1: float of some sort
-		- param2 boolean of some sort
+		- param2: boolean of some sort
 -->
 	
 -s, \--scale *SCALE* 
@@ -45,9 +45,6 @@ statismo-build-gp-model is used to build a shape or deformation model from a gau
 
 -r, \--reference *REFERENCE_FILE*
 :	*REFERENCE_FILE* is the path to the reference file (a mesh or an image) that will be used to construct the model.
-
--o, \--output-file *OUTPUT_FILE*
-:	*OUTPUT_FILE* is the path where the model will be saved.
 
 ## Optional
 

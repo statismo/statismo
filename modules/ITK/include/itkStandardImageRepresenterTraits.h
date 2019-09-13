@@ -52,6 +52,7 @@ struct RepresenterTraits<itk::Image<itk::Vector<double, 4u>, 4u> > {
     typedef VectorImageType::Pointer DatasetConstPointerType;
     typedef VectorImageType::PointType PointType;
     typedef VectorImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 4;
 };
 
 template<>
@@ -62,6 +63,7 @@ struct RepresenterTraits<itk::Image<itk::Vector<double, 3u>, 3u> > {
     typedef VectorImageType::Pointer DatasetConstPointerType;
     typedef VectorImageType::PointType PointType;
     typedef VectorImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 3;
 };
 
 template<>
@@ -72,6 +74,7 @@ struct RepresenterTraits<itk::Image<itk::Vector<double, 2u>, 2u> > {
     typedef VectorImageType::Pointer DatasetConstPointerType;
     typedef VectorImageType::PointType PointType;
     typedef VectorImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 2;
 };
 
 
@@ -84,6 +87,7 @@ struct RepresenterTraits<itk::Image<itk::Vector<float, 4u>, 4u> > {
     typedef VectorImageType::Pointer DatasetConstPointerType;
     typedef VectorImageType::PointType PointType;
     typedef VectorImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 4;
 };
 
 template<>
@@ -94,6 +98,7 @@ struct RepresenterTraits<itk::Image<itk::Vector<float, 3u>, 3u> > {
     typedef VectorImageType::Pointer DatasetConstPointerType;
     typedef VectorImageType::PointType PointType;
     typedef VectorImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 3;
 };
 
 template<>
@@ -104,6 +109,7 @@ struct RepresenterTraits<itk::Image<itk::Vector<float, 2u>, 2u> > {
     typedef VectorImageType::Pointer DatasetConstPointerType;
     typedef VectorImageType::PointType PointType;
     typedef VectorImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 2;
 };
 
 template<>
@@ -114,6 +120,7 @@ struct RepresenterTraits<itk::Image<float, 4u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 4;
 };
 
 template<>
@@ -124,6 +131,7 @@ struct RepresenterTraits<itk::Image<float, 3u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 3;
 };
 
 template<>
@@ -134,6 +142,7 @@ struct RepresenterTraits<itk::Image<float, 2u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 2;
 };
 
 template<>
@@ -144,6 +153,7 @@ struct RepresenterTraits<itk::Image<short, 4u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 4;
 };
 
 template<>
@@ -154,6 +164,7 @@ struct RepresenterTraits<itk::Image<short, 3u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 3;
 };
 
 template<>
@@ -164,6 +175,7 @@ struct RepresenterTraits<itk::Image<short, 2u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 2;
 };
 
 template<>
@@ -174,6 +186,7 @@ struct RepresenterTraits<itk::Image<unsigned short, 4u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 4;
 };
 
 template<>
@@ -184,6 +197,7 @@ struct RepresenterTraits<itk::Image<unsigned short, 3u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 3;
 };
 
 template<>
@@ -194,6 +208,7 @@ struct RepresenterTraits<itk::Image<unsigned short, 2u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 2;
 };
 
 template<>
@@ -204,6 +219,7 @@ struct RepresenterTraits<itk::Image<unsigned char, 4u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 4;
 };
 
 template<>
@@ -214,6 +230,7 @@ struct RepresenterTraits<itk::Image<unsigned char, 3u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 3;
 };
 
 template<>
@@ -224,6 +241,7 @@ struct RepresenterTraits<itk::Image<unsigned char, 2u> > {
     typedef ImageType::Pointer DatasetConstPointerType;
     typedef ImageType::PointType PointType;
     typedef ImageType::PixelType ValueType;
+    static constexpr unsigned Dimension = 2;
 };
 
 

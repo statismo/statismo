@@ -40,7 +40,7 @@
 #ifndef ITK_STANDARD_MESH_REPRESENTER_H
 #define ITK_STANDARD_MESH_REPRESENTER_H
 
-#include <boost/unordered_map.hpp>
+#include <unordered_map>
 
 #include <itkMesh.h>
 #include <itkObject.h>
@@ -64,22 +64,13 @@ struct RepresenterTraits<itk::Mesh<float, 3u> > {
 
     typedef MeshType::PointType PointType;
     typedef MeshType::PointType ValueType;
+
+    static constexpr unsigned Dimension = 3;
 };
 
 }
 
 namespace itk {
-
-// helper function to compute the hash value of an itk point (needed by unorderd_map)
-template <typename PointType>
-size_t hash_value(const PointType& pt) {
-    size_t hash_val = 0;
-    for (unsigned i = 0; i < pt.GetPointDimension(); i++) {
-        boost::hash_combine( hash_val, pt[i] );
-    }
-    return hash_val;
-}
-
 
 /**
  * \ingroup Representers
@@ -124,7 +115,8 @@ class StandardMeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, M
     typedef MeshType DatasetType;
 
     // An unordered map is used to cache pointid for corresonding points
-    typedef boost::unordered_map<PointType, unsigned> PointCacheType;
+    // TODO: replace by std
+    typedef std::unordered_map<PointType, unsigned, statismo::Hash<PointType>> PointCacheType;
 
     StandardMeshRepresenter();
     virtual ~StandardMeshRepresenter();

@@ -85,7 +85,7 @@ vtkUnstructuredGridRepresenter::Clone() const {
 
 
 vtkUnstructuredGridRepresenter*
-vtkUnstructuredGridRepresenter::Load(const H5::CommonFG& fg) {
+vtkUnstructuredGridRepresenter::Load(const H5::H5Location& fg) {
 
 
     std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
@@ -102,7 +102,7 @@ vtkUnstructuredGridRepresenter::Load(const H5::CommonFG& fg) {
 
 
 void
-vtkUnstructuredGridRepresenter::Save(const H5::CommonFG& fg) const {
+vtkUnstructuredGridRepresenter::Save(const H5::H5Location& fg) const {
     std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
 
     WriteDataset(tmpfilename.c_str(), this->m_reference);

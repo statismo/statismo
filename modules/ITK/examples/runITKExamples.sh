@@ -37,7 +37,7 @@
 
 #!/bin/sh
 
-export DATADIR=$PWD/../share/data
+export DATADIR=$PWD/../../../data
 export RESDIR=/tmp/results
 mkdir $RESDIR
 
@@ -65,7 +65,4 @@ mkdir $RESDIR
 ./itkSimpleGaussianProcessImageToImageRegistration $DATADIR/hand_images/hand-1.vtk $DATADIR/hand_images/hand-2.vtk $RESDIR/deformationfield-simplegp.vtk
 
 # Perform hybrid, Gaussian process registration
-./bin/itkLowRankGaussianProcessImageToImageRegistration $DATADIR/hand_images/hand-1.vtk $DATADIR/hand_landmarks/hand-1.fcsv $DATADIR/hand_images/hand-2.vtk $DATADIR/hand_landmarks/hand-2.fcsv $RESDIR/registered.vtk $RESDIR/deformationfield-hybridgp.vtk MeanSquares 70 100 0.1 100 100
-
-
-
+./itkLowRankGaussianProcessImageToImageRegistration $DATADIR/hand_images/hand-1.vtk $DATADIR/hand_landmarks/hand-1.fcsv $DATADIR/hand_images/hand-2.vtk $DATADIR/hand_landmarks/hand-2.fcsv $RESDIR/registered.vtk $RESDIR/deformationfield-hybridgp.vtk MeanSquares 70 100 0.1 100 100

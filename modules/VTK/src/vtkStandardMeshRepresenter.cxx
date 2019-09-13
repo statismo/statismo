@@ -54,8 +54,6 @@
 #include <vtkUnsignedLongArray.h>
 #include <vtkUnsignedShortArray.h>
 
-#include <boost/filesystem.hpp>
-
 #include "HDF5Utils.h"
 #include "StatismoUtils.h"
 
@@ -179,7 +177,7 @@ vtkPolyData* vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group& fg) cons
     vtkPolyDataReader* reader = vtkPolyDataReader::New();
     reader->SetFileName(tmpfilename.c_str());
     reader->Update();
-    boost::filesystem::remove(tmpfilename);
+    statismo::Utils::RemoveFile(tmpfilename);
     if (reader->GetErrorCode() != 0) {
         throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
     }
@@ -434,7 +432,7 @@ void vtkStandardMeshRepresenter::SetReference(const vtkPolyData* reference) {
 }
 
 
-void vtkStandardMeshRepresenter::WriteDataArray(const H5::CommonFG& group,
+void vtkStandardMeshRepresenter::WriteDataArray(const H5::H5Location& group,
         const std::string& name, const vtkDataArray* _dataArray) const {
     vtkDataArray* dataArray = const_cast<vtkDataArray*>(_dataArray);
     unsigned numComponents = dataArray->GetNumberOfComponents();

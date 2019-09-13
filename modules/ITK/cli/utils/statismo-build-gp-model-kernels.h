@@ -31,16 +31,15 @@
  *
  */
 
-#include <map>
-#include <string>
+#include <KernelCombinators.h>
+#include <Kernels.h>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <itkImage.h>
 #include <itkMesh.h>
 
-#include <KernelCombinators.h>
-#include <Kernels.h>
+#include <map>
+#include <string>
+#include <memory>
 
 /*
 You can add your kernels here:
@@ -52,6 +51,8 @@ You can add your kernels here:
 */
 
 
+namespace statismo::cli {
+
 const unsigned Dimensionality3D = 3;
 typedef itk::Mesh<float, Dimensionality3D> DataTypeShape;
 typedef itk::Vector<float, Dimensionality3D> VectorPixel3DType;
@@ -61,13 +62,13 @@ typedef itk::Vector<float, Dimensionality2D> VectorPixel2DType;
 typedef itk::Image<VectorPixel2DType, Dimensionality2D> DataType2DDeformation;
 
 struct KernelContainer {
-    const statismo::ScalarValuedKernel<DataTypeShape::PointType>* (*createKernelShape)(std::vector<std::string> kernelArgs);
-    const statismo::ScalarValuedKernel<DataType3DDeformation::PointType>* (*createKernel3DDeformation)(std::vector<std::string> kernelArgs);
-    const statismo::ScalarValuedKernel<DataType2DDeformation::PointType>* (*createKernel2DDeformation)(std::vector<std::string> kernelArgs);
-};
+    // TODO: think of smart pointer in the future?
+    std::function<const statismo::ScalarValuedKernel<DataTypeShape::PointType>*(const std::vector<std::string>&)> createKernelShape;
+    std::function<const statismo::ScalarValuedKernel<DataType3DDeformation::PointType>*(const std::vector<std::string>&)> createKernel3DDeformation;
+    std::function<const statismo::ScalarValuedKernel<DataType2DDeformation::PointType>*(const std::vector<std::string>&)> createKernel2DDeformation;
+ };
 typedef std::map<std::string, KernelContainer> KernelMapType;
-KernelMapType kernelMap;
-
+static KernelMapType sKernelMap;
 
 template <class TPoint>
 class GaussianKernel : public statismo::ScalarValuedKernel<TPoint> {
@@ -237,7 +238,7 @@ class MultiscaleKernel : public statismo::ScalarValuedKernel<TPoint> {
         m_numberOfLevels(numberOfLevels) {
         double support = supportBaseLevel;
         for (unsigned i = 0; i < numberOfLevels; ++i) {
-            m_kernels.push_back(new BSplineKernel<TPoint>(m_supportBaseLevel * std::pow(2, -1.0 * i)));
+            m_kernels.push_back(std::make_shared<BSplineKernel<TPoint>>(m_supportBaseLevel * std::pow(2, -1.0 * i)));
             m_kernelWeights.push_back(std::pow(2, -1.0 * i));
         }
     }
@@ -250,7 +251,7 @@ class MultiscaleKernel : public statismo::ScalarValuedKernel<TPoint> {
         const unsigned dim = x.Size();
         double sum = 0;
         for (unsigned i = 0; i < m_kernels.size(); ++i) {
-            sum += m_kernels[i](x, y) * m_kernelWeights[i];
+            sum += (*m_kernels[i])(x, y) * m_kernelWeights[i];
         }
 
         return sum;
@@ -265,60 +266,73 @@ class MultiscaleKernel : public statismo::ScalarValuedKernel<TPoint> {
   private:
     double m_supportBaseLevel;
     unsigned m_numberOfLevels;
-    boost::ptr_vector<BSplineKernel<TPoint> >  m_kernels;
+    std::vector<std::shared_ptr<BSplineKernel<TPoint>>>  m_kernels;
     std::vector<double> m_kernelWeights;
 };
 
 
 
 template <class TPoint>
-const statismo::ScalarValuedKernel<TPoint>* createGaussianKernel(std::vector<std::string> kernelArgs) {
-    if (kernelArgs.size() == 1) {
-        try {
-            double sigma = boost::lexical_cast<double>(kernelArgs[0]);
-            if (sigma <= 0) {
-                itkGenericExceptionMacro( << "Error: sigma has to be > 0");
+struct GaussianKernelBuilder
+{
+    static const statismo::ScalarValuedKernel<TPoint>* createKernel(const std::vector<std::string>& kernelArgs) {
+        if (kernelArgs.size() == 1) {
+            try {
+                double sigma = statismo::Utils::LexicalCast<double>(kernelArgs[0]);
+                if (sigma <= 0) {
+                    itkGenericExceptionMacro( << "Error: sigma has to be > 0");
+                }
+                //The kernel will be deleted automatically once it's no longer being used
+                return new GaussianKernel<TPoint>(sigma);
+            } catch (const std::bad_cast &) {
+                itkGenericExceptionMacro( << "Error: could not parse the kernel argument (expected a floating point number)");
             }
-            //The kernel will be deleted automatically once it's no longer being used
-            return new GaussianKernel<TPoint>(sigma);
-        } catch (boost::bad_lexical_cast &) {
-            itkGenericExceptionMacro( << "Error: could not parse the kernel argument (expected a floating point number)");
+        } else {
+            itkGenericExceptionMacro( <<"The Gaussian Kernel takes one and only one argument: sigma. You provided " <<kernelArgs.size()<< " Arguments.");
         }
-    } else {
-        itkGenericExceptionMacro( <<"The Gaussian Kernel takes one and only one argument: sigma. You provided " <<kernelArgs.size()<< " Arguments.");
     }
-}
+};
+
 
 template <class TPoint>
-const statismo::ScalarValuedKernel<TPoint>* createMultiscaleKernel(std::vector<std::string> kernelArgs) {
+struct MultiscaleKernelBuilder
+{
+static const statismo::ScalarValuedKernel<TPoint>* createKernel(const std::vector<std::string>& kernelArgs) {
     if (kernelArgs.size() == 2) {
         try {
-            double baseLevel = boost::lexical_cast<double>(kernelArgs[0]);
-            unsigned numberOfLevels = boost::lexical_cast<unsigned>(kernelArgs[1]);
+            double baseLevel = statismo::Utils::LexicalCast<double>(kernelArgs[0]);
+            unsigned numberOfLevels = statismo::Utils::LexicalCast<unsigned>(kernelArgs[1]);
 
             if (baseLevel <= 0) {
                 itkGenericExceptionMacro( << "Error: baselevel has to be > 0");
             }
             //The kernel will be deleted automatically once it's no longer being used
             return new MultiscaleKernel<TPoint>(baseLevel, numberOfLevels);
-        } catch (boost::bad_lexical_cast &) {
+        } catch (const std::bad_cast &) {
             itkGenericExceptionMacro( << "Error: could not parse the kernel argument");
         }
     } else {
         itkGenericExceptionMacro( <<"The Multiscale Kernel takes two arguments: the support of the base level and the number of levels. You provided" <<kernelArgs.size()<< " Arguments.");
     }
 }
+};
 
+// Create static kernel map
+template <typename T>
+using KernelBuilderType = std::function<const statismo::ScalarValuedKernel<T>*(const std::vector<std::string>&)>;
 
-#define addKernelToKernelMap(kernelName, functionName){ \
-    KernelContainer kernel; \
-    kernel.createKernel3DDeformation = &functionName < DataType3DDeformation::PointType >; \
-	kernel.createKernel2DDeformation = &functionName < DataType2DDeformation::PointType >; \
-    kernel.createKernelShape = &functionName < DataTypeShape::PointType >; \
-    kernelMap.insert(std::make_pair(boost::algorithm::to_lower_copy(std::string(kernelName)), kernel)); \
+template <template <typename> typename Builder>
+static void addKernelToKernelMap(const std::string& kernelName)
+{
+    KernelContainer kernel;
+    kernel.createKernel3DDeformation = &Builder<DataType3DDeformation::PointType>::createKernel;
+	kernel.createKernel2DDeformation = &Builder<DataType2DDeformation::PointType>::createKernel;
+    kernel.createKernelShape = &Builder<DataTypeShape::PointType>::createKernel;
+    sKernelMap[kernelName] = kernel;
 }
 
-void createKernelMap() {
-    addKernelToKernelMap("gaussian", createGaussianKernel);
-    addKernelToKernelMap("multiscale", createMultiscaleKernel);
+static void createKernelMap() {
+    addKernelToKernelMap<GaussianKernelBuilder>("gaussian");
+    addKernelToKernelMap<MultiscaleKernelBuilder>("multiscale");
+}
 }

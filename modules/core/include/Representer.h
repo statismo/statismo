@@ -38,7 +38,7 @@
 #define REPRESENTER_H_
 
 #include <string>
-#include <itk_H5Cpp.h>
+#include <H5Cpp.h>
 
 #include "CommonTypes.h"
 #include "Domain.h"
@@ -145,6 +145,8 @@ class Representer {
     /// Defines the type of the value when the dataset is evaluated at a given point
     /// (for a image, this could for example be a scalar value or an RGB value)
     typedef typename RepresenterTraits<T>::ValueType ValueType;
+
+    static constexpr unsigned Dimension = RepresenterTraits<T>::Dimension;
 
     typedef T DatasetType;
 

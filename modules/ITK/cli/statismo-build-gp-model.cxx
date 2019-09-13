@@ -31,9 +31,10 @@
  *
  */
 
-#include <iostream>
-
-#include <boost/program_options.hpp>
+// Add new kernels in this file (and document their usage in the statismo-build-gp-model.md file)
+#include "utils/statismo-build-gp-model-kernels.h"
+#include "StatismoUtils.h"
+#include "lpo.h"
 
 #include <itkDataManager.h>
 #include <itkDirectory.h>
@@ -45,14 +46,13 @@
 #include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
 
-//Add new kernels in this file (and document their usage in the statismo-build-gp-model.md file)
-#include "utils/statismo-build-gp-model-kernels.h"
+#include <iostream>
+#include <memory>
 
-namespace po = boost::program_options;
+namespace po = lpo;
 using namespace std;
 
-struct programOptions {
-    bool bDisplayHelp;
+struct ProgramOptions {
     string strOptionalModelPath;
     string strReferenceFile;
     string strKernel;
@@ -64,59 +64,54 @@ struct programOptions {
     string strOutputFileName;
 };
 
-po::options_description initializeProgramOptions(programOptions& poParameters);
-bool isOptionsConflictPresent(programOptions& opt);
+bool isOptionsConflictPresent(ProgramOptions& opt);
 template <class DataType, class RepresenterType, class DataReaderType, bool isShapeModel, unsigned Dimenstionality>
-void buildAndSaveModel(programOptions opt);
-void createKernelMap();
+void buildAndSaveModel(const ProgramOptions& opt);
 string getAvailableKernelsStr();
 
 
 int main(int argc, char** argv) {
-    createKernelMap();
+    statismo::cli::createKernelMap();
 
-    programOptions poParameters;
+    ProgramOptions poParameters;
+    string kernelHelp = "Specifies the kernel (covariance function). The following kernels are available: " + getAvailableKernelsStr();
+    lpo::program_options<std::string, float, int, unsigned, std::vector<std::string>> parser{argv[0], "Program help:"};
 
-    po::positional_options_description optPositional;
-    optPositional.add("output-file", 1);
-    po::options_description optAllOptions = initializeProgramOptions(poParameters);
-
-
-    po::variables_map vm;
-    try {
-        po::parsed_options parsedOptions = po::command_line_parser(argc, argv).options(optAllOptions).positional(optPositional).run();
-        po::store(parsedOptions, vm);
-        po::notify(vm);
-    } catch (po::error& e) {
-        cerr << "An exception occurred while parsing the Command line:"<<endl;
-        cerr << e.what() << endl;
+    parser.add_opt<std::string>({"type", "t", "Specifies the type of the model: shape and deformation are the two available types", &poParameters.strType, "shape"},true).
+        add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image (only available if you're building a deformation model)", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
+        add_opt<std::string>({"kernel", "k", kernelHelp, &poParameters.strKernel},true).
+        add_opt<std::vector<std::string>>({"parameters", "p", "Specifies the kernel parameters. The Parameters depend on the kernel", &poParameters.vKernelParameters},true).
+        add_opt<float>({"scale", "s", "A Scaling factor with which the Kernel will be scaled", &poParameters.fKernelScale, 1.0f},true).
+        add_opt<int>({"numberofbasisfunctions", "n", "Number of basis functions/parameters the model will have", &poParameters.iNrOfBasisFunctions, 0, 1},true).
+        add_opt<std::string>({"reference", "r", "The reference that will be used to build the model", &poParameters.strReferenceFile}).
+        add_opt<std::string>({"input-model", "m", "Extends an existing model with data from the specified kernel. This is useful to extend existing models in case of insufficient data.", &poParameters.strOptionalModelPath}).
+        add_pos_opt<std::string>({"Name of the output file", &poParameters.strOutputFileName});
+    
+    
+    if (!parser.parse(argc, argv)) {
         return EXIT_FAILURE;
     }
 
-    if (poParameters.bDisplayHelp == true) {
-        cout << optAllOptions << endl;
-        return EXIT_SUCCESS;
-    }
-    if (isOptionsConflictPresent(poParameters) == true)	{
+    if (isOptionsConflictPresent(poParameters))	{
         cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << optAllOptions << endl;
+        cout << parser << endl;
         return EXIT_FAILURE;
     }
 
     try {
         if (poParameters.strType == "shape") {
-            typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
-            typedef itk::MeshFileReader<DataTypeShape> DataReaderType;
-            buildAndSaveModel<DataTypeShape, RepresenterType, DataReaderType, true, Dimensionality3D>(poParameters);
+            typedef itk::StandardMeshRepresenter<float, statismo::cli::Dimensionality3D> RepresenterType;
+            typedef itk::MeshFileReader<statismo::cli::DataTypeShape> DataReaderType;
+            buildAndSaveModel<statismo::cli::DataTypeShape, RepresenterType, DataReaderType, true, statismo::cli::Dimensionality3D>(poParameters);
         } else {
             if (poParameters.uNumberOfDimensions == 2) {
-                typedef itk::StandardImageRepresenter<VectorPixel2DType, Dimensionality2D> RepresenterType;
-                typedef itk::ImageFileReader<DataType2DDeformation> DataReaderType;
-                buildAndSaveModel<DataType2DDeformation, RepresenterType, DataReaderType, false, Dimensionality2D>(poParameters);
+                typedef itk::StandardImageRepresenter<statismo::cli::VectorPixel2DType, statismo::cli::Dimensionality2D> RepresenterType;
+                typedef itk::ImageFileReader<statismo::cli::DataType2DDeformation> DataReaderType;
+                buildAndSaveModel<statismo::cli::DataType2DDeformation, RepresenterType, DataReaderType, false, statismo::cli::Dimensionality2D>(poParameters);
             } else {
-                typedef itk::StandardImageRepresenter<VectorPixel3DType, Dimensionality3D> RepresenterType;
-                typedef itk::ImageFileReader<DataType3DDeformation> DataReaderType;
-                buildAndSaveModel<DataType3DDeformation, RepresenterType, DataReaderType, false, Dimensionality3D>(poParameters);
+                typedef itk::StandardImageRepresenter<statismo::cli::VectorPixel3DType, statismo::cli::Dimensionality3D> RepresenterType;
+                typedef itk::ImageFileReader<statismo::cli::DataType3DDeformation> DataReaderType;
+                buildAndSaveModel<statismo::cli::DataType3DDeformation, RepresenterType, DataReaderType, false, statismo::cli::Dimensionality3D>(poParameters);
             }
         }
 
@@ -126,12 +121,14 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    std::cout << "ok" << std::endl;
+
     return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(programOptions& opt) {
-    boost::algorithm::to_lower(opt.strKernel);
-    boost::algorithm::to_lower(opt.strType);
+bool isOptionsConflictPresent(ProgramOptions& opt) {
+    statismo::Utils::ToLower(opt.strKernel);
+    statismo::Utils::ToLower(opt.strType);
 
     if (opt.strType != "shape" && opt.strType != "deformation") {
         return true;
@@ -142,16 +139,7 @@ bool isOptionsConflictPresent(programOptions& opt) {
         return true;
     }
 
-
-    if (opt.strOutputFileName == "") {
-        return true;
-    }
-
     if (opt.strOutputFileName == opt.strReferenceFile) {
-        return true;
-    }
-
-    if (opt.iNrOfBasisFunctions < 1) {
         return true;
     }
 
@@ -163,39 +151,37 @@ bool isOptionsConflictPresent(programOptions& opt) {
         return true;
     }
 
-
     return false;
 }
 
 template <class DataType, class RepresenterType, class DataReaderType, bool isShapeModel, unsigned Dimenstionality>
-void buildAndSaveModel(programOptions opt) {
-    KernelMapType::const_iterator it = kernelMap.find(opt.strKernel);
-    if (it == kernelMap.end()) {
+void buildAndSaveModel(const ProgramOptions& opt) {
+    auto it = statismo::cli::sKernelMap.find(opt.strKernel);
+    if (it == std::end(statismo::cli::sKernelMap)) {
         itkGenericExceptionMacro( << "The kernel '" << opt.strKernel << "' isn't available. Available kernels: " << getAvailableKernelsStr());
     }
 
-
     typedef typename DataType::PointType PointType;
-    typedef boost::scoped_ptr<const statismo::ScalarValuedKernel<PointType> > MatrixPointerType;
+    typedef std::unique_ptr<const statismo::ScalarValuedKernel<PointType> > MatrixPointerType;
     MatrixPointerType pKernel;
     if (isShapeModel == true) {
         pKernel.reset((statismo::ScalarValuedKernel<PointType>*) it->second.createKernelShape(opt.vKernelParameters));
     } else {
-        if (Dimenstionality == Dimensionality2D) {
+        if (Dimenstionality == statismo::cli::Dimensionality2D) {
             pKernel.reset((statismo::ScalarValuedKernel<PointType>*) it->second.createKernel2DDeformation(opt.vKernelParameters));
         } else {
             pKernel.reset((statismo::ScalarValuedKernel<PointType>*) it->second.createKernel3DDeformation(opt.vKernelParameters));
         }
     }
 
-    typedef boost::shared_ptr<statismo::MatrixValuedKernel<PointType> > KernelPointerType;
+    typedef std::shared_ptr<statismo::MatrixValuedKernel<PointType> > KernelPointerType;
     KernelPointerType pUnscaledKernel(new statismo::UncorrelatedMatrixValuedKernel<PointType>(pKernel.get(), Dimenstionality));
     KernelPointerType pScaledKernel(new statismo::ScaledKernel<PointType>(pUnscaledKernel.get(), opt.fKernelScale));
     KernelPointerType pStatModelKernel;
     KernelPointerType pModelBuildingKernel;
 
     typedef statismo::StatisticalModel<DataType> RawModelType;
-    typedef boost::shared_ptr<RawModelType> RawModelPointerType;
+    typedef std::shared_ptr<RawModelType> RawModelPointerType;
     typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
 
     RawModelPointerType pRawStatisticalModel;
@@ -235,42 +221,11 @@ void buildAndSaveModel(programOptions opt) {
 
 string getAvailableKernelsStr() {
     string ret;
-    KernelMapType::size_type mapEnd = kernelMap.size();
-    KernelMapType::size_type i = 0;
-    for (KernelMapType::const_iterator it = kernelMap.begin(); it != kernelMap.end(); ++it, ++i) {
-        if (i + 1 == mapEnd && mapEnd > 1) {
-            ret += " and ";
-        } else if (i > 0) {
-            ret += ", ";
-        }
-        ret += it->first;
+
+    for (const auto& p : statismo::cli::sKernelMap) {
+        ret += p.first + ",";
     }
+
+    ret.pop_back();
     return ret;
-}
-
-
-po::options_description initializeProgramOptions(programOptions& poParameters) {
-    string kernelHelp = "Specifies the kernel (covariance function). The following kernels are available: "+getAvailableKernelsStr();
-
-    po::options_description optMandatory("Mandatory options");
-    optMandatory.add_options()
-    ("type,t", po::value<string>(&poParameters.strType)->default_value("shape"), "Specifies the type of the model: shape and deformation are the two available types")
-    ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input image (only available if you're building a deformation model)")
-    ("kernel,k", po::value<string>(&poParameters.strKernel), kernelHelp.c_str())
-    ("parameters,p", po::value<vector<string> >(&poParameters.vKernelParameters)->multitoken(), "Specifies the kernel parameters. The Parameters depend on the kernel")
-    ("scale,s", po::value<float>(&poParameters.fKernelScale)->default_value(1), "A Scaling factor with which the Kernel will be scaled")
-    ("numberofbasisfunctions,n", po::value<int>(&poParameters.iNrOfBasisFunctions), "Number of basis functions/parameters the model will have")
-    ("output-file,o", po::value<string>(&poParameters.strOutputFileName), "Name of the output file where the model will be saved")
-    ;
-    po::options_description optAdditional("Optional options");
-    optAdditional.add_options()
-    ("reference,r", po::value<string>(&poParameters.strReferenceFile), "The reference that will be used to build the model")
-    ("input-model,m", po::value<string>(&poParameters.strOptionalModelPath), "Extends an existing model with data from the specified kernel. This is useful to extend existing models in case of insufficient data.")
-    ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
-
-    ;
-
-    po::options_description optAllOptions;
-    optAllOptions.add(optMandatory).add(optAdditional);
-    return optAllOptions;
 }

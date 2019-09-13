@@ -39,8 +39,8 @@
 #ifndef ITK_DATAMANAGER_WITH_SURROGATES_H_
 #define ITK_DATAMANAGER_WITH_SURROGATES_H_
 
-#include <boost/bind.hpp>
-#include <boost/utility/result_of.hpp>
+#include <functional>
+#include <utility>
 
 #include <itkObject.h>
 #include <itkObjectFactory.h>
@@ -72,7 +72,7 @@ class DataManagerWithSurrogates : public statismo::DataManager<Representer> {
     typedef statismo::DataManagerWithSurrogates<Representer> ImplType;
 
     template <class F>
-    typename boost::result_of<F()>::type callstatismoImpl(F f) const {
+    typename std::result_of<F()>::type callstatismoImpl(F f) const {
         if (m_impl == 0) {
             itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetParameters");
         }
@@ -114,7 +114,7 @@ class DataManagerWithSurrogates : public statismo::DataManager<Representer> {
     void AddDatasetWithSurrogates(typename Representer::DatasetConstPointerType ds,
                                   const char* datasetURI,
                                   const char* surrogateFilename) {
-        callstatismoImpl(boost::bind(&ImplType::AddDatasetWithSurrogates, this->m_impl, ds, datasetURI, surrogateFilename));
+        callstatismoImpl(std::bind(&ImplType::AddDatasetWithSurrogates, this->m_impl, ds, datasetURI, surrogateFilename));
     }
 
 

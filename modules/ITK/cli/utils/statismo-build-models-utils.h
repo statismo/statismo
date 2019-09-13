@@ -31,16 +31,16 @@
  *
  */
 
-#include <iostream>
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
-
 #include <itkCompensatedSummation.h>
 #include <itkIdentityTransform.h>
 #include <itkTransformMeshFilter.h>
 
+#include <iostream>
+#include <fstream>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
 typedef std::list<std::string> StringList;
 StringList getFileList(std::string path);

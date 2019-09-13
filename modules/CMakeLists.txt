@@ -1,9 +1,9 @@
-add_subdirectory( core )
+add_subdirectory(core)
 
-if( ${ITK_SUPPORT} )
-  add_subdirectory( ITK )
+if(${ITK_SUPPORT})
+  add_subdirectory(ITK)
 endif()
 
-if( ${VTK_SUPPORT} )
-  add_subdirectory( VTK )
+if(${VTK_SUPPORT})
+  add_subdirectory(VTK)
 endif()

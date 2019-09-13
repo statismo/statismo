@@ -31,7 +31,7 @@
  *
  */
 
-#include <boost/program_options.hpp>
+#include "lpo.h"
 
 #include <itkDataManager.h>
 #include <itkDirectory.h>
@@ -43,51 +43,38 @@
 
 #include "utils/statismo-build-models-utils.h"
 
-namespace po = boost::program_options;
+namespace po = lpo;
 using namespace std;
 
-struct programOptions {
-    bool bDisplayHelp;
-    bool bComputeScores;
+struct ProgramOptions {
+    bool bComputeScores{true};
     string strDataListFile;
     string strOutputFileName;
     float fNoiseVariance;
     unsigned uNumberOfDimensions;
 };
 
-po::options_description initializeProgramOptions(programOptions& poParameters);
-bool isOptionsConflictPresent(programOptions& opt);
+bool isOptionsConflictPresent(const ProgramOptions& opt);
 template<unsigned Dimensions>
-void buildAndSaveDeformationModel(programOptions opt);
-
-
+void buildAndSaveDeformationModel(const ProgramOptions& opt);
 
 int main(int argc, char** argv) {
-    programOptions poParameters;
+    ProgramOptions poParameters;
+    lpo::program_options<std::string, float, unsigned, bool> parser{argv[0], "Program help:"};
 
-    po::positional_options_description optPositional;
-    optPositional.add("output-file", 1);
-    po::options_description optAllOptions = initializeProgramOptions(poParameters);
+    parser.add_opt<std::string>({"data-list", "l", "File containing a list of meshes to build the deformation model from", &poParameters.strDataListFile},true).
+        add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
+        add_opt<float>({"noise", "n", "Noise variance of the PPCA model", &poParameters.fNoiseVariance, 0.0f, 0.0f}).
+        add_opt<bool>({"scores", "s", "Compute scores (default true)", &poParameters.bComputeScores, true}).
+        add_pos_opt<std::string>({"Name of the output file", &poParameters.strOutputFileName});
 
-
-    po::variables_map vm;
-    try {
-        po::parsed_options parsedOptions = po::command_line_parser(argc, argv).options(optAllOptions).positional(optPositional).run();
-        po::store(parsedOptions, vm);
-        po::notify(vm);
-    } catch (po::error& e) {
-        cerr << "An exception occurred while parsing the Command line:"<<endl;
-        cerr << e.what() << endl;
+    if (!parser.parse(argc, argv)) {
         return EXIT_FAILURE;
     }
 
-    if (poParameters.bDisplayHelp == true) {
-        cout << optAllOptions << endl;
-        return EXIT_SUCCESS;
-    }
-    if (isOptionsConflictPresent(poParameters) == true)	{
+    if (isOptionsConflictPresent(poParameters))	{
         cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << optAllOptions << endl;
+        cout << parser << endl;
         return EXIT_FAILURE;
     }
 
@@ -111,7 +98,7 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(programOptions& opt) {
+bool isOptionsConflictPresent(const ProgramOptions& opt) {
     if (opt.strDataListFile == "" || opt.strOutputFileName == "" ) {
         return true;
     }
@@ -120,19 +107,11 @@ bool isOptionsConflictPresent(programOptions& opt) {
         return true;
     }
 
-    if (opt.fNoiseVariance < 0) {
-        return true;
-    }
-
-    if (opt.uNumberOfDimensions != 2 && opt.uNumberOfDimensions != 3) {
-        return true;
-    }
-
     return false;
 }
 
 template<unsigned Dimensions>
-void buildAndSaveDeformationModel(programOptions opt) {
+void buildAndSaveDeformationModel(const ProgramOptions& opt) {
     typedef itk::Vector<float, Dimensions> VectorPixelType;
     typedef itk::Image<VectorPixelType, Dimensions> ImageType;
     typedef itk::StandardImageRepresenter<VectorPixelType, Dimensions > RepresenterType;
@@ -171,23 +150,4 @@ void buildAndSaveDeformationModel(programOptions opt) {
     typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
     model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), opt.fNoiseVariance, opt.bComputeScores);
     itk::StatismoIO<ImageType>::SaveStatisticalModel(model, opt.strOutputFileName.c_str());
-}
-
-po::options_description initializeProgramOptions(programOptions& poParameters) {
-    po::options_description optMandatory("Mandatory options");
-    optMandatory.add_options()
-    ("data-list,l", po::value<string>(&poParameters.strDataListFile), "File containing a list of meshes to build the deformation model from")
-    ("output-file,o", po::value<string>(&poParameters.strOutputFileName), "Name of the output file")
-    ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input images in the data list")
-    ;
-    po::options_description optAdditional("Optional options");
-    optAdditional.add_options()
-    ("noise,n", po::value<float>(&poParameters.fNoiseVariance)->default_value(0), "Noise variance of the PPCA model")
-    ("scores,s", po::value<bool>(&poParameters.bComputeScores)->default_value(true), "Compute scores (default true)")
-    ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
-    ;
-
-    po::options_description optAllOptions;
-    optAllOptions.add(optMandatory).add(optAdditional);
-    return optAllOptions;
 }

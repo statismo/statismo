@@ -34,9 +34,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <boost/scoped_ptr.hpp>
-#include <ctime>
-#include <vector>
 
 #include <Eigen/Geometry>
 
@@ -52,50 +49,16 @@
 #include "genericRepresenterTest.hxx"
 #include "PCAModelBuilder.h"
 #include "vtkStandardMeshRepresenter.h"
+#include "vtkTestHelper.h"
+
+#include <memory>
+#include <ctime>
+#include <vector>
 
 using namespace statismo;
+using namespace statismo::test;
 
 typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
-
-vtkPolyData* loadPolyData(const std::string& filename) {
-    vtkPolyDataReader* reader = vtkPolyDataReader::New();
-    reader->SetFileName(filename.c_str());
-    reader->Update();
-    vtkPolyData* pd = vtkPolyData::New();
-    pd->ShallowCopy(reader->GetOutput());
-    reader->Delete();
-    return pd;
-}
-
-void writePolyData(vtkPolyData* pd, const std::string& filename) {
-    vtkSmartPointer< vtkPolyDataWriter > writer = vtkSmartPointer< vtkPolyDataWriter >::New();
-    writer->SetFileName(filename.c_str());
-#if (VTK_MAJOR_VERSION == 5 )
-    writer->SetInput(pd);
-#else
-    writer->SetInputData(pd);
-#endif
-    writer->Update();
-}
-
-vtkPolyData* ReducePoints(vtkPolyData* poly, unsigned num_points) {
-    vtkPoints* points = vtkPoints::New();
-    unsigned step = unsigned(std::ceil(double(poly->GetPoints()->GetNumberOfPoints())/double(num_points)));
-    for(unsigned i=0; i<poly->GetPoints()->GetNumberOfPoints(); i+=step) {
-        points->InsertNextPoint(poly->GetPoints()->GetPoint(i));
-    }
-    vtkPolyData* res = vtkPolyData::New();
-    res->SetPoints(points);
-    return res;
-}
-
-double CompareVectors(const VectorType& v1, const VectorType& v2) {
-    return (v1-v2).norm();
-}
-
-double CompareMatrices(const MatrixType& m1, const MatrixType& m2) {
-    return (m1-m2).norm();
-}
 
 /**
  * The test works as follows:
@@ -112,7 +75,10 @@ double CompareMatrices(const MatrixType& m1, const MatrixType& m2) {
  *    components of the model are sampled and stored in this directory. This is meant for visual inspection.
  */
 
-int main(int argc, char** argv) {
+int PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char** argv) {
+
+    auto rg = rand::randGen(0);
+
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " datadir " << "[number_of_points=100] [output_dir]" << std::endl;
         exit(EXIT_FAILURE);
@@ -162,7 +128,7 @@ int main(int argc, char** argv) {
     reference = ReducePoints(reference, num_points);
     RepresenterType* representer = RepresenterType::Create(reference);
 
-    boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+    std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
     std::vector<std::string>::const_iterator it = filenames.begin();
     for(; it!=filenames.end(); it++) {
@@ -206,7 +172,7 @@ int main(int argc, char** argv) {
     // ----------------------------------------------------------
     // Generate a lot of samples out of the JacobiSVD model
     // ----------------------------------------------------------
-    boost::scoped_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer));
+    std::unique_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer));
     dataManager->AddDataset(reference, "ref");
     for(unsigned i=0; i<5000; i++) {
         std::stringstream ss;

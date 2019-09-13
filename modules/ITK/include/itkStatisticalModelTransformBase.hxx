@@ -50,7 +50,7 @@ template <class TRepresenter, class TScalarType, unsigned int TInputDimension, u
 StatisticalModelTransformBase<TRepresenter,  TScalarType, TInputDimension, TOutputDimension>
 ::StatisticalModelTransformBase() :
     Superclass(0), // we don't know the number of parameters at this point.
-    m_StatisticalModel(0),
+    m_StatisticalModel(nullptr),
     m_coeff_vector(0),
     m_usedNumberCoefficients(10000) { // something large
     itkDebugMacro( << "Constructor MorphableModelTransform()");

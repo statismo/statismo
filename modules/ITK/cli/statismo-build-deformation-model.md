@@ -19,9 +19,6 @@ statismo-build-deformation-model is used to build a deformation model from a giv
 -l, \--data-list *DATA_LIST*
 :	*DATA_LIST* is the path to a file containing a list of files storing deformation fields that will be used to create the deformation model. Please only give the path to **one** file per line in the data-list-file.
 
--o, \--output-file *OUTPUT_FILE*
-:	*OUTPUT_FILE* is the path where the newly build model should be saved.
-
 -n, \--noise *NOISE*
 :	Specify the noise variance of the PPCA model. Defaults to 0
 

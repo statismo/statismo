@@ -1,23 +1,20 @@
-cmake_minimum_required(VERSION 2.8.10)
-project(statismo)
+cmake_minimum_required(VERSION 3.15)
+project(statismo VERSION 0.11.1 LANGUAGES C CXX)
 
-if( POLICY CMP0042 )
-  cmake_policy( SET CMP0042 NEW )
-endif()
+# ----------------------------------------
+# Project options
+# ----------------------------------------
 
-enable_testing()
+include(${PROJECT_SOURCE_DIR}/cmake/statismoOptions.cmake)
 
-set( STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+# ----------------------------------------
+# Project settings
+# ----------------------------------------
 
-set(STATISMO_MAJOR_VERSION 0)
-set(STATISMO_MINOR_VERSION 11)
-set(STATISMO_PATCH_VERSION 0)
-set(STATISMO_VERSION ${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION}.${STATISMO_PATCH_VERSION} )
-
-set( statismo_LIB_VERSION ${STATISMO_VERSION} )
-set( statismo_LIB_SOVERSION ${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION} )
-set( statismo_LIB_TYPE SHARED )
-
+set(STATISMO_ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+set(statismo_LIB_VERSION ${STATISMO_VERSION})
+set(statismo_LIB_SOVERSION ${STATISMO_MAJOR_VERSION}.${STATISMO_MINOR_VERSION})
+set(statismo_LIB_TYPE SHARED)
 
 # Setup build locations.
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
@@ -25,34 +22,43 @@ if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 endif()
 
 # set CMAKE_MODULE_PATH for cmake macro/function and modules
-set( CMAKE_MODULE_PATH
-  ${CMAKE_MODULE_PATH}
+set(CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake
+  ${CMAKE_MODULE_PATH}
 )
 
-if( APPLE )
-  include( CMakeOSXVariables )
+if(APPLE)
+  include(CMakeOSXVariables)
 endif()
 
-if( CMAKE_HOST_WIN32 )
-  string( LENGTH "${CMAKE_CURRENT_SOURCE_DIR}" n )
-  if( n GREATER 50 )
-    message( FATAL_ERROR
-      "Statismo source code directory path length is too long (${n} > 50)."
+if(CMAKE_HOST_WIN32)
+  set(STATISMO_MAX_PATH 50)
+  string(LENGTH "${CMAKE_CURRENT_SOURCE_DIR}" n)
+  if(n GREATER ${STATISMO_MAX_PATH})
+    message(FATAL_ERROR
+      "Statismo source code directory path length is too long (${n} > ${STATISMO_MAX_PATH})."
       "Please move the Statismo source code directory to a directory with a shorter path."
-    )
+   )
   endif()
 
-  string( LENGTH "${CMAKE_CURRENT_BINARY_DIR}" n )
-  if( n GREATER 50 )
-    message( FATAL_ERROR
-      "Statismo build directory path length is too long (${n} > 50)."
+  string(LENGTH "${CMAKE_CURRENT_BINARY_DIR}" n)
+  if(n GREATER ${STATISMO_MAX_PATH})
+    message(FATAL_ERROR
+      "Statismo build directory path length is too long (${n} > ${STATISMO_MAX_PATH})."
       "Please move the Statismo build directory to a directory with a shorter path."
-    )
+   )
   endif()
 endif()
 
-# installation
+if(WIN32)
+  # TODO: Fix this with cmake auto-generated export macro
+  set(statismo_LIB_TYPE STATIC)
+endif()
+
+# ----------------------------------------
+# Install instructions
+# ----------------------------------------
+
 set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
 set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
 set(INSTALL_INCLUDE_DIR include CACHE PATH
@@ -76,113 +82,131 @@ foreach(p LIB BIN INCLUDE CMAKE)
   endif()
 endforeach()
 
-include( CTest )
+# ----------------------------------------
+# Tests configuration
+# ----------------------------------------
 
-include( ModuleHeaderTest )
+enable_testing()
+include(CTest)
 
-find_package( Eigen3 REQUIRED )
-include_directories( ${EIGEN3_INCLUDE_DIR} )
-
-if( WIN32 )
-  set( Boost_USE_STATIC_LIBS ON )
+# ----------------------------------------
+# Dependencies
+# ----------------------------------------
+if(${BUILD_CLI_TOOLS} AND ${BUILD_CLI_TOOLS_DOC})
+  find_program(PANDOC NAMES pandoc)
+  mark_as_advanced(PANDOC)
 endif()
 
-set( REQUIRED_BOOST_COMPONENTS thread system date_time filesystem )
+if(ITK_SUPPORT)
+  find_package(ITK 5.0.0 REQUIRED PATHS ${INSTALL_DEPENDENCIES_DIR})
+  include(${ITK_USE_FILE})
+endif()
 
-option( BUILD_CLI_TOOLS "Build command-line tools" ON )
-#make the option to build the cli documentation available if and only if the cli tools will be built
-include(CMakeDependentOption)
-cmake_dependent_option( BUILD_CLI_TOOLS_DOC "Build documentation for the command-line tools" ON
-  "BUILD_CLI_TOOLS" OFF
-)
-#it's only possible to enable the long running CLI tests if testing is enabled and the CLI tools will be built.
-cmake_dependent_option( BUILD_LONG_RUNNING_CLI_TESTS "Run the cli examples(the execution of these tests can take some time)" OFF
-  "BUILD_CLI_TOOLS;BUILD_TESTING" OFF
-)
-if( ${BUILD_CLI_TOOLS} MATCHES "ON" )
-  if( ${BUILD_CLI_TOOLS_DOC} MATCHES "ON" )
-    #search for pandoc to generate man pages for the cli tools
-    find_program( PANDOC NAMES pandoc )
-    mark_as_advanced( PANDOC )
+# if possible, rely on libs shipped with itk for better comptibility
+if(ITK_SUPPORT)
+  set(ITK_VERSION ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR})
+  find_path(ITK_INCLUDE_WITH_HDF5 NAMES itkhdf5/hdf5.h PATHS ${ITK_INCLUDE_DIRS})
+  set(ITK_HDF5_DIR ${ITK_INCLUDE_WITH_HDF5}/itkhdf5)
+  set(HDF5_INCLUDE_DIRS ${ITK_HDF5_DIR} ${ITK_HDF5_DIR}/cpp)
+  set(HDF5_LIBRARIES ${ITKHDF5_LIBRARIES})
+  set(HDF5_LIBRARY_DIR ${INSTALL_DEPENDENCIES_DIR}/lib)
+
+  find_path(ITK_INCLUDE_WITH_EIGEN NAMES itkeigen/Eigen/Eigen PATHS ${ITK_INCLUDE_DIRS})
+  set(EIGEN3_INCLUDE_DIR ${ITK_INCLUDE_WITH_EIGEN}/itkeigen)
+
+  include_directories(${EIGEN3_INCLUDE_DIR} ${HDF5_INCLUDE_DIRS})
+else()
+  # find eigen
+  find_package(Eigen3 3.0.0 REQUIRED)
+  include_directories(${EIGEN3_INCLUDE_DIR})
+  # find hdf5
+  if(BUILD_SHARED_LIBS)
+    set(HDF5_COMPONENT_TYPE shared)
+  else()
+    set(HDF5_COMPONENT_TYPE static)
+  endif()
+  find_package(HDF5 1.10.2 REQUIRED PATHS ${HDF5_DIR} COMPONENTS C CXX ${HDF5_COMPONENT_TYPE})
+  if(HDF5_shared_C_FOUND)
+    include_directories(${HDF5_INCLUDE_DIR})
+    set(HDF5_LIBRARIES hdf5::hdf5-shared hdf5::hdf5_cpp-shared)
+  elseif(HDF5_static_C_FOUND)
+    # Package is imported the hdf5 way
+    include_directories(${HDF5_INCLUDE_DIR})
+    set(HDF5_LIBRARIES hdf5::hdf5-static hdf5::hdf5_cpp-static)
+  else()
+    # Package is imported the cmake way
+    include_directories(${HDF5_INCLUDE_DIRS})
+    set(HDF5_LIBRARIES ${HDF5_C_LIBRARIES} ${HDF5_CXX_LIBRARIES})
+    set(HDF5_LIBRARY_DIR ${HDF5_LIBRARY_DIRS})
+  endif()
+endif()
+
+if(VTK_SUPPORT)
+  set(_required_vtk_modules
+    vtkCommonComputationalGeometry
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMath
+    vtkCommonMisc
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkFiltersCore
+    vtkFiltersGeneral
+    vtkIOCore
+    vtkIOGeometry
+    vtkIOLegacy
+    vtkIOXML
+    vtkIOXMLParser
+  )
+  if(${BUILD_WRAPPING})
+    list(APPEND _required_vtk_modules vtkWrappingPythonCore)
   endif()
 
-  #the cli tools require the program_options component from boost
-  set( REQUIRED_BOOST_COMPONENTS ${REQUIRED_BOOST_COMPONENTS} program_options )
+  list(FIND VTK_MODULES_ENABLED "vtkIOMPIParallel" HasOMPI)
+  if(NOT HasOMPI EQUAL -1)
+    list(APPEND _required_vtk_modules vtkIOMPIParallel)
+  endif()
+  find_package(VTK 8.0.0 REQUIRED PATHS ${INSTALL_DEPENDENCIES_DIR} COMPONENTS ${_required_vtk_modules})
+  include(${VTK_USE_FILE})
 endif()
 
-find_package( Boost 1.50 COMPONENTS ${REQUIRED_BOOST_COMPONENTS} REQUIRED )
-include_directories( ${Boost_INCLUDE_DIRS} )
-
-link_directories( ${Boost_LIBRARY_DIRS} )
-add_definitions( -DBOOST_THREAD_VERSION=3 -DBOOST_FILESYSTEM_VERSION=3 )
-
-
-if(WIN32)
-  # On Windows, we can only build static libraries, as the dynamic libraries would be
-  # missing the accompanying .lib (unless the code is entirely rewritten with __declspec(dllexport) etc.)
-  # See http://www.cmake.org/Wiki/BuildingWinDLL
-
-  set(statismo_LIB_TYPE STATIC)
-endif()
-
-option( ITK_SUPPORT "Build ITK Support" ON )
-
-if( ${ITK_SUPPORT} MATCHES "ON" )
-  find_package( ITK REQUIRED PATHS ${INSTALL_DEPENDENCIES_DIR})
-  include( ${ITK_USE_FILE} )
-endif()
-
-# We rely on the hdf5 libraries that are shipped with ITK, as this will reduce version conflicts.
-set(ITK_VERSION ${ITK_VERSION_MAJOR}.${ITK_VERSION_MINOR})
-find_path(ITK_INCLUDE_WITH_HDF5 NAMES itkhdf5/hdf5.h PATHS ${ITK_INCLUDE_DIRS} )
-set(ITK_HDF5_DIR ${ITK_INCLUDE_WITH_HDF5}/itkhdf5)
-set(HDF5_INCLUDE_DIRS ${ITK_HDF5_DIR} ${ITK_HDF5_DIR}/cpp)
-set(HDF5_LIBRARIES ${ITKHDF5_LIBRARIES})
-
-
-set(HDF5_LIBRARY_DIR ${INSTALL_DEPENDENCIES_DIR}/lib)
-include_directories( ${HDF5_INCLUDE_DIRS} )
-
-
-option( VTK_SUPPORT "Build VTK Support" ON )
-
-if( ${VTK_SUPPORT} MATCHES "ON" )
-  find_package( VTK REQUIRED PATHS ${INSTALL_DEPENDENCIES_DIR})
-  include( ${VTK_USE_FILE} )
-endif()
-
-option( BUILD_EXAMPLES "Build examples" ON )
-
-
-option( BUILD_WRAPPING "Build Python Wrappers (experimental)" OFF )
-mark_as_advanced(BUILD_WRAPPING)
-
-#make sure the executables have access to the dll's created by the superbuild on windows to make them runnable even without installing & adding the isntall path to the cmd PATH
-if( NOT INSTALL_DEPENDENCIES_DIR )
-  set( TESTS_WORKING_DIR "." CACHE INTERNAL "")
+# make sure the executables have access to the dll's created by the superbuild on windows 
+# to make them runnable even without installing & adding the install path to the cmd PATH
+if(NOT INSTALL_DEPENDENCIES_DIR)
+  set(TESTS_WORKING_DIR "." CACHE INTERNAL "")
 else()
-  set( TEST_WORKING_DIR "${INSTALL_DEPENDENCIES_DIR}/bin" CACHE INTERNAL "")
+  set(TEST_WORKING_DIR "${INSTALL_DEPENDENCIES_DIR}/bin" CACHE INTERNAL "")
 endif()
 
-add_subdirectory( modules )
-add_subdirectory( doc )
-# -------------------------------------------------------------
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/contrib/boost_light)
 
-configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/scripts/run_astyle.sh.in
-  ${CMAKE_CURRENT_BINARY_DIR}/run_astyle.sh
-  @ONLY
-)
+# ----------------------------------------
+# Process subdirectories
+# ----------------------------------------
 
-# -------------------------------------------------------------
+add_subdirectory(modules)
+add_subdirectory(doc)
+
+# ----------------------------------------
+# Targets export generic settings
+# ----------------------------------------
+
+# Version file generation
+include(CMakePackageConfigHelpers)
+
+# ----------------------------------------
+# Build-tree targets export
+# ----------------------------------------
 
 # Add all targets to the build-tree export set
-set( _targets statismo_core )
+set(_targets statismo_core)
 
-if( VTK_SUPPORT )
-  set( _targets ${_targets} statismo_VTK )
+if(VTK_SUPPORT)
+  set(_targets ${_targets} statismo_VTK)
 endif()
 
-export( TARGETS ${_targets}
+export(TARGETS ${_targets}
   FILE "${statismo_BINARY_DIR}/statismoTargets.cmake"
 )
 
@@ -190,58 +214,64 @@ export( TARGETS ${_targets}
 # (this registers the build-tree with a global CMake-registry)
 export(PACKAGE statismo)
 
-# -------------------------------------------------------------
-# for the build tree
-set( CONF_INCLUDE_DIRS
+set(CONF_INCLUDE_DIRS
   "${statismo_SOURCE_DIR}/modules/core/include"
 )
-set( statismo_LIBRARIES statismo_core )
+set(statismo_LIBRARIES statismo::statismo_core)
 
-if( ${VTK_SUPPORT} )
-  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/VTK/include" )
-  set( statismo_LIBRARIES ${statismo_LIBRARIES} statismo_VTK )
+if(VTK_SUPPORT)
+  set(CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/VTK/include")
+  set(statismo_LIBRARIES ${statismo_LIBRARIES} statismo::statismo_VTK)
 endif()
 
-if( ${ITK_SUPPORT} )
-  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/ITK/include" )
+if(ITK_SUPPORT)
+  set(CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/ITK/include")
 endif()
 
-configure_file( ${statismo_SOURCE_DIR}/statismoConfig.cmake.in
-  ${statismo_BINARY_DIR}/statismoConfig.cmake
-  @ONLY
+write_basic_package_version_file(
+    ${statismo_BINARY_DIR}/statismoConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+
+configure_package_config_file(
+    ${statismo_SOURCE_DIR}/cmake/statismoConfig.cmake.in
+    ${statismo_BINARY_DIR}/statismoConfig.cmake
+    INSTALL_DESTINATION .
 )
 
-# for the install tree
+# ----------------------------------------
+# Install tree targets export
+# ----------------------------------------
+
 file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
    "${INSTALL_INCLUDE_DIR}")
 
-set( CONF_INCLUDE_DIRS
+set(CONF_INCLUDE_DIRS
   "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/core"
 )
-if( ${VTK_SUPPORT} )
-  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/VTK" )
+
+if(VTK_SUPPORT)
+  set(CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/VTK")
 endif()
 
-if( ${ITK_SUPPORT} )
-  set( CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/ITK" )
+if(ITK_SUPPORT)
+  set(CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/ITK")
 endif()
 
-configure_file( ${statismo_SOURCE_DIR}/statismoConfig.cmake.in
-  ${statismo_BINARY_DIR}/cmake/statismoConfig.cmake
-  @ONLY
+configure_package_config_file(
+    ${statismo_SOURCE_DIR}/cmake/statismoConfig.cmake.in
+    ${statismo_BINARY_DIR}/cmake/statismoConfig.cmake
+    INSTALL_DESTINATION ${INSTALL_CMAKE_DIR}
 )
-configure_file( ${statismo_SOURCE_DIR}/statismoConfigVersion.cmake.in
-  ${statismo_BINARY_DIR}/statismoConfigVersion.cmake
-  @ONLY
+
+install(FILES
+    ${statismo_BINARY_DIR}/statismoConfig.cmake
+    ${statismo_BINARY_DIR}/statismoConfigVersion.cmake
+   DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT dev
 )
-install( FILES
-    "${statismo_BINARY_DIR}/cmake/statismoConfig.cmake"
-    "${statismo_BINARY_DIR}/statismoConfigVersion.cmake"
-  DESTINATION ${INSTALL_CMAKE_DIR} COMPONENT dev
-)
-install( EXPORT statismoTargets
+install(EXPORT statismoTargets NAMESPACE statismo::
   DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev
 )
-install( FILES ReadMe.md LICENSE
+install(FILES ReadMe.md LICENSE
   DESTINATION ${INSTALL_DOC_DIR}
 )

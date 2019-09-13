@@ -40,7 +40,7 @@
 #define TRIVIALVECTORIALREPRESENTER_H
 
 #include <memory>
-#include <itk_H5Cpp.h>
+#include <H5Cpp.h>
 
 #include "CommonTypes.h"
 #include "Domain.h"
@@ -67,6 +67,8 @@ struct RepresenterTraits<statismo::VectorType> {
 
     typedef PointIdType PointType;
     typedef statismo::ScalarType ValueType;
+
+    static constexpr unsigned Dimension = 1;
     ///@}
 
 
