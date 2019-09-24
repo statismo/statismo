@@ -34,9 +34,6 @@ statismo-fit-image iteratively fits a target image with the help of a model and 
 -d, \--dimensionality 
 :	Specifies the dimensionality of the images and the model (either 2 or 3).
 
--o, \--output-fit *FITTED_IMAGE_FILE*
-:	*FITTED_IMAGE_FILE* is the path where the fitted image will be saved.
-
 -a, \--output-model-deformationfield *DEFORMATION_FIELD_FILE*
 :	*DEFORMATION_FIELD_FILE* is the path where the deformation field caused by the model will be saved. This is equivalent to the entrie deformation field if landmarks were provided and in the case that no landmarks were provided, it doesn't include the translation and rotation.
 

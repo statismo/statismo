@@ -35,10 +35,6 @@ statismo-posterior makes it possible to create posterior model for both shape an
 -i, \--input-file *MODEL_FILE*
 :	*MODEL_FILE* is the path to the model.
 
--o, \--output-file *OUTPUT_FILE*
-:	*OUTPUT_FILE* is the path where the sample will be saved.
-
-
 # NOTE
 The Landmarks format is as follows
 :	Landmark name,1.coordinate,2.coordinate,3.coordinate

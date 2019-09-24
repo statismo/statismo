@@ -115,7 +115,7 @@ int testRepresenterForVectorImage(const std::string& datadir) {
 }
 
 
-int main(int argc, char** argv) {
+int itkStandardImageRepresenterTest(int argc, char** argv) {
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " datadir" << std::endl;
         exit(EXIT_FAILURE);

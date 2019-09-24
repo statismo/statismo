@@ -34,9 +34,6 @@
 #include <iostream>
 #include <vector>
 
-#include <boost/lexical_cast.hpp>
-#include <boost/tokenizer.hpp>
-
 #include <itkPosteriorModelBuilder.h>
 
 class ConsoleOutputSilencer;
@@ -321,14 +318,16 @@ std::vector<typename DataType::PointType> readLandmarksFile(std::string path) {
                 if(*line.rbegin() == '\r') {
                     line.erase(line.length()-1, 1);
                 }
-                typedef boost::tokenizer<boost::escaped_list_separator<char> > TokenizerType;
-                TokenizerType t(line);
+                //typedef boost::tokenizer<boost::escaped_list_separator<char> > TokenizerType;
+                //TokenizerType t(line);
+                // TODO: Replace with a real csv tokenizer that can handle coma in escaped string
+                auto t = statismo::Utils::Split<','>(line);
                 typename DataType::PointType p;
                 typename DataType::PointType::Iterator pointIter = p.Begin();
                 //The first element is the description/name and will be ignored
-                for (TokenizerType::iterator i = ++t.begin(); i != t.end(); ++i, ++pointIter) {
+                for (auto i = ++t.begin(); i != t.end(); ++i, ++pointIter) {
                     try {
-                        float fCoordValue = boost::lexical_cast<float>(*i);
+                        float fCoordValue = statismo::Utils::LexicalCast<float>(*i);
                         if (pointIter == p.End()) {
                             //ignore the last point if it is equal to 0 in the 2D case (and it really is the last point)
                             if (p.Size() == 2 && ++i == t.end()) {
@@ -342,7 +341,7 @@ std::vector<typename DataType::PointType> readLandmarksFile(std::string path) {
                             }
                         }
                         *pointIter = fCoordValue;
-                    } catch (boost::bad_lexical_cast & e) {
+                    } catch (const std::bad_cast & e) {
                         itkGenericExceptionMacro(<<"Could not parse '"<<(*i)<<"' to a float in this line: '" <<line << "' in the file '" << path <<"'");
                     }
                 }

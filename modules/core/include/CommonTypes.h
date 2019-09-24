@@ -44,8 +44,6 @@
 #include <string>
 #include <vector>
 
-#include <boost/functional/hash.hpp>
-
 #include <Eigen/Dense>
 
 #include "Config.h"
@@ -123,22 +121,82 @@ template <> inline unsigned GetDataTypeId<double>() {
     return DOUBLE;
 }
 
-
+template <typename T>
+inline void hash_combine(std::size_t& seed, const T& v)
+{
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
+}
 
 } //namespace statismo
 
-// If we want to store a vector in a boost map, boost requires this function to be present.
-// We define it here once and for all.
-// Because of the way boost looksup the values, it needs to be defined in the namespace Eigen
-namespace Eigen {
-inline size_t hash_value(const statismo::VectorType& v) {
+namespace statismo::details
+{
+    // TODO: Move to MPL file
+    // general compile-time validator (ref: C++ template the complete guide)
 
-    size_t value = 0;
-    for (unsigned i = 0; i < v.size(); i++) {
-        boost::hash_combine(value, v(i));
+    template <typename F, typename... Args,
+          typename = decltype(std::declval<F>()(std::declval<Args &&>()...))>
+auto is_valid_impl(void *) -> std::true_type;
+
+template <typename F, typename... Args>
+auto is_valid_impl(...) -> std::false_type;
+    inline constexpr auto is_valid = [](auto f) {
+    using input_type = decltype(f);
+    return [](auto &&... args) {
+        return decltype(
+            details::is_valid_impl<input_type, decltype(args) &&...>(nullptr)){};
+    };
+    };
+
+    template <typename T> struct type_t { using type = T; };
+
+template <typename T> constexpr auto type = type_t<T>{};
+
+template <typename T> T value_t(type_t<T>);
+
+    inline constexpr auto HasSize = is_valid(
+      [](auto x) -> decltype((void)value_t(x).size()) {
+      });
+
+    inline constexpr auto HasGetPointDimension = is_valid(
+      [](auto x) -> decltype((void)value_t(x).GetPointDimension()) {
+      });
+
+    template <typename T>
+    inline auto HashImpl(const T &v) -> std::enable_if_t<details::HasSize(details::type<T>), size_t>
+    {
+        size_t value = 0;
+        for (unsigned i = 0; i < v.size(); i++) {
+            statismo::hash_combine(value, v(i));
+        }
+        return value;
     }
-    return value;
+
+    template <typename T>
+    inline auto HashImpl(const T &v) -> std::enable_if_t<details::HasGetPointDimension(details::type<T>), size_t>
+    {
+        size_t value = 0;
+        for (unsigned i = 0; i < v.GetPointDimension(); i++) {
+            statismo::hash_combine(value, v[i]);
+        }
+        return value;
+    }
 }
+
+// Specific hash function (move it else where)
+namespace statismo {
+template<typename T>
+class Hash {
+public:
+
+    size_t operator()(const T &v) const 
+    {
+       return details::HashImpl(v);
+    }
+ private:
+};
+
 }
 
 #endif

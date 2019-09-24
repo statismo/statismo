@@ -57,7 +57,7 @@ MeshType::Pointer loadMesh(const std::string& filename) {
     return mesh;
 }
 
-int main(int argc, char** argv) {
+int itkStandardMeshRepresenterTest(int argc, char** argv) {
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " datadir" << std::endl;
         exit(EXIT_FAILURE);

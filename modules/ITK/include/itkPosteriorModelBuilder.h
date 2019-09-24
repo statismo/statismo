@@ -47,6 +47,9 @@
 #include "PosteriorModelBuilder.h"
 #include "statismoITKConfig.h"
 
+#include <functional>
+#include <utility>
+
 namespace itk {
 
 /**
@@ -72,7 +75,7 @@ class PosteriorModelBuilder : public Object {
 
 
     template <class F>
-    typename boost::result_of<F()>::type callstatismoImpl(F f) const {
+    typename std::result_of<F()>::type callstatismoImpl(F f) const {
         try {
             return f();
         } catch (statismo::StatisticalModelException& s) {
@@ -103,7 +106,7 @@ class PosteriorModelBuilder : public Object {
 
     typename StatisticalModelType::Pointer BuildNewModelFromModel(const StatisticalModelType* model, const PointValueListType& pointValues, double pointValuesNoiseVariance,  bool computeScores=true) {
         StatismoStatisticalModelType* model_statismo = model->GetstatismoImplObj();
-        StatismoStatisticalModelType* new_model_statismo = callstatismoImpl(boost::bind(
+        StatismoStatisticalModelType* new_model_statismo = callstatismoImpl(std::bind(
                     static_cast<StatismoStatisticalModelType* (ImplType::*) (const StatismoStatisticalModelType* model, const PointValueListType& pointValues, double pointValuesNoiseVariance,  bool computeScores) const > (&ImplType::BuildNewModelFromModel),
                     this->m_impl, model_statismo, pointValues, pointValuesNoiseVariance, computeScores));
         typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
@@ -112,7 +115,7 @@ class PosteriorModelBuilder : public Object {
     }
 
     typename StatisticalModelType::Pointer BuildNewModel(DataItemListType DataItemList, const PointValueListType& pointValues, double pointValuesNoiseVariance, double noiseVariance) {
-        StatismoStatisticalModelType* model_statismo = callstatismoImpl(boost::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList ,pointValues, pointValuesNoiseVariance, noiseVariance));
+        StatismoStatisticalModelType* model_statismo = callstatismoImpl(std::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList ,pointValues, pointValuesNoiseVariance, noiseVariance));
         typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
         model_itk->SetstatismoImplObj(model_statismo);
         return model_itk;
@@ -120,7 +123,7 @@ class PosteriorModelBuilder : public Object {
 
     typename StatisticalModelType::Pointer BuildNewModelFromModel(const StatisticalModelType* model, const PointValueWithCovarianceListType& pointValuesWithCovariance,  bool computeScores=true) {
         StatismoStatisticalModelType* model_statismo = model->GetstatismoImplObj();
-        StatismoStatisticalModelType* new_model_statismo = callstatismoImpl(boost::bind(
+        StatismoStatisticalModelType* new_model_statismo = callstatismoImpl(std::bind(
                     static_cast<StatismoStatisticalModelType* (ImplType::*) (const StatismoStatisticalModelType* model, const PointValueWithCovarianceListType& pointValuesWithCovariance,  bool computeScores) const > (&ImplType::BuildNewModelFromModel),
                     this->m_impl, model_statismo, pointValuesWithCovariance, computeScores));
         typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
@@ -129,7 +132,7 @@ class PosteriorModelBuilder : public Object {
     }
 
     typename StatisticalModelType::Pointer BuildNewModel(const DataItemListType& DataItemList, const PointValueWithCovarianceListType& pointValuesWithCovariance, 	double noiseVariance) {
-        StatismoStatisticalModelType* model_statismo = callstatismoImpl(boost::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, pointValuesWithCovariance, noiseVariance));
+        StatismoStatisticalModelType* model_statismo = callstatismoImpl(std::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, pointValuesWithCovariance, noiseVariance));
         typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
         model_itk->SetstatismoImplObj(model_statismo);
         return model_itk;

@@ -5,7 +5,11 @@
 .pydevproject
 .settings
 build/*
+build-*/
+build_*/
 *build/*
 CMakeCache.txt
 CMakeFiles
 *.orig
+.vscode/*
+*.code-workspace

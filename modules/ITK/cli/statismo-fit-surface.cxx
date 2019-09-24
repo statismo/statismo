@@ -31,7 +31,11 @@
  *
  */
 
-#include <boost/program_options.hpp>
+#include "lpo.h"
+
+#include "utils/itkPenalizingMeanSquaresPointSetToImageMetric.h"
+#include "utils/statismo-build-models-utils.h"
+#include "utils/statismo-fitting-utils.h"
 
 #include <itkBoundingBox.h>
 #include <itkCompositeTransform.h>
@@ -49,11 +53,7 @@
 #include <itkStatisticalShapeModelTransform.h>
 #include <itkVersorRigid3DTransform.h>
 
-#include "utils/itkPenalizingMeanSquaresPointSetToImageMetric.h"
-#include "utils/statismo-build-models-utils.h"
-#include "utils/statismo-fitting-utils.h"
-
-namespace po = boost::program_options;
+namespace po = lpo;
 using namespace std;
 
 const unsigned Dimensions = 3;
@@ -61,11 +61,7 @@ typedef itk::Mesh<float, Dimensions> DataType;
 typedef itk::Image<float, Dimensions> DistanceImageType;
 typedef itk::StatisticalModel<DataType> StatisticalModelType;
 
-
-
-
-struct programOptions {
-    bool bDisplayHelp;
+struct ProgramOptions {
     bool bPrintFittingInformation;
 
     string strInputModelFileName;
@@ -81,36 +77,34 @@ struct programOptions {
     double dLandmarksVariance;
 };
 
-po::options_description initializeProgramOptions(programOptions& poParameters);
-bool isOptionsConflictPresent(programOptions& opt);
-void fitMesh(programOptions opt, ConsoleOutputSilencer* pCOSilencer);
-
-
+bool isOptionsConflictPresent(const ProgramOptions& opt);
+void fitMesh(const ProgramOptions& opt, ConsoleOutputSilencer* pCOSilencer);
 
 int main(int argc, char** argv) {
-    programOptions poParameters;
-    po::options_description optAllOptions = initializeProgramOptions(poParameters);
 
+    ProgramOptions poParameters;
+    lpo::program_options<std::string, double, unsigned> parser{argv[0], "Program help:"};
 
-    po::variables_map vm;
-    try {
-        po::parsed_options parsedOptions = po::command_line_parser(argc, argv).options(optAllOptions).run();
-        po::store(parsedOptions, vm);
-        po::notify(vm);
-    } catch (po::error& e) {
-        cerr << "An exception occurred while parsing the Command line:"<<endl;
-        cerr << e.what() << endl << endl;
-        cout << optAllOptions << endl;
+    parser.add_opt<std::string>({"input-model", "i", "The path to the model file.", &poParameters.strInputModelFileName},true).
+        add_opt<std::string>({"input-targetmesh", "t", "The path to the target mesh.", &poParameters.strInputTargetMeshFileName},true).
+        add_opt<unsigned>({"number-of-iterations", "n", "Number of iterations", &poParameters.uNumberOfIterations, 100},true).
+        add_opt<double>({"regularization-weight", "w", "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.", &poParameters.dRegularizationWeight},true).
+
+        add_opt<std::string>({"output-fit", "o", "Name of the output file where the fitted mesh will be written to..", &poParameters.strOutputFittedMeshFileName}).
+        add_opt<std::string>({"output-projected", "j", "Name of the output file where the projected mesh will be written to.", &poParameters.strOutputProjectedMeshFileName}).
+    
+        add_opt<std::string>({"fixed-landmarks", "f", "Name of the file where the fixed Landmarks are saved.", &poParameters.strInputFixedLandmarksFileName}).
+        add_opt<std::string>({"moving-landmarks", "m", "Name of the file where the moving Landmarks are saved.", &poParameters.strInputMovingLandmarksFileName}).
+        add_opt<double>({"landmarks-variance", "v", "The variance that will be used to build the posterior model.", &poParameters.dLandmarksVariance, 1.0f}).
+        add_flag({"print-fitting-information", "p", "Prints information (the parameters, metric score and the iteration count) with each iteration while fitting.", &poParameters.bPrintFittingInformation});
+    
+    if (!parser.parse(argc, argv)) {
         return EXIT_FAILURE;
     }
 
-    if (poParameters.bDisplayHelp == true) {
-        cout << optAllOptions << endl;
-        return EXIT_SUCCESS;
-    }
-    if (isOptionsConflictPresent(poParameters) == true)	{
+    if (isOptionsConflictPresent(poParameters))	{
         cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << optAllOptions << endl;
+        cout << parser << endl;
         return EXIT_FAILURE;
     }
 
@@ -132,13 +126,13 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(programOptions& opt) {
-    //if one set of the landmarks-file is provided, then both have to be provided (-> use XOR)
+bool isOptionsConflictPresent(const ProgramOptions& opt) {
+    // if one set of the landmarks-file is provided, then both have to be provided (-> use XOR)
     if (((opt.strInputFixedLandmarksFileName != "") ^ (opt.strInputMovingLandmarksFileName != "")) == true) {
         return true;
     }
 
-    //at least one of the outputs needs to be set or the fitting information has to be printed
+    // at least one of the outputs needs to be set or the fitting information has to be printed
     if (opt.strOutputFittedMeshFileName == "" && opt.strOutputProjectedMeshFileName == "") {
         return true;
     }
@@ -149,8 +143,6 @@ bool isOptionsConflictPresent(programOptions& opt) {
 
     return false;
 }
-
-
 
 DistanceImageType::Pointer computeDistanceImageForMesh(DataType::Pointer pMesh, const unsigned uDistImageResolution = 256) {
     // Compute a bounding box around the reference shape
@@ -214,8 +206,7 @@ DataType::Pointer projectOnTargetMesh(DataType::Pointer pMesh, DataType::Pointer
     return projectedMesh;
 }
 
-
-void fitMesh(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
+void fitMesh(const ProgramOptions& opt, ConsoleOutputSilencer* pCOSilencer) {
     typedef itk::MeshFileReader<DataType> MeshReaderType;
     MeshReaderType::Pointer pMeshReader = MeshReaderType::New();
     pMeshReader->SetFileName(opt.strInputTargetMeshFileName.c_str());
@@ -332,39 +323,4 @@ void fitMesh(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
         DataType::Pointer pProjectedMesh = projectOnTargetMesh<PointsLocatorType>(pFittedMesh, pTargetMesh);
         saveMesh(pProjectedMesh, opt.strOutputProjectedMeshFileName);
     }
-}
-
-
-po::options_description initializeProgramOptions(programOptions& poParameters) {
-    po::options_description optMandatory("Mandatory options");
-    optMandatory.add_options()
-
-    ("input-model,i", po::value<string>(&poParameters.strInputModelFileName), "The path to the model file.")
-    ("input-targetmesh,t", po::value<string>(&poParameters.strInputTargetMeshFileName), "The path to the target mesh.")
-    ("number-of-iterations,n", po::value<unsigned>(&poParameters.uNumberOfIterations)->default_value(100), "Number of iterations")
-    ("regularization-weight,w", po::value<double>(&poParameters.dRegularizationWeight), "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.")
-    ;
-
-    po::options_description optOutput("Mandatory Output options (set at least one)");
-    optOutput.add_options()
-    ("output-fit,o", po::value<string>(&poParameters.strOutputFittedMeshFileName), "Name of the output file where the fitted mesh will be written to.")
-    ("output-projected,j", po::value<string>(&poParameters.strOutputProjectedMeshFileName), "Name of the output file where the projected mesh will be written to.")
-    ;
-
-    po::options_description optLandmarks("Landmarks (optional - if you set one you have to set all)");
-    optLandmarks.add_options()
-    ("fixed-landmarks,f", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
-    ("moving-landmarks,m", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
-    ("landmarks-variance,v", po::value<double>(&poParameters.dLandmarksVariance)->default_value(1), "The variance that will be used to build the posterior model.")
-    ;
-
-    po::options_description optAdditional("Optional options");
-    optAdditional.add_options()
-    ("print-fitting-information,p", po::bool_switch(&poParameters.bPrintFittingInformation), "Prints information (the parameters, metric score and the iteration count) with each iteration while fitting.")
-    ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
-    ;
-
-    po::options_description optAllOptions;
-    optAllOptions.add(optMandatory).add(optOutput).add(optLandmarks).add(optAdditional);
-    return optAllOptions;
 }

@@ -1,19 +1,16 @@
-message( "External project - Eigen" )
+message("External project - Eigen")
 
-set( Eigen3_VERSION "3.2.9" )
+set(Eigen3_VERSION "3.3.7")
 
-ExternalProject_Add( Eigen3
+ExternalProject_Add(Eigen3
+  SOURCE_DIR ${CMAKE_BINARY_DIR}/Eigen3
+  BINARY_DIR ${CMAKE_BINARY_DIR}/Eigen3-build
   URL "http://bitbucket.org/eigen/eigen/get/${Eigen3_VERSION}.tar.gz"
-  UPDATE_COMMAND ""
-  CONFIGURE_COMMAND ""
-  BUILD_COMMAND ""
-  INSTALL_COMMAND
-    ${CMAKE_COMMAND} -E copy_directory
-      ${CMAKE_BINARY_DIR}/Eigen3-prefix/src/Eigen3/Eigen
-      ${INSTALL_DEPENDENCIES_DIR}/include/Eigen3/Eigen &&
-    ${CMAKE_COMMAND} -E copy_directory
-      ${CMAKE_BINARY_DIR}/Eigen3-prefix/src/Eigen3/unsupported
-      ${INSTALL_DEPENDENCIES_DIR}/include/Eigen3/unsupported
+  CMAKE_ARGS
+    -DCMAKE_BUILD_TYPE:STRING=${BUILD_TYPE}
+    -DBUILD_SHARED_LIBS:BOOL=${BUILD_SHARED_LIBS}
+    -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DEPENDENCIES_DIR}
+  INSTALL_DIR ${INSTALL_DEPENDENCIES_DIR}
 )
 
-set(EIGEN3_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include/Eigen3 )
+set(EIGEN3_INCLUDE_DIR ${INSTALL_DEPENDENCIES_DIR}/include/eigen3)

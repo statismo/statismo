@@ -41,21 +41,16 @@
 #include "genericRepresenterTest.hxx"
 #include "vtkStandardMeshRepresenter.h"
 
+#include "vtkTestHelper.h"
+
+using namespace statismo::test;
+
 using statismo::vtkStandardMeshRepresenter;
 using statismo::vtkPoint;
 
 typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
 
-vtkPolyData* loadPolyData(const std::string& filename) {
-    vtkSmartPointer<vtkPolyDataReader> reader = vtkSmartPointer<vtkPolyDataReader>::New();
-    reader->SetFileName(filename.c_str());
-    reader->Update();
-    vtkPolyData* pd = vtkPolyData::New();
-    pd->ShallowCopy(reader->GetOutput());
-    return pd;
-}
-
-int main(int argc, char** argv) {
+int vtkStandardMeshRepresenterTest(int argc, char** argv) {
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " datadir" << std::endl;
         exit(EXIT_FAILURE);

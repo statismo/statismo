@@ -36,8 +36,6 @@
  */
 
 #include <iostream>
-#include <boost/scoped_ptr.hpp>
-
 #include <vtkPolyData.h>
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
@@ -47,6 +45,8 @@
 #include "StatismoIO.h"
 
 #include "vtkStandardMeshRepresenter.h"
+
+#include <memory>
 
 using namespace statismo;
 
@@ -74,14 +74,14 @@ int main(int argc, char** argv) {
         // To load a model, we call the static Load method, which returns (a pointer to) a
         // new StatisticalModel object
         RepresenterType* representer = RepresenterType::Create();
-        boost::scoped_ptr<StatisticalModelType> model(
+        std::unique_ptr<StatisticalModelType> model(
                 statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, inputModelName));
         std::cout << "loaded model with variance of " << model->GetPCAVarianceVector().sum()  << std::endl;
 
-        boost::scoped_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
+        std::unique_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
 
         // build a model with only half the variance
-        boost::scoped_ptr<StatisticalModelType> reducedModel(reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5));
+        std::unique_ptr<StatisticalModelType> reducedModel(reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5));
         std::cout << "new model has variance of " << reducedModel->GetPCAVarianceVector().sum()  << std::endl;
 
         statismo::IO<vtkPolyData>::SaveStatisticalModel(reducedModel.get(), outputModelName);

@@ -43,7 +43,7 @@
 #include <iostream>
 #include <limits>
 
-#include <boost/random.hpp>
+#include <random>
 
 #include <Eigen/Dense>
 
@@ -64,9 +64,9 @@ class RandSVD {
         unsigned n = A.rows();
 
 
-        static boost::minstd_rand randgen(static_cast<unsigned>(time(0)));
-        static boost::normal_distribution<> dist(0, 1);
-        static boost::variate_generator<boost::minstd_rand, boost::normal_distribution<> > r(randgen, dist);
+        static std::minstd_rand randgen(static_cast<unsigned>(time(0)));
+        static std::normal_distribution<> dist(0, 1);
+        static auto r = std::bind(dist, randgen);
 
         // create gaussian random amtrix
         MatrixType Omega(n, k);

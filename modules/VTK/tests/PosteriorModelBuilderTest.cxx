@@ -34,13 +34,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include <boost/scoped_ptr.hpp>
 
 #include <Eigen/Geometry>
 
 #include <vtkMath.h>
-#include <vtkPolyDataReader.h>
-#include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
 
 #include "CommonTypes.h"
@@ -50,35 +47,16 @@
 #include "PosteriorModelBuilder.h"
 #include "PCAModelBuilder.h"
 #include "vtkStandardMeshRepresenter.h"
+#include "vtkTestHelper.h"
+
+#include <memory>
 
 using namespace statismo;
+using namespace statismo::test;
 
 typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
 
-vtkPolyData* loadPolyData(const std::string& filename) {
-    vtkPolyDataReader* reader = vtkPolyDataReader::New();
-    reader->SetFileName(filename.c_str());
-    reader->Update();
-    vtkPolyData* pd = vtkPolyData::New();
-    pd->ShallowCopy(reader->GetOutput());
-    reader->Delete();
-    return pd;
-}
-
-void writePolyData(vtkPolyData* pd, const std::string& filename) {
-    vtkSmartPointer< vtkPolyDataWriter > writer = vtkSmartPointer< vtkPolyDataWriter >::New();
-    writer->SetFileName(filename.c_str());
-#if (VTK_MAJOR_VERSION == 5 )
-    writer->SetInput(pd);
-#else
-    writer->SetInputData(pd);
-#endif
-    writer->Update();
-}
-
-
-
-int main(int argc, char** argv) {
+int PosteriorModelBuilderTest(int argc, char** argv) {
     if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " datadir" << std::endl;
         exit(EXIT_FAILURE);
@@ -112,7 +90,7 @@ int main(int argc, char** argv) {
     vtkPolyData* reference = loadPolyData(referenceFilename);
     RepresenterType* representer = RepresenterType::Create(reference);
 
-    boost::scoped_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+    std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
     vtkPolyData* testDataset = loadPolyData(testDatasetFilename);
     vtkPolyData* testDataset2 = loadPolyData(testDatasetFilename2);

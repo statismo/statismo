@@ -16,10 +16,9 @@
 #include <cmath>
 
 #include <vector>
-
-#include <boost/thread.hpp>
-#include <boost/scoped_ptr.hpp>
-#include <boost/thread/future.hpp>
+#include <future>
+#include <thread>
+#include <memory>
 
 #include "CommonTypes.h"
 #include "Config.h"
@@ -49,31 +48,6 @@ struct EigenfunctionComputationResult {
     unsigned lowerInd;
     unsigned upperInd;
     MatrixType resultForPoints;
-
-    // emulate move semantics, as boost::async seems to depend on it.
-    EigenfunctionComputationResult& operator=(BOOST_COPY_ASSIGN_REF(EigenfunctionComputationResult) rhs) { // Copy assignment
-        if (&rhs != this) {
-            copyMembers(rhs);
-        }
-        return *this;
-    }
-
-    EigenfunctionComputationResult(BOOST_RV_REF(EigenfunctionComputationResult) that) { //Move constructor
-        copyMembers(that);
-    }
-    EigenfunctionComputationResult& operator=(BOOST_RV_REF(EigenfunctionComputationResult) rhs) { //Move assignment
-        if (&rhs != this) {
-            copyMembers(rhs);
-        }
-        return *this;
-    }
-  private:
-    BOOST_COPYABLE_AND_MOVABLE(EigenfunctionComputationResult)
-    void copyMembers(const EigenfunctionComputationResult& that) {
-        lowerInd = that.lowerInd;
-        upperInd = that.upperInd;
-        resultForPoints = that.resultForPoints;
-    }
 };
 
 
@@ -164,16 +138,16 @@ class LowRankGPModelBuilder: public ModelBuilder<T> {
         unsigned kernelDim = kernel.GetDimension();
 
 
-        boost::scoped_ptr<Nystrom<T> > nystrom(Nystrom<T>::Create(m_representer, kernel, numComponents, numPointsForNystrom));
+        auto nystrom(Nystrom<T>::Create(m_representer, kernel, numComponents, numPointsForNystrom));
 
         // we precompute the value of the eigenfunction for each domain point
         // and store it later in the pcaBasis matrix. In this way we obtain
         // a standard statismo model.
         // To save time, we parallelize over the rows
-        std::vector<boost::future<EigenfunctionComputationResult>* > futvec;
+        std::vector<std::future<EigenfunctionComputationResult>* > futvec;
 
 
-        unsigned numChunks = boost::thread::hardware_concurrency() + 1;
+        unsigned numChunks = std::thread::hardware_concurrency() + 1;
 
         for (unsigned i = 0; i <= numChunks; i++) {
 
@@ -187,8 +161,8 @@ class LowRankGPModelBuilder: public ModelBuilder<T> {
                 break;
             }
 
-            boost::future<EigenfunctionComputationResult>* fut = new boost::future<EigenfunctionComputationResult>(
-                boost::async(boost::launch::async, boost::bind(&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
+            std::future<EigenfunctionComputationResult>* fut = new std::future<EigenfunctionComputationResult>(
+                std::async(std::launch::async, std::bind(&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
                              this, nystrom.get(), &kernel, numComponents, domainPoints,  lowerInd, upperInd)));
             futvec.push_back(fut);
         }

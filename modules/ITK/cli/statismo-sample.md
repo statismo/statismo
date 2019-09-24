@@ -21,7 +21,7 @@ statismo-sample is used to draw samples from a model. It's possible to draw diff
 :	Draws the reference from the model and saves it.
 
 -p, \--parameters *PARAMETERS*
-:	*PARAMETERS* is a list of parameters and their position that will be used to draw a sample. Parameters are speciefied in the following format: **POSITION1**:**VALUE1** **POSITIONn**:**VALUEn**. Unspecified parameters will be set to 0. The first parameter is at position 1.
+:	*PARAMETERS* is a list of parameters and their position that will be used to draw a sample. Parameters are specified in the following format: **POSITION1**:**VALUE1**,...,**POSITIONn**:**VALUEn**. Unspecified parameters will be set to 0. The first parameter is at position 1.
 
 -t, \--type *TYPE*
 :	Specifies the type of the model. *TYPE* can either be **shape** or **deformation**.
@@ -32,13 +32,6 @@ statismo-sample is used to draw samples from a model. It's possible to draw diff
 -i, \--input-file *MODEL_FILE*
 :	*MODEL_FILE* is the path to the model.
 
--o, \--output-file *OUTPUT_FILE*
-:	*OUTPUT_FILE* is the path where the sample will be saved.
-
-
-
-
- 
 # Examples 
 Draw a random sample from a shape model:
 

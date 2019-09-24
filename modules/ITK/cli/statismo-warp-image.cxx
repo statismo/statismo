@@ -31,9 +31,7 @@
  *
  */
 
-#include <string>
-
-#include <boost/program_options.hpp>
+#include "lpo.h"
 
 #include <itkImage.h>
 #include <itkImageFileReader.h>
@@ -41,55 +39,43 @@
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkWarpImageFilter.h>
 
+#include <string>
 
 const unsigned Dimensionality3D = 3;
 const unsigned Dimensionality2D = 2;
 
-namespace po = boost::program_options;
+namespace po = lpo;
 using namespace std;
 
 
-struct programOptions {
-    bool bDisplayHelp;
+struct ProgramOptions {
     string strInputImageFileName;
     string strInputDeformFieldFileName;
     string strOutputFileName;
     unsigned uNumberOfDimensions;
 };
 
-po::options_description initializeProgramOptions(programOptions& poParameters);
-bool isOptionsConflictPresent(programOptions& opt);
+bool isOptionsConflictPresent(const ProgramOptions& opt);
 template <unsigned Dimensions>
-void applyDeformationFieldToImage(programOptions& opt);
-
-
+void applyDeformationFieldToImage(const ProgramOptions& opt);
 
 int main(int argc, char** argv) {
-    programOptions poParameters;
-
-    po::positional_options_description optPositional;
-    optPositional.add("output-file", 1);
-    po::options_description optAllOptions = initializeProgramOptions(poParameters);
-
-
-    po::variables_map vm;
-    try {
-        po::parsed_options parsedOptions = po::command_line_parser(argc, argv).options(optAllOptions).positional(optPositional).run();
-        po::store(parsedOptions, vm);
-        po::notify(vm);
-    } catch (po::error& e) {
-        cerr << "An exception occurred while parsing the Command line:"<<endl;
-        cerr << e.what() << endl;
+    
+    ProgramOptions poParameters;
+    lpo::program_options<std::string, unsigned> parser{argv[0], "Program help:"};
+    
+    parser.add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image (only available if you're building a deformation model)", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
+        add_opt<std::string>({"input-image", "i", "The path to the original image.", &poParameters.strInputImageFileName},true).
+        add_opt<std::string>({"input-deformation-field", "f", "The path to the original image.", &poParameters.strInputDeformFieldFileName},true).
+        add_pos_opt<std::string>({"Name of the warped output image.", &poParameters.strOutputFileName});
+    
+    if (!parser.parse(argc, argv)) {
         return EXIT_FAILURE;
     }
 
-    if (poParameters.bDisplayHelp == true) {
-        cout << optAllOptions << endl;
-        return EXIT_SUCCESS;
-    }
-    if (isOptionsConflictPresent(poParameters) == true)	{
+    if (isOptionsConflictPresent(poParameters))	{
         cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << optAllOptions << endl;
+        cout << parser << endl;
         return EXIT_FAILURE;
     }
 
@@ -108,16 +94,15 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(programOptions& opt) {
+bool isOptionsConflictPresent(const ProgramOptions& opt) {
     if (opt.strInputDeformFieldFileName == "" || opt.strInputImageFileName == "" || opt.strOutputFileName == "") {
         return true;
     }
     return false;
 }
 
-
 template <unsigned Dimensions>
-void applyDeformationFieldToImage(programOptions& opt) {
+void applyDeformationFieldToImage(const ProgramOptions& opt) {
     typedef itk::Image<float, Dimensions> ImageType;
     typedef itk::ImageFileReader<ImageType> ImageReaderType;
     typename ImageReaderType::Pointer pOriginalImageReader = ImageReaderType::New();
@@ -152,23 +137,4 @@ void applyDeformationFieldToImage(programOptions& opt) {
     pImageWriter->SetInput(pWarpedImage);
     pImageWriter->SetFileName(opt.strOutputFileName.c_str());
     pImageWriter->Update();
-}
-
-
-po::options_description initializeProgramOptions(programOptions& poParameters) {
-    po::options_description optMandatory("Mandatory options");
-    optMandatory.add_options()
-    ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input image and deformation field.")
-    ("input-image,i", po::value<string>(&poParameters.strInputImageFileName), "The path to the original image.")
-    ("input-deformation-field,f", po::value<string>(&poParameters.strInputDeformFieldFileName), "The path to the deformation field that will be applied ot the original image.")
-    ("output-file,o", po::value<string>(&poParameters.strOutputFileName), "Name of the warped output image.")
-    ;
-    po::options_description optAdditional("Optional options");
-    optAdditional.add_options()
-    ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
-    ;
-
-    po::options_description optAllOptions;
-    optAllOptions.add(optMandatory).add(optAdditional);
-    return optAllOptions;
 }

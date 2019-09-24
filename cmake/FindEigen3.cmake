@@ -17,13 +17,13 @@
 
 if(NOT Eigen3_FIND_VERSION)
   if(NOT Eigen3_FIND_VERSION_MAJOR)
-    set(Eigen3_FIND_VERSION_MAJOR 2)
+    set(Eigen3_FIND_VERSION_MAJOR 3)
   endif(NOT Eigen3_FIND_VERSION_MAJOR)
   if(NOT Eigen3_FIND_VERSION_MINOR)
-    set(Eigen3_FIND_VERSION_MINOR 91)
+    set(Eigen3_FIND_VERSION_MINOR 3)
   endif(NOT Eigen3_FIND_VERSION_MINOR)
   if(NOT Eigen3_FIND_VERSION_PATCH)
-    set(Eigen3_FIND_VERSION_PATCH 0)
+    set(Eigen3_FIND_VERSION_PATCH 7)
   endif(NOT Eigen3_FIND_VERSION_PATCH)
 
   set(Eigen3_FIND_VERSION "${Eigen3_FIND_VERSION_MAJOR}.${Eigen3_FIND_VERSION_MINOR}.${Eigen3_FIND_VERSION_PATCH}")
@@ -54,13 +54,11 @@ macro(_eigen3_check_version)
 endmacro(_eigen3_check_version)
 
 if (EIGEN3_INCLUDE_DIR)
-
   # in cache already
   _eigen3_check_version()
   set(EIGEN3_FOUND ${EIGEN3_VERSION_OK})
 
 else (EIGEN3_INCLUDE_DIR)
-
   find_path(EIGEN3_INCLUDE_DIR NAMES signature_of_eigen3_matrix_library
       PATHS
       ${CMAKE_INSTALL_PREFIX}/include

@@ -1,5 +1,5 @@
-#the idea here is to have an X.cxx and a X.md where X denotes the cli-command name.
-set( _cli_files
+# The idea here is to have an X.cxx and a X.md where X denotes the cli-command name.
+set(CLI_FILES
   statismo-build-shape-model
   statismo-build-deformation-model
   statismo-build-gp-model
@@ -11,49 +11,41 @@ set( _cli_files
   statismo-warp-image
 )
 
-# fix for (some?) Windows compilers which otherwise don't find utils/*.h includes
-include_directories( BEFORE
-  ${CMAKE_CURRENT_SOURCE_DIR}
-)
-
-foreach( e ${_cli_files} )
-  add_executable( ${e} "${e}.cxx" )
-  target_link_libraries( ${e} statismo_core ${ITK_LIBRARIES} ${Boost_LIBRARIES} )
-  install(
-  TARGETS ${e}
-  DESTINATION ${INSTALL_BIN_DIR}
-  )
+foreach(e ${CLI_FILES})
+  add_executable(${e} "${e}.cxx")
+  target_link_libraries(${e} statismo_core statismo_ITK)
+  install(TARGETS ${e} DESTINATION ${INSTALL_BIN_DIR})
 endforeach()
 
-if( ${BUILD_CLI_TOOLS_DOC} MATCHES "ON" )
-  if( PANDOC )
-    message( STATUS "Found pandoc - generating documentation for the CLI tools" )
+if(${BUILD_CLI_TOOLS_DOC})
+  if(PANDOC)
+    message(STATUS "Found pandoc - generating documentation for the CLI tools")
     #configuring man page install dir
-    if( WIN32 AND NOT CYGWIN )
+    if(WIN32 AND NOT CYGWIN)
       #put the directory with the manuals in the same directory as the binaries on windows
-      set( CLIDOC_INSTALL_DIR ${INSTALL_BIN_DIR} )
-      set( CLIDOC_OUTPUT_DIR "${CMAKE_BINARY_DIR}/doc-cli" )
+      set(CLIDOC_INSTALL_DIR ${INSTALL_BIN_DIR})
+      set(CLIDOC_OUTPUT_DIR "${CMAKE_BINARY_DIR}/doc-cli")
     else()
       #use cmake to find the man pages directory on *NIX
-      include( GNUInstallDirs )
-      if( CMAKE_INSTALL_MANDIR )
-        set( CLIDOC_INSTALL_DIR ${CMAKE_INSTALL_MANDIR} )
+      include(GNUInstallDirs)
+      if(CMAKE_INSTALL_MANDIR)
+        set(CLIDOC_INSTALL_DIR ${CMAKE_INSTALL_MANDIR})
       else()
-        set( CLIDOC_INSTALL_DIR ${INSTALL_BIN_DIR} )
-        message( STATUS "Couldn't find the man install directory - man pages will NOT be installed properly" )
+        set(CLIDOC_INSTALL_DIR ${INSTALL_BIN_DIR})
+        message(STATUS "Couldn't find the man install directory - man pages will NOT be installed properly")
       endif()
-        set( CLIDOC_OUTPUT_DIR "${CMAKE_BINARY_DIR}/man8" )
+        set(CLIDOC_OUTPUT_DIR "${CMAKE_BINARY_DIR}/man8")
     endif()
 
-    set( CLIDOC_TARGET_DEPENDENCIES )
-    set( CLIDOC_TARGET_SOURCES )
+    set(CLIDOC_TARGET_DEPENDENCIES)
+    set(CLIDOC_TARGET_SOURCES)
 
-    foreach( e ${_cli_files} )
-      set( CLIDOC_MD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/${e}.md )
-      if( WIN32 AND NOT CYGWIN)
-        set( CLIDOC_OUT_FILE ${CLIDOC_OUTPUT_DIR}/${e}.html )
+    foreach(e ${_cli_files})
+      set(CLIDOC_MD_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/${e}.md)
+      if(WIN32 AND NOT CYGWIN)
+        set(CLIDOC_OUT_FILE ${CLIDOC_OUTPUT_DIR}/${e}.html)
       else()
-        set( CLIDOC_OUT_FILE ${CLIDOC_OUTPUT_DIR}/${e}.8 )
+        set(CLIDOC_OUT_FILE ${CLIDOC_OUTPUT_DIR}/${e}.8)
       endif()
 
       add_custom_command(
@@ -62,10 +54,10 @@ if( ${BUILD_CLI_TOOLS_DOC} MATCHES "ON" )
         # a '/' instead of a '\' in the input-file's path on windows leads to pandoc failing to automatically recoginze the file format -> we have specify it manually
         COMMAND ${PANDOC} -f markdown -s ${CLIDOC_MD_SOURCE} -o ${CLIDOC_OUT_FILE}
         MAIN_DEPENDENCY ${CLIDOC_MD_SOURCE}
-      )
+     )
 
-      list( APPEND CLIDOC_TARGET_DEPENDENCIES ${CLIDOC_OUT_FILE} )
-      list( APPEND CLIDOC_TARGET_SOURCES ${CLIDOC_MD_SOURCE} )
+      list(APPEND CLIDOC_TARGET_DEPENDENCIES ${CLIDOC_OUT_FILE})
+      list(APPEND CLIDOC_TARGET_SOURCES ${CLIDOC_MD_SOURCE})
     endforeach()
 
     #build the cli documentation by default
@@ -73,17 +65,17 @@ if( ${BUILD_CLI_TOOLS_DOC} MATCHES "ON" )
       doc-cli ALL
       DEPENDS ${CLIDOC_TARGET_DEPENDENCIES}
       SOURCES ${CLIDOC_TARGET_SOURCES}
-    )
+   )
     #install the entire cli documentation directory
     install(
       DIRECTORY ${CLIDOC_OUTPUT_DIR}
       DESTINATION ${CLIDOC_INSTALL_DIR}
-    )
+   )
   else()
-    message( STATUS "Pandoc not found - documentation will not be generated for the CLI tools" )
+    message(WARNING "Pandoc not found - documentation will not be generated for the CLI tools")
   endif()
 endif()
 
-if( ${BUILD_LONG_RUNNING_CLI_TESTS} )
-  add_subdirectory( test )
+if(${BUILD_LONG_RUNNING_CLI_TESTS})
+  add_subdirectory(test)
 endif()

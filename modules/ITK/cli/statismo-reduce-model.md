@@ -11,6 +11,7 @@ statismo-reduce-model [*options*] -i *input-file* *output-file*
 # DESCRIPTION
 
 statismo-reduce-model is used to reduce the number of components in a model. It's possible to reduce the number of components to a fixed number or to a percentage of the model's total variance.
+
 # OPTIONS
 
 -t, \--type
@@ -27,10 +28,6 @@ statismo-reduce-model is used to reduce the number of components in a model. It'
 
 -i, \--input-file *MODEL_FILE*
 :	*MODEL_FILE* is the path to the model.
-
--o, \--output-file *OUTPUT_FILE*
-:	*OUTPUT_FILE* is the path where the new model with a reduced amount of components will be saved.
-
  
 # Examples 
 Crate a new shape model with 5 components:

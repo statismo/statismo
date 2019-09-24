@@ -31,8 +31,7 @@
  *
  */
 
-#include <boost/algorithm/string.hpp>
-#include <boost/program_options.hpp>
+#include "lpo.h"
 
 #include <itkCompositeTransform.h>
 #include <itkImage.h>
@@ -49,12 +48,10 @@
 const unsigned Dimensionality3D = 3;
 const unsigned Dimensionality2D = 2;
 
-namespace po = boost::program_options;
+namespace po = lpo;
 using namespace std;
 
-struct programOptions {
-    bool bDisplayHelp;
-
+struct ProgramOptions {
     string strModelType;
     string strInputModelFileName;
     string strOutputModelFileName;
@@ -68,43 +65,36 @@ struct programOptions {
     unsigned uNumberOfDimensions;
 };
 
-po::options_description initializeProgramOptions(programOptions& poParameters);
-bool isOptionsConflictPresent(programOptions& opt);
-void buildPosteriorShapeModel(programOptions& opt);
+bool isOptionsConflictPresent(ProgramOptions& opt);
+void buildPosteriorShapeModel(const ProgramOptions& opt);
 template<unsigned Dimensionality>
-void buildPosteriorDeformationModel(programOptions& opt);
+void buildPosteriorDeformationModel(const ProgramOptions& opt);
 
 
 int main(int argc, char** argv) {
-    po::positional_options_description optPositional;
-    optPositional.add("output-file", 1);
+    
+    ProgramOptions poParameters;
+    lpo::program_options<std::string, unsigned, double> parser{argv[0], "Program help:"};
 
-    programOptions poParameters;
-    po::options_description optAllOptions = initializeProgramOptions(poParameters);
-
-
-    po::variables_map vm;
-    try {
-        po::parsed_options parsedOptions = po::command_line_parser(argc, argv).options(optAllOptions).positional(optPositional).run();
-        po::store(parsedOptions, vm);
-        po::notify(vm);
-    } catch (po::error& e) {
-        cerr << "An exception occurred while parsing the Command line:"<<endl;
-        cerr << e.what() << endl << endl;
-        cout << optAllOptions << endl;
+    parser.add_opt<std::string>({"type", "t", "Specifies the type of the model: SHAPE and DEFORMATION are the two available types", &poParameters.strModelType, "SHAPE"},true).
+        add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image (only available if you're building a deformation model)", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
+        add_opt<std::string>({"input-file", "i", "The path to the model file from which the posterior model will be built.", &poParameters.strInputModelFileName},true).
+        add_opt<std::string>({"landmarks-fixed", "f", "Name of the file where the fixed Landmarks are saved.", &poParameters.strInputFixedLandmarksFileName}).
+        add_opt<std::string>({"landmarks-moving", "m", "Name of the file where the moving Landmarks are saved.", &poParameters.strInputMovingLandmarksFileName}).
+        add_opt<std::string>({"corresponding-mesh", "c", "Path to the Mesh in correspondence. This is only available if the type is SHAPE.", &poParameters.strInputMeshFileName}).
+        add_opt<double>({"landmarks-variance", "v", "The variance that will be used to build the posterior model.", &poParameters.dVariance, 1.0f}).     
+        add_pos_opt<std::string>({"Name of the output file where the posterior model will be written to.", &poParameters.strOutputModelFileName});
+    
+    if (!parser.parse(argc, argv)) {
         return EXIT_FAILURE;
     }
 
-    if (poParameters.bDisplayHelp == true) {
-        cout << optAllOptions << endl;
-        return EXIT_SUCCESS;
-    }
-    if (isOptionsConflictPresent(poParameters) == true)	{
+    if (isOptionsConflictPresent(poParameters))	{
         cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << optAllOptions << endl;
+        cout << parser << endl;
         return EXIT_FAILURE;
     }
-
+ 
     try {
         if (poParameters.strModelType == "shape") {
             buildPosteriorShapeModel(poParameters);
@@ -128,7 +118,7 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(programOptions& opt) {
+bool isOptionsConflictPresent(ProgramOptions& opt) {
     //if one set of the landmarks-file is provided, then both have to be provided (-> use XOR)
     if (((opt.strInputFixedLandmarksFileName != "") ^ (opt.strInputMovingLandmarksFileName != "")) == true) {
         return true;
@@ -143,7 +133,7 @@ bool isOptionsConflictPresent(programOptions& opt) {
         return true;
     }
 
-    boost::algorithm::to_lower(opt.strModelType);
+    statismo::Utils::ToLower(opt.strModelType);
     if (opt.strModelType != "shape" && opt.strModelType != "deformation") {
         return true;
     }
@@ -167,7 +157,7 @@ bool isOptionsConflictPresent(programOptions& opt) {
 
 
 
-void buildPosteriorShapeModel(programOptions& opt) {
+void buildPosteriorShapeModel(const ProgramOptions& opt) {
     typedef itk::Mesh<float, Dimensionality3D> DataType;
     typedef itk::StatisticalModel<DataType> StatisticalModelType;
     typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
@@ -193,7 +183,7 @@ void buildPosteriorShapeModel(programOptions& opt) {
 }
 
 template<unsigned Dimensionality>
-void buildPosteriorDeformationModel(programOptions& opt) {
+void buildPosteriorDeformationModel(const ProgramOptions& opt) {
     typedef itk::Vector<float, Dimensionality> VectorPixelType;
     typedef itk::Image<VectorPixelType, Dimensionality> DataType;
     typedef itk::StatisticalModel<DataType> StatisticalModelType;
@@ -207,37 +197,4 @@ void buildPosteriorDeformationModel(programOptions& opt) {
     pConstrainedModel = buildPosteriorDeformationModel<DataType, StatisticalModelType>(pModel, opt.strInputFixedLandmarksFileName, opt.strInputMovingLandmarksFileName, opt.dVariance);
 
     itk::StatismoIO<DataType>::SaveStatisticalModel(pConstrainedModel, opt.strOutputModelFileName.c_str());
-}
-
-
-
-po::options_description initializeProgramOptions(programOptions& poParameters) {
-    po::options_description optMandatory("Mandatory options");
-    optMandatory.add_options()
-    ("type,t", po::value<string>(&poParameters.strModelType)->default_value("SHAPE"), "Specifies the type of the model: SHAPE and DEFORMATION are the two available types.")
-    ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input model.")
-    ("input-file,i", po::value<string>(&poParameters.strInputModelFileName), "The path to the model file from which the posterior model will be built.")
-    ("output-file,o", po::value<string>(&poParameters.strOutputModelFileName), "The path where the posterior model will be saved.")
-    ;
-
-    po::options_description optLandmarks("Landmarks");
-    optLandmarks.add_options()
-    ("landmarks-fixed,f", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
-    ("landmarks-moving,m", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
-    ("landmarks-variance,v", po::value<double>(&poParameters.dVariance)->default_value(1), "The variance that will be used to build the posterior model.")
-    ;
-
-    po::options_description optMesh("Mesh in correspondence (either set this or the Landmarks)");
-    optMesh.add_options()
-    ("corresponding-mesh,c", po::value<string>(&poParameters.strInputMeshFileName), "Path to the Mesh in correspondence. This is only available if the type is SHAPE.")
-    ;
-
-    po::options_description optAdditional("Optional options");
-    optAdditional.add_options()
-    ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
-    ;
-
-    po::options_description optAllOptions;
-    optAllOptions.add(optMandatory).add(optMesh).add(optLandmarks).add(optAdditional);
-    return optAllOptions;
 }

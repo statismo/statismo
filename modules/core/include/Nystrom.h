@@ -12,7 +12,7 @@
  * Statismo is licensed under the BSD licence (3 clause) license
  */
 
-#include <boost/thread.hpp>
+#include <memory>
 
 #include "CommonTypes.h"
 #include "Config.h"
@@ -35,8 +35,8 @@ class Nystrom {
     typedef statismo::Domain<typename Representer<T>::PointType> DomainType;
     typedef typename DomainType::DomainPointsListType DomainPointsListType;
 
-    static Nystrom* Create(const Representer<T>* representer, const MatrixValuedKernel<PointType>& kernel, unsigned numEigenfunctions, unsigned numberOfPointsForApproximation) {
-        return new Nystrom(representer, kernel, numEigenfunctions, numberOfPointsForApproximation);
+    static auto Create(const Representer<T>* representer, const MatrixValuedKernel<PointType>& kernel, unsigned numEigenfunctions, unsigned numberOfPointsForApproximation) {
+        return std::unique_ptr<Nystrom>(new Nystrom(representer, kernel, numEigenfunctions, numberOfPointsForApproximation));
     }
 
 

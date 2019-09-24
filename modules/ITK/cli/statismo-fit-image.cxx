@@ -31,7 +31,10 @@
  *
  */
 
-#include <boost/program_options.hpp>
+#include "lpo.h"
+
+#include "utils/itkPenalizingMeanSquaresImageToImageMetric.h"
+#include "utils/statismo-fitting-utils.h"
 
 #include <itkCommand.h>
 #include <itkCompositeTransform.h>
@@ -39,32 +42,25 @@
 #include <itkImageRegistrationMethod.h>
 #include <itkInterpolatingStatisticalDeformationModelTransform.h>
 #include <itkLBFGSOptimizer.h>
+#include <itkRegularStepGradientDescentOptimizer.h>
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkNormalizedCorrelationImageToImageMetric.h>
 #include <itkRigid2DTransform.h>
 #include <itkStandardImageRepresenter.h>
 #include <itkStatismoIO.h>
 #include <itkStatisticalModel.h>
-#if (ITK_VERSION_MAJOR >= 4 && ITK_VERSION_MINOR >= 6)
 #include <itkTransformToDisplacementFieldFilter.h>
-#else
-#include <itkTransformToDisplacementFieldSource.h>
-#endif
 #include <itkVersorRigid3DTransform.h>
 #include <itkWarpImageFilter.h>
-
-#include "utils/itkPenalizingMeanSquaresImageToImageMetric.h"
-#include "utils/statismo-fitting-utils.h"
+#include <itkCenteredTransformInitializer.h>
 
 const unsigned Dimensionality2D = 2;
 const unsigned Dimensionality3D = 3;
 
-namespace po = boost::program_options;
+namespace po = lpo;
 using namespace std;
 
-struct programOptions {
-    bool bDisplayHelp;
-
+struct ProgramOptions {
     string strInputModelFileName;
     string strInputMovingImageFileName;
     string strInputFixedImageFileName;
@@ -84,40 +80,38 @@ struct programOptions {
     bool bPrintFittingInformation;
 };
 
-po::options_description initializeProgramOptions(programOptions& poParameters);
-bool isOptionsConflictPresent(programOptions& opt);
+bool isOptionsConflictPresent(const ProgramOptions& opt);
 template<unsigned Dimensions, class RotationAndTranslationTransformType>
-void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer);
-
-
+void fitImage(const ProgramOptions& opt, ConsoleOutputSilencer* pCOSilencer);
 
 int main(int argc, char** argv) {
-    po::positional_options_description optPositional;
-    optPositional.add("output-fit", 1);
 
-    programOptions poParameters;
-    po::options_description optAllOptions = initializeProgramOptions(poParameters);
+    ProgramOptions poParameters;
+    lpo::program_options<std::string, double, unsigned> parser{argv[0], "Program help:"};
 
+    parser.add_opt<std::string>({"input-model", "i", "The path to the model file.", &poParameters.strInputModelFileName},true).
+        add_opt<std::string>({"moving-image", "m", "The path to the moving image.", &poParameters.strInputMovingImageFileName},true).
+        add_opt<std::string>({"fixed-image", "f", "The path to the fixed image.", &poParameters.strInputFixedImageFileName},true).
+        add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image and model", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
+        add_opt<unsigned>({"number-of-iterations", "n", "Number of iterations", &poParameters.uNumberOfIterations, 100},true).
+        add_opt<double>({"regularization-weight", "w", "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.", &poParameters.dRegularizationWeight},true).
 
-    po::variables_map vm;
-    try {
-        po::parsed_options parsedOptions = po::command_line_parser(argc, argv).options(optAllOptions).positional(optPositional).run();
-        po::store(parsedOptions, vm);
-        po::notify(vm);
-    } catch (po::error& e) {
-        cerr << "An exception occurred while parsing the Command line:"<<endl;
-        cerr << e.what() << endl << endl;
-        cout << optAllOptions << endl;
+        add_opt<std::string>({"output-model-deformationfield", "a", "Name of the output file where the model deformation field will be written to.", &poParameters.strOutputModelTransformFileName}).
+        add_opt<std::string>({"output-deformationfield", "e", "Name of the output file where the entire deformation field will be written to. This includes the rotation and translation (Only use this when NOT using landmarks).", &poParameters.strOutputEntireTransformFileName}).
+    
+        add_opt<std::string>({"fixed-landmarks", "", "Name of the file where the fixed Landmarks are saved.", &poParameters.strInputFixedLandmarksFileName}).
+        add_opt<std::string>({"moving-landmarks", "", "Name of the file where the moving Landmarks are saved.", &poParameters.strInputMovingLandmarksFileName}).
+        add_opt<double>({"landmarks-variance", "v", "The variance that will be used to build the posterior model.", &poParameters.dLandmarksVariance, 1.0f}).
+        add_flag({"print-fitting-information", "p", "Prints information (the parameters, metric score and the iteration count) with each iteration while fitting.", &poParameters.bPrintFittingInformation}).  
+        add_pos_opt<std::string>({"Name of the output file where the fitted image will be written to.", &poParameters.strOutputFittedImageFileName});
+
+    if (!parser.parse(argc, argv)) {
         return EXIT_FAILURE;
     }
 
-    if (poParameters.bDisplayHelp == true) {
-        cout << optAllOptions << endl;
-        return EXIT_SUCCESS;
-    }
-    if (isOptionsConflictPresent(poParameters) == true)	{
+    if (isOptionsConflictPresent(poParameters))	{
         cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << optAllOptions << endl;
+        cout << parser << endl;
         return EXIT_FAILURE;
     }
 
@@ -145,17 +139,13 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(programOptions& opt) {
+bool isOptionsConflictPresent(const ProgramOptions& opt) {
     //if one set of the landmarks-file is provided, then both have to be provided (-> use XOR)
     if (((opt.strInputFixedLandmarksFileName != "") ^ (opt.strInputMovingLandmarksFileName != "")) == true) {
         return true;
     }
 
     if (opt.strInputFixedImageFileName == "" || opt.strInputModelFileName == "" || opt.strInputMovingImageFileName == "") {
-        return true;
-    }
-
-    if (opt.uNumberOfDimensions != 2 && opt.uNumberOfDimensions != 3) {
         return true;
     }
 
@@ -179,16 +169,10 @@ void saveImage(typename ImageType::Pointer pImage, const std::string& strOutputF
 
 template<class DisplacementFieldImageType, class ReferenceImageType, class TransformType>
 typename DisplacementFieldImageType::Pointer generateAndSaveDisplacementField(typename ReferenceImageType::Pointer pReferenceImage, typename TransformType::Pointer pTransform, const std::string& strOutputFileName) {
-#if (ITK_VERSION_MAJOR >= 4 && ITK_VERSION_MINOR >= 6)
     typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldImageType,	double>  DisplacementFieldGeneratorType;
     typename DisplacementFieldGeneratorType::Pointer pDispfieldGenerator = DisplacementFieldGeneratorType::New();
     pDispfieldGenerator->UseReferenceImageOn();
     pDispfieldGenerator->SetReferenceImage(pReferenceImage);
-#else
-    typedef typename itk::TransformToDisplacementFieldSource<DisplacementFieldImageType, double> DisplacementFieldGeneratorType;
-    typename DisplacementFieldGeneratorType::Pointer pDispfieldGenerator = DisplacementFieldGeneratorType::New();
-    pDispfieldGenerator->SetOutputParametersFromImage(pReferenceImage);
-#endif
 
     pDispfieldGenerator->SetTransform(pTransform);
     pDispfieldGenerator->Update();
@@ -202,9 +186,8 @@ typename DisplacementFieldImageType::Pointer generateAndSaveDisplacementField(ty
     return pDisplacementField;
 }
 
-
 template<unsigned Dimensions, class RotationAndTranslationTransformType>
-void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
+void fitImage(const ProgramOptions& opt, ConsoleOutputSilencer* pCOSilencer) {
     typedef itk::Image<float, Dimensions> ImageType;
     typedef itk::ImageFileReader<ImageType> ImageReaderType;
     typename ImageReaderType::Pointer pFixedImageReader = ImageReaderType::New();
@@ -239,6 +222,15 @@ void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
         //No Landmarks are available: we also have to allow rotation and translation.
         typename RotationAndTranslationTransformType::Pointer pRotationAndTranslationTransform = RotationAndTranslationTransformType::New();
         pRotationAndTranslationTransform->SetIdentity();
+
+
+        using TransformInitializerType = itk::CenteredTransformInitializer<RotationAndTranslationTransformType, ImageType, ImageType>;
+        auto initializer = TransformInitializerType::New();
+        initializer->SetTransform(pRotationAndTranslationTransform);
+        initializer->SetFixedImage(pFixedImage);
+        initializer->SetMovingImage(pMovingImage);
+        initializer->MomentsOn();
+        initializer->InitializeTransform();
 
         typedef itk::CompositeTransform<double, Dimensions> CompositeTransformType;
         typename CompositeTransformType::Pointer pCompositeTransform = CompositeTransformType::New();
@@ -296,42 +288,4 @@ void fitImage(programOptions opt, ConsoleOutputSilencer* pCOSilencer) {
 
         saveImage<ImageType>(pWarper->GetOutput(), opt.strOutputFittedImageFileName);
     }
-}
-
-
-po::options_description initializeProgramOptions(programOptions& poParameters) {
-    po::options_description optMandatory("Mandatory options");
-    optMandatory.add_options()
-
-    ("input-model,i", po::value<string>(&poParameters.strInputModelFileName), "The path to the model file.")
-    ("moving-image,m", po::value<string>(&poParameters.strInputMovingImageFileName), "The path to the moving image.")
-    ("fixed-image,f", po::value<string>(&poParameters.strInputFixedImageFileName), "The path to the fixed image.")
-    ("dimensionality,d", po::value<unsigned>(&poParameters.uNumberOfDimensions)->default_value(3), "Dimensionality of the input images & model")
-    ("number-of-iterations,n", po::value<unsigned>(&poParameters.uNumberOfIterations)->default_value(100), "Number of iterations")
-    ("regularization-weight,w", po::value<double>(&poParameters.dRegularizationWeight), "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.")
-    ;
-
-    po::options_description optOutput("Mandatory Output options (set at least one)");
-    optOutput.add_options()
-    ("output-fit,o", po::value<string>(&poParameters.strOutputFittedImageFileName), "Name of the output file where the fitted image will be written to.")
-    ("output-model-deformationfield,a", po::value<string>(&poParameters.strOutputModelTransformFileName), "Name of the output file where the model deformation field will be written to.")
-    ("output-deformationfield,e", po::value<string>(&poParameters.strOutputEntireTransformFileName), "Name of the output file where the entire deformation field will be written to. This includes the rotation and translation (Only use this when NOT using landmarks).")
-    ;
-
-    po::options_description optLandmarks("Landmarks (optional - if you set one you have to set all)");
-    optLandmarks.add_options()
-    ("fixed-landmarks", po::value<string>(&poParameters.strInputFixedLandmarksFileName), "Name of the file where the fixed Landmarks are saved.")
-    ("moving-landmarks", po::value<string>(&poParameters.strInputMovingLandmarksFileName), "Name of the file where the moving Landmarks are saved.")
-    ("landmarks-variance,v", po::value<double>(&poParameters.dLandmarksVariance)->default_value(1), "The variance that will be used to build the posterior model.")
-    ;
-
-    po::options_description optAdditional("Optional options");
-    optAdditional.add_options()
-    ("print-fitting-information,p", po::bool_switch(&poParameters.bPrintFittingInformation), "Prints information (the parameters, metric score and the iteration count) with each iteration while fitting.")
-    ("help,h", po::bool_switch(&poParameters.bDisplayHelp), "Display this help message")
-    ;
-
-    po::options_description optAllOptions;
-    optAllOptions.add(optMandatory).add(optOutput).add(optLandmarks).add(optAdditional);
-    return optAllOptions;
 }
