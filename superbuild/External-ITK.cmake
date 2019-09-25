@@ -34,4 +34,5 @@ ExternalProject_Add(ITK
     -DITK_USE_SYSTEM_HDF5:BOOL=OFF
     -DITK_USE_SYSTEM_EIGEN:BOOL=OFF
     ${_vtkoptions}
+    ${ITK_EXTRA_OPTIONS}
 )

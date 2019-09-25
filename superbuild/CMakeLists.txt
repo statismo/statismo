@@ -35,6 +35,9 @@ cmake_dependent_option(USE_SYSTEM_Eigen "Use system libraries for eigen3" OFF
   "NOT ITK_SUPPORT" OFF
 )
 
+set(VTK_EXTRA_OPTIONS ${CMAKE_BINARY_DIR}/INSTALL CACHE STRING "Build VTK with extra options")
+set(ITK_EXTRA_OPTIONS ${CMAKE_BINARY_DIR}/INSTALL CACHE STRING "Build ITK with extra options")
+
 # ----------------------------------------
 # Project settings
 # ----------------------------------------

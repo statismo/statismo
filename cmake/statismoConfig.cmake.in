@@ -34,14 +34,16 @@ include_directories(
   ${statismo_INCLUDE_DIRS}
 )
 
-if(VTK_SUPPORT)
-  set(VTK_DIR @VTK_DIR@)
-  find_package(VTK REQUIRED)
-endif()
-
+# Including ITK before VTK seems to solve some issues
+# with macro redefinition due to the use of itkVtkGkue
 if(ITK_SUPPORT)
   set(ITK_DIR @ITK_DIR@)
   find_package(ITK REQUIRED)
+endif()
+
+if(VTK_SUPPORT)
+  set(VTK_DIR @VTK_DIR@)
+  find_package(VTK REQUIRED)
 endif()
 
 set(statismo_LIBRARIES "@statismo_LIBRARIES@")

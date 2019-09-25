@@ -1,9 +1,9 @@
 message("External project - VTK")
 
-set(_vtkOptions)
+set(_vtkOptions ${VTK_EXTRA_OPTIONS})
 
 if(APPLE)
-  set(_vtkOptions -DVTK_REQUIRED_OBJCXX_FLAGS:STRING="")
+  set(_vtkOptions ${_vtkOptions} -DVTK_REQUIRED_OBJCXX_FLAGS:STRING="")
 endif()
 
 ExternalProject_Add(VTK
