@@ -50,6 +50,7 @@
 #include "CommonTypes.h"
 #include "Domain.h"
 #include "vtkHelper.h"
+#include "vtkPoint.h"
 
 /**
  * \brief A representer for vtkUnstructuredGrid using Procrustes alignment to align the datasets

@@ -42,6 +42,7 @@
 
 #include "CommonTypes.h"
 #include "Domain.h"
+#include "CoreTraits.h"
 
 /**
  * \brief Provides the interface between statismo and the dataset type the application uses.
@@ -146,7 +147,7 @@ class Representer {
     /// (for a image, this could for example be a scalar value or an RGB value)
     typedef typename RepresenterTraits<T>::ValueType ValueType;
 
-    static constexpr unsigned Dimension = RepresenterTraits<T>::Dimension;
+    static constexpr unsigned RealPointDimension = PointTraits<PointType>::RealDimension;
 
     typedef T DatasetType;
 

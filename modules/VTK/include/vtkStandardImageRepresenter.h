@@ -47,6 +47,7 @@
 #include "Domain.h"
 #include "Representer.h"
 #include "vtkHelper.h"
+#include "vtkPoint.h"
 
 
 /**

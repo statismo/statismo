@@ -85,7 +85,7 @@ template <typename T>
 typename PosteriorModelBuilder<T>::PointValueWithCovarianceListType
 PosteriorModelBuilder<T>::TrivialPointValueWithCovarianceListWithUniformNoise(
     const PointValueListType& pointValues, double pointValueNoiseVariance) const {
-    const MatrixType pointCovarianceMatrix = pointValueNoiseVariance * MatrixType::Identity(RepresenterType::Dimension, RepresenterType::Dimension);
+    const MatrixType pointCovarianceMatrix = pointValueNoiseVariance * MatrixType::Identity(RepresenterType::RealPointDimension, RepresenterType::RealPointDimension);
     PointValueWithCovarianceListType pvcList;//(pointValues.size());
 
 
