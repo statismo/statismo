@@ -53,7 +53,7 @@ namespace statismo {
 
 template <typename T>
 StatisticalModel<T>::StatisticalModel(const RepresenterType* representer, const VectorType& m, const MatrixType& orthonormalPCABasis, const VectorType& pcaVariance, double noiseVariance)
-    : m_representer(representer->Clone()),
+    : m_representer(representer->CloneSelf()),
       m_mean(m),
       m_pcaVariance(pcaVariance),
       m_noiseVariance(noiseVariance),

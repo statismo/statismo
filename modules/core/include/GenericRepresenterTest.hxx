@@ -231,7 +231,7 @@ class GenericRepresenterTest {
         // This is needed, as some representers check on these values.
 
         statismo::HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
-        std::string dataTypeStr = Representer::TypeToString(m_representer->GetType());
+        std::string dataTypeStr = TypeToString(m_representer->GetType());
         statismo::HDF5Utils::writeStringAttribute(representerGroup, "datasetType", dataTypeStr);
 
         file.close();
@@ -261,7 +261,7 @@ class GenericRepresenterTest {
         std::cout << "testClone" << std::endl;
         bool isOkay = true;
 
-        Representer* rep = m_representer->Clone();
+        Representer* rep = dynamic_cast<Representer*>(m_representer->CloneSelf());
         if (assertRepresenterEqual(rep, m_representer) == false) {
             std::cout << "Error: the clone of the representer is not the same as the representer " << std::endl;
             isOkay = false;

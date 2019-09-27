@@ -39,10 +39,12 @@
 
 #include <string>
 #include <H5Cpp.h>
+#include <memory>
 
 #include "CommonTypes.h"
 #include "Domain.h"
 #include "CoreTraits.h"
+#include "Clonable.h"
 
 /**
  * \brief Provides the interface between statismo and the dataset type the application uses.
@@ -65,12 +67,7 @@ template<class T>
 class RepresenterTraits {
 };
 
-template<class T>
-class Representer {
-
-  public:
-
-    enum RepresenterDataType {
+    enum class RepresenterDataType {
         UNKNOWN = 0,
         POINT_SET = 1,
         POLYGON_MESH = 2,
@@ -80,54 +77,14 @@ class Representer {
         CUSTOM = 99
     };
 
-    static RepresenterDataType TypeFromString(const std::string& s) {
-        if (s == "POINT_SET")
-            return POINT_SET;
-        else if (s == "POLYGON_MESH")
-            return POLYGON_MESH;
-        else if (s == "VOLUME_MESH")
-            return VOLUME_MESH;
-        else if (s == "IMAGE")
-            return IMAGE;
-        else if (s == "VECTOR")
-            return VECTOR;
-        else if (s == "CUSTOM")
-            return CUSTOM;
-        else
-            return UNKNOWN;
-    }
+RepresenterDataType TypeFromString(const std::string& s);
 
-    static std::string TypeToString(const RepresenterDataType& type) {
-        switch (type) {
-        case POINT_SET: {
-            return "POINT_SET";
-            break;
-        }
-        case POLYGON_MESH: {
-            return "POLYGON_MESH";
-            break;
-        }
-        case VOLUME_MESH: {
-            return "VOLUME_MESH";
-            break;
-        }
-        case IMAGE: {
-            return "IMAGE";
-            break;
-        }
-        case VECTOR: {
-            return "VECTOR";
-            break;
-        }
-        case CUSTOM: {
-            return "CUSTOM";
-            break;
-        }
-        default: {
-            return "UNKNOWN";
-        }
-        }
-    }
+std::string TypeToString(RepresenterDataType type);
+
+template<class T>
+class Representer : public Clonable<Representer<T>> {
+
+  public:
 
     /**
      * \name Type definitions
@@ -178,11 +135,9 @@ class Representer {
      */
     virtual void Load(const H5::Group& fg) = 0;
 
-    /** Clone the representer */
-    virtual Representer* Clone() const = 0;
-
     /** Delete the representer object */
     virtual void Delete() const = 0;
+    
 
     ///@}
 
@@ -192,10 +147,6 @@ class Representer {
     virtual void DeleteDataset(DatasetPointerType d) const = 0;
     virtual DatasetPointerType CloneDataset(DatasetConstPointerType d) const = 0;
     ///@}
-
-
-
-
 
     /**
      * \name Conversion from the dataset to a vector representation and back
@@ -261,9 +212,7 @@ class Representer {
      * the value ptId * 3 + componentId
      */
     virtual unsigned MapPointIdToInternalIdx(unsigned ptId,
-            unsigned componentInd) const {
-        return ptId * GetDimensions() + componentInd;
-    }
+            unsigned componentInd) const = 0;
 
     /**
      * Given a point (the coordinates) return the pointId of this point.
@@ -292,19 +241,88 @@ class Representer {
      * obtained when vectorizing a dataset.
      *
      */
-    virtual DatasetPointerType IdentitySample() const {
+    virtual DatasetPointerType IdentitySample() const = 0;
+};
+
+/**
+ * \brief Base class for representer used to keep representer interface pure
+ *
+ * The main purposes of this class are:
+ *  - keeping the interface pure
+ *  - providing a bridge between implementation and interface to avoid modifying the
+ *    interface
+ *  - gathering representers common code (creation/deletion) in a generic way
+ */
+template <typename T, typename Derived>
+    class RepresenterBase : public Representer<T> {
+    
+    public:
+
+    using DatasetPointerType = typename RepresenterTraits<T>::DatasetPointerType;
+
+    /**
+     * Generic object factory for representer
+     */
+    template <typename... Args>
+    static auto Create(Args&&...args) {
+        return new Derived{std::forward<Args>(args)...};;
+    }
+
+    template <typename... Args>
+    static auto SafeCreate(Args&&...args) {
+        return SafeCreateWithCustomDeletor<StdDeletor>(std::forward<Args>(args)...);
+    }
+
+    template <typename Deletor, typename... Args>
+    static auto SafeCreateWithCustomDeletor(Args&&...args) {
+        std::unique_ptr<Derived, Deletor> ptr{new Derived{std::forward<Args>(args)...}, Deletor()};
+		return ptr;
+    }
+
+    /// Delete basic implementation
+    virtual void Delete() const override {
+        delete this;
+    }
+
+    /// Returns a name that identifies the representer
+    virtual std::string GetName() const final {
+        return Derived::GetNameImpl();
+    }
+
+    virtual RepresenterDataType GetType() const final
+    {
+        return Derived::GetTypeImpl();
+    }
+
+    /// Returns the dimensionality of the dataset (for a mesh this is 3, for a scalar image
+    /// this would be 1)
+    virtual unsigned GetDimensions() const final {
+        return Derived::GetDimensionsImpl();
+    }
+    ///@}
+
+    virtual std::string GetVersion() const final {
+        return Derived::GetVersionImpl();
+    }
+
+    virtual unsigned MapPointIdToInternalIdx(unsigned ptId,
+            unsigned componentInd) const override {
+        return ptId * GetDimensions() + componentInd;
+    }
+
+    virtual DatasetPointerType IdentitySample() const override {
 
         switch (this->GetType()) {
-        case POINT_SET:
-        case POLYGON_MESH:
-        case VOLUME_MESH: {
-            return CloneDataset(this->GetReference());
+        case RepresenterDataType::POINT_SET:
+        case RepresenterDataType::POLYGON_MESH:
+        case RepresenterDataType::VOLUME_MESH: {
+            return this->CloneDataset(this->GetReference());
             break;
         }
-        case IMAGE:
-        case VECTOR: {
-            VectorType zeroVec = VectorType::Zero(GetDomain().GetNumberOfPoints() * GetDimensions());
-            return SampleVectorToSample(zeroVec);
+        case RepresenterDataType::IMAGE:
+        case RepresenterDataType::VECTOR: {
+            VectorType zeroVec = VectorType::Zero(this->GetDomain().GetNumberOfPoints() * GetDimensions());
+            return this->SampleVectorToSample(zeroVec);
             break;
         }
         default: {
@@ -313,8 +331,11 @@ class Representer {
         }
         }
     }
-};
 
+    protected:
+    RepresenterBase() = default;
+
+    };
 }
 
 #endif /* REPRESENTER_H_ */

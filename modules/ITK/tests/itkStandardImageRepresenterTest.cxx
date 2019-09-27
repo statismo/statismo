@@ -35,7 +35,7 @@
  *
  */
 
-#include "genericRepresenterTest.hxx"
+#include "GenericRepresenterTest.hxx"
 #include "itkStandardImageRepresenter.h"
 
 

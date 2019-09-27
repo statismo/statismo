@@ -67,9 +67,9 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::~vtkStandardImageRepresen
 
 template<class TScalar, unsigned PixelDimensions>
 vtkStandardImageRepresenter<TScalar, PixelDimensions>*
-vtkStandardImageRepresenter<TScalar, PixelDimensions>::Clone() const {
+vtkStandardImageRepresenter<TScalar, PixelDimensions>::CloneImpl() const {
     // this works since Create deep copies the reference
-    return Create(m_reference);
+    return vtkStandardImageRepresenter<TScalar, PixelDimensions>::Create(m_reference);
 }
 
 template<class TScalar, unsigned PixelDimensions>
@@ -314,7 +314,7 @@ VectorType vtkStandardImageRepresenter<TScalar, PixelDimensions>::SampleToSample
         double val[PixelDimensions];
         dataArray->GetTuple(i, val);
         for (unsigned d = 0; d < PixelDimensions; d++) {
-            unsigned idx = MapPointIdToInternalIdx(i, d);
+            unsigned idx = vtkStandardImageRepresenter::MapPointIdToInternalIdx(i, d);
             sample(idx) = val[d];
         }
     }
@@ -334,7 +334,7 @@ TScalar, PixelDimensions>::SampleVectorToSample(
     for (unsigned i = 0; i < GetNumberOfPoints(); i++) {
         double val[PixelDimensions];
         for (unsigned d = 0; d < PixelDimensions; d++) {
-            unsigned idx = MapPointIdToInternalIdx(i, d);
+            unsigned idx = vtkStandardImageRepresenter::MapPointIdToInternalIdx(i, d);
             val[d] = sample(idx);
         }
         dataArray->SetTuple(i, val);
@@ -432,7 +432,7 @@ void vtkStandardImageRepresenter<TScalar, Dimensions>::Save(
     HDF5Utils::writeMatrix(fg, "direction", directionMat);
 
     typedef statismo::GenericEigenType<double>::MatrixType DoubleMatrixType;
-    DoubleMatrixType pixelMat(GetDimensions(), GetNumberOfPoints());
+    DoubleMatrixType pixelMat(vtkStandardImageRepresenter::GetDimensions(), GetNumberOfPoints());
 
     for (unsigned i = 0; i < static_cast<unsigned>(size[2]); i++) {
         for (unsigned j = 0; j < static_cast<unsigned>(size[1]); j++) {
@@ -441,7 +441,7 @@ void vtkStandardImageRepresenter<TScalar, Dimensions>::Save(
                 TScalar * pixel =
                     static_cast<TScalar*>(m_reference->GetScalarPointer(k,
                                           j, i));
-                for (unsigned d = 0; d < GetDimensions(); d++) {
+                for (unsigned d = 0; d < vtkStandardImageRepresenter::GetDimensions(); d++) {
                     pixelMat(d, ind) = pixel[d];
                 }
             }
@@ -449,7 +449,7 @@ void vtkStandardImageRepresenter<TScalar, Dimensions>::Save(
     }
 
     H5::Group pdGroup = fg.createGroup("pointData");
-    statismo::HDF5Utils::writeInt(pdGroup, "pixelDimension", GetDimensions());
+    statismo::HDF5Utils::writeInt(pdGroup, "pixelDimension", vtkStandardImageRepresenter::GetDimensions());
 
 
     H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup,
@@ -462,19 +462,19 @@ void vtkStandardImageRepresenter<TScalar, Dimensions>::Save(
 
 template<class TScalar, unsigned Dimensions>
 unsigned vtkStandardImageRepresenter<TScalar, Dimensions>::GetNumberOfPoints() const {
-    return GetNumberOfPoints(this->m_reference);
+    return this->GetNumberOfPoints(this->m_reference);
 }
 
 template<class TScalar, unsigned Dimensions>
 void vtkStandardImageRepresenter<TScalar, Dimensions>::SetReference(
-    const vtkStructuredPoints* reference) {
+    DatasetConstPointerType reference) {
 
     if (m_reference == 0) {
         m_reference = vtkStructuredPoints::New();
     }
     m_reference->DeepCopy(const_cast<vtkStructuredPoints*>(reference));
     // set the domain
-    DomainType::DomainPointsListType ptList;
+    typename DomainType::DomainPointsListType ptList;
     for (unsigned i = 0; i < m_reference->GetNumberOfPoints(); i++) {
         double* d = m_reference->GetPoint(i);
         ptList.push_back(vtkPoint(d));
@@ -491,7 +491,7 @@ unsigned vtkStandardImageRepresenter<TScalar, Dimensions>::GetPointIdForPoint(
 
 template<class TScalar, unsigned Dimensions>
 unsigned vtkStandardImageRepresenter<TScalar, Dimensions>::GetNumberOfPoints(
-    vtkStructuredPoints* reference) {
+    DatasetPointerType reference) {
     return reference->GetNumberOfPoints();
 }
 

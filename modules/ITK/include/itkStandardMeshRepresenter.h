@@ -78,7 +78,8 @@ namespace itk {
  * \sa Representer
  */
 template <class TPixel, unsigned MeshDimension>
-class StandardMeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, MeshDimension> >, public Object {
+class StandardMeshRepresenter : public statismo::RepresenterBase<itk::Mesh<TPixel, MeshDimension>,
+StandardMeshRepresenter<TPixel, MeshDimension> >, public Object {
   public:
 
     /* Standard class typedefs. */
@@ -86,6 +87,9 @@ class StandardMeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, M
     typedef Object	Superclass;
     typedef SmartPointer<Self>                Pointer;
     typedef SmartPointer<const Self>          ConstPointer;
+        using Base = statismo::RepresenterBase<
+    itk::Mesh<TPixel, MeshDimension>,  StandardMeshRepresenter<TPixel, MeshDimension>>;
+    friend Base;
 
 
     typedef itk::Mesh<TPixel, MeshDimension> MeshType;
@@ -104,12 +108,7 @@ class StandardMeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, M
     itkTypeMacro( StandardMeshRepresenter, Object );
 
 
-    static StandardMeshRepresenter* Create() {
-        return new StandardMeshRepresenter();
-    }
-
     void Load(const H5::Group& fg);
-    StandardMeshRepresenter* Clone() const;
 
     /// The type of the data set to be used
     typedef MeshType DatasetType;
@@ -120,19 +119,6 @@ class StandardMeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, M
 
     StandardMeshRepresenter();
     virtual ~StandardMeshRepresenter();
-
-    unsigned GetDimensions() const {
-        return MeshDimension;
-    }
-    std::string GetName() const {
-        return "itkStandardMeshRepresenter";
-    }
-    typename RepresenterBaseType::RepresenterDataType GetType() const {
-        return RepresenterBaseType::POLYGON_MESH;
-    }
-    std::string GetVersion() const {
-        return "0.1";
-    }
 
     const DomainType& GetDomain() const {
         return m_domain;
@@ -195,6 +181,21 @@ class StandardMeshRepresenter : public statismo::Representer<itk::Mesh<TPixel, M
     DatasetPointerType CloneDataset(DatasetConstPointerType mesh) const;
 
   private:
+
+     static unsigned GetDimensionsImpl() {
+        return MeshDimension;
+    }
+    static std::string GetNameImpl() {
+        return "itkStandardMeshRepresenter";
+    }
+    static statismo::RepresenterDataType GetTypeImpl() {
+        return statismo::RepresenterDataType::POLYGON_MESH;
+    }
+    static std::string GetVersionImpl() {
+        return "0.1";
+    }
+
+    StandardMeshRepresenter* CloneImpl() const;
 
     typename MeshType::Pointer LoadRef(const H5::Group& fg) const;
     typename MeshType::Pointer LoadRefLegacy(const H5::Group& fg) const;

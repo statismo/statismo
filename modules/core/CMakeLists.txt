@@ -1,6 +1,7 @@
 # Create target
 add_library(statismo_core ${statismo_LIB_TYPE}
   src/ModelInfo.cxx
+  src/Representer.cxx
 )
 
 target_link_libraries(statismo_core ${HDF5_LIBRARIES})

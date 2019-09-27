@@ -82,59 +82,34 @@ struct RepresenterTraits<statismo::VectorType> {
  *
  * \warning This representer is mainly for debugging purposes and not intended to be used for real projets
  */
-class TrivialVectorialRepresenter : public Representer<statismo::VectorType> {
+class TrivialVectorialRepresenter : public RepresenterBase<statismo::VectorType, TrivialVectorialRepresenter> {
   public:
 
+    typedef RepresenterBase<statismo::VectorType, TrivialVectorialRepresenter> RepresenterBaseType;
+    friend RepresenterBaseType;
     typedef statismo::ScalarType ValueType;
-    typedef statismo::Domain<PointType> DomainType;
-    typedef Representer<statismo::VectorType> RepresenterBaseType;
-
-    static TrivialVectorialRepresenter* Create() {
-        return new TrivialVectorialRepresenter();
-    }
-
-    static TrivialVectorialRepresenter* Create(unsigned numberOfPoints) {
-        return new TrivialVectorialRepresenter(numberOfPoints);
-    }
+    using DomainType = typename statismo::Domain<PointType>;
 
     void Load(const H5::Group& fg) {
         unsigned numPoints = static_cast<unsigned>(statismo::HDF5Utils::readInt(fg, "numberOfPoints"));
         initializeObject(numPoints);
     }
 
-    TrivialVectorialRepresenter* Clone() const {
-        return TrivialVectorialRepresenter::Create(m_domain.GetNumberOfPoints());
-    }
     void Delete() const {
         delete this;
     }
 
     virtual ~TrivialVectorialRepresenter() {}
 
-
-    std::string GetName() const {
-        return "TrivialVectorialRepresenter";
-    }
-    unsigned GetDimensions() const {
-        return 1;
-    }
-    std::string GetVersion() const {
-        return "0.1";
-    }
-    RepresenterBaseType::RepresenterDataType GetType() const {
-        return  RepresenterBaseType::VECTOR;
-    }
-
-
     void DeleteDataset(DatasetPointerType d) const { };
     DatasetPointerType CloneDataset(DatasetConstPointerType d) const {
         return d;
     }
 
-
     const DomainType& GetDomain() const {
         return m_domain;
     }
+
     DatasetConstPointerType GetReference() const {
         return VectorType::Zero(m_domain.GetNumberOfPoints());
     }
@@ -175,9 +150,28 @@ class TrivialVectorialRepresenter : public Representer<statismo::VectorType> {
         return point.ptId;
     }
 
+    protected:
+    static std::string GetNameImpl() {
+        return "TrivialVectorialRepresenter";
+    }
+    static unsigned GetDimensionsImpl() {
+        return 1;
+    }
+    static std::string GetVersionImpl() {
+        return "0.1";
+    }
+    static RepresenterDataType GetTypeImpl() {
+        return  RepresenterDataType::VECTOR;
+    }
+
 
   private:
-    TrivialVectorialRepresenter() {}
+ 
+    TrivialVectorialRepresenter* CloneImpl() const {
+        return TrivialVectorialRepresenter::Create(m_domain.GetNumberOfPoints());
+    }
+
+    TrivialVectorialRepresenter() = default;
 
     TrivialVectorialRepresenter(unsigned numberOfPoints) {
         initializeObject(numberOfPoints);
@@ -186,7 +180,7 @@ class TrivialVectorialRepresenter : public Representer<statismo::VectorType> {
     void initializeObject(unsigned numberOfPoints) {
 
         // the domain for vectors correspond to the valid indices.
-        DomainType::DomainPointsListType domainPoints;
+        typename DomainType::DomainPointsListType domainPoints;
         for (unsigned i = 0; i < numberOfPoints; i++) {
             domainPoints.push_back(PointIdType(i));
         }
@@ -194,9 +188,6 @@ class TrivialVectorialRepresenter : public Representer<statismo::VectorType> {
     }
 
     DomainType m_domain;
-
-    TrivialVectorialRepresenter(const TrivialVectorialRepresenter& orig);
-    TrivialVectorialRepresenter& operator=(const TrivialVectorialRepresenter& rhs);
 };
 
 }

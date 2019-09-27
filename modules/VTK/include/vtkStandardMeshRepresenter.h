@@ -77,41 +77,19 @@ struct RepresenterTraits<vtkPolyData> {
  * See Representer for more details about representer classes
  * \sa Representer
  */
-class vtkStandardMeshRepresenter : public Representer<vtkPolyData> {
+class vtkStandardMeshRepresenter : public RepresenterBase<vtkPolyData, vtkStandardMeshRepresenter> {
   public:
-
-
-    static vtkStandardMeshRepresenter* Create() {
-        return new vtkStandardMeshRepresenter();
-    }
-
-    static vtkStandardMeshRepresenter* Create(const vtkPolyData* reference) {
-        return new vtkStandardMeshRepresenter(reference);
-    }
-
+    using RepresenterBaseType = RepresenterBase<vtkPolyData, vtkStandardMeshRepresenter>;
+    friend RepresenterBaseType;
 
     void Load(const H5::Group& fg);
 
-    vtkStandardMeshRepresenter* Clone() const;
     void Delete() const {
         delete this;
     }
 
     virtual ~vtkStandardMeshRepresenter();
 
-
-    std::string GetName() const {
-        return "vtkStandardMeshRepresenter";
-    }
-    unsigned GetDimensions() const {
-        return 3;
-    }
-    std::string GetVersion() const {
-        return "1.0" ;
-    }
-    RepresenterDataType GetType() const {
-        return POLYGON_MESH;
-    }
     const DomainType& GetDomain() const {
         return m_domain;
     }
@@ -150,6 +128,21 @@ class vtkStandardMeshRepresenter : public Representer<vtkPolyData> {
     vtkStandardMeshRepresenter(const DatasetConstPointerType reference);
     vtkStandardMeshRepresenter(const vtkStandardMeshRepresenter& orig);
     vtkStandardMeshRepresenter& operator=(const vtkStandardMeshRepresenter& rhs);
+
+    vtkStandardMeshRepresenter* CloneImpl() const;
+
+    static std::string GetNameImpl() {
+        return "vtkStandardMeshRepresenter";
+    }
+    static unsigned GetDimensionsImpl() {
+        return 3;
+    }
+    static std::string GetVersionImpl() {
+        return "1.0" ;
+    }
+    static RepresenterDataType GetTypeImpl() {
+        return RepresenterDataType::POLYGON_MESH;
+    }
 
     void SetReference(const vtkPolyData* reference);
 

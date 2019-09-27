@@ -47,7 +47,7 @@
 #include "CommonTypes.h"
 #include "DataManager.h"
 #include "Domain.h"
-#include "genericRepresenterTest.hxx"
+#include "GenericRepresenterTest.hxx"
 #include "PCAModelBuilder.h"
 #include "vtkStandardMeshRepresenter.h"
 #include "vtkTestHelper.h"

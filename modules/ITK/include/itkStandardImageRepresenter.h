@@ -60,8 +60,8 @@ namespace itk {
  */
 
 template<class TPixel, unsigned ImageDimension>
-class StandardImageRepresenter: public Object, public statismo::Representer<
-    itk::Image<TPixel, ImageDimension> > {
+class StandardImageRepresenter: public Object, public statismo::RepresenterBase<
+    itk::Image<TPixel, ImageDimension>,  StandardImageRepresenter<TPixel, ImageDimension>> {
   public:
 
     /* Standard class typedefs. */
@@ -69,6 +69,9 @@ class StandardImageRepresenter: public Object, public statismo::Representer<
     typedef Object Superclass;
     typedef SmartPointer<Self> Pointer;
     typedef SmartPointer<const Self> ConstPointer;
+    using Base = statismo::RepresenterBase<
+    itk::Image<TPixel, ImageDimension>,  StandardImageRepresenter<TPixel, ImageDimension>>;
+    friend Base;
 
     /** New macro for creation of through a Smart Pointer. */
     itkSimpleNewMacro (Self);
@@ -86,31 +89,10 @@ class StandardImageRepresenter: public Object, public statismo::Representer<
     typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
     typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
 
-    static StandardImageRepresenter* Create() {
-        return new StandardImageRepresenter();
-    }
     void Load(const H5::Group& fg);
-    StandardImageRepresenter* Clone() const;
 
     StandardImageRepresenter();
     virtual ~StandardImageRepresenter();
-
-    unsigned GetDimensions() const {
-        return PixelConversionTrait<TPixel>::GetPixelDimension();
-    }
-    std::string GetName() const {
-        return "itkStandardImageRepresenter";
-    }
-    typename RepresenterBaseType::RepresenterDataType GetType() const {
-        return RepresenterBaseType::IMAGE;
-    }
-
-    const DomainType& GetDomain() const {
-        return m_domain;
-    }
-    std::string GetVersion() const {
-        return "0.1";
-    }
 
     /// return the reference used in the representer
     DatasetConstPointerType GetReference() const {
@@ -146,11 +128,30 @@ class StandardImageRepresenter: public Object, public statismo::Representer<
         this->UnRegister();
     }
 
+    const DomainType& GetDomain() const {
+        return m_domain;
+    }
 
     void DeleteDataset(DatasetConstPointerType d) const {}
     DatasetPointerType CloneDataset(DatasetConstPointerType d) const;
 
   private:
+
+    static unsigned GetDimensionsImpl() {
+        return PixelConversionTrait<TPixel>::GetPixelDimension();
+    }
+    static std::string GetNameImpl() {
+        return "itkStandardImageRepresenter";
+    }
+    static statismo::RepresenterDataType GetTypeImpl() {
+        return statismo::RepresenterDataType::IMAGE;
+    }
+
+    static std::string GetVersionImpl() {
+        return "0.1";
+    }
+
+    StandardImageRepresenter* CloneImpl() const;
 
     typename ImageType::Pointer LoadRef(const H5::Group& fg) const;
     typename ImageType::Pointer LoadRefLegacy(const H5::Group& fg) const;

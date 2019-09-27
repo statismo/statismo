@@ -80,20 +80,19 @@ struct RepresenterTraits<vtkStructuredPoints> {
 
 
 template <class TScalar, unsigned PixelDimensions>
-class vtkStandardImageRepresenter  : public Representer<vtkStructuredPoints> {
+class vtkStandardImageRepresenter  : public RepresenterBase<vtkStructuredPoints, vtkStandardImageRepresenter<TScalar, PixelDimensions>> {
   public:
 
+    using RepresenterBaseType = RepresenterBase<vtkStructuredPoints, vtkStandardImageRepresenter<TScalar, PixelDimensions>>;
+    friend RepresenterBaseType;
 
-
-    static vtkStandardImageRepresenter* Create(const vtkStructuredPoints* reference) {
-        return new vtkStandardImageRepresenter(reference);
-    }
-    static vtkStandardImageRepresenter* Create() {
-        return new vtkStandardImageRepresenter();
-    }
+    using DatasetPointerType = typename RepresenterBaseType::DatasetPointerType;
+    using DatasetConstPointerType = typename RepresenterBaseType::DatasetConstPointerType;
+    using PointType = typename RepresenterBaseType::PointType;
+    using DomainType = typename RepresenterBaseType::DomainType;
+    using ValueType = typename RepresenterBaseType::ValueType;
 
     void Load(const H5::Group& fg);
-    vtkStandardImageRepresenter* Clone() const;
 
     virtual ~vtkStandardImageRepresenter();
     void Delete() const {
@@ -110,22 +109,8 @@ class vtkStandardImageRepresenter  : public Representer<vtkStructuredPoints> {
         return clone;
     }
 
-
-    unsigned GetDimensions() const {
-        return  PixelDimensions;
-    }
-    std::string GetVersion() const {
-        return "1.0" ;
-    }
-    RepresenterDataType GetType() const {
-        return IMAGE;
-    }
     const DomainType& GetDomain() const  {
         return m_domain;
-    }
-
-    std::string GetName() const {
-        return "vtkStandardImageRepresenter";
     }
 
     const vtkStructuredPoints* GetReference() const {
@@ -150,6 +135,24 @@ class vtkStandardImageRepresenter  : public Representer<vtkStructuredPoints> {
 
 
   private:
+
+    static unsigned GetDimensionsImpl() {
+        return  PixelDimensions;
+    }
+    
+    static std::string GetVersionImpl() {
+        return "1.0" ;
+    }
+
+    static RepresenterDataType GetTypeImpl() {
+        return RepresenterDataType::IMAGE;
+    }
+
+    static std::string GetNameImpl() {
+        return "vtkStandardImageRepresenter";
+    }
+
+    vtkStandardImageRepresenter* CloneImpl() const;
 
     vtkStructuredPoints* LoadRefLegacy(const H5::Group& fg) const;
     vtkStructuredPoints* LoadRef(const H5::Group& fg) const;

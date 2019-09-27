@@ -216,7 +216,7 @@ class IO {
         try {
             // create the group structure
 
-            std::string dataTypeStr = StatisticalModelType::RepresenterType::TypeToString(model.GetRepresenter()->GetType());
+            std::string dataTypeStr = TypeToString(model.GetRepresenter()->GetType());
 
             H5::Group representerGroup = modelRoot.createGroup("./representer");
             HDF5Utils::writeStringAttribute(representerGroup, "name", model.GetRepresenter()->GetName());

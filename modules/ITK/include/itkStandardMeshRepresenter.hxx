@@ -64,7 +64,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::~StandardMeshRepresenter() {
 
 template <class TPixel, unsigned MeshDimension>
 StandardMeshRepresenter<TPixel, MeshDimension>*
-StandardMeshRepresenter<TPixel, MeshDimension>::Clone() const {
+StandardMeshRepresenter<TPixel, MeshDimension>::CloneImpl() const {
 
     StandardMeshRepresenter* clone = new StandardMeshRepresenter();
     clone->Register();
@@ -227,14 +227,14 @@ StandardMeshRepresenter<TPixel, MeshDimension>::PointToVector(const PointType& p
 template <class TPixel, unsigned MeshDimension>
 statismo::VectorType
 StandardMeshRepresenter<TPixel, MeshDimension>::SampleToSampleVector(DatasetConstPointerType mesh) const {
-    statismo::VectorType sample(GetNumberOfPoints() * GetDimensions());
+    statismo::VectorType sample(GetNumberOfPoints() * StandardMeshRepresenter::GetDimensions());
 
     typename PointsContainerType::Pointer points = mesh->GetPoints();
 
     typename PointsContainerType::Iterator pointIterator= points->Begin();
     unsigned id = 0;
     while( pointIterator != points->End() ) {
-        for (unsigned d = 0; d < GetDimensions(); d++) {
+        for (unsigned d = 0; d < StandardMeshRepresenter::GetDimensions(); d++) {
             unsigned idx = this->MapPointIdToInternalIdx(id, d);
             sample[idx] = pointIterator.Value()[d];
         }
@@ -256,7 +256,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::SampleVectorToSample(const stati
     unsigned ptId = 0;
     while( pointsIterator != points->End() ) {
         ValueType v;
-        for (unsigned d = 0; d < GetDimensions(); d++) {
+        for (unsigned d = 0; d < StandardMeshRepresenter::GetDimensions(); d++) {
             unsigned idx = this->MapPointIdToInternalIdx(ptId, d);
             v[d] = sample[idx];
         }
@@ -283,7 +283,7 @@ template <class TPixel, unsigned MeshDimension>
 typename StandardMeshRepresenter<TPixel, MeshDimension>::ValueType
 StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const {
     ValueType value;
-    for (unsigned d = 0; d < GetDimensions(); d++) {
+    for (unsigned d = 0; d < StandardMeshRepresenter::GetDimensions(); d++) {
         value[d] = pointSample[d];
     }
     return value;
@@ -291,8 +291,8 @@ StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleVectorToPointSample(c
 template <class TPixel, unsigned MeshDimension>
 statismo::VectorType
 StandardMeshRepresenter<TPixel, MeshDimension>::PointSampleToPointSampleVector(const ValueType& v) const {
-    statismo::VectorType vec(GetDimensions());
-    for (unsigned d = 0; d < GetDimensions(); d++) {
+    statismo::VectorType vec(StandardMeshRepresenter::GetDimensions());
+    for (unsigned d = 0; d < StandardMeshRepresenter::GetDimensions(); d++) {
         vec[d] = v[d];
     }
     return vec;

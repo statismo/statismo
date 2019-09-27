@@ -35,7 +35,7 @@
  *
  */
 
-#include "genericRepresenterTest.hxx"
+#include "GenericRepresenterTest.hxx"
 #include "vtkStandardImageRepresenter.h"
 
 #include "vtkTestHelper.h"

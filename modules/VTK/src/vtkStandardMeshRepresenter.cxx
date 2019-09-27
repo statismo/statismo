@@ -73,7 +73,7 @@ vtkStandardMeshRepresenter::~vtkStandardMeshRepresenter() {
 }
 
 vtkStandardMeshRepresenter*
-vtkStandardMeshRepresenter::Clone() const {
+vtkStandardMeshRepresenter::CloneImpl() const {
     // this works since Create deep copies the reference
     return Create(m_reference);
 }

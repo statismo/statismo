@@ -51,7 +51,7 @@ namespace statismo {
 
 template<typename T>
 DataManager<T>::DataManager(const RepresenterType* representer)
-    : m_representer(representer->Clone()) {
+    : m_representer(representer->CloneSelf()) {
 }
 
 template<typename T>
@@ -172,7 +172,7 @@ void DataManager<T>::Save(const std::string& filename) const {
     try {
 
         Group representerGroup = file.createGroup("./representer");
-        std::string dataTypeStr = RepresenterType::TypeToString(m_representer->GetType());
+        std::string dataTypeStr = TypeToString(m_representer->GetType());
 
         HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
         HDF5Utils::writeStringAttribute(representerGroup, "version", m_representer->GetVersion());

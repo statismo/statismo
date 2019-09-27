@@ -38,7 +38,7 @@
 #include <vtkPolyDataReader.h>
 #include <vtkSmartPointer.h>
 
-#include "genericRepresenterTest.hxx"
+#include "GenericRepresenterTest.hxx"
 #include "vtkStandardMeshRepresenter.h"
 
 #include "vtkTestHelper.h"

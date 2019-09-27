@@ -78,7 +78,7 @@ vtkUnstructuredGridRepresenter::~vtkUnstructuredGridRepresenter() {
 
 
 vtkUnstructuredGridRepresenter*
-vtkUnstructuredGridRepresenter::Clone() const {
+vtkUnstructuredGridRepresenter::CloneSelf() const {
     // this works since Create deep copies the reference
     return Create(m_reference, m_alignment);
 }

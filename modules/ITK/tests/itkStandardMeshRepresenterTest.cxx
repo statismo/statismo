@@ -37,7 +37,7 @@
 
 #include <itkMeshFileReader.h>
 
-#include "genericRepresenterTest.hxx"
+#include "GenericRepresenterTest.hxx"
 
 #include "itkStandardMeshRepresenter.h"
 

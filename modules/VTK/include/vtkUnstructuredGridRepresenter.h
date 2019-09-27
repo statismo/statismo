@@ -51,6 +51,7 @@
 #include "Domain.h"
 #include "vtkHelper.h"
 #include "vtkPoint.h"
+#include "Representer.h"
 
 /**
  * \brief A representer for vtkUnstructuredGrid using Procrustes alignment to align the datasets
@@ -66,7 +67,7 @@
  *
  * See Representer for more details about representer classes
  */
-class vtkUnstructuredGridRepresenter  {
+class vtkUnstructuredGridRepresenter {
   public:
 
     /// The type of the data set to be used
@@ -95,7 +96,7 @@ class vtkUnstructuredGridRepresenter  {
 
     static vtkUnstructuredGridRepresenter* Load(const H5::H5Location& fg);
 
-    vtkUnstructuredGridRepresenter* Clone() const;
+    vtkUnstructuredGridRepresenter* CloneSelf() const;
     void Delete() const {
         delete this;
     }

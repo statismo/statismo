@@ -45,7 +45,6 @@
 
 typedef statismo::TrivialVectorialRepresenter RepresenterType;
 
-
 /**
  * This basic test case, covers the model creation pipeline and tests whether a model can be successfully
  * saved to disk. If the test runs correctly, it merely means that statismo has been setup correclty and hdf5
@@ -60,11 +59,15 @@ int basicStatismoTest(int argc, char* argv[]) {
     typedef statismo::StatisticalModel<statismo::VectorType> StatisticalModelType;
     typedef statismo::DataManager<statismo::VectorType> DataManagerType;
 
-
     try {
         const unsigned Dim = 3;
         std::unique_ptr<RepresenterType> representer(RepresenterType::Create(Dim));
         std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+
+        // TODO: 
+        // - test basic GetVersion etc.
+        // - test safe factory
+        // - test safe clone
 
         // we create three simple datasets
         statismo::VectorType dataset1(Dim), dataset2(Dim), dataset3(Dim);
