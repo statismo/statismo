@@ -40,43 +40,50 @@
 
 #include <memory>
 
-namespace statismo {
-    
-    /* \class Clonable base class
-     */
-    template<typename Derived>
-    class Clonable
-    {
-    public:
-        virtual ~Clonable() = default;
-        Clonable() = default;
-        Clonable(Clonable&&) = delete;
-        Clonable& operator=(Clonable&&) = delete;
-        Clonable& operator=(const Clonable&) = delete;
+namespace statismo
+{
 
-        Derived* CloneSelf() const
-        {
-            return this->CloneImpl();
-        }
+/* \class Clonable base class
+ */
+template <typename Derived>
+class Clonable
+{
+public:
+  virtual ~Clonable() = default;
+  Clonable() = default;
+  Clonable(Clonable &&) = delete;
+  Clonable &
+  operator=(Clonable &&) = delete;
+  Clonable &
+  operator=(const Clonable &) = delete;
 
-        auto SafeCloneSelf() const
-        {
-            return SafeCloneSelfWithCustomDeletor<StdDeletor>();
-        }
+  Derived *
+  CloneSelf() const
+  {
+    return this->CloneImpl();
+  }
 
-        template <typename Deletor>
-        auto SafeCloneSelfWithCustomDeletor() const
-        {
-            std::unique_ptr<Derived, Deletor> ptr{this->CloneImpl(), Deletor()};
-		    return ptr;
-        }
+  auto
+  SafeCloneSelf() const
+  {
+    return SafeCloneSelfWithCustomDeletor<StdDeletor>();
+  }
 
-    protected:
-        Clonable(const Clonable&) = default;
+  template <typename Deletor>
+  auto
+  SafeCloneSelfWithCustomDeletor() const
+  {
+    std::unique_ptr<Derived, Deletor> ptr{ this->CloneImpl(), Deletor() };
+    return ptr;
+  }
 
-    private:
-        virtual Derived* CloneImpl() const = 0;
-    };
-}
+protected:
+  Clonable(const Clonable &) = default;
+
+private:
+  virtual Derived *
+  CloneImpl() const = 0;
+};
+} // namespace statismo
 
 #endif

@@ -60,232 +60,318 @@ const unsigned Dimensionality3D = 3;
 namespace po = lpo;
 using namespace std;
 
-struct ProgramOptions {
-    string strInputModelFileName;
-    string strInputMovingImageFileName;
-    string strInputFixedImageFileName;
+struct ProgramOptions
+{
+  string strInputModelFileName;
+  string strInputMovingImageFileName;
+  string strInputFixedImageFileName;
 
-    string strOutputFittedImageFileName;
-    string strOutputModelTransformFileName;
-    string strOutputEntireTransformFileName;
+  string strOutputFittedImageFileName;
+  string strOutputModelTransformFileName;
+  string strOutputEntireTransformFileName;
 
-    string strInputFixedLandmarksFileName;
-    string strInputMovingLandmarksFileName;
-    double dLandmarksVariance;
+  string strInputFixedLandmarksFileName;
+  string strInputMovingLandmarksFileName;
+  double dLandmarksVariance;
 
-    unsigned uNumberOfDimensions;
-    unsigned uNumberOfIterations;
-    double dRegularizationWeight;
+  unsigned uNumberOfDimensions;
+  unsigned uNumberOfIterations;
+  double   dRegularizationWeight;
 
-    bool bPrintFittingInformation;
+  bool bPrintFittingInformation;
 };
 
-bool isOptionsConflictPresent(const ProgramOptions& opt);
-template<unsigned Dimensions, class RotationAndTranslationTransformType>
-void fitImage(const ProgramOptions& opt, ConsoleOutputSilencer* pCOSilencer);
+bool
+isOptionsConflictPresent(const ProgramOptions & opt);
+template <unsigned Dimensions, class RotationAndTranslationTransformType>
+void
+fitImage(const ProgramOptions & opt, ConsoleOutputSilencer * pCOSilencer);
 
-int main(int argc, char** argv) {
+int
+main(int argc, char ** argv)
+{
 
-    ProgramOptions poParameters;
-    lpo::program_options<std::string, double, unsigned> parser{argv[0], "Program help:"};
+  ProgramOptions                                      poParameters;
+  lpo::program_options<std::string, double, unsigned> parser{ argv[0], "Program help:" };
 
-    parser.add_opt<std::string>({"input-model", "i", "The path to the model file.", &poParameters.strInputModelFileName},true).
-        add_opt<std::string>({"moving-image", "m", "The path to the moving image.", &poParameters.strInputMovingImageFileName},true).
-        add_opt<std::string>({"fixed-image", "f", "The path to the fixed image.", &poParameters.strInputFixedImageFileName},true).
-        add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image and model", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
-        add_opt<unsigned>({"number-of-iterations", "n", "Number of iterations", &poParameters.uNumberOfIterations, 100},true).
-        add_opt<double>({"regularization-weight", "w", "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.", &poParameters.dRegularizationWeight},true).
+  parser
+    .add_opt<std::string>({ "input-model", "i", "The path to the model file.", &poParameters.strInputModelFileName },
+                          true)
+    .add_opt<std::string>(
+      { "moving-image", "m", "The path to the moving image.", &poParameters.strInputMovingImageFileName }, true)
+    .add_opt<std::string>(
+      { "fixed-image", "f", "The path to the fixed image.", &poParameters.strInputFixedImageFileName }, true)
+    .add_opt<unsigned>({ "dimensionality",
+                         "d",
+                         "Dimensionality of the input image and model",
+                         &poParameters.uNumberOfDimensions,
+                         3,
+                         2,
+                         3 },
+                       true)
+    .add_opt<unsigned>({ "number-of-iterations", "n", "Number of iterations", &poParameters.uNumberOfIterations, 100 },
+                       true)
+    .add_opt<double>(
+      { "regularization-weight",
+        "w",
+        "This is the regularization weight to make sure the model parameters don't don't get too big while fitting.",
+        &poParameters.dRegularizationWeight },
+      true)
+    .
 
-        add_opt<std::string>({"output-model-deformationfield", "a", "Name of the output file where the model deformation field will be written to.", &poParameters.strOutputModelTransformFileName}).
-        add_opt<std::string>({"output-deformationfield", "e", "Name of the output file where the entire deformation field will be written to. This includes the rotation and translation (Only use this when NOT using landmarks).", &poParameters.strOutputEntireTransformFileName}).
-    
-        add_opt<std::string>({"fixed-landmarks", "", "Name of the file where the fixed Landmarks are saved.", &poParameters.strInputFixedLandmarksFileName}).
-        add_opt<std::string>({"moving-landmarks", "", "Name of the file where the moving Landmarks are saved.", &poParameters.strInputMovingLandmarksFileName}).
-        add_opt<double>({"landmarks-variance", "v", "The variance that will be used to build the posterior model.", &poParameters.dLandmarksVariance, 1.0f}).
-        add_flag({"print-fitting-information", "p", "Prints information (the parameters, metric score and the iteration count) with each iteration while fitting.", &poParameters.bPrintFittingInformation}).  
-        add_pos_opt<std::string>({"Name of the output file where the fitted image will be written to.", &poParameters.strOutputFittedImageFileName});
+    add_opt<std::string>({ "output-model-deformationfield",
+                           "a",
+                           "Name of the output file where the model deformation field will be written to.",
+                           &poParameters.strOutputModelTransformFileName })
+    .add_opt<std::string>({ "output-deformationfield",
+                            "e",
+                            "Name of the output file where the entire deformation field will be written to. This "
+                            "includes the rotation and translation (Only use this when NOT using landmarks).",
+                            &poParameters.strOutputEntireTransformFileName })
+    .
 
-    if (!parser.parse(argc, argv)) {
-        return EXIT_FAILURE;
+    add_opt<std::string>({ "fixed-landmarks",
+                           "",
+                           "Name of the file where the fixed Landmarks are saved.",
+                           &poParameters.strInputFixedLandmarksFileName })
+    .add_opt<std::string>({ "moving-landmarks",
+                            "",
+                            "Name of the file where the moving Landmarks are saved.",
+                            &poParameters.strInputMovingLandmarksFileName })
+    .add_opt<double>({ "landmarks-variance",
+                       "v",
+                       "The variance that will be used to build the posterior model.",
+                       &poParameters.dLandmarksVariance,
+                       1.0f })
+    .add_flag(
+      { "print-fitting-information",
+        "p",
+        "Prints information (the parameters, metric score and the iteration count) with each iteration while fitting.",
+        &poParameters.bPrintFittingInformation })
+    .add_pos_opt<std::string>({ "Name of the output file where the fitted image will be written to.",
+                                &poParameters.strOutputFittedImageFileName });
+
+  if (!parser.parse(argc, argv))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (isOptionsConflictPresent(poParameters))
+  {
+    cerr << "A conflict in the options exists or insufficient options were set." << endl;
+    cout << parser << endl;
+    return EXIT_FAILURE;
+  }
+
+  ConsoleOutputSilencer coSilencer;
+  try
+  {
+    if (poParameters.uNumberOfDimensions == Dimensionality2D)
+    {
+      typedef itk::Rigid2DTransform<double> RotationAndTranslationTransformType;
+      fitImage<Dimensionality2D, RotationAndTranslationTransformType>(poParameters, &coSilencer);
     }
-
-    if (isOptionsConflictPresent(poParameters))	{
-        cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << parser << endl;
-        return EXIT_FAILURE;
+    else
+    {
+      typedef itk::VersorRigid3DTransform<double> RotationAndTranslationTransformType;
+      fitImage<Dimensionality3D, RotationAndTranslationTransformType>(poParameters, &coSilencer);
     }
+  }
+  catch (ifstream::failure & e)
+  {
+    coSilencer.enableOutput();
+    cerr << "Could not read a file:" << endl;
+    cerr << e.what() << endl;
+    return EXIT_FAILURE;
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    coSilencer.enableOutput();
+    cerr << "Could not fit the model:" << endl;
+    cerr << e.what() << endl;
+    return EXIT_FAILURE;
+  }
 
-    ConsoleOutputSilencer coSilencer;
-    try {
-        if (poParameters.uNumberOfDimensions == Dimensionality2D) {
-            typedef itk::Rigid2DTransform<double> RotationAndTranslationTransformType;
-            fitImage<Dimensionality2D, RotationAndTranslationTransformType>(poParameters, &coSilencer);
-        } else {
-            typedef itk::VersorRigid3DTransform<double> RotationAndTranslationTransformType;
-            fitImage<Dimensionality3D, RotationAndTranslationTransformType>(poParameters, &coSilencer);
-        }
-    } catch (ifstream::failure & e) {
-        coSilencer.enableOutput();
-        cerr << "Could not read a file:" << endl;
-        cerr << e.what() << endl;
-        return EXIT_FAILURE;
-    } catch (itk::ExceptionObject & e) {
-        coSilencer.enableOutput();
-        cerr << "Could not fit the model:" << endl;
-        cerr << e.what() << endl;
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(const ProgramOptions& opt) {
-    //if one set of the landmarks-file is provided, then both have to be provided (-> use XOR)
-    if (((opt.strInputFixedLandmarksFileName != "") ^ (opt.strInputMovingLandmarksFileName != "")) == true) {
-        return true;
-    }
+bool
+isOptionsConflictPresent(const ProgramOptions & opt)
+{
+  // if one set of the landmarks-file is provided, then both have to be provided (-> use XOR)
+  if (((opt.strInputFixedLandmarksFileName != "") ^ (opt.strInputMovingLandmarksFileName != "")) == true)
+  {
+    return true;
+  }
 
-    if (opt.strInputFixedImageFileName == "" || opt.strInputModelFileName == "" || opt.strInputMovingImageFileName == "") {
-        return true;
-    }
+  if (opt.strInputFixedImageFileName == "" || opt.strInputModelFileName == "" || opt.strInputMovingImageFileName == "")
+  {
+    return true;
+  }
 
-    //at least one thing has to be saved/displayed, otherwise running it is pointless
-    if (opt.strOutputEntireTransformFileName == "" && opt.strOutputFittedImageFileName == "" && opt.strOutputModelTransformFileName == "") {
-        return true;
-    }
+  // at least one thing has to be saved/displayed, otherwise running it is pointless
+  if (opt.strOutputEntireTransformFileName == "" && opt.strOutputFittedImageFileName == "" &&
+      opt.strOutputModelTransformFileName == "")
+  {
+    return true;
+  }
 
 
-    return false;
+  return false;
 }
 
-template<class ImageType>
-void saveImage(typename ImageType::Pointer pImage, const std::string& strOutputFileName) {
-    typedef itk::ImageFileWriter<ImageType>  ImageWriter;
-    typename ImageWriter::Pointer pImageWriter = ImageWriter::New();
-    pImageWriter->SetInput(pImage);
-    pImageWriter->SetFileName(strOutputFileName.c_str());
-    pImageWriter->Update();
+template <class ImageType>
+void
+saveImage(typename ImageType::Pointer pImage, const std::string & strOutputFileName)
+{
+  typedef itk::ImageFileWriter<ImageType> ImageWriter;
+  typename ImageWriter::Pointer           pImageWriter = ImageWriter::New();
+  pImageWriter->SetInput(pImage);
+  pImageWriter->SetFileName(strOutputFileName.c_str());
+  pImageWriter->Update();
 }
 
-template<class DisplacementFieldImageType, class ReferenceImageType, class TransformType>
-typename DisplacementFieldImageType::Pointer generateAndSaveDisplacementField(typename ReferenceImageType::Pointer pReferenceImage, typename TransformType::Pointer pTransform, const std::string& strOutputFileName) {
-    typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldImageType,	double>  DisplacementFieldGeneratorType;
-    typename DisplacementFieldGeneratorType::Pointer pDispfieldGenerator = DisplacementFieldGeneratorType::New();
-    pDispfieldGenerator->UseReferenceImageOn();
-    pDispfieldGenerator->SetReferenceImage(pReferenceImage);
+template <class DisplacementFieldImageType, class ReferenceImageType, class TransformType>
+typename DisplacementFieldImageType::Pointer
+generateAndSaveDisplacementField(typename ReferenceImageType::Pointer pReferenceImage,
+                                 typename TransformType::Pointer      pTransform,
+                                 const std::string &                  strOutputFileName)
+{
+  typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldImageType, double> DisplacementFieldGeneratorType;
+  typename DisplacementFieldGeneratorType::Pointer pDispfieldGenerator = DisplacementFieldGeneratorType::New();
+  pDispfieldGenerator->UseReferenceImageOn();
+  pDispfieldGenerator->SetReferenceImage(pReferenceImage);
 
-    pDispfieldGenerator->SetTransform(pTransform);
-    pDispfieldGenerator->Update();
+  pDispfieldGenerator->SetTransform(pTransform);
+  pDispfieldGenerator->Update();
 
-    typename DisplacementFieldImageType::Pointer pDisplacementField = pDispfieldGenerator->GetOutput();
+  typename DisplacementFieldImageType::Pointer pDisplacementField = pDispfieldGenerator->GetOutput();
 
-    if (strOutputFileName != "") {
-        saveImage<DisplacementFieldImageType>(pDisplacementField, strOutputFileName);
-    }
+  if (strOutputFileName != "")
+  {
+    saveImage<DisplacementFieldImageType>(pDisplacementField, strOutputFileName);
+  }
 
-    return pDisplacementField;
+  return pDisplacementField;
 }
 
-template<unsigned Dimensions, class RotationAndTranslationTransformType>
-void fitImage(const ProgramOptions& opt, ConsoleOutputSilencer* pCOSilencer) {
-    typedef itk::Image<float, Dimensions> ImageType;
-    typedef itk::ImageFileReader<ImageType> ImageReaderType;
-    typename ImageReaderType::Pointer pFixedImageReader = ImageReaderType::New();
-    pFixedImageReader->SetFileName(opt.strInputFixedImageFileName.c_str());
-    pFixedImageReader->Update();
-    typename ImageType::Pointer pFixedImage = pFixedImageReader->GetOutput();
+template <unsigned Dimensions, class RotationAndTranslationTransformType>
+void
+fitImage(const ProgramOptions & opt, ConsoleOutputSilencer * pCOSilencer)
+{
+  typedef itk::Image<float, Dimensions>   ImageType;
+  typedef itk::ImageFileReader<ImageType> ImageReaderType;
+  typename ImageReaderType::Pointer       pFixedImageReader = ImageReaderType::New();
+  pFixedImageReader->SetFileName(opt.strInputFixedImageFileName.c_str());
+  pFixedImageReader->Update();
+  typename ImageType::Pointer pFixedImage = pFixedImageReader->GetOutput();
 
-    typename ImageReaderType::Pointer pMovingImageReader = ImageReaderType::New();
-    pMovingImageReader->SetFileName(opt.strInputMovingImageFileName.c_str());
-    pMovingImageReader->Update();
-    typename ImageType::Pointer pMovingImage = pMovingImageReader->GetOutput();
+  typename ImageReaderType::Pointer pMovingImageReader = ImageReaderType::New();
+  pMovingImageReader->SetFileName(opt.strInputMovingImageFileName.c_str());
+  pMovingImageReader->Update();
+  typename ImageType::Pointer pMovingImage = pMovingImageReader->GetOutput();
 
-    typedef itk::Vector<float, Dimensions> VectorPixelType;
-    typedef itk::Image<VectorPixelType, Dimensions> VectorImageType;
-    typedef itk::StandardImageRepresenter<VectorPixelType, Dimensions> RepresenterType;
-    typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
+  typedef itk::Vector<float, Dimensions>                             VectorPixelType;
+  typedef itk::Image<VectorPixelType, Dimensions>                    VectorImageType;
+  typedef itk::StandardImageRepresenter<VectorPixelType, Dimensions> RepresenterType;
+  typename RepresenterType::Pointer                                  pRepresenter = RepresenterType::New();
 
-    typedef itk::StatisticalModel<VectorImageType> StatisticalModelType;
-    typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
-    pModel = itk::StatismoIO<VectorImageType>::LoadStatisticalModel(pRepresenter, opt.strInputModelFileName.c_str());
+  typedef itk::StatisticalModel<VectorImageType> StatisticalModelType;
+  typename StatisticalModelType::Pointer         pModel = StatisticalModelType::New();
+  pModel = itk::StatismoIO<VectorImageType>::LoadStatisticalModel(pRepresenter, opt.strInputModelFileName.c_str());
 
-    typedef itk::Transform<double, Dimensions, Dimensions> TransformType;
-    typename TransformType::Pointer pTransform;
+  typedef itk::Transform<double, Dimensions, Dimensions> TransformType;
+  typename TransformType::Pointer                        pTransform;
 
-    typedef itk::InterpolatingStatisticalDeformationModelTransform<VectorImageType, double, Dimensions> ModelTransformType;
-    typename ModelTransformType::Pointer pModelTransform = ModelTransformType::New();
+  typedef itk::InterpolatingStatisticalDeformationModelTransform<VectorImageType, double, Dimensions>
+                                       ModelTransformType;
+  typename ModelTransformType::Pointer pModelTransform = ModelTransformType::New();
 
-    if (opt.strInputMovingLandmarksFileName != "") {
-        pModel = buildPosteriorDeformationModel<VectorImageType, StatisticalModelType>(pModel, opt.strInputFixedLandmarksFileName, opt.strInputMovingLandmarksFileName, opt.dLandmarksVariance);
-        pTransform = pModelTransform;
-    } else {
-        //No Landmarks are available: we also have to allow rotation and translation.
-        typename RotationAndTranslationTransformType::Pointer pRotationAndTranslationTransform = RotationAndTranslationTransformType::New();
-        pRotationAndTranslationTransform->SetIdentity();
+  if (opt.strInputMovingLandmarksFileName != "")
+  {
+    pModel = buildPosteriorDeformationModel<VectorImageType, StatisticalModelType>(
+      pModel, opt.strInputFixedLandmarksFileName, opt.strInputMovingLandmarksFileName, opt.dLandmarksVariance);
+    pTransform = pModelTransform;
+  }
+  else
+  {
+    // No Landmarks are available: we also have to allow rotation and translation.
+    typename RotationAndTranslationTransformType::Pointer pRotationAndTranslationTransform =
+      RotationAndTranslationTransformType::New();
+    pRotationAndTranslationTransform->SetIdentity();
 
 
-        using TransformInitializerType = itk::CenteredTransformInitializer<RotationAndTranslationTransformType, ImageType, ImageType>;
-        auto initializer = TransformInitializerType::New();
-        initializer->SetTransform(pRotationAndTranslationTransform);
-        initializer->SetFixedImage(pFixedImage);
-        initializer->SetMovingImage(pMovingImage);
-        initializer->MomentsOn();
-        initializer->InitializeTransform();
+    using TransformInitializerType =
+      itk::CenteredTransformInitializer<RotationAndTranslationTransformType, ImageType, ImageType>;
+    auto initializer = TransformInitializerType::New();
+    initializer->SetTransform(pRotationAndTranslationTransform);
+    initializer->SetFixedImage(pFixedImage);
+    initializer->SetMovingImage(pMovingImage);
+    initializer->MomentsOn();
+    initializer->InitializeTransform();
 
-        typedef itk::CompositeTransform<double, Dimensions> CompositeTransformType;
-        typename CompositeTransformType::Pointer pCompositeTransform = CompositeTransformType::New();
-        pCompositeTransform->AddTransform(pRotationAndTranslationTransform);
-        pCompositeTransform->AddTransform(pModelTransform);
-        pCompositeTransform->SetAllTransformsToOptimizeOn();
+    typedef itk::CompositeTransform<double, Dimensions> CompositeTransformType;
+    typename CompositeTransformType::Pointer            pCompositeTransform = CompositeTransformType::New();
+    pCompositeTransform->AddTransform(pRotationAndTranslationTransform);
+    pCompositeTransform->AddTransform(pModelTransform);
+    pCompositeTransform->SetAllTransformsToOptimizeOn();
 
-        pTransform = pCompositeTransform;
-    }
+    pTransform = pCompositeTransform;
+  }
 
-    pModelTransform->SetStatisticalModel(pModel);
-    pModelTransform->SetIdentity();
+  pModelTransform->SetStatisticalModel(pModel);
+  pModelTransform->SetIdentity();
 
-    typedef itk::LBFGSOptimizer OptimizerType;
-    OptimizerType::Pointer pOptimizer = OptimizerType::New();
-    initializeOptimizer<OptimizerType>(pOptimizer, opt.uNumberOfIterations, pModel->GetNumberOfPrincipalComponents(), pTransform->GetNumberOfParameters(), opt.bPrintFittingInformation, pCOSilencer);
+  typedef itk::LBFGSOptimizer OptimizerType;
+  OptimizerType::Pointer      pOptimizer = OptimizerType::New();
+  initializeOptimizer<OptimizerType>(pOptimizer,
+                                     opt.uNumberOfIterations,
+                                     pModel->GetNumberOfPrincipalComponents(),
+                                     pTransform->GetNumberOfParameters(),
+                                     opt.bPrintFittingInformation,
+                                     pCOSilencer);
 
-    typedef itk::PenalizingMeanSquaresImageToImageMetric<ImageType, ImageType> MetricType;
-    typename MetricType::Pointer pMetric = MetricType::New();
-    pMetric->SetRegularizationParameter(opt.dRegularizationWeight);
-    pMetric->SetNumberOfModelComponents(pModel->GetNumberOfPrincipalComponents());
+  typedef itk::PenalizingMeanSquaresImageToImageMetric<ImageType, ImageType> MetricType;
+  typename MetricType::Pointer                                               pMetric = MetricType::New();
+  pMetric->SetRegularizationParameter(opt.dRegularizationWeight);
+  pMetric->SetNumberOfModelComponents(pModel->GetNumberOfPrincipalComponents());
 
-    typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
-    typename InterpolatorType::Pointer pInterpolator = InterpolatorType::New();
+  typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
+  typename InterpolatorType::Pointer                             pInterpolator = InterpolatorType::New();
 
-    typedef itk::ImageRegistrationMethod<ImageType, ImageType> RegistrationFilterType;
-    typename RegistrationFilterType::Pointer pRegistration = RegistrationFilterType::New();
-    pRegistration->SetInitialTransformParameters(pTransform->GetParameters());
-    pRegistration->SetMetric(pMetric);
-    pRegistration->SetOptimizer(pOptimizer);
-    pRegistration->SetTransform(pTransform);
-    pRegistration->SetInterpolator(pInterpolator);
-    pRegistration->SetFixedImage(pFixedImage);
-    pRegistration->SetFixedImageRegion(pFixedImage->GetBufferedRegion());
-    pRegistration->SetMovingImage(pMovingImage);
+  typedef itk::ImageRegistrationMethod<ImageType, ImageType> RegistrationFilterType;
+  typename RegistrationFilterType::Pointer                   pRegistration = RegistrationFilterType::New();
+  pRegistration->SetInitialTransformParameters(pTransform->GetParameters());
+  pRegistration->SetMetric(pMetric);
+  pRegistration->SetOptimizer(pOptimizer);
+  pRegistration->SetTransform(pTransform);
+  pRegistration->SetInterpolator(pInterpolator);
+  pRegistration->SetFixedImage(pFixedImage);
+  pRegistration->SetFixedImageRegion(pFixedImage->GetBufferedRegion());
+  pRegistration->SetMovingImage(pMovingImage);
 
-    pCOSilencer->disableOutput();
-    pRegistration->Update();
-    pCOSilencer->enableOutput();
+  pCOSilencer->disableOutput();
+  pRegistration->Update();
+  pCOSilencer->enableOutput();
 
-    typename VectorImageType::Pointer pDisplacementField = generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(
-                pFixedImage, pTransform, opt.strOutputEntireTransformFileName);
-    generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(pFixedImage, (typename TransformType::Pointer) pModelTransform, opt.strOutputModelTransformFileName);
+  typename VectorImageType::Pointer pDisplacementField =
+    generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(
+      pFixedImage, pTransform, opt.strOutputEntireTransformFileName);
+  generateAndSaveDisplacementField<VectorImageType, ImageType, TransformType>(
+    pFixedImage, (typename TransformType::Pointer)pModelTransform, opt.strOutputModelTransformFileName);
 
-    if (opt.strOutputFittedImageFileName != "") {
-        typedef itk::WarpImageFilter<ImageType, ImageType, VectorImageType> WarpFilterType;
-        typename WarpFilterType::Pointer pWarper = WarpFilterType::New();
-        pWarper->SetInput(pMovingImage);
-        pWarper->SetInterpolator(pInterpolator);
-        pWarper->SetOutputSpacing(pFixedImage->GetSpacing());
-        pWarper->SetOutputOrigin(pFixedImage->GetOrigin());
-        pWarper->SetOutputDirection(pFixedImage->GetDirection());
-        pWarper->SetDisplacementField(pDisplacementField);
-        pWarper->Update();
+  if (opt.strOutputFittedImageFileName != "")
+  {
+    typedef itk::WarpImageFilter<ImageType, ImageType, VectorImageType> WarpFilterType;
+    typename WarpFilterType::Pointer                                    pWarper = WarpFilterType::New();
+    pWarper->SetInput(pMovingImage);
+    pWarper->SetInterpolator(pInterpolator);
+    pWarper->SetOutputSpacing(pFixedImage->GetSpacing());
+    pWarper->SetOutputOrigin(pFixedImage->GetOrigin());
+    pWarper->SetOutputDirection(pFixedImage->GetDirection());
+    pWarper->SetDisplacementField(pDisplacementField);
+    pWarper->Update();
 
-        saveImage<ImageType>(pWarper->GetOutput(), opt.strOutputFittedImageFileName);
-    }
+    saveImage<ImageType>(pWarper->GetOutput(), opt.strOutputFittedImageFileName);
+  }
 }

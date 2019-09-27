@@ -47,7 +47,8 @@
 #include "ModelBuilder.h"
 #include "StatisticalModel.h"
 
-namespace statismo {
+namespace statismo
+{
 
 /**
  * \brief Creates a StatisticalModel conditioned on some external data
@@ -55,7 +56,8 @@ namespace statismo {
  * The principle of this class is to exploit supplementary information (surrogate variables) describing
  * the samples (e.g. the age and gender of the subject) to generate a conditional statistical model.
  * This class assumes a joint multivariate gaussian distribution of the sample vector and the continuous surrogates
- * Categorical surrogates are taken into account by selecting the subset of samples that fit in the requested categories.
+ * Categorical surrogates are taken into account by selecting the subset of samples that fit in the requested
+ * categories.
  *
  * For mathematical details and illustrations, see the paper
  * Conditional Variability of Statistical Shape Models Based on Surrogate Variables
@@ -70,65 +72,72 @@ namespace statismo {
  * \sa DataManagerWithSurrogates
  */
 template <typename T>
-class ConditionalModelBuilder : public ModelBuilder<T> {
-  public:
+class ConditionalModelBuilder : public ModelBuilder<T>
+{
+public:
+  typedef ModelBuilder<T>                           Superclass;
+  typedef typename Superclass::StatisticalModelType StatisticalModelType;
 
-    typedef ModelBuilder<T> Superclass;
-    typedef typename Superclass::StatisticalModelType StatisticalModelType;
+  typedef std::pair<bool, statismo::ScalarType>
+    CondVariableValuePair; // replace the first element by a bool (indicates whether the variable is in use)
+  typedef std::vector<CondVariableValuePair>
+    CondVariableValueVectorType; // replace list by vector, to gain direct access
 
-    typedef std::pair<bool, statismo::ScalarType> CondVariableValuePair;		//replace the first element by a bool (indicates whether the variable is in use)
-    typedef std::vector<CondVariableValuePair> CondVariableValueVectorType; //replace list by vector, to gain direct access
+  typedef DataManagerWithSurrogates<T>                         DataManagerType;
+  typedef typename DataManagerType::DataItemListType           DataItemListType;
+  typedef typename DataManagerType::DataItemWithSurrogatesType DataItemWithSurrogatesType;
+  typedef typename DataManagerType::SurrogateTypeInfoType      SurrogateTypeInfoType;
 
-    typedef DataManagerWithSurrogates<T> DataManagerType;
-    typedef typename DataManagerType::DataItemListType DataItemListType;
-    typedef typename DataManagerType::DataItemWithSurrogatesType DataItemWithSurrogatesType;
-    typedef typename DataManagerType::SurrogateTypeInfoType SurrogateTypeInfoType;
+  /**
+   * Factory method to create a new ConditionalModelBuilder
+   * \param representer The representer
+   */
+  static ConditionalModelBuilder *
+  Create()
+  {
+    return new ConditionalModelBuilder();
+  }
 
-    /**
-     * Factory method to create a new ConditionalModelBuilder
-     * \param representer The representer
-     */
-    static ConditionalModelBuilder* Create() {
-        return new ConditionalModelBuilder();
-    }
+  /**
+   * Destroy the object.
+   * The same effect can be achieved by deleting the object in the usual
+   * way using the c++ delete keyword.
+   */
+  void
+  Delete()
+  {
+    delete this;
+  }
 
-    /**
-     * Destroy the object.
-     * The same effect can be achieved by deleting the object in the usual
-     * way using the c++ delete keyword.
-     */
-    void Delete() {
-        delete this;
-    }
+  /**
+   * Builds a new model from the provided data and the requested constraints.
+   * \param sampleSet A list training samples with associated surrogate data - typically obtained from a
+   * DataManagerWithSurrogates. \param surrogateTypes A vector with length corresponding to the number of surrogate
+   * variables, indicating whether a variable is continuous or categorical - typically obtained from a
+   * DataManagerWithSurrogates. \param conditioningInfo A vector (length = number of surrogates) indicating which
+   * surrogates are used for conditioning, and the conditioning value. \param noiseVariance  The variance of the noise
+   * assumed on our data \return a new statistical model
+   *
+   * \warning The returned model needs to be explicitly deleted by the user of this method.
+   */
+  StatisticalModelType *
+  BuildNewModel(const DataItemListType &            sampleSet,
+                const SurrogateTypeInfoType &       surrogateTypesInfo,
+                const CondVariableValueVectorType & conditioningInfo,
+                float                               noiseVariance,
+                double                              modelVarianceRetained = 1) const;
 
-    /**
-     * Builds a new model from the provided data and the requested constraints.
-     * \param sampleSet A list training samples with associated surrogate data - typically obtained from a DataManagerWithSurrogates.
-     * \param surrogateTypes A vector with length corresponding to the number of surrogate variables, indicating whether a variable is continuous or categorical - typically obtained from a DataManagerWithSurrogates.
-     * \param conditioningInfo A vector (length = number of surrogates) indicating which surrogates are used for conditioning, and the conditioning value.
-     * \param noiseVariance  The variance of the noise assumed on our data
-     * \return a new statistical model
-     *
-     * \warning The returned model needs to be explicitly deleted by the user of this method.
-     */
-    StatisticalModelType* BuildNewModel(const DataItemListType& sampleSet,
-                                        const SurrogateTypeInfoType& surrogateTypesInfo,
-                                        const CondVariableValueVectorType& conditioningInfo,
-                                        float noiseVariance,
-                                        double modelVarianceRetained = 1) const;
+private:
+  unsigned
+  PrepareData(const DataItemListType &            DataItemList,
+              const SurrogateTypeInfoType &       surrogateTypesInfo,
+              const CondVariableValueVectorType & conditioningInfo,
+              DataItemListType *                  acceptedSamples,
+              MatrixType *                        surrogateMatrix,
+              VectorType *                        conditions) const;
 
-  private:
-
-    unsigned PrepareData(const DataItemListType& DataItemList,
-                         const SurrogateTypeInfoType& surrogateTypesInfo,
-                         const CondVariableValueVectorType& conditioningInfo,
-                         DataItemListType* acceptedSamples,
-                         MatrixType* surrogateMatrix,
-                         VectorType* conditions) const;
-
-    CondVariableValueVectorType m_conditioningInfo; //keep in storage
+  CondVariableValueVectorType m_conditioningInfo; // keep in storage
 };
-
 
 
 } // namespace statismo

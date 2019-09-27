@@ -57,162 +57,233 @@ using namespace std;
 
 typedef vector<string> StringList;
 
-struct ProgramOptions {
-    string strInputFileName;
-    string strOutputFileName;
-    string strType;
-    StringList vParameters;
-    bool bSampleMean;
-    bool bSampleReference;
-    unsigned uNumberOfDimensions;
+struct ProgramOptions
+{
+  string     strInputFileName;
+  string     strOutputFileName;
+  string     strType;
+  StringList vParameters;
+  bool       bSampleMean;
+  bool       bSampleReference;
+  unsigned   uNumberOfDimensions;
 };
 
-bool isOptionsConflictPresent(ProgramOptions& opt);
+bool
+isOptionsConflictPresent(ProgramOptions & opt);
 template <class DataType, class RepresenterType, class DataWriterType>
-void drawSampleFromModel(const ProgramOptions& opt);
+void
+drawSampleFromModel(const ProgramOptions & opt);
 template <class VectorType>
-void populateVectorWithParameters(const StringList& vParams, VectorType& vParametersReturnVector);
+void
+populateVectorWithParameters(const StringList & vParams, VectorType & vParametersReturnVector);
 
-int main(int argc, char** argv) {
-    
-    ProgramOptions poParameters;
-    lpo::program_options<std::string, StringList, bool, unsigned> parser{argv[0], "Program help:"};
-    
-    parser.add_opt<std::string>({"type", "t", "Specifies the type of the model: shape and deformation are the two available types", &poParameters.strType, "shape"},true).
-        add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image (only available if you're building a deformation model)", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
-        add_opt<std::string>({"input-file", "i", "The path to the model file.", &poParameters.strInputFileName},true).
-        add_flag({"mean", "m", "Draws the mean from the model and saves it.", &poParameters.bSampleMean}).
-        add_flag({"reference", "r", "Draws the reference from the model and saves it.", &poParameters.bSampleReference}).
-        add_opt<StringList>({"parameters", "p", "Makes it possible to specify a list of parameters and their positions that will then be used to draw a sample. Parameters are speciefied in the following format: POSITION1:VALUE1 POSITIONn:VALUEn. Unspecified parameters will be set to 0. The first parameter is at position 1.", &poParameters.vParameters}).
-        add_pos_opt<std::string>({"Name of the output file/the sample.", &poParameters.strOutputFileName});
-    
-    if (!parser.parse(argc, argv)) {
-        return EXIT_FAILURE;
+int
+main(int argc, char ** argv)
+{
+
+  ProgramOptions                                                poParameters;
+  lpo::program_options<std::string, StringList, bool, unsigned> parser{ argv[0], "Program help:" };
+
+  parser
+    .add_opt<std::string>({ "type",
+                            "t",
+                            "Specifies the type of the model: shape and deformation are the two available types",
+                            &poParameters.strType,
+                            "shape" },
+                          true)
+    .add_opt<unsigned>({ "dimensionality",
+                         "d",
+                         "Dimensionality of the input image (only available if you're building a deformation model)",
+                         &poParameters.uNumberOfDimensions,
+                         3,
+                         2,
+                         3 },
+                       true)
+    .add_opt<std::string>({ "input-file", "i", "The path to the model file.", &poParameters.strInputFileName }, true)
+    .add_flag({ "mean", "m", "Draws the mean from the model and saves it.", &poParameters.bSampleMean })
+    .add_flag({ "reference", "r", "Draws the reference from the model and saves it.", &poParameters.bSampleReference })
+    .add_opt<StringList>(
+      { "parameters",
+        "p",
+        "Makes it possible to specify a list of parameters and their positions that will then be used to draw a "
+        "sample. Parameters are speciefied in the following format: POSITION1:VALUE1 POSITIONn:VALUEn. Unspecified "
+        "parameters will be set to 0. The first parameter is at position 1.",
+        &poParameters.vParameters })
+    .add_pos_opt<std::string>({ "Name of the output file/the sample.", &poParameters.strOutputFileName });
+
+  if (!parser.parse(argc, argv))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (isOptionsConflictPresent(poParameters))
+  {
+    cerr << "A conflict in the options exists or insufficient options were set." << endl;
+    cout << parser << endl;
+    return EXIT_FAILURE;
+  }
+
+  try
+  {
+    if (poParameters.strType == "shape")
+    {
+      typedef itk::Mesh<float, Dimensionality3D>                    DataType;
+      typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
+      typedef itk::MeshFileWriter<DataType>                         DataWriterType;
+      drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
     }
-
-    if (isOptionsConflictPresent(poParameters))	{
-        cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << parser << endl;
-        return EXIT_FAILURE;
+    else
+    {
+      if (poParameters.uNumberOfDimensions == 2)
+      {
+        typedef itk::Vector<float, Dimensionality2D>                             VectorPixelType;
+        typedef itk::Image<VectorPixelType, Dimensionality2D>                    DataType;
+        typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality2D> RepresenterType;
+        typedef itk::ImageFileWriter<DataType>                                   DataWriterType;
+        drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
+      }
+      else
+      {
+        typedef itk::Vector<float, Dimensionality3D>                             VectorPixelType;
+        typedef itk::Image<VectorPixelType, Dimensionality3D>                    DataType;
+        typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality3D> RepresenterType;
+        typedef itk::ImageFileWriter<DataType>                                   DataWriterType;
+        drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
+      }
     }
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    cerr << "Could not get a sample:" << endl;
+    cerr << e.what() << endl;
+    return EXIT_FAILURE;
+  }
 
-    try {
-        if (poParameters.strType == "shape") {
-            typedef itk::Mesh<float, Dimensionality3D> DataType;
-            typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
-            typedef itk::MeshFileWriter<DataType> DataWriterType;
-            drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
-        } else {
-            if (poParameters.uNumberOfDimensions == 2) {
-                typedef itk::Vector<float, Dimensionality2D> VectorPixelType;
-                typedef itk::Image<VectorPixelType, Dimensionality2D> DataType;
-                typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality2D> RepresenterType;
-                typedef itk::ImageFileWriter<DataType> DataWriterType;
-                drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
-            } else {
-                typedef itk::Vector<float, Dimensionality3D> VectorPixelType;
-                typedef itk::Image<VectorPixelType, Dimensionality3D> DataType;
-                typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality3D> RepresenterType;
-                typedef itk::ImageFileWriter<DataType> DataWriterType;
-                drawSampleFromModel<DataType, RepresenterType, DataWriterType>(poParameters);
-            }
-        }
-    } catch (itk::ExceptionObject & e) {
-        cerr << "Could not get a sample:" << endl;
-        cerr << e.what() << endl;
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(ProgramOptions& opt) {
-    statismo::Utils::ToLower(opt.strType);
+bool
+isOptionsConflictPresent(ProgramOptions & opt)
+{
+  statismo::Utils::ToLower(opt.strType);
 
-    if (opt.bSampleMean + (opt.vParameters.size() > 0) + opt.bSampleReference > 1) {
-        return true;
-    }
+  if (opt.bSampleMean + (opt.vParameters.size() > 0) + opt.bSampleReference > 1)
+  {
+    return true;
+  }
 
-    if (opt.strInputFileName == "" || opt.strOutputFileName == "") {
-        return true;
-    }
+  if (opt.strInputFileName == "" || opt.strOutputFileName == "")
+  {
+    return true;
+  }
 
-    if (opt.strType != "shape" && opt.strType != "deformation") {
-        return true;
-    }
+  if (opt.strType != "shape" && opt.strType != "deformation")
+  {
+    return true;
+  }
 
-    if (opt.strInputFileName == opt.strOutputFileName) {
-        return true;
-    }
+  if (opt.strInputFileName == opt.strOutputFileName)
+  {
+    return true;
+  }
 
-    return false;
+  return false;
 }
 
 
 template <class VectorType>
-void populateVectorWithParameters(const StringList& vParams, VectorType& vParametersReturnVector) {
-    set<unsigned> sSeenIndices;
+void
+populateVectorWithParameters(const StringList & vParams, VectorType & vParametersReturnVector)
+{
+  set<unsigned> sSeenIndices;
 
-    for (StringList::const_iterator i = vParams.begin(); i != vParams.end(); ++i) {
-        StringList vSplit;
-        bool bSuccess = true;
-        vSplit = statismo::Utils::Split<':'>(*i);
-        if (vSplit.size() != 2) {
-            bSuccess = false;
-        } else {
-            try {
-                unsigned uIndex = statismo::Utils::LexicalCast<unsigned>(vSplit[0])-1;
-                double dValue = statismo::Utils::LexicalCast<double>(vSplit[1]);
-
-                if (uIndex >= vParametersReturnVector.size()) {
-                    itkGenericExceptionMacro( << "The parameter '" << *i << "' is has an index value that is not in the range of this model's available parameters (1 to " <<vParametersReturnVector.size() << ").");
-                }
-
-                if (sSeenIndices.find(uIndex) == sSeenIndices.end()) {
-                    sSeenIndices.insert(uIndex);
-                    vParametersReturnVector[uIndex] = dValue;
-                } else {
-                    itkGenericExceptionMacro( << "The index '" << (uIndex+1)<<"' occurs more than once in the parameter list.");
-                }
-            } catch (const std::bad_cast &) {
-                bSuccess = false;
-            }
-        }
-
-        if (bSuccess == false) {
-            itkGenericExceptionMacro( << "The parameter '" << *i << "' is in an incorrect format. The correct format is index:value. Like for example 0:1.1 or 19:-2");
-        }
+  for (StringList::const_iterator i = vParams.begin(); i != vParams.end(); ++i)
+  {
+    StringList vSplit;
+    bool       bSuccess = true;
+    vSplit = statismo::Utils::Split<':'>(*i);
+    if (vSplit.size() != 2)
+    {
+      bSuccess = false;
     }
+    else
+    {
+      try
+      {
+        unsigned uIndex = statismo::Utils::LexicalCast<unsigned>(vSplit[0]) - 1;
+        double   dValue = statismo::Utils::LexicalCast<double>(vSplit[1]);
+
+        if (uIndex >= vParametersReturnVector.size())
+        {
+          itkGenericExceptionMacro(
+            << "The parameter '" << *i
+            << "' is has an index value that is not in the range of this model's available parameters (1 to "
+            << vParametersReturnVector.size() << ").");
+        }
+
+        if (sSeenIndices.find(uIndex) == sSeenIndices.end())
+        {
+          sSeenIndices.insert(uIndex);
+          vParametersReturnVector[uIndex] = dValue;
+        }
+        else
+        {
+          itkGenericExceptionMacro(<< "The index '" << (uIndex + 1)
+                                   << "' occurs more than once in the parameter list.");
+        }
+      }
+      catch (const std::bad_cast &)
+      {
+        bSuccess = false;
+      }
+    }
+
+    if (bSuccess == false)
+    {
+      itkGenericExceptionMacro(
+        << "The parameter '" << *i
+        << "' is in an incorrect format. The correct format is index:value. Like for example 0:1.1 or 19:-2");
+    }
+  }
 }
 
 template <class DataType, class RepresenterType, class DataWriterType>
-void drawSampleFromModel(const ProgramOptions& opt) {
-    typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
+void
+drawSampleFromModel(const ProgramOptions & opt)
+{
+  typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
 
-    typedef itk::StatisticalModel<DataType> StatisticalModelType;
-    typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
+  typedef itk::StatisticalModel<DataType> StatisticalModelType;
+  typename StatisticalModelType::Pointer  pModel = StatisticalModelType::New();
 
-    pModel = itk::StatismoIO<DataType>::LoadStatisticalModel(pRepresenter, opt.strInputFileName.c_str());
+  pModel = itk::StatismoIO<DataType>::LoadStatisticalModel(pRepresenter, opt.strInputFileName.c_str());
 
-    typename DataType::Pointer output;
-    if (opt.bSampleMean == true) {
-        output = pModel->DrawMean();
-    } else if (opt.vParameters.size() > 0) {
-        unsigned uNrOfParameters = pModel->GetNumberOfPrincipalComponents();
-        typename StatisticalModelType::VectorType vModelParameters(uNrOfParameters);
-        vModelParameters.fill(0);
+  typename DataType::Pointer output;
+  if (opt.bSampleMean == true)
+  {
+    output = pModel->DrawMean();
+  }
+  else if (opt.vParameters.size() > 0)
+  {
+    unsigned                                  uNrOfParameters = pModel->GetNumberOfPrincipalComponents();
+    typename StatisticalModelType::VectorType vModelParameters(uNrOfParameters);
+    vModelParameters.fill(0);
 
-        populateVectorWithParameters<typename StatisticalModelType::VectorType>(opt.vParameters, vModelParameters);
+    populateVectorWithParameters<typename StatisticalModelType::VectorType>(opt.vParameters, vModelParameters);
 
-        output = pModel->DrawSample(vModelParameters);
-    } else if (opt.bSampleReference == true) {
-        output = pModel->GetRepresenter()->GetReference();
-    } else {
-        output = pModel->DrawSample();
-    }
+    output = pModel->DrawSample(vModelParameters);
+  }
+  else if (opt.bSampleReference == true)
+  {
+    output = pModel->GetRepresenter()->GetReference();
+  }
+  else
+  {
+    output = pModel->DrawSample();
+  }
 
-    typename DataWriterType::Pointer pDataWriter = DataWriterType::New();
-    pDataWriter->SetFileName(opt.strOutputFileName.c_str());
-    pDataWriter->SetInput(output);
-    pDataWriter->Update();
+  typename DataWriterType::Pointer pDataWriter = DataWriterType::New();
+  pDataWriter->SetFileName(opt.strOutputFileName.c_str());
+  pDataWriter->SetInput(output);
+  pDataWriter->Update();
 }

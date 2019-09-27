@@ -47,119 +47,175 @@
 namespace po = lpo;
 using namespace std;
 
-struct ProgramOptions {
-    string strInputFileName;
-    string strOutputFileName;
-    unsigned uNumberOfComponents;
-    unsigned uNumberOfDimensions;
-    double dTotalVariance;
-    string strType;
+struct ProgramOptions
+{
+  string   strInputFileName;
+  string   strOutputFileName;
+  unsigned uNumberOfComponents;
+  unsigned uNumberOfDimensions;
+  double   dTotalVariance;
+  string   strType;
 };
 
-bool isOptionsConflictPresent(ProgramOptions& opt);
+bool
+isOptionsConflictPresent(ProgramOptions & opt);
 template <class DataType, class RepresenterType>
-void reduceModel(const ProgramOptions& opt);
+void
+reduceModel(const ProgramOptions & opt);
 
-int main(int argc, char** argv) {
-    ProgramOptions poParameters;
-    lpo::program_options<std::string, unsigned, double> parser{argv[0], "Program help:"};
+int
+main(int argc, char ** argv)
+{
+  ProgramOptions                                      poParameters;
+  lpo::program_options<std::string, unsigned, double> parser{ argv[0], "Program help:" };
 
-    parser.add_opt<std::string>({"type", "t", "Specifies the type of the model: shape and deformation are the two available types", &poParameters.strType, "shape"},true).
-        add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image (only available if you're building a deformation model)", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
-        add_opt<std::string>({"input-file", "i", "The path to the model file.", &poParameters.strInputFileName},true).
-        add_opt<unsigned>({"numcomponents", "n", "Creates a new model with the specified number of components.", &poParameters.uNumberOfComponents, 0}).
-        add_opt<double>({"totalvariance", "v", "Creates a new Model that will have a fraction of the old models' variance. This parameter is in percent and thus ranges from 0 to 100.", &poParameters.dTotalVariance, 0.0f, 0.0f, 100.0f}).
-        add_pos_opt<std::string>({"Name of the output file where the reduced model will be written to.", &poParameters.strOutputFileName});
-    
-    if (!parser.parse(argc, argv)) {
-        return EXIT_FAILURE;
+  parser
+    .add_opt<std::string>({ "type",
+                            "t",
+                            "Specifies the type of the model: shape and deformation are the two available types",
+                            &poParameters.strType,
+                            "shape" },
+                          true)
+    .add_opt<unsigned>({ "dimensionality",
+                         "d",
+                         "Dimensionality of the input image (only available if you're building a deformation model)",
+                         &poParameters.uNumberOfDimensions,
+                         3,
+                         2,
+                         3 },
+                       true)
+    .add_opt<std::string>({ "input-file", "i", "The path to the model file.", &poParameters.strInputFileName }, true)
+    .add_opt<unsigned>({ "numcomponents",
+                         "n",
+                         "Creates a new model with the specified number of components.",
+                         &poParameters.uNumberOfComponents,
+                         0 })
+    .add_opt<double>({ "totalvariance",
+                       "v",
+                       "Creates a new Model that will have a fraction of the old models' variance. This parameter is "
+                       "in percent and thus ranges from 0 to 100.",
+                       &poParameters.dTotalVariance,
+                       0.0f,
+                       0.0f,
+                       100.0f })
+    .add_pos_opt<std::string>(
+      { "Name of the output file where the reduced model will be written to.", &poParameters.strOutputFileName });
+
+  if (!parser.parse(argc, argv))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (isOptionsConflictPresent(poParameters))
+  {
+    cerr << "A conflict in the options exists or insufficient options were set." << endl;
+    cout << parser << endl;
+    return EXIT_FAILURE;
+  }
+
+  try
+  {
+    const unsigned Dimensionality2D = 2;
+    const unsigned Dimensionality3D = 3;
+    if (poParameters.strType == "shape")
+    {
+      typedef itk::Mesh<float, Dimensionality3D>                    DataType;
+      typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
+      reduceModel<DataType, RepresenterType>(poParameters);
     }
-
-    if (isOptionsConflictPresent(poParameters))	{
-        cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << parser << endl;
-        return EXIT_FAILURE;
+    else
+    {
+      if (poParameters.uNumberOfDimensions == Dimensionality2D)
+      {
+        typedef itk::Vector<float, Dimensionality2D>                             VectorPixelType;
+        typedef itk::Image<VectorPixelType, Dimensionality2D>                    DataType;
+        typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality2D> RepresenterType;
+        reduceModel<DataType, RepresenterType>(poParameters);
+      }
+      else
+      {
+        typedef itk::Vector<float, Dimensionality3D>                             VectorPixelType;
+        typedef itk::Image<VectorPixelType, Dimensionality3D>                    DataType;
+        typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality3D> RepresenterType;
+        reduceModel<DataType, RepresenterType>(poParameters);
+      }
     }
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    cerr << "Could not reduce the model:" << endl;
+    cerr << e.what() << endl;
+    return EXIT_FAILURE;
+  }
 
-    try {
-        const unsigned Dimensionality2D = 2;
-        const unsigned Dimensionality3D = 3;
-        if(poParameters.strType == "shape") {
-            typedef itk::Mesh<float, Dimensionality3D> DataType;
-            typedef itk::StandardMeshRepresenter<float, Dimensionality3D> RepresenterType;
-            reduceModel<DataType, RepresenterType>(poParameters);
-        } else {
-            if (poParameters.uNumberOfDimensions == Dimensionality2D) {
-                typedef itk::Vector<float, Dimensionality2D> VectorPixelType;
-                typedef itk::Image<VectorPixelType, Dimensionality2D> DataType;
-                typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality2D> RepresenterType;
-                reduceModel<DataType, RepresenterType>(poParameters);
-            } else {
-                typedef itk::Vector<float, Dimensionality3D> VectorPixelType;
-                typedef itk::Image<VectorPixelType, Dimensionality3D> DataType;
-                typedef itk::StandardImageRepresenter<VectorPixelType, Dimensionality3D> RepresenterType;
-                reduceModel<DataType, RepresenterType>(poParameters);
-            }
-        }
-    } catch (itk::ExceptionObject & e) {
-        cerr << "Could not reduce the model:" << endl;
-        cerr << e.what() << endl;
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(ProgramOptions& opt) {
-    statismo::Utils::ToLower(opt.strType);
+bool
+isOptionsConflictPresent(ProgramOptions & opt)
+{
+  statismo::Utils::ToLower(opt.strType);
 
-    if (opt.strType != "shape" && opt.strType != "deformation") {
-        return true;
-    }
+  if (opt.strType != "shape" && opt.strType != "deformation")
+  {
+    return true;
+  }
 
-    if (opt.dTotalVariance != 0 && opt.uNumberOfComponents != 0) {
-        return true;
-    }
+  if (opt.dTotalVariance != 0 && opt.uNumberOfComponents != 0)
+  {
+    return true;
+  }
 
-    if (opt.dTotalVariance == 0 && opt.uNumberOfComponents == 0) {
-        return true;
-    }
+  if (opt.dTotalVariance == 0 && opt.uNumberOfComponents == 0)
+  {
+    return true;
+  }
 
-    if (opt.strInputFileName == "" || opt.strOutputFileName == "") {
-        return true;
-    }
+  if (opt.strInputFileName == "" || opt.strOutputFileName == "")
+  {
+    return true;
+  }
 
 
-    if (opt.strInputFileName == opt.strOutputFileName) {
-        return true;
-    }
+  if (opt.strInputFileName == opt.strOutputFileName)
+  {
+    return true;
+  }
 
-    return false;
+  return false;
 }
 
 
 template <class DataType, class RepresenterType>
-void reduceModel(const ProgramOptions& opt) {
-    typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
+void
+reduceModel(const ProgramOptions & opt)
+{
+  typename RepresenterType::Pointer pRepresenter = RepresenterType::New();
 
 
-    typedef typename itk::StatisticalModel<DataType> StatisticalModelType;
-    typename StatisticalModelType::Pointer pModel = StatisticalModelType::New();
+  typedef typename itk::StatisticalModel<DataType> StatisticalModelType;
+  typename StatisticalModelType::Pointer           pModel = StatisticalModelType::New();
 
-    pModel = itk::StatismoIO<DataType>::LoadStatisticalModel(pRepresenter, opt.strInputFileName.c_str());
+  pModel = itk::StatismoIO<DataType>::LoadStatisticalModel(pRepresenter, opt.strInputFileName.c_str());
 
-    typedef typename itk::ReducedVarianceModelBuilder<DataType> ReducedVarianceModelBuilderType;
-    typename ReducedVarianceModelBuilderType::Pointer pReducedVarModelBuilder = ReducedVarianceModelBuilderType::New();
-    typename StatisticalModelType::Pointer pOutputModel;
+  typedef typename itk::ReducedVarianceModelBuilder<DataType> ReducedVarianceModelBuilderType;
+  typename ReducedVarianceModelBuilderType::Pointer pReducedVarModelBuilder = ReducedVarianceModelBuilderType::New();
+  typename StatisticalModelType::Pointer            pOutputModel;
 
-    if (opt.uNumberOfComponents != 0) {
-        if (opt.uNumberOfComponents > pModel->GetNumberOfPrincipalComponents()) {
-            itkGenericExceptionMacro(<< "The model has " << pModel->GetNumberOfPrincipalComponents() << " components. Upscaling models to more componenets isn't possible with this tool.");
-        }
-        pOutputModel = pReducedVarModelBuilder->BuildNewModelWithLeadingComponents(pModel.GetPointer(), opt.uNumberOfComponents);
-    } else {
-        pOutputModel = pReducedVarModelBuilder->BuildNewModelWithVariance(pModel.GetPointer(), opt.dTotalVariance);
+  if (opt.uNumberOfComponents != 0)
+  {
+    if (opt.uNumberOfComponents > pModel->GetNumberOfPrincipalComponents())
+    {
+      itkGenericExceptionMacro(<< "The model has " << pModel->GetNumberOfPrincipalComponents()
+                               << " components. Upscaling models to more componenets isn't possible with this tool.");
     }
+    pOutputModel =
+      pReducedVarModelBuilder->BuildNewModelWithLeadingComponents(pModel.GetPointer(), opt.uNumberOfComponents);
+  }
+  else
+  {
+    pOutputModel = pReducedVarModelBuilder->BuildNewModelWithVariance(pModel.GetPointer(), opt.dTotalVariance);
+  }
 
-    itk::StatismoIO<DataType>::SaveStatisticalModel(pOutputModel, opt.strOutputFileName.c_str());
+  itk::StatismoIO<DataType>::SaveStatisticalModel(pOutputModel, opt.strOutputFileName.c_str());
 }

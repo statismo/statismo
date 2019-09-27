@@ -38,33 +38,40 @@
 #include <map>
 #include <algorithm>
 
-namespace {
-    const std::map<statismo::RepresenterDataType, std::string> RepresenterDataTypeMap = {
-        {statismo::RepresenterDataType::UNKNOWN, "UNKNOWN"},
-        {statismo::RepresenterDataType::POINT_SET, "POINT_SET"},
-        {statismo::RepresenterDataType::POLYGON_MESH, "POLYGON_MESH"},
-        {statismo::RepresenterDataType::VOLUME_MESH, "VOLUME_MESH"},
-        {statismo::RepresenterDataType::IMAGE, "IMAGE"},
-        {statismo::RepresenterDataType::VECTOR, "VECTOR"},
-        {statismo::RepresenterDataType::CUSTOM, "CUSTOM"}
-    };
+namespace
+{
+const std::map<statismo::RepresenterDataType, std::string> RepresenterDataTypeMap = {
+  { statismo::RepresenterDataType::UNKNOWN, "UNKNOWN" },
+  { statismo::RepresenterDataType::POINT_SET, "POINT_SET" },
+  { statismo::RepresenterDataType::POLYGON_MESH, "POLYGON_MESH" },
+  { statismo::RepresenterDataType::VOLUME_MESH, "VOLUME_MESH" },
+  { statismo::RepresenterDataType::IMAGE, "IMAGE" },
+  { statismo::RepresenterDataType::VECTOR, "VECTOR" },
+  { statismo::RepresenterDataType::CUSTOM, "CUSTOM" }
+};
 }
 
-namespace statismo {
+namespace statismo
+{
 
-     std::string TypeToString(RepresenterDataType type) {
-         return RepresenterDataTypeMap.at(type);
-     }
-
-     RepresenterDataType TypeFromString(const std::string& s) {
-         auto match = std::find_if(std::cbegin(RepresenterDataTypeMap), std::cend(RepresenterDataTypeMap), [&](const auto& p) {
-             return p.second == s;
-         });
-
-         if (match != std::cend(RepresenterDataTypeMap)) {
-             return match->first;
-         }
-
-         return RepresenterDataType::UNKNOWN;
-     }
+std::string
+TypeToString(RepresenterDataType type)
+{
+  return RepresenterDataTypeMap.at(type);
 }
+
+RepresenterDataType
+TypeFromString(const std::string & s)
+{
+  auto match = std::find_if(std::cbegin(RepresenterDataTypeMap),
+                            std::cend(RepresenterDataTypeMap),
+                            [&](const auto & p) { return p.second == s; });
+
+  if (match != std::cend(RepresenterDataTypeMap))
+  {
+    return match->first;
+  }
+
+  return RepresenterDataType::UNKNOWN;
+}
+} // namespace statismo

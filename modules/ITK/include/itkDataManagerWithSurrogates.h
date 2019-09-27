@@ -48,7 +48,8 @@
 #include "DataManagerWithSurrogates.h"
 #include "statismoITKConfig.h"
 
-namespace itk {
+namespace itk
+{
 
 
 /**
@@ -56,77 +57,94 @@ namespace itk {
  * \see statismo::DataManager for detailed documentation.
  */
 template <class Representer>
-class DataManagerWithSurrogates : public statismo::DataManager<Representer> {
-  public:
+class DataManagerWithSurrogates : public statismo::DataManager<Representer>
+{
+public:
+  typedef DataManagerWithSurrogates          Self;
+  typedef statismo::DataManager<Representer> Superclass;
+  typedef SmartPointer<Self>                 Pointer;
+  typedef SmartPointer<const Self>           ConstPointer;
+
+  itkNewMacro(Self);
+  itkTypeMacro(DataManagerWithSurrogates, Object);
 
 
-    typedef DataManagerWithSurrogates            Self;
-    typedef statismo::DataManager<Representer>	Superclass;
-    typedef SmartPointer<Self>                Pointer;
-    typedef SmartPointer<const Self>          ConstPointer;
+  typedef statismo::DataManagerWithSurrogates<Representer> ImplType;
 
-    itkNewMacro( Self );
-    itkTypeMacro( DataManagerWithSurrogates, Object );
-
-
-    typedef statismo::DataManagerWithSurrogates<Representer> ImplType;
-
-    template <class F>
-    typename std::result_of<F()>::type callstatismoImpl(F f) const {
-        if (m_impl == 0) {
-            itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetParameters");
-        }
-        try {
-            return f();
-        } catch (statismo::StatisticalModelException& s) {
-            itkExceptionMacro(<< s.what());
-        }
+  template <class F>
+  typename std::result_of<F()>::type
+  callstatismoImpl(F f) const
+  {
+    if (m_impl == 0)
+    {
+      itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetParameters");
     }
-
-
-    DataManagerWithSurrogates() : m_impl(0) {}
-
-    virtual ~DataManagerWithSurrogates() {
-        if (m_impl) {
-            delete m_impl;
-            m_impl = 0;
-        }
+    try
+    {
+      return f();
     }
-
-
-    void SetstatismoImplObj(ImplType* impl) {
-        if (m_impl) {
-            delete m_impl;
-        }
-        m_impl = impl;
+    catch (statismo::StatisticalModelException & s)
+    {
+      itkExceptionMacro(<< s.what());
     }
+  }
 
-    void SetRepresenterAndSurrogateFilename(const Representer* representer, const char* surrogTypeFilename) {
-        SetstatismoImplObj(ImplType::Create(representer, surrogTypeFilename));
+
+  DataManagerWithSurrogates()
+    : m_impl(0)
+  {}
+
+  virtual ~DataManagerWithSurrogates()
+  {
+    if (m_impl)
+    {
+      delete m_impl;
+      m_impl = 0;
     }
+  }
 
-    void SetRepresenter(const Representer* representer) {
-        itkExceptionMacro(<< "Please call SetRepresenterAndSurrogateFilename to initialize the object");
+
+  void
+  SetstatismoImplObj(ImplType * impl)
+  {
+    if (m_impl)
+    {
+      delete m_impl;
     }
+    m_impl = impl;
+  }
+
+  void
+  SetRepresenterAndSurrogateFilename(const Representer * representer, const char * surrogTypeFilename)
+  {
+    SetstatismoImplObj(ImplType::Create(representer, surrogTypeFilename));
+  }
+
+  void
+  SetRepresenter(const Representer * representer)
+  {
+    itkExceptionMacro(<< "Please call SetRepresenterAndSurrogateFilename to initialize the object");
+  }
 
 
+  void
+  AddDatasetWithSurrogates(typename Representer::DatasetConstPointerType ds,
+                           const char *                                  datasetURI,
+                           const char *                                  surrogateFilename)
+  {
+    callstatismoImpl(std::bind(&ImplType::AddDatasetWithSurrogates, this->m_impl, ds, datasetURI, surrogateFilename));
+  }
 
-    void AddDatasetWithSurrogates(typename Representer::DatasetConstPointerType ds,
-                                  const char* datasetURI,
-                                  const char* surrogateFilename) {
-        callstatismoImpl(std::bind(&ImplType::AddDatasetWithSurrogates, this->m_impl, ds, datasetURI, surrogateFilename));
-    }
 
+private:
+  DataManagerWithSurrogates(const DataManagerWithSurrogates & orig);
+  DataManagerWithSurrogates &
+  operator=(const DataManagerWithSurrogates & rhs);
 
-  private:
-
-    DataManagerWithSurrogates(const DataManagerWithSurrogates& orig);
-    DataManagerWithSurrogates& operator=(const DataManagerWithSurrogates& rhs);
-
-    ImplType* m_impl;
+  ImplType * m_impl;
 };
 
 
-}
+} // namespace itk
 
 #endif /* ITK_DATAMANAGER_WITH_SURROGATES_H_ */

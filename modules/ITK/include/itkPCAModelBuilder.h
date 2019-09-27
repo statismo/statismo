@@ -51,67 +51,83 @@
 #include <utility>
 #include <functional>
 
-namespace itk {
+namespace itk
+{
 
 /**
  * \brief ITK Wrapper for the statismo::PCAModelBuilder class.
  * \see statismo::PCAModelBuilder for detailed documentation.
  */
 template <class Representer>
-class PCAModelBuilder : public Object {
-  public:
+class PCAModelBuilder : public Object
+{
+public:
+  typedef PCAModelBuilder          Self;
+  typedef Object                   Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
-    typedef PCAModelBuilder            Self;
-    typedef Object	Superclass;
-    typedef SmartPointer<Self>                Pointer;
-    typedef SmartPointer<const Self>          ConstPointer;
-
-    itkNewMacro( Self );
-    itkTypeMacro( PCAModelBuilder, Object );
+  itkNewMacro(Self);
+  itkTypeMacro(PCAModelBuilder, Object);
 
 
-    typedef statismo::PCAModelBuilder<Representer> ImplType;
-    typedef statismo::DataManager<Representer> DataManagerType;
-    typedef typename DataManagerType::DataItemListType DataItemListType;
+  typedef statismo::PCAModelBuilder<Representer>     ImplType;
+  typedef statismo::DataManager<Representer>         DataManagerType;
+  typedef typename DataManagerType::DataItemListType DataItemListType;
 
-    typedef typename ImplType::EigenValueMethod EigenValueMethod;
+  typedef typename ImplType::EigenValueMethod EigenValueMethod;
 
-    PCAModelBuilder() : m_impl(ImplType::Create()) {}
+  PCAModelBuilder()
+    : m_impl(ImplType::Create())
+  {}
 
-    virtual ~PCAModelBuilder() {
-        if (m_impl) {
-            delete m_impl;
-            m_impl = 0;
-        }
+  virtual ~PCAModelBuilder()
+  {
+    if (m_impl)
+    {
+      delete m_impl;
+      m_impl = 0;
     }
+  }
 
-    template <class F>
-    typename std::result_of<F()>::type callstatismoImpl(F f) const {
-        try {
-            return f();
-        } catch (statismo::StatisticalModelException& s) {
-            itkExceptionMacro(<< s.what());
-        }
+  template <class F>
+  typename std::result_of<F()>::type
+  callstatismoImpl(F f) const
+  {
+    try
+    {
+      return f();
     }
-
-
-
-    typename StatisticalModel<Representer>::Pointer BuildNewModel(DataItemListType DataItemList, float noiseVariance, bool computeScores = true, EigenValueMethod method = ImplType::JacobiSVD) {
-        statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, noiseVariance, computeScores, method));
-        typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
-        model_itk->SetstatismoImplObj(model_statismo);
-        return model_itk;
+    catch (statismo::StatisticalModelException & s)
+    {
+      itkExceptionMacro(<< s.what());
     }
+  }
 
 
-  private:
-    PCAModelBuilder(const PCAModelBuilder& orig);
-    PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
+  typename StatisticalModel<Representer>::Pointer
+  BuildNewModel(DataItemListType DataItemList,
+                float            noiseVariance,
+                bool             computeScores = true,
+                EigenValueMethod method = ImplType::JacobiSVD)
+  {
+    statismo::StatisticalModel<Representer> * model_statismo = callstatismoImpl(
+      std::bind(&ImplType::BuildNewModel, this->m_impl, DataItemList, noiseVariance, computeScores, method));
+    typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
+    model_itk->SetstatismoImplObj(model_statismo);
+    return model_itk;
+  }
 
-    ImplType* m_impl;
+
+private:
+  PCAModelBuilder(const PCAModelBuilder & orig);
+  PCAModelBuilder &
+  operator=(const PCAModelBuilder & rhs);
+
+  ImplType * m_impl;
 };
 
 
-}
+} // namespace itk
 
 #endif /* ITKMODELBUILDER_H_ */

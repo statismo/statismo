@@ -58,112 +58,126 @@
 
 #include <memory>
 
-typedef statismo::VectorType VectorType;
-typedef statismo::MatrixType MatrixType;
-typedef statismo::vtkStandardMeshRepresenter RepresenterType;
-typedef statismo::StatisticalModel<vtkPolyData> StatisticalModelType;
-typedef statismo::PosteriorModelBuilder<vtkPolyData> PosteriorModelBuilderType;
-typedef StatisticalModelType::DomainType DomainType;
+typedef statismo::VectorType                             VectorType;
+typedef statismo::MatrixType                             MatrixType;
+typedef statismo::vtkStandardMeshRepresenter             RepresenterType;
+typedef statismo::StatisticalModel<vtkPolyData>          StatisticalModelType;
+typedef statismo::PosteriorModelBuilder<vtkPolyData>     PosteriorModelBuilderType;
+typedef StatisticalModelType::DomainType                 DomainType;
 typedef DomainType::DomainPointsListType::const_iterator DomainPointsConstIterator;
 
 
-vtkPolyData* loadVTKPolyData(const std::string& filename) {
-    vtkPolyDataReader* reader = vtkPolyDataReader::New();
-    reader->SetFileName(filename.c_str());
-    reader->Update();
-    vtkPolyData* pd = vtkPolyData::New();
-    pd->DeepCopy(reader->GetOutput());
-    reader->Delete();
-    return pd;
+vtkPolyData *
+loadVTKPolyData(const std::string & filename)
+{
+  vtkPolyDataReader * reader = vtkPolyDataReader::New();
+  reader->SetFileName(filename.c_str());
+  reader->Update();
+  vtkPolyData * pd = vtkPolyData::New();
+  pd->DeepCopy(reader->GetOutput());
+  reader->Delete();
+  return pd;
 }
 
 
 /**
-  * Computes the mahalanobis distance of the targetPt, to the model point with the given pointId.
-  */
-double mahalanobisDistance(const StatisticalModelType* model, unsigned ptId, const statismo::vtkPoint& targetPt) {
-    statismo::MatrixType cov = model->GetCovarianceAtPoint(ptId, ptId);
-    statismo::vtkPoint meanPt = model->DrawMeanAtPoint(ptId);
-    unsigned pointDim = model->GetRepresenter()->GetDimensions();
-    assert(pointDim <= 3);
-
-    VectorType x = VectorType::Zero(pointDim);
-    for (unsigned d = 0; d < pointDim; d++) {
-        x(d) = targetPt[d] - meanPt[d];
-    }
-    return x.transpose() * cov.inverse() * x;
-}
-
-
-/**
-  * Given the inputModel and a partialMesh, the program outputs the posterior model (a statistical model) and
-  * its mean, which is the best reconstruction of the partial shape given the model.
+ * Computes the mahalanobis distance of the targetPt, to the model point with the given pointId.
  */
-int main(int argc, char** argv) {
+double
+mahalanobisDistance(const StatisticalModelType * model, unsigned ptId, const statismo::vtkPoint & targetPt)
+{
+  statismo::MatrixType cov = model->GetCovarianceAtPoint(ptId, ptId);
+  statismo::vtkPoint   meanPt = model->DrawMeanAtPoint(ptId);
+  unsigned             pointDim = model->GetRepresenter()->GetDimensions();
+  assert(pointDim <= 3);
 
-    if (argc < 5) {
-        std::cout << "Usage " << argv[0] << " inputModel  partialShapeMesh posteriorModel reconstructedShape" << std::endl;
-        exit(-1);
+  VectorType x = VectorType::Zero(pointDim);
+  for (unsigned d = 0; d < pointDim; d++)
+  {
+    x(d) = targetPt[d] - meanPt[d];
+  }
+  return x.transpose() * cov.inverse() * x;
+}
+
+
+/**
+ * Given the inputModel and a partialMesh, the program outputs the posterior model (a statistical model) and
+ * its mean, which is the best reconstruction of the partial shape given the model.
+ */
+int
+main(int argc, char ** argv)
+{
+
+  if (argc < 5)
+  {
+    std::cout << "Usage " << argv[0] << " inputModel  partialShapeMesh posteriorModel reconstructedShape" << std::endl;
+    exit(-1);
+  }
+
+
+  std::string inputModelName(argv[1]);
+  std::string partialShapeMeshName(argv[2]);
+  std::string posteriorModelName(argv[3]);
+  std::string reconstructedShapeName(argv[4]);
+
+  try
+  {
+
+
+    vtkPolyData * partialShape = loadVTKPolyData(partialShapeMeshName);
+
+    RepresenterType *                     representer = RepresenterType::Create();
+    std::unique_ptr<StatisticalModelType> inputModel(
+      statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, inputModelName));
+    vtkPolyData * refPd = const_cast<vtkPolyData *>(inputModel->GetRepresenter()->GetReference());
+
+
+    StatisticalModelType::PointValueListType constraints;
+
+    // for each point we get the closest point and check how far it is away (in mahalanobis distance).
+    // If it is close, we add it as a constraint, otherwise we ignore the remaining points.
+    const DomainType::DomainPointsListType & domainPoints = inputModel->GetDomain().GetDomainPoints();
+    for (unsigned ptId = 0; ptId < domainPoints.size(); ptId++)
+    {
+      statismo::vtkPoint domainPoint = domainPoints[ptId];
+
+      unsigned           closestPointId = ptId;
+      statismo::vtkPoint closestPointOnPartialShape = partialShape->GetPoint(closestPointId);
+      double             mhdist = mahalanobisDistance(inputModel.get(), ptId, closestPointOnPartialShape);
+      if (mhdist < 5)
+      {
+        StatisticalModelType::PointValuePairType ptWithTargetPt(domainPoint, closestPointOnPartialShape);
+        constraints.push_back(ptWithTargetPt);
+      }
     }
 
+    // build the new model. In addition to the input model and the constraints, we also specify
+    // the inaccuracy of our value (variance of the error).
 
-    std::string inputModelName(argv[1]);
-    std::string partialShapeMeshName(argv[2]);
-    std::string posteriorModelName(argv[3]);
-    std::string reconstructedShapeName(argv[4]);
-
-    try {
-
-
-        vtkPolyData* partialShape = loadVTKPolyData(partialShapeMeshName);
-
-        RepresenterType* representer = RepresenterType::Create();
-        std::unique_ptr<StatisticalModelType> inputModel(
-                statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, inputModelName));
-        vtkPolyData* refPd = const_cast<vtkPolyData*>(inputModel->GetRepresenter()->GetReference());
+    std::unique_ptr<PosteriorModelBuilderType> posteriorModelBuilder(PosteriorModelBuilderType::Create());
+    std::unique_ptr<StatisticalModelType>      constraintModel(
+      posteriorModelBuilder->BuildNewModelFromModel(inputModel.get(), constraints, 0.5));
 
 
-        StatisticalModelType::PointValueListType constraints;
+    // The resulting model is a normal statistical model, from which we could for example sample examples.
+    // Here we simply  save it to disk for later use.
+    statismo::IO<vtkPolyData>::SaveStatisticalModel(constraintModel.get(), posteriorModelName);
+    std::cout << "successfully saved the model to " << posteriorModelName << std::endl;
 
-        // for each point we get the closest point and check how far it is away (in mahalanobis distance).
-        // If it is close, we add it as a constraint, otherwise we ignore the remaining points.
-        const DomainType::DomainPointsListType& domainPoints = inputModel->GetDomain().GetDomainPoints();
-        for (unsigned ptId = 0; ptId < domainPoints.size(); ptId++) {
-            statismo::vtkPoint domainPoint = domainPoints[ptId];
-
-            unsigned closestPointId = ptId;
-            statismo::vtkPoint closestPointOnPartialShape = partialShape->GetPoint(closestPointId);
-            double mhdist = mahalanobisDistance(inputModel.get(), ptId, closestPointOnPartialShape);
-            if (mhdist < 5) {
-                StatisticalModelType::PointValuePairType ptWithTargetPt(domainPoint, closestPointOnPartialShape);
-                constraints.push_back(ptWithTargetPt);
-            }
-        }
-
-        // build the new model. In addition to the input model and the constraints, we also specify
-        // the inaccuracy of our value (variance of the error).
-
-        std::unique_ptr<PosteriorModelBuilderType> posteriorModelBuilder(PosteriorModelBuilderType::Create());
-        std::unique_ptr<StatisticalModelType> constraintModel(posteriorModelBuilder->BuildNewModelFromModel(inputModel.get(), constraints, 0.5));
-
-
-        // The resulting model is a normal statistical model, from which we could for example sample examples.
-        // Here we simply  save it to disk for later use.
-        statismo::IO<vtkPolyData>::SaveStatisticalModel(constraintModel.get(), posteriorModelName);
-        std::cout << "successfully saved the model to " << posteriorModelName << std::endl;
-
-        // The mean of the constraint model is the optimal reconstruction
-        vtkPolyData* pmean = constraintModel->DrawMean();
-        vtkPolyDataWriter* writer = vtkPolyDataWriter::New();
-#if (VTK_MAJOR_VERSION == 5 )
-        writer->SetInput(pmean);
+    // The mean of the constraint model is the optimal reconstruction
+    vtkPolyData *       pmean = constraintModel->DrawMean();
+    vtkPolyDataWriter * writer = vtkPolyDataWriter::New();
+#if (VTK_MAJOR_VERSION == 5)
+    writer->SetInput(pmean);
 #else
-        writer->SetInputData(pmean);
+    writer->SetInputData(pmean);
 #endif
-        writer->SetFileName(reconstructedShapeName.c_str());
-        writer->Update();
-    } catch (statismo::StatisticalModelException& e) {
-        std::cout << "Exception occured while building the intenisity model" << std::endl;
-        std::cout << e.what() << std::endl;
-    }
+    writer->SetFileName(reconstructedShapeName.c_str());
+    writer->Update();
+  }
+  catch (statismo::StatisticalModelException & e)
+  {
+    std::cout << "Exception occured while building the intenisity model" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
 }

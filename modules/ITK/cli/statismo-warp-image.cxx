@@ -48,93 +48,122 @@ namespace po = lpo;
 using namespace std;
 
 
-struct ProgramOptions {
-    string strInputImageFileName;
-    string strInputDeformFieldFileName;
-    string strOutputFileName;
-    unsigned uNumberOfDimensions;
+struct ProgramOptions
+{
+  string   strInputImageFileName;
+  string   strInputDeformFieldFileName;
+  string   strOutputFileName;
+  unsigned uNumberOfDimensions;
 };
 
-bool isOptionsConflictPresent(const ProgramOptions& opt);
+bool
+isOptionsConflictPresent(const ProgramOptions & opt);
 template <unsigned Dimensions>
-void applyDeformationFieldToImage(const ProgramOptions& opt);
+void
+applyDeformationFieldToImage(const ProgramOptions & opt);
 
-int main(int argc, char** argv) {
-    
-    ProgramOptions poParameters;
-    lpo::program_options<std::string, unsigned> parser{argv[0], "Program help:"};
-    
-    parser.add_opt<unsigned>({"dimensionality", "d", "Dimensionality of the input image (only available if you're building a deformation model)", &poParameters.uNumberOfDimensions, 3, 2, 3},true).
-        add_opt<std::string>({"input-image", "i", "The path to the original image.", &poParameters.strInputImageFileName},true).
-        add_opt<std::string>({"input-deformation-field", "f", "The path to the original image.", &poParameters.strInputDeformFieldFileName},true).
-        add_pos_opt<std::string>({"Name of the warped output image.", &poParameters.strOutputFileName});
-    
-    if (!parser.parse(argc, argv)) {
-        return EXIT_FAILURE;
+int
+main(int argc, char ** argv)
+{
+
+  ProgramOptions                              poParameters;
+  lpo::program_options<std::string, unsigned> parser{ argv[0], "Program help:" };
+
+  parser
+    .add_opt<unsigned>({ "dimensionality",
+                         "d",
+                         "Dimensionality of the input image (only available if you're building a deformation model)",
+                         &poParameters.uNumberOfDimensions,
+                         3,
+                         2,
+                         3 },
+                       true)
+    .add_opt<std::string>(
+      { "input-image", "i", "The path to the original image.", &poParameters.strInputImageFileName }, true)
+    .add_opt<std::string>(
+      { "input-deformation-field", "f", "The path to the original image.", &poParameters.strInputDeformFieldFileName },
+      true)
+    .add_pos_opt<std::string>({ "Name of the warped output image.", &poParameters.strOutputFileName });
+
+  if (!parser.parse(argc, argv))
+  {
+    return EXIT_FAILURE;
+  }
+
+  if (isOptionsConflictPresent(poParameters))
+  {
+    cerr << "A conflict in the options exists or insufficient options were set." << endl;
+    cout << parser << endl;
+    return EXIT_FAILURE;
+  }
+
+  try
+  {
+    if (poParameters.uNumberOfDimensions == 2)
+    {
+      applyDeformationFieldToImage<Dimensionality2D>(poParameters);
     }
-
-    if (isOptionsConflictPresent(poParameters))	{
-        cerr << "A conflict in the options exists or insufficient options were set." << endl;
-        cout << parser << endl;
-        return EXIT_FAILURE;
+    else
+    {
+      applyDeformationFieldToImage<Dimensionality3D>(poParameters);
     }
+  }
+  catch (itk::ExceptionObject & e)
+  {
+    cerr << "Could not warp the image:" << endl;
+    cerr << e.what() << endl;
+    return EXIT_FAILURE;
+  }
 
-    try {
-        if (poParameters.uNumberOfDimensions == 2) {
-            applyDeformationFieldToImage<Dimensionality2D>(poParameters);
-        } else {
-            applyDeformationFieldToImage<Dimensionality3D>(poParameters);
-        }
-    } catch (itk::ExceptionObject & e) {
-        cerr << "Could not warp the image:" << endl;
-        cerr << e.what() << endl;
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }
 
-bool isOptionsConflictPresent(const ProgramOptions& opt) {
-    if (opt.strInputDeformFieldFileName == "" || opt.strInputImageFileName == "" || opt.strOutputFileName == "") {
-        return true;
-    }
-    return false;
+bool
+isOptionsConflictPresent(const ProgramOptions & opt)
+{
+  if (opt.strInputDeformFieldFileName == "" || opt.strInputImageFileName == "" || opt.strOutputFileName == "")
+  {
+    return true;
+  }
+  return false;
 }
 
 template <unsigned Dimensions>
-void applyDeformationFieldToImage(const ProgramOptions& opt) {
-    typedef itk::Image<float, Dimensions> ImageType;
-    typedef itk::ImageFileReader<ImageType> ImageReaderType;
-    typename ImageReaderType::Pointer pOriginalImageReader = ImageReaderType::New();
-    pOriginalImageReader->SetFileName(opt.strInputImageFileName.c_str());
-    pOriginalImageReader->Update();
-    typename ImageType::Pointer pOriginalImage = pOriginalImageReader->GetOutput();
+void
+applyDeformationFieldToImage(const ProgramOptions & opt)
+{
+  typedef itk::Image<float, Dimensions>   ImageType;
+  typedef itk::ImageFileReader<ImageType> ImageReaderType;
+  typename ImageReaderType::Pointer       pOriginalImageReader = ImageReaderType::New();
+  pOriginalImageReader->SetFileName(opt.strInputImageFileName.c_str());
+  pOriginalImageReader->Update();
+  typename ImageType::Pointer pOriginalImage = pOriginalImageReader->GetOutput();
 
-    typedef itk::Vector<float, Dimensions> VectorPixelType;
-    typedef itk::Image<VectorPixelType, Dimensions> VectorImageType;
-    typedef itk::ImageFileReader<VectorImageType> VectorImageReaderType;
-    typename VectorImageReaderType::Pointer pDeformationFieldReader = VectorImageReaderType::New();
-    pDeformationFieldReader->SetFileName(opt.strInputDeformFieldFileName.c_str());
-    pDeformationFieldReader->Update();
-    typename VectorImageType::Pointer pDeformationField = pDeformationFieldReader->GetOutput();
+  typedef itk::Vector<float, Dimensions>          VectorPixelType;
+  typedef itk::Image<VectorPixelType, Dimensions> VectorImageType;
+  typedef itk::ImageFileReader<VectorImageType>   VectorImageReaderType;
+  typename VectorImageReaderType::Pointer         pDeformationFieldReader = VectorImageReaderType::New();
+  pDeformationFieldReader->SetFileName(opt.strInputDeformFieldFileName.c_str());
+  pDeformationFieldReader->Update();
+  typename VectorImageType::Pointer pDeformationField = pDeformationFieldReader->GetOutput();
 
-    typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
-    typename InterpolatorType::Pointer pInterpolator = InterpolatorType::New();
+  typedef itk::LinearInterpolateImageFunction<ImageType, double> InterpolatorType;
+  typename InterpolatorType::Pointer                             pInterpolator = InterpolatorType::New();
 
-    typedef itk::WarpImageFilter<ImageType, ImageType, VectorImageType> WarpFilterType;
-    typename WarpFilterType::Pointer pWarper = WarpFilterType::New();
-    pWarper->SetInput(pOriginalImage);
-    pWarper->SetInterpolator(pInterpolator);
-    pWarper->SetOutputSpacing(pOriginalImage->GetSpacing());
-    pWarper->SetOutputOrigin(pOriginalImage->GetOrigin());
-    pWarper->SetOutputDirection(pOriginalImage->GetDirection());
-    pWarper->SetDisplacementField(pDeformationField);
-    pWarper->Update();
-    typename ImageType::Pointer pWarpedImage = pWarper->GetOutput();
+  typedef itk::WarpImageFilter<ImageType, ImageType, VectorImageType> WarpFilterType;
+  typename WarpFilterType::Pointer                                    pWarper = WarpFilterType::New();
+  pWarper->SetInput(pOriginalImage);
+  pWarper->SetInterpolator(pInterpolator);
+  pWarper->SetOutputSpacing(pOriginalImage->GetSpacing());
+  pWarper->SetOutputOrigin(pOriginalImage->GetOrigin());
+  pWarper->SetOutputDirection(pOriginalImage->GetDirection());
+  pWarper->SetDisplacementField(pDeformationField);
+  pWarper->Update();
+  typename ImageType::Pointer pWarpedImage = pWarper->GetOutput();
 
-    typedef itk::ImageFileWriter<ImageType>  ImageWriterType;
-    typename ImageWriterType::Pointer pImageWriter = ImageWriterType::New();
-    pImageWriter->SetInput(pWarpedImage);
-    pImageWriter->SetFileName(opt.strOutputFileName.c_str());
-    pImageWriter->Update();
+  typedef itk::ImageFileWriter<ImageType> ImageWriterType;
+  typename ImageWriterType::Pointer       pImageWriter = ImageWriterType::New();
+  pImageWriter->SetInput(pWarpedImage);
+  pImageWriter->SetFileName(opt.strOutputFileName.c_str());
+  pImageWriter->Update();
 }

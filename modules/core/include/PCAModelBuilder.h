@@ -48,7 +48,8 @@
 #include "ModelInfo.h"
 #include "StatisticalModel.h"
 
-namespace statismo {
+namespace statismo
+{
 
 
 /**
@@ -57,67 +58,85 @@ namespace statismo {
  * This class implements the classical PCA based approach to Statistical Models.
  */
 template <typename T>
-class PCAModelBuilder : public ModelBuilder<T> {
+class PCAModelBuilder : public ModelBuilder<T>
+{
 
 
-  public:
+public:
+  typedef ModelBuilder<T>                            Superclass;
+  typedef typename Superclass::DataManagerType       DataManagerType;
+  typedef typename Superclass::StatisticalModelType  StatisticalModelType;
+  typedef typename DataManagerType::DataItemListType DataItemListType;
 
-    typedef ModelBuilder<T> Superclass;
-    typedef typename Superclass::DataManagerType DataManagerType;
-    typedef typename Superclass::StatisticalModelType StatisticalModelType;
-    typedef typename DataManagerType::DataItemListType DataItemListType;
+  /**
+   * @brief The EigenValueMethod enum This type is used to specify which decomposition method resp. eigenvalue solver
+   * sould be used. Default is JacobiSVD which is the most accurate but for larger systems quite slow. In this case the
+   * SelfAdjointEigensolver is more appropriate (especially, if there are more examples than variables).
+   */
+  typedef enum
+  {
+    JacobiSVD,
+    SelfAdjointEigenSolver
+  } EigenValueMethod;
 
-    /**
-     * @brief The EigenValueMethod enum This type is used to specify which decomposition method resp. eigenvalue solver sould be used. Default is JacobiSVD which is the most accurate but for larger systems quite slow. In this case the SelfAdjointEigensolver is more appropriate (especially, if there are more examples than variables).
-     */
-    typedef enum { JacobiSVD, SelfAdjointEigenSolver } EigenValueMethod;
+  /**
+   * Factory method to create a new PCAModelBuilder
+   */
+  static PCAModelBuilder *
+  Create()
+  {
+    return new PCAModelBuilder();
+  }
 
-    /**
-     * Factory method to create a new PCAModelBuilder
-     */
-    static PCAModelBuilder* Create() {
-        return new PCAModelBuilder();
-    }
-
-    /**
-     * Destroy the object.
-     * The same effect can be achieved by deleting the object in the usual
-     * way using the c++ delete keyword.
-     */
-    void Delete() {
-        delete this;
-    }
-
-
-    /**
-     * The desctructor
-     */
-    virtual ~PCAModelBuilder() {}
-
-    /**
-     * Build a new model from the training data provided in the dataManager.
-     * \param samples A sampleSet holding the data
-     * \param noiseVariance The variance of N(0, noiseVariance) distributed noise on the points.
-     * If this parameter is set to 0, we have a standard PCA model. For values > 0 we have a PPCA model.
-     * \param computeScores Determines whether the scores (the pca coefficients of the examples) are computed and stored as model info
-     * (computing the scores may take a long time for large models).
-     * \param method Specifies the method which is used for the decomposition resp. eigenvalue solver.
-     *
-     * \return A new Statistical model
-     * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
-     */
-    StatisticalModelType* BuildNewModel(const DataItemListType& samples, double noiseVariance, bool computeScores = true, EigenValueMethod method = JacobiSVD) const;
+  /**
+   * Destroy the object.
+   * The same effect can be achieved by deleting the object in the usual
+   * way using the c++ delete keyword.
+   */
+  void
+  Delete()
+  {
+    delete this;
+  }
 
 
-  private:
-    // to prevent use
-    PCAModelBuilder();
-    PCAModelBuilder(const PCAModelBuilder& orig);
-    PCAModelBuilder& operator=(const PCAModelBuilder& rhs);
+  /**
+   * The desctructor
+   */
+  virtual ~PCAModelBuilder() {}
 
-    StatisticalModelType* BuildNewModelInternal(const Representer<T>* representer, const MatrixType& X, const VectorType& mu, double noiseVariance, EigenValueMethod method = JacobiSVD) const;
+  /**
+   * Build a new model from the training data provided in the dataManager.
+   * \param samples A sampleSet holding the data
+   * \param noiseVariance The variance of N(0, noiseVariance) distributed noise on the points.
+   * If this parameter is set to 0, we have a standard PCA model. For values > 0 we have a PPCA model.
+   * \param computeScores Determines whether the scores (the pca coefficients of the examples) are computed and stored
+   * as model info (computing the scores may take a long time for large models). \param method Specifies the method
+   * which is used for the decomposition resp. eigenvalue solver.
+   *
+   * \return A new Statistical model
+   * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
+   */
+  StatisticalModelType *
+  BuildNewModel(const DataItemListType & samples,
+                double                   noiseVariance,
+                bool                     computeScores = true,
+                EigenValueMethod         method = JacobiSVD) const;
 
 
+private:
+  // to prevent use
+  PCAModelBuilder();
+  PCAModelBuilder(const PCAModelBuilder & orig);
+  PCAModelBuilder &
+  operator=(const PCAModelBuilder & rhs);
+
+  StatisticalModelType *
+  BuildNewModelInternal(const Representer<T> * representer,
+                        const MatrixType &     X,
+                        const VectorType &     mu,
+                        double                 noiseVariance,
+                        EigenValueMethod       method = JacobiSVD) const;
 };
 
 } // namespace statismo

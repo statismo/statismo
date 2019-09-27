@@ -45,61 +45,67 @@
 #include "DataManager.h"
 #include "StatisticalModel.h"
 
-namespace statismo {
+namespace statismo
+{
 
 /**
  * \brief Common base class for all the model builder classes
  */
 template <typename T>
-class ModelBuilder {
+class ModelBuilder
+{
 
-  public:
-    typedef Representer<T> RepresenterType;
-    typedef StatisticalModel<T> StatisticalModelType;
-    typedef DataManager<T> DataManagerType;
-    typedef typename DataManagerType::DataItemListType DataItemListType;
+public:
+  typedef Representer<T>                             RepresenterType;
+  typedef StatisticalModel<T>                        StatisticalModelType;
+  typedef DataManager<T>                             DataManagerType;
+  typedef typename DataManagerType::DataItemListType DataItemListType;
 
-    // Values below this tolerance are treated as 0.
-    static const double TOLERANCE;
+  // Values below this tolerance are treated as 0.
+  static const double TOLERANCE;
 
 
-  protected:
+protected:
+  MatrixType
+  ComputeScores(const MatrixType & X, const StatisticalModelType * model) const
+  {
 
-    MatrixType ComputeScores(const MatrixType& X, const StatisticalModelType* model) const {
-
-        MatrixType scores(model->GetNumberOfPrincipalComponents(), X.rows());
-        for (unsigned i = 0; i < scores.cols(); i++) {
-            scores.col(i) = model->ComputeCoefficientsForSampleVector(X.row(i));
-        }
-        return scores;
+    MatrixType scores(model->GetNumberOfPrincipalComponents(), X.rows());
+    for (unsigned i = 0; i < scores.cols(); i++)
+    {
+      scores.col(i) = model->ComputeCoefficientsForSampleVector(X.row(i));
     }
+    return scores;
+  }
 
 
-    MatrixType ComputeScores(const DataItemListType& sampleDataList, const StatisticalModelType* model) const {
+  MatrixType
+  ComputeScores(const DataItemListType & sampleDataList, const StatisticalModelType * model) const
+  {
 
-        unsigned n = sampleDataList.size();
-        MatrixType scores(model->GetNumberOfPrincipalComponents(), n);
+    unsigned   n = sampleDataList.size();
+    MatrixType scores(model->GetNumberOfPrincipalComponents(), n);
 
-        unsigned i = 0;
-        for (typename DataItemListType::const_iterator it = sampleDataList.begin();
-                it != sampleDataList.end(); ++it) {
-            // Todo: for sample or for dataset??
-            scores.col(i++) = model->ComputeCoefficientsForSampleVector((*it)->GetSampleVector());
-        }
-        return scores;
+    unsigned i = 0;
+    for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
+    {
+      // Todo: for sample or for dataset??
+      scores.col(i++) = model->ComputeCoefficientsForSampleVector((*it)->GetSampleVector());
     }
+    return scores;
+  }
 
 
+  ModelBuilder() {}
 
-    ModelBuilder() {}
+  ModelInfo
+  CollectModelInfo() const;
 
-    ModelInfo CollectModelInfo() const;
-
-  private:
-    // private - to prevent use
-    ModelBuilder(const ModelBuilder& orig);
-    ModelBuilder& operator=(const ModelBuilder& rhs);
-
+private:
+  // private - to prevent use
+  ModelBuilder(const ModelBuilder & orig);
+  ModelBuilder &
+  operator=(const ModelBuilder & rhs);
 };
 
 template <class Representer>

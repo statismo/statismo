@@ -75,196 +75,233 @@ typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
  *    components of the model are sampled and stored in this directory. This is meant for visual inspection.
  */
 
-int PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char** argv) {
+int
+PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
+{
 
-    auto rg = rand::randGen(0);
+  auto rg = rand::randGen(0);
 
-    if (argc < 2) {
-        std::cout << "Usage: " << argv[0] << " datadir " << "[number_of_points=100] [output_dir]" << std::endl;
-        exit(EXIT_FAILURE);
-    }
-    std::string datadir = std::string(argv[1]);
+  if (argc < 2)
+  {
+    std::cout << "Usage: " << argv[0] << " datadir "
+              << "[number_of_points=100] [output_dir]" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+  std::string datadir = std::string(argv[1]);
 
-    bool testsOk = true;
+  bool testsOk = true;
 
-    // number of points which are used for building the model
-    // the number of points is reduced since the SelfAdjointEigenSolver operates
-    // on the full covariance matrix. So
-    unsigned num_points = 100;
-    if(argc==3) num_points = std::atoi(argv[2]);
+  // number of points which are used for building the model
+  // the number of points is reduced since the SelfAdjointEigenSolver operates
+  // on the full covariance matrix. So
+  unsigned num_points = 100;
+  if (argc == 3)
+    num_points = std::atoi(argv[2]);
 
-    std::string output_dir = "";
-    if(argc==4) output_dir = argv[3];
+  std::string output_dir = "";
+  if (argc == 4)
+    output_dir = argv[3];
 
-    std::vector<std::string> filenames;
-    filenames.push_back(datadir+"/hand_polydata/hand-0.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-1.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-2.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-3.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-4.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-5.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-6.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-7.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-8.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-9.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-10.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-11.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-12.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-13.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-14.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-15.vtk");
-    filenames.push_back(datadir+"/hand_polydata/hand-16.vtk");
-
-
-    typedef vtkStandardMeshRepresenter RepresenterType;
-    typedef statismo::DataManager<vtkPolyData> DataManagerType;
-    typedef vtkStandardMeshRepresenter::PointType PointType;
-    typedef vtkStandardMeshRepresenter::DomainType DomainType;
-    typedef DomainType::DomainPointsListType DomainPointsListType;
-    typedef statismo::StatisticalModel<vtkPolyData> StatisticalModelType;
+  std::vector<std::string> filenames;
+  filenames.push_back(datadir + "/hand_polydata/hand-0.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-1.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-2.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-3.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-4.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-5.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-6.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-7.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-8.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-9.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-10.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-11.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-12.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-13.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-14.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-15.vtk");
+  filenames.push_back(datadir + "/hand_polydata/hand-16.vtk");
 
 
-    vtkPolyData* reference = loadPolyData(filenames[0]);
-    reference = ReducePoints(reference, num_points);
-    RepresenterType* representer = RepresenterType::Create(reference);
-
-    std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
-
-    std::vector<std::string>::const_iterator it = filenames.begin();
-    for(; it!=filenames.end(); it++) {
-        vtkPolyData* testDataset = loadPolyData((*it));
-        testDataset = ReducePoints(testDataset, num_points);
-        dataManager->AddDataset(testDataset, "dataset");
-    }
+  typedef vtkStandardMeshRepresenter              RepresenterType;
+  typedef statismo::DataManager<vtkPolyData>      DataManagerType;
+  typedef vtkStandardMeshRepresenter::PointType   PointType;
+  typedef vtkStandardMeshRepresenter::DomainType  DomainType;
+  typedef DomainType::DomainPointsListType        DomainPointsListType;
+  typedef statismo::StatisticalModel<vtkPolyData> StatisticalModelType;
 
 
-    // ----------------------------------------------------------
-    // First compute PCA model using standard JacobiSVD
-    // ----------------------------------------------------------
-    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "building PCA model with JacobiSVD... " << std::flush;
-    std::clock_t begin = std::clock();
-    double data_noise = 0;
-    typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
-    PCAModelBuilderType* pcaModelBuilder = PCAModelBuilderType::Create();
-    StatisticalModelType* jacobiModel;
+  vtkPolyData * reference = loadPolyData(filenames[0]);
+  reference = ReducePoints(reference, num_points);
+  RepresenterType * representer = RepresenterType::Create(reference);
 
-    // perform with standard argument
-    jacobiModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(),data_noise,false);
-    VectorType variance1 = jacobiModel->GetPCAVarianceVector();
-    MatrixType pcbasis1 = jacobiModel->GetPCABasisMatrix();
+  std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
 
-    // perform with providing JacobiSVD
-    jacobiModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(),data_noise,false, PCAModelBuilderType::JacobiSVD);
-
-    VectorType variance2 = jacobiModel->GetPCAVarianceVector();
-    MatrixType pcbasis2 = jacobiModel->GetPCABasisMatrix();
-
-    if(CompareVectors(variance1, variance2)==0 && CompareMatrices(pcbasis1, pcbasis2) == 0) {
-        std::clock_t end = std::clock();
-        std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t[passed]" << std::endl;
-    } else {
-        std::cout << " \t[failed]" << std::endl;
-        std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t\t\t" << "- something went wrong with the standard argument!" << std::endl;
-        testsOk = false;
-    }
+  std::vector<std::string>::const_iterator it = filenames.begin();
+  for (; it != filenames.end(); it++)
+  {
+    vtkPolyData * testDataset = loadPolyData((*it));
+    testDataset = ReducePoints(testDataset, num_points);
+    dataManager->AddDataset(testDataset, "dataset");
+  }
 
 
-    // ----------------------------------------------------------
-    // Generate a lot of samples out of the JacobiSVD model
-    // ----------------------------------------------------------
-    std::unique_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer));
-    dataManager->AddDataset(reference, "ref");
-    for(unsigned i=0; i<5000; i++) {
-        std::stringstream ss;
-        ss << "sample" << i;
-        dataManager2->AddDataset(jacobiModel->DrawSample(), ss.str().c_str());
-    }
+  // ----------------------------------------------------------
+  // First compute PCA model using standard JacobiSVD
+  // ----------------------------------------------------------
+  std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+            << "building PCA model with JacobiSVD... " << std::flush;
+  std::clock_t                                   begin = std::clock();
+  double                                         data_noise = 0;
+  typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
+  PCAModelBuilderType *                          pcaModelBuilder = PCAModelBuilderType::Create();
+  StatisticalModelType *                         jacobiModel;
 
+  // perform with standard argument
+  jacobiModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(), data_noise, false);
+  VectorType variance1 = jacobiModel->GetPCAVarianceVector();
+  MatrixType pcbasis1 = jacobiModel->GetPCABasisMatrix();
 
-    // ----------------------------------------------------------
-    // Compute PCA model using the SelfAdjointEigenSolver
-    // ----------------------------------------------------------
-    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "building PCA model with SelfAdjointEigenSolver... " << std::flush;
-    begin = std::clock();
-    StatisticalModelType* saesModel = pcaModelBuilder->BuildNewModel(dataManager2->GetData(),data_noise,false, PCAModelBuilderType::SelfAdjointEigenSolver);
+  // perform with providing JacobiSVD
+  jacobiModel =
+    pcaModelBuilder->BuildNewModel(dataManager->GetData(), data_noise, false, PCAModelBuilderType::JacobiSVD);
+
+  VectorType variance2 = jacobiModel->GetPCAVarianceVector();
+  MatrixType pcbasis2 = jacobiModel->GetPCABasisMatrix();
+
+  if (CompareVectors(variance1, variance2) == 0 && CompareMatrices(pcbasis1, pcbasis2) == 0)
+  {
     std::clock_t end = std::clock();
-    std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t[passed]" << std::endl;
+    std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t[passed]" << std::endl;
+  }
+  else
+  {
+    std::cout << " \t[failed]" << std::endl;
+    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t\t\t"
+              << "- something went wrong with the standard argument!" << std::endl;
+    testsOk = false;
+  }
 
 
-    // ----------------------------------------------------------
-    // Comparing the models
-    // - compare each principal component
-    // ----------------------------------------------------------
-    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "comparing principal components... " << std::flush;
-    begin = std::clock();
-    double error = 0;
-    for(unsigned i=0; i<std::min(jacobiModel->GetNumberOfPrincipalComponents(), saesModel->GetNumberOfPrincipalComponents()); i++) {
-        VectorType coeff1 = VectorType::Zero(jacobiModel->GetNumberOfPrincipalComponents());
-        coeff1[i] = 2;
-        VectorType coeff2 = VectorType::Zero(saesModel->GetNumberOfPrincipalComponents());
+  // ----------------------------------------------------------
+  // Generate a lot of samples out of the JacobiSVD model
+  // ----------------------------------------------------------
+  std::unique_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer));
+  dataManager->AddDataset(reference, "ref");
+  for (unsigned i = 0; i < 5000; i++)
+  {
+    std::stringstream ss;
+    ss << "sample" << i;
+    dataManager2->AddDataset(jacobiModel->DrawSample(), ss.str().c_str());
+  }
+
+
+  // ----------------------------------------------------------
+  // Compute PCA model using the SelfAdjointEigenSolver
+  // ----------------------------------------------------------
+  std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+            << "building PCA model with SelfAdjointEigenSolver... " << std::flush;
+  begin = std::clock();
+  StatisticalModelType * saesModel = pcaModelBuilder->BuildNewModel(
+    dataManager2->GetData(), data_noise, false, PCAModelBuilderType::SelfAdjointEigenSolver);
+  std::clock_t end = std::clock();
+  std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t[passed]" << std::endl;
+
+
+  // ----------------------------------------------------------
+  // Comparing the models
+  // - compare each principal component
+  // ----------------------------------------------------------
+  std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+            << "comparing principal components... " << std::flush;
+  begin = std::clock();
+  double error = 0;
+  for (unsigned i = 0;
+       i < std::min(jacobiModel->GetNumberOfPrincipalComponents(), saesModel->GetNumberOfPrincipalComponents());
+       i++)
+  {
+    VectorType coeff1 = VectorType::Zero(jacobiModel->GetNumberOfPrincipalComponents());
+    coeff1[i] = 2;
+    VectorType coeff2 = VectorType::Zero(saesModel->GetNumberOfPrincipalComponents());
+    coeff2[i] = 2;
+
+    // it might be, that the direction of the pc is in the opposite direction
+    double equal_direction =
+      CompareVectors(jacobiModel->DrawSampleVector(coeff1, false), saesModel->DrawSampleVector(coeff2, false));
+    coeff2[i] = -2;
+    double oppo_direction =
+      CompareVectors(jacobiModel->DrawSampleVector(coeff1, false), saesModel->DrawSampleVector(coeff2, false));
+
+    error += std::min(equal_direction, oppo_direction);
+
+    if (output_dir.size() > 0)
+    {
+      std::stringstream ss1;
+      ss1 << output_dir << "/jacobi-" << i << ".vtk";
+      writePolyData(jacobiModel->DrawSample(coeff1, false), ss1.str().c_str());
+
+      std::stringstream ss2;
+      ss2 << output_dir << "/saes-" << i << ".vtk";
+      if (equal_direction < oppo_direction)
         coeff2[i] = 2;
-
-        // it might be, that the direction of the pc is in the opposite direction
-        double equal_direction = CompareVectors(jacobiModel->DrawSampleVector(coeff1, false),
-                                                saesModel->DrawSampleVector(coeff2, false));
-        coeff2[i] = -2;
-        double oppo_direction = CompareVectors(jacobiModel->DrawSampleVector(coeff1, false),
-                                               saesModel->DrawSampleVector(coeff2, false));
-
-        error += std::min(equal_direction, oppo_direction);
-
-        if(output_dir.size() >0) {
-            std::stringstream ss1;
-            ss1 << output_dir << "/jacobi-" << i << ".vtk";
-            writePolyData(jacobiModel->DrawSample(coeff1, false), ss1.str().c_str());
-
-            std::stringstream ss2;
-            ss2 << output_dir << "/saes-" << i << ".vtk";
-            if(equal_direction<oppo_direction) coeff2[i] = 2;
-            writePolyData(saesModel->DrawSample(coeff2, false), ss2.str().c_str());
-        }
+      writePolyData(saesModel->DrawSample(coeff2, false), ss2.str().c_str());
     }
+  }
 
-    double threshold = 150;
-    if(error < threshold) {
-        std::clock_t end = std::clock();
-        std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t\t[passed]" << std::endl;
-    } else {
-        std::cout << " \t[failed]" << std::endl;
-        std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "- pc error("<< error << ") exceeds threshold ("<< threshold <<")!" << std::endl;
-        testsOk = false;
-    }
+  double threshold = 150;
+  if (error < threshold)
+  {
+    std::clock_t end = std::clock();
+    std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t\t[passed]" << std::endl;
+  }
+  else
+  {
+    std::cout << " \t[failed]" << std::endl;
+    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+              << "- pc error(" << error << ") exceeds threshold (" << threshold << ")!" << std::endl;
+    testsOk = false;
+  }
 
-    double var_error = 0;
-    for(unsigned i=0; i<std::min(jacobiModel->GetNumberOfPrincipalComponents(), saesModel->GetNumberOfPrincipalComponents()); i++) {
-        var_error += std::sqrt(std::pow(jacobiModel->GetPCAVarianceVector()[i] - saesModel->GetPCAVarianceVector()[i],2));
-    }
+  double var_error = 0;
+  for (unsigned i = 0;
+       i < std::min(jacobiModel->GetNumberOfPrincipalComponents(), saesModel->GetNumberOfPrincipalComponents());
+       i++)
+  {
+    var_error += std::sqrt(std::pow(jacobiModel->GetPCAVarianceVector()[i] - saesModel->GetPCAVarianceVector()[i], 2));
+  }
 
-    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "comparing variances... " << std::flush;
-    double var_threshold = 250;
-    if(var_error < var_threshold) {
-        std::clock_t end = std::clock();
-        std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t\t\t[passed]" << std::endl;
-    } else {
-        std::cout << " \t[failed]" << std::endl;
-        std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "- variance error("<< var_error << ") exceeds threshold ("<< var_threshold <<")!" << std::endl;
-        testsOk = false;
-    }
+  std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+            << "comparing variances... " << std::flush;
+  double var_threshold = 250;
+  if (var_error < var_threshold)
+  {
+    std::clock_t end = std::clock();
+    std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t\t\t\t[passed]" << std::endl;
+  }
+  else
+  {
+    std::cout << " \t[failed]" << std::endl;
+    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+              << "- variance error(" << var_error << ") exceeds threshold (" << var_threshold << ")!" << std::endl;
+    testsOk = false;
+  }
 
 
-    if(output_dir.size() >0) {
-        std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "The results can be visually inspected in the directory " << output_dir << std::endl;
-    }
+  if (output_dir.size() > 0)
+  {
+    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+              << "The results can be visually inspected in the directory " << output_dir << std::endl;
+  }
 
-    if (testsOk == true) {
-        std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "Summary - tests passed." << std::endl;
-        return EXIT_SUCCESS;
-    } else {
-        std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t" << "Summary - tests failed." << std::endl;
-        return EXIT_FAILURE;
-    }
-
+  if (testsOk == true)
+  {
+    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+              << "Summary - tests passed." << std::endl;
+    return EXIT_SUCCESS;
+  }
+  else
+  {
+    std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
+              << "Summary - tests failed." << std::endl;
+    return EXIT_FAILURE;
+  }
 }
-
-
-

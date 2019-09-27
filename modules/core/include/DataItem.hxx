@@ -40,37 +40,48 @@
 
 #include "DataItem.h"
 
-namespace statismo {
+namespace statismo
+{
 
 
 template <class T>
-DataItem<T>*
-DataItem<T>::Load(const RepresenterType* representer, const H5::Group& dsGroup) {
-    VectorType dsVector;
-    std::string sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
-    DataItem* newSample = 0;
-    if (sampleType == "DataItem") {
-        newSample = new DataItem<T>(representer);
-    } else if (sampleType == "DataItemWithSurrogates") {
-        newSample = new DataItemWithSurrogates<T>(representer);
-    } else {
-        throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") +sampleType).c_str());
-    }
-    newSample->LoadInternal(dsGroup);
-    return newSample;
+DataItem<T> *
+DataItem<T>::Load(const RepresenterType * representer, const H5::Group & dsGroup)
+{
+  VectorType  dsVector;
+  std::string sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
+  DataItem *  newSample = 0;
+  if (sampleType == "DataItem")
+  {
+    newSample = new DataItem<T>(representer);
+  }
+  else if (sampleType == "DataItemWithSurrogates")
+  {
+    newSample = new DataItemWithSurrogates<T>(representer);
+  }
+  else
+  {
+    throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") + sampleType).c_str());
+  }
+  newSample->LoadInternal(dsGroup);
+  return newSample;
 }
 
 template <class T>
 void
-DataItem<T>::Save(const H5::Group& dsGroup) const {
-    if (dynamic_cast<const DataItemWithSurrogates<T>* >(this) != 0) {
-        HDF5Utils::writeString(dsGroup, "./sampletype", "DataItemWithSurrogates");
-    } else {
-        HDF5Utils::writeString(dsGroup, "./sampletype", "DataItem");
-    }
-    SaveInternal(dsGroup);
+DataItem<T>::Save(const H5::Group & dsGroup) const
+{
+  if (dynamic_cast<const DataItemWithSurrogates<T> *>(this) != 0)
+  {
+    HDF5Utils::writeString(dsGroup, "./sampletype", "DataItemWithSurrogates");
+  }
+  else
+  {
+    HDF5Utils::writeString(dsGroup, "./sampletype", "DataItem");
+  }
+  SaveInternal(dsGroup);
 }
 
-}
+} // namespace statismo
 
 #endif // __SAMPLE_DATA_TXX

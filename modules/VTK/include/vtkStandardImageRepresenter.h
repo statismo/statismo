@@ -56,113 +56,149 @@
  * The pixel values used for the shape model are stored in the vtkPointData object of the vtkStructuredPoints.
  * They can be either scalars (cf. sp->GetPointData()->GetScalars()) or vectors (cf. sp->GetPointData()->GetVectors()).
  *
- * If you supply vtkStructuredPoints images with several arrays (e.g. scalars, vectors, tensors etc.), you need to ensure that
- * the array relevant to the shape model is the first array, i.e. the one returned by sp->GetPointData()->GetArray(0).
+ * If you supply vtkStructuredPoints images with several arrays (e.g. scalars, vectors, tensors etc.), you need to
+ * ensure that the array relevant to the shape model is the first array, i.e. the one returned by
+ * sp->GetPointData()->GetArray(0).
  *
  * \sa Representer
  */
 
-namespace statismo {
+namespace statismo
+{
 template <>
-struct RepresenterTraits<vtkStructuredPoints> {
-    typedef vtkStructuredPoints* DatasetPointerType;
-    typedef const vtkStructuredPoints* DatasetConstPointerType;
+struct RepresenterTraits<vtkStructuredPoints>
+{
+  typedef vtkStructuredPoints *       DatasetPointerType;
+  typedef const vtkStructuredPoints * DatasetConstPointerType;
 
-    typedef vtkPoint PointType;
-    typedef vtkNDPixel ValueType;
+  typedef vtkPoint   PointType;
+  typedef vtkNDPixel ValueType;
 
-    static constexpr unsigned Dimension = 3;
-    ///@}
-
-
+  static constexpr unsigned Dimension = 3;
+  ///@}
 };
 
 
-
 template <class TScalar, unsigned PixelDimensions>
-class vtkStandardImageRepresenter  : public RepresenterBase<vtkStructuredPoints, vtkStandardImageRepresenter<TScalar, PixelDimensions>> {
-  public:
+class vtkStandardImageRepresenter
+  : public RepresenterBase<vtkStructuredPoints, vtkStandardImageRepresenter<TScalar, PixelDimensions>>
+{
+public:
+  using RepresenterBaseType =
+    RepresenterBase<vtkStructuredPoints, vtkStandardImageRepresenter<TScalar, PixelDimensions>>;
+  friend RepresenterBaseType;
 
-    using RepresenterBaseType = RepresenterBase<vtkStructuredPoints, vtkStandardImageRepresenter<TScalar, PixelDimensions>>;
-    friend RepresenterBaseType;
+  using DatasetPointerType = typename RepresenterBaseType::DatasetPointerType;
+  using DatasetConstPointerType = typename RepresenterBaseType::DatasetConstPointerType;
+  using PointType = typename RepresenterBaseType::PointType;
+  using DomainType = typename RepresenterBaseType::DomainType;
+  using ValueType = typename RepresenterBaseType::ValueType;
 
-    using DatasetPointerType = typename RepresenterBaseType::DatasetPointerType;
-    using DatasetConstPointerType = typename RepresenterBaseType::DatasetConstPointerType;
-    using PointType = typename RepresenterBaseType::PointType;
-    using DomainType = typename RepresenterBaseType::DomainType;
-    using ValueType = typename RepresenterBaseType::ValueType;
+  void
+  Load(const H5::Group & fg);
 
-    void Load(const H5::Group& fg);
+  virtual ~vtkStandardImageRepresenter();
+  void
+  Delete() const
+  {
+    delete this;
+  }
 
-    virtual ~vtkStandardImageRepresenter();
-    void Delete() const {
-        delete this;
-    }
+  void
+  DeleteDataset(DatasetPointerType d) const
+  {
+    d->Delete();
+  };
 
-    void DeleteDataset(DatasetPointerType d) const {
-        d->Delete();
-    };
+  DatasetPointerType
+  CloneDataset(DatasetConstPointerType d) const
+  {
+    vtkStructuredPoints * clone = vtkStructuredPoints::New();
+    clone->DeepCopy(const_cast<vtkStructuredPoints *>(d));
+    return clone;
+  }
 
-    DatasetPointerType CloneDataset(DatasetConstPointerType d) const {
-        vtkStructuredPoints* clone = vtkStructuredPoints::New();
-        clone->DeepCopy(const_cast<vtkStructuredPoints*>(d));
-        return clone;
-    }
+  const DomainType &
+  GetDomain() const
+  {
+    return m_domain;
+  }
 
-    const DomainType& GetDomain() const  {
-        return m_domain;
-    }
+  const vtkStructuredPoints *
+  GetReference() const
+  {
+    return m_reference;
+  }
 
-    const vtkStructuredPoints* GetReference() const {
-        return m_reference;
-    }
-
-    statismo::VectorType PointToVector(const PointType& pt) const;
-    statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
-    DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
-
-
-    ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
-    statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
-    ValueType PointSampleVectorToPointSample(const statismo::VectorType& samplePoint) const;
-
-    unsigned GetPointIdForPoint(const PointType& pt) const;
-
-    unsigned GetNumberOfPoints() const;
-    void Save(const H5::Group& fg) const;
-
-    static unsigned GetNumberOfPoints(DatasetPointerType  reference);
+  statismo::VectorType
+  PointToVector(const PointType & pt) const;
+  statismo::VectorType
+  SampleToSampleVector(DatasetConstPointerType sample) const;
+  DatasetPointerType
+  SampleVectorToSample(const statismo::VectorType & sample) const;
 
 
-  private:
+  ValueType
+  PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
+  statismo::VectorType
+  PointSampleToPointSampleVector(const ValueType & v) const;
+  ValueType
+  PointSampleVectorToPointSample(const statismo::VectorType & samplePoint) const;
 
-    static unsigned GetDimensionsImpl() {
-        return  PixelDimensions;
-    }
-    
-    static std::string GetVersionImpl() {
-        return "1.0" ;
-    }
+  unsigned
+  GetPointIdForPoint(const PointType & pt) const;
 
-    static RepresenterDataType GetTypeImpl() {
-        return RepresenterDataType::IMAGE;
-    }
+  unsigned
+  GetNumberOfPoints() const;
+  void
+  Save(const H5::Group & fg) const;
 
-    static std::string GetNameImpl() {
-        return "vtkStandardImageRepresenter";
-    }
+  static unsigned
+  GetNumberOfPoints(DatasetPointerType reference);
 
-    vtkStandardImageRepresenter* CloneImpl() const;
 
-    vtkStructuredPoints* LoadRefLegacy(const H5::Group& fg) const;
-    vtkStructuredPoints* LoadRef(const H5::Group& fg) const;
+private:
+  static unsigned
+  GetDimensionsImpl()
+  {
+    return PixelDimensions;
+  }
 
-    vtkStandardImageRepresenter(DatasetConstPointerType reference);
-    vtkStandardImageRepresenter() : m_reference(0) {}
-    void SetReference(DatasetConstPointerType reference);
+  static std::string
+  GetVersionImpl()
+  {
+    return "1.0";
+  }
 
-    vtkStructuredPoints* m_reference;
-    DomainType m_domain;
+  static RepresenterDataType
+  GetTypeImpl()
+  {
+    return RepresenterDataType::IMAGE;
+  }
+
+  static std::string
+  GetNameImpl()
+  {
+    return "vtkStandardImageRepresenter";
+  }
+
+  vtkStandardImageRepresenter *
+  CloneImpl() const;
+
+  vtkStructuredPoints *
+  LoadRefLegacy(const H5::Group & fg) const;
+  vtkStructuredPoints *
+  LoadRef(const H5::Group & fg) const;
+
+  vtkStandardImageRepresenter(DatasetConstPointerType reference);
+  vtkStandardImageRepresenter()
+    : m_reference(0)
+  {}
+  void
+  SetReference(DatasetConstPointerType reference);
+
+  vtkStructuredPoints * m_reference;
+  DomainType            m_domain;
 };
 
 } // namespace statismo

@@ -36,15 +36,16 @@
 #ifndef CORE_TRAITS_H_
 #define CORE_TRAITS_H_
 
-namespace statismo {
-    
-    /* \class PointTraits
-     * \brief Should be specialized with information about
-     *        a point type. Mandatory information should be:
-     *        - RealDimension (Real dimension of the point for computation)
-     */
-    template <typename P>
-    struct PointTraits;
-}
+namespace statismo
+{
+
+/* \class PointTraits
+ * \brief Should be specialized with information about
+ *        a point type. Mandatory information should be:
+ *        - RealDimension (Real dimension of the point for computation)
+ */
+template <typename P>
+struct PointTraits;
+} // namespace statismo
 
 #endif

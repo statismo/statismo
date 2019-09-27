@@ -50,24 +50,23 @@
 #include "vtkHelper.h"
 #include "vtkPoint.h"
 
-namespace statismo {
+namespace statismo
+{
 
 
 template <>
-struct RepresenterTraits<vtkPolyData> {
-    typedef vtkPolyData* DatasetPointerType;
-    typedef const vtkPolyData* DatasetConstPointerType;
+struct RepresenterTraits<vtkPolyData>
+{
+  typedef vtkPolyData *       DatasetPointerType;
+  typedef const vtkPolyData * DatasetConstPointerType;
 
-    typedef vtkPoint PointType;
-    typedef vtkPoint ValueType;
+  typedef vtkPoint PointType;
+  typedef vtkPoint ValueType;
 
-    static constexpr unsigned Dimension = 3;
+  static constexpr unsigned Dimension = 3;
 
-    ///@}
-
-
+  ///@}
 };
-
 
 
 /**
@@ -77,84 +76,122 @@ struct RepresenterTraits<vtkPolyData> {
  * See Representer for more details about representer classes
  * \sa Representer
  */
-class vtkStandardMeshRepresenter : public RepresenterBase<vtkPolyData, vtkStandardMeshRepresenter> {
-  public:
-    using RepresenterBaseType = RepresenterBase<vtkPolyData, vtkStandardMeshRepresenter>;
-    friend RepresenterBaseType;
+class vtkStandardMeshRepresenter : public RepresenterBase<vtkPolyData, vtkStandardMeshRepresenter>
+{
+public:
+  using RepresenterBaseType = RepresenterBase<vtkPolyData, vtkStandardMeshRepresenter>;
+  friend RepresenterBaseType;
 
-    void Load(const H5::Group& fg);
+  void
+  Load(const H5::Group & fg);
 
-    void Delete() const {
-        delete this;
-    }
+  void
+  Delete() const
+  {
+    delete this;
+  }
 
-    virtual ~vtkStandardMeshRepresenter();
+  virtual ~vtkStandardMeshRepresenter();
 
-    const DomainType& GetDomain() const {
-        return m_domain;
-    }
+  const DomainType &
+  GetDomain() const
+  {
+    return m_domain;
+  }
 
-    void DeleteDataset(DatasetPointerType d) const {
-        d->Delete();
-    };
+  void
+  DeleteDataset(DatasetPointerType d) const
+  {
+    d->Delete();
+  };
 
-    DatasetPointerType CloneDataset(DatasetConstPointerType d) const {
-        vtkPolyData* clone = vtkPolyData::New();
-        clone->DeepCopy(const_cast<vtkPolyData*>(d));
-        return clone;
-    }
+  DatasetPointerType
+  CloneDataset(DatasetConstPointerType d) const
+  {
+    vtkPolyData * clone = vtkPolyData::New();
+    clone->DeepCopy(const_cast<vtkPolyData *>(d));
+    return clone;
+  }
 
-    DatasetConstPointerType GetReference() const {
-        return m_reference;
-    }
-    statismo::VectorType PointToVector(const PointType& pt) const;
-    statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
-    DatasetPointerType SampleVectorToSample(const statismo::VectorType& sample) const;
+  DatasetConstPointerType
+  GetReference() const
+  {
+    return m_reference;
+  }
+  statismo::VectorType
+  PointToVector(const PointType & pt) const;
+  statismo::VectorType
+  SampleToSampleVector(DatasetConstPointerType sample) const;
+  DatasetPointerType
+  SampleVectorToSample(const statismo::VectorType & sample) const;
 
-    ValueType PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
-    statismo::VectorType PointSampleToPointSampleVector(const ValueType& v) const;
-    ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
+  ValueType
+  PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
+  statismo::VectorType
+  PointSampleToPointSampleVector(const ValueType & v) const;
+  ValueType
+  PointSampleVectorToPointSample(const statismo::VectorType & pointSample) const;
 
 
-    void Save(const H5::Group& fg) const;
-    unsigned GetNumberOfPoints() const;
-    unsigned GetPointIdForPoint(const PointType& point) const;
+  void
+  Save(const H5::Group & fg) const;
+  unsigned
+  GetNumberOfPoints() const;
+  unsigned
+  GetPointIdForPoint(const PointType & point) const;
 
 
-  private:
+private:
+  vtkStandardMeshRepresenter()
+    : m_reference(0)
+  {}
+  vtkStandardMeshRepresenter(const std::string & reference);
+  vtkStandardMeshRepresenter(const DatasetConstPointerType reference);
+  vtkStandardMeshRepresenter(const vtkStandardMeshRepresenter & orig);
+  vtkStandardMeshRepresenter &
+  operator=(const vtkStandardMeshRepresenter & rhs);
 
-    vtkStandardMeshRepresenter() : m_reference(0) {}
-    vtkStandardMeshRepresenter(const std::string& reference);
-    vtkStandardMeshRepresenter(const DatasetConstPointerType reference);
-    vtkStandardMeshRepresenter(const vtkStandardMeshRepresenter& orig);
-    vtkStandardMeshRepresenter& operator=(const vtkStandardMeshRepresenter& rhs);
+  vtkStandardMeshRepresenter *
+  CloneImpl() const;
 
-    vtkStandardMeshRepresenter* CloneImpl() const;
+  static std::string
+  GetNameImpl()
+  {
+    return "vtkStandardMeshRepresenter";
+  }
+  static unsigned
+  GetDimensionsImpl()
+  {
+    return 3;
+  }
+  static std::string
+  GetVersionImpl()
+  {
+    return "1.0";
+  }
+  static RepresenterDataType
+  GetTypeImpl()
+  {
+    return RepresenterDataType::POLYGON_MESH;
+  }
 
-    static std::string GetNameImpl() {
-        return "vtkStandardMeshRepresenter";
-    }
-    static unsigned GetDimensionsImpl() {
-        return 3;
-    }
-    static std::string GetVersionImpl() {
-        return "1.0" ;
-    }
-    static RepresenterDataType GetTypeImpl() {
-        return RepresenterDataType::POLYGON_MESH;
-    }
+  void
+  SetReference(const vtkPolyData * reference);
 
-    void SetReference(const vtkPolyData* reference);
+  vtkPolyData *
+  LoadRefLegacy(const H5::Group & fg) const;
+  vtkPolyData *
+  LoadRef(const H5::Group & fg) const;
 
-    vtkPolyData* LoadRefLegacy(const H5::Group& fg) const;
-    vtkPolyData* LoadRef(const H5::Group& fg) const;
+  void
+  WriteDataArray(const H5::H5Location & group, const std::string & name, const vtkDataArray * ds) const;
+  static vtkDataArray *
+  GetAsDataArray(const H5::Group & group, const std::string & name);
+  static void
+                     FillDataArray(const statismo::GenericEigenType<double>::MatrixType & m, vtkDataArray * dataArray);
+  DatasetPointerType m_reference;
 
-    void WriteDataArray(const H5::H5Location& group,  const std::string& name, const vtkDataArray* ds) const;
-    static vtkDataArray* GetAsDataArray(const H5::Group& group,  const std::string& name);
-    static void FillDataArray(const statismo::GenericEigenType<double>::MatrixType& m, vtkDataArray* dataArray);
-    DatasetPointerType m_reference;
-
-    DomainType m_domain;
+  DomainType m_domain;
 };
 
 } // namespace statismo

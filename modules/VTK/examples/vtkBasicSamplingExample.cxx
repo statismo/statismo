@@ -49,70 +49,77 @@
 
 using namespace statismo;
 
-void saveSample(const vtkPolyData* pd, const std::string& resdir, const std::string& basename) {
-    std::string filename = resdir +std::string("/") + basename;
+void
+saveSample(const vtkPolyData * pd, const std::string & resdir, const std::string & basename)
+{
+  std::string filename = resdir + std::string("/") + basename;
 
-    vtkPolyDataWriter* w = vtkPolyDataWriter::New();
-#if (VTK_MAJOR_VERSION == 5 )
-    w->SetInput(const_cast<vtkPolyData*>(pd));
+  vtkPolyDataWriter * w = vtkPolyDataWriter::New();
+#if (VTK_MAJOR_VERSION == 5)
+  w->SetInput(const_cast<vtkPolyData *>(pd));
 #else
-    w->SetInputData(const_cast<vtkPolyData*>(pd));
+  w->SetInputData(const_cast<vtkPolyData *>(pd));
 #endif
-    w->SetFileName(filename.c_str());
-    w->Update();
+  w->SetFileName(filename.c_str());
+  w->Update();
 }
 
 // illustrates how to load a shape model and the basic sampling functinality
-int main(int argc, char** argv) {
+int
+main(int argc, char ** argv)
+{
 
-    if (argc < 3) {
-        std::cout << "Usage " << argv[0] << " modelname resultdir" << std::endl;
-        exit(-1);
-    }
-    std::string modelname(argv[1]);
-    std::string resultdir(argv[2]);
-
-
-    // All the statismo classes have to be parameterized with the RepresenterType.
-    // For building a shape model with vtk, we use the vtkPolyDataRepresenter.
-    typedef vtkStandardMeshRepresenter RepresenterType;
-    typedef StatisticalModel<vtkPolyData> StatisticalModelType;
-
-    try {
-
-        // To load a model, we call the static Load method, which returns (a pointer to) a
-        // new StatisticalModel object
-        RepresenterType* representer = RepresenterType::Create();
-        std::unique_ptr<StatisticalModelType> model(
-                statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, modelname));
-        std::cout << "loaded model with " << model->GetNumberOfPrincipalComponents() << " Principal Components" << std::endl;
+  if (argc < 3)
+  {
+    std::cout << "Usage " << argv[0] << " modelname resultdir" << std::endl;
+    exit(-1);
+  }
+  std::string modelname(argv[1]);
+  std::string resultdir(argv[2]);
 
 
-        // get the model mean
-        vtkPolyData* mean = model->DrawMean();
-        saveSample(mean, resultdir, "mean.vtk");
+  // All the statismo classes have to be parameterized with the RepresenterType.
+  // For building a shape model with vtk, we use the vtkPolyDataRepresenter.
+  typedef vtkStandardMeshRepresenter    RepresenterType;
+  typedef StatisticalModel<vtkPolyData> StatisticalModelType;
 
-        // draw a random sample
-        vtkPolyData* randomSample = model->DrawSample();
-        saveSample(randomSample, resultdir, "randomsample.vtk");
+  try
+  {
 
-        // draw a sample with known pca coefficients (3 stddev in direction of the 1st PC)
-        VectorType coefficients = VectorType::Zero(model->GetNumberOfPrincipalComponents());
-        coefficients(0) = 3;
-        vtkPolyData* samplePC1 = model->DrawSample(coefficients);
-        saveSample(samplePC1, resultdir, "samplePC1.vtk");
+    // To load a model, we call the static Load method, which returns (a pointer to) a
+    // new StatisticalModel object
+    RepresenterType *                     representer = RepresenterType::Create();
+    std::unique_ptr<StatisticalModelType> model(
+      statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, modelname));
+    std::cout << "loaded model with " << model->GetNumberOfPrincipalComponents() << " Principal Components"
+              << std::endl;
 
 
-        // The vtkPolyDataRepresenter returns naked pointers to vtk objcts. Therefore we have to delete all the samples
-        mean->Delete();
-        randomSample->Delete();
-        samplePC1->Delete();
+    // get the model mean
+    vtkPolyData * mean = model->DrawMean();
+    saveSample(mean, resultdir, "mean.vtk");
 
-        std::cout << "saved samples to " << resultdir << std::endl;
+    // draw a random sample
+    vtkPolyData * randomSample = model->DrawSample();
+    saveSample(randomSample, resultdir, "randomsample.vtk");
 
-    } catch (StatisticalModelException& e) {
-        std::cout << "Exception occured while building the shape model" << std::endl;
-        std::cout << e.what() << std::endl;
-    }
+    // draw a sample with known pca coefficients (3 stddev in direction of the 1st PC)
+    VectorType coefficients = VectorType::Zero(model->GetNumberOfPrincipalComponents());
+    coefficients(0) = 3;
+    vtkPolyData * samplePC1 = model->DrawSample(coefficients);
+    saveSample(samplePC1, resultdir, "samplePC1.vtk");
+
+
+    // The vtkPolyDataRepresenter returns naked pointers to vtk objcts. Therefore we have to delete all the samples
+    mean->Delete();
+    randomSample->Delete();
+    samplePC1->Delete();
+
+    std::cout << "saved samples to " << resultdir << std::endl;
+  }
+  catch (StatisticalModelException & e)
+  {
+    std::cout << "Exception occured while building the shape model" << std::endl;
+    std::cout << e.what() << std::endl;
+  }
 }
-

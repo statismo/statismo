@@ -51,7 +51,8 @@
 #include "CommonTypes.h"
 #include "Representer.h"
 
-namespace itk {
+namespace itk
+{
 
 /**
  * \ingroup Representers
@@ -59,105 +60,133 @@ namespace itk {
  * \sa Representer
  */
 
-template<class TPixel, unsigned ImageDimension>
-class StandardImageRepresenter: public Object, public statismo::RepresenterBase<
-    itk::Image<TPixel, ImageDimension>,  StandardImageRepresenter<TPixel, ImageDimension>> {
-  public:
+template <class TPixel, unsigned ImageDimension>
+class StandardImageRepresenter
+  : public Object
+  , public statismo::RepresenterBase<itk::Image<TPixel, ImageDimension>,
+                                     StandardImageRepresenter<TPixel, ImageDimension>>
+{
+public:
+  /* Standard class typedefs. */
+  typedef StandardImageRepresenter Self;
+  typedef Object                   Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
+  using Base =
+    statismo::RepresenterBase<itk::Image<TPixel, ImageDimension>, StandardImageRepresenter<TPixel, ImageDimension>>;
+  friend Base;
 
-    /* Standard class typedefs. */
-    typedef StandardImageRepresenter Self;
-    typedef Object Superclass;
-    typedef SmartPointer<Self> Pointer;
-    typedef SmartPointer<const Self> ConstPointer;
-    using Base = statismo::RepresenterBase<
-    itk::Image<TPixel, ImageDimension>,  StandardImageRepresenter<TPixel, ImageDimension>>;
-    friend Base;
+  /** New macro for creation of through a Smart Pointer. */
+  itkSimpleNewMacro(Self);
 
-    /** New macro for creation of through a Smart Pointer. */
-    itkSimpleNewMacro (Self);
+  /** Run-time type information (and related methods). */
+  itkTypeMacro(StandardImageRepresenter, Object);
 
-    /** Run-time type information (and related methods). */
-    itkTypeMacro( StandardImageRepresenter, Object );
+  typedef itk::Image<TPixel, ImageDimension> ImageType;
 
-    typedef itk::Image<TPixel, ImageDimension> ImageType;
+  typedef typename statismo::Representer<ImageType>             RepresenterBaseType;
+  typedef typename RepresenterBaseType::DomainType              DomainType;
+  typedef typename RepresenterBaseType::PointType               PointType;
+  typedef typename RepresenterBaseType::ValueType               ValueType;
+  typedef typename RepresenterBaseType::DatasetType             DatasetType;
+  typedef typename RepresenterBaseType::DatasetPointerType      DatasetPointerType;
+  typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
 
-    typedef typename statismo::Representer<ImageType> RepresenterBaseType;
-    typedef typename RepresenterBaseType::DomainType DomainType;
-    typedef typename RepresenterBaseType::PointType PointType;
-    typedef typename RepresenterBaseType::ValueType ValueType;
-    typedef typename RepresenterBaseType::DatasetType DatasetType;
-    typedef typename RepresenterBaseType::DatasetPointerType DatasetPointerType;
-    typedef typename RepresenterBaseType::DatasetConstPointerType DatasetConstPointerType;
+  void
+  Load(const H5::Group & fg);
 
-    void Load(const H5::Group& fg);
+  StandardImageRepresenter();
+  virtual ~StandardImageRepresenter();
 
-    StandardImageRepresenter();
-    virtual ~StandardImageRepresenter();
-
-    /// return the reference used in the representer
-    DatasetConstPointerType GetReference() const {
-        return m_reference;
-    }
+  /// return the reference used in the representer
+  DatasetConstPointerType
+  GetReference() const
+  {
+    return m_reference;
+  }
 
 
-    /** Set the reference that is used to build the model */
-    void SetReference(ImageType* ds);
+  /** Set the reference that is used to build the model */
+  void
+  SetReference(ImageType * ds);
 
-    /**
-     * Creates a sample by first aligning the dataset ds to the reference using Procrustes
-     * Alignment.
-     */
-    statismo::VectorType PointToVector(const PointType& pt) const;
-    statismo::VectorType SampleToSampleVector(DatasetConstPointerType sample) const;
-    DatasetPointerType SampleVectorToSample(
-        const statismo::VectorType& sample) const;
+  /**
+   * Creates a sample by first aligning the dataset ds to the reference using Procrustes
+   * Alignment.
+   */
+  statismo::VectorType
+  PointToVector(const PointType & pt) const;
+  statismo::VectorType
+  SampleToSampleVector(DatasetConstPointerType sample) const;
+  DatasetPointerType
+  SampleVectorToSample(const statismo::VectorType & sample) const;
 
-    ValueType PointSampleFromSample(DatasetConstPointerType sample,
-                                    unsigned ptid) const;
-    ValueType PointSampleVectorToPointSample(
-        const statismo::VectorType& pointSample) const;
-    statismo::VectorType PointSampleToPointSampleVector(
-        const ValueType& v) const;
+  ValueType
+  PointSampleFromSample(DatasetConstPointerType sample, unsigned ptid) const;
+  ValueType
+  PointSampleVectorToPointSample(const statismo::VectorType & pointSample) const;
+  statismo::VectorType
+  PointSampleToPointSampleVector(const ValueType & v) const;
 
-    void Save(const H5::Group& fg) const;
-    virtual unsigned GetPointIdForPoint(const PointType& point) const;
+  void
+  Save(const H5::Group & fg) const;
+  virtual unsigned
+  GetPointIdForPoint(const PointType & point) const;
 
-    unsigned GetNumberOfPoints() const;
+  unsigned
+  GetNumberOfPoints() const;
 
-    void Delete() const {
-        this->UnRegister();
-    }
+  void
+  Delete() const
+  {
+    this->UnRegister();
+  }
 
-    const DomainType& GetDomain() const {
-        return m_domain;
-    }
+  const DomainType &
+  GetDomain() const
+  {
+    return m_domain;
+  }
 
-    void DeleteDataset(DatasetConstPointerType d) const {}
-    DatasetPointerType CloneDataset(DatasetConstPointerType d) const;
+  void
+  DeleteDataset(DatasetConstPointerType d) const
+  {}
+  DatasetPointerType
+  CloneDataset(DatasetConstPointerType d) const;
 
-  private:
+private:
+  static unsigned
+  GetDimensionsImpl()
+  {
+    return PixelConversionTrait<TPixel>::GetPixelDimension();
+  }
+  static std::string
+  GetNameImpl()
+  {
+    return "itkStandardImageRepresenter";
+  }
+  static statismo::RepresenterDataType
+  GetTypeImpl()
+  {
+    return statismo::RepresenterDataType::IMAGE;
+  }
 
-    static unsigned GetDimensionsImpl() {
-        return PixelConversionTrait<TPixel>::GetPixelDimension();
-    }
-    static std::string GetNameImpl() {
-        return "itkStandardImageRepresenter";
-    }
-    static statismo::RepresenterDataType GetTypeImpl() {
-        return statismo::RepresenterDataType::IMAGE;
-    }
+  static std::string
+  GetVersionImpl()
+  {
+    return "0.1";
+  }
 
-    static std::string GetVersionImpl() {
-        return "0.1";
-    }
+  StandardImageRepresenter *
+  CloneImpl() const;
 
-    StandardImageRepresenter* CloneImpl() const;
+  typename ImageType::Pointer
+  LoadRef(const H5::Group & fg) const;
+  typename ImageType::Pointer
+  LoadRefLegacy(const H5::Group & fg) const;
 
-    typename ImageType::Pointer LoadRef(const H5::Group& fg) const;
-    typename ImageType::Pointer LoadRefLegacy(const H5::Group& fg) const;
-
-    DatasetConstPointerType m_reference;
-    DomainType m_domain;
+  DatasetConstPointerType m_reference;
+  DomainType              m_domain;
 };
 
 } // namespace itk

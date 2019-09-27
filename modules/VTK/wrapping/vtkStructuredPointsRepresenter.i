@@ -34,41 +34,48 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
-%{
+
+%
+{
 #include "vtkStructuredPointsRepresenter.h"
-%}
+  %
+}
 
 
 template <class TPixel, unsigned Dimensions>
-class vtkNDPixel {
+class vtkNDPixel
+{
 public:
-	vtkNDPixel(TPixel* x);
+  vtkNDPixel(TPixel * x);
 };
-%template(vtkNDPixel_F3) vtkNDPixel<float, 3>;
+% template(vtkNDPixel_F3) vtkNDPixel<float, 3>;
 
 
 template <class TPixel, unsigned TDimensions>
-class vtkStructuredPointsRepresenter {
-public: 
+class vtkStructuredPointsRepresenter
+{
+public:
+  typedef vtkStructuredPoints         DatasetType;
+  typedef vtkStructuredPoints *       DatasetPointerType;
+  typedef const vtkStructuredPoints * DatasetConstPointerType;
 
-	typedef vtkStructuredPoints DatasetType;
-	typedef vtkStructuredPoints* DatasetPointerType;
-	typedef const vtkStructuredPoints* DatasetConstPointerType;
+  typedef vtkNDPixel<TPixel, TDimensions> ValueType;
 
-	typedef vtkNDPixel<TPixel, TDimensions> ValueType; 
-
-%newobject Create;
-static vtkStructuredPointsRepresenter* Create(const vtkStructuredPoints* reference);
- static unsigned GetDimensions();
- const vtkStructuredPoints* GetReference() const;
- unsigned GetNumberOfPoints() const ;
- unsigned GetPointIdForPoint(const vtkPoint& pt) const;
+  % newobject Create;
+  static vtkStructuredPointsRepresenter *
+  Create(const vtkStructuredPoints * reference);
+  static unsigned
+  GetDimensions();
+  const vtkStructuredPoints *
+  GetReference() const;
+  unsigned
+  GetNumberOfPoints() const;
+  unsigned
+  GetPointIdForPoint(const vtkPoint & pt) const;
 
 private:
- vtkStructuredPointsRepresenter();
-
+  vtkStructuredPointsRepresenter();
 };
 
 
-%template(vtkStructuredPointsRepresenter_F3) vtkStructuredPointsRepresenter<float, 3>;
+% template(vtkStructuredPointsRepresenter_F3) vtkStructuredPointsRepresenter<float, 3>;

@@ -34,49 +34,57 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
- 
-%{
+
+%
+{
 #include "vtkPolyDataRepresenter.h"
-%}
+  %
+}
 
 
-class vtkPoint {
+class vtkPoint
+{
 public:
-	vtkPoint(double x, double y, double z);
-};	
+  vtkPoint(double x, double y, double z);
+};
 
 
-
-
-class vtkPolyDataRepresenter {
+class vtkPolyDataRepresenter
+{
 public:
-typedef vtkPoint PointType;
-typedef vtkPoint ValueType;
-typedef vtkPolyData* DatasetPointerType;
-typedef const vtkPolyData* DatasetConstPointerType;
+  typedef vtkPoint            PointType;
+  typedef vtkPoint            ValueType;
+  typedef vtkPolyData *       DatasetPointerType;
+  typedef const vtkPolyData * DatasetConstPointerType;
 
-typedef statismo::Domain<PointType> DomainType;
+  typedef statismo::Domain<PointType> DomainType;
 
- enum AlignmentType {
-   NONE=999,
-   RIGID=VTK_LANDMARK_RIGIDBODY,
-   SIMILARITY=VTK_LANDMARK_SIMILARITY,
-   AFFINE=VTK_LANDMARK_AFFINE
- };
+  enum AlignmentType
+  {
+    NONE = 999,
+    RIGID = VTK_LANDMARK_RIGIDBODY,
+    SIMILARITY = VTK_LANDMARK_SIMILARITY,
+    AFFINE = VTK_LANDMARK_AFFINE
+  };
 
- %newobject Create; 
- static vtkPolyDataRepresenter* Create(const vtkPolyData* reference, AlignmentType alignment);
-  static unsigned GetDimensions();
-  AlignmentType GetAlignment() const;
-  
-  const DomainType& GetDomain() const;
-  
- const vtkPolyData* GetReference() const;
- unsigned GetNumberOfPoints();
- unsigned GetPointIdForPoint(const vtkPoint& pt);
+  % newobject Create;
+  static vtkPolyDataRepresenter *
+  Create(const vtkPolyData * reference, AlignmentType alignment);
+  static unsigned
+  GetDimensions();
+  AlignmentType
+  GetAlignment() const;
+
+  const DomainType &
+  GetDomain() const;
+
+  const vtkPolyData *
+  GetReference() const;
+  unsigned
+  GetNumberOfPoints();
+  unsigned
+  GetPointIdForPoint(const vtkPoint & pt);
 
 private:
- 
- vtkPolyDataRepresenter(AlignmentType alignment = RIGID);
-
+  vtkPolyDataRepresenter(AlignmentType alignment = RIGID);
 };

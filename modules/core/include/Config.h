@@ -40,14 +40,15 @@
 
 #include <string>
 
-namespace statismo {
+namespace statismo
+{
 const std::string STATISMO_VERSION = "0.11.1";
 }
 
 // gccxml (as used by e.g. wrapitk) does not compile with vectorization enabled.
 #if defined(__GCCXML__)
-#define EIGEN_DONT_VECTORIZE 1
-#define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
+#  define EIGEN_DONT_VECTORIZE 1
+#  define EIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT 1
 #endif
 
 #endif

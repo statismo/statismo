@@ -55,90 +55,93 @@
  * This example shows the ITK Wrapping of statismo can be used to build a shape model.
  */
 
-const unsigned Dimensions = 3;
-typedef itk::Mesh<float, Dimensions  > MeshType;
+const unsigned                       Dimensions = 3;
+typedef itk::Mesh<float, Dimensions> MeshType;
 
 typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
 
 
 /*function... might want it in some class?*/
-int getdir (std::string dir, std::vector<std::string> &files, const std::string& extension=".*") {
-    itk::Directory::Pointer directory = itk::Directory::New();
-    directory->Load(dir.c_str());
+int
+getdir(std::string dir, std::vector<std::string> & files, const std::string & extension = ".*")
+{
+  itk::Directory::Pointer directory = itk::Directory::New();
+  directory->Load(dir.c_str());
 
-    for (unsigned i = 0; i < directory->GetNumberOfFiles(); i++) {
-        const char* filename = directory->GetFile(i);
-        if (extension == ".*" || std::string(filename).find(extension) != std::string::npos)
-            files.push_back(filename);
-    }
+  for (unsigned i = 0; i < directory->GetNumberOfFiles(); i++)
+  {
+    const char * filename = directory->GetFile(i);
+    if (extension == ".*" || std::string(filename).find(extension) != std::string::npos)
+      files.push_back(filename);
+  }
 
-    return 0;
+  return 0;
 }
 
 
+void
+buildShapeModel(const char * referenceFilename, const char * dir, const char * modelname)
+{
 
 
-void buildShapeModel(const char* referenceFilename, const char* dir, const char* modelname) {
+  typedef itk::PCAModelBuilder<MeshType>             ModelBuilderType;
+  typedef itk::ReducedVarianceModelBuilder<MeshType> ReducedVarianceModelBuilderType;
+  typedef itk::StatisticalModel<MeshType>            StatisticalModelType;
+  typedef std::vector<std::string>                   StringVectorType;
+  typedef itk::DataManager<MeshType>                 DataManagerType;
 
+  typedef itk::MeshFileReader<MeshType> MeshReaderType;
 
-    typedef itk::PCAModelBuilder<MeshType> ModelBuilderType;
-    typedef itk::ReducedVarianceModelBuilder<MeshType> ReducedVarianceModelBuilderType;
-    typedef itk::StatisticalModel<MeshType> StatisticalModelType;
-    typedef std::vector<std::string> StringVectorType;
-    typedef itk::DataManager<MeshType> DataManagerType;
+  RepresenterType::Pointer representer = RepresenterType::New();
 
-    typedef itk::MeshFileReader<MeshType> MeshReaderType;
+  MeshReaderType::Pointer refReader = MeshReaderType::New();
+  refReader->SetFileName(referenceFilename);
+  refReader->Update();
+  representer->SetReference(refReader->GetOutput());
 
-    RepresenterType::Pointer representer = RepresenterType::New();
+  StringVectorType filenames;
+  getdir(dir, filenames, ".vtk");
 
-    MeshReaderType::Pointer refReader = MeshReaderType::New();
-    refReader->SetFileName(referenceFilename);
-    refReader->Update();
-    representer->SetReference(refReader->GetOutput());
+  DataManagerType::Pointer dataManager = DataManagerType::New();
+  dataManager->SetRepresenter(representer);
 
-    StringVectorType filenames;
-    getdir(dir, filenames, ".vtk");
+  for (StringVectorType::const_iterator it = filenames.begin(); it != filenames.end(); it++)
+  {
+    std::string fullpath = (std::string(dir) + "/") + *it;
 
-    DataManagerType::Pointer dataManager = DataManagerType::New();
-    dataManager->SetRepresenter(representer);
+    MeshReaderType::Pointer reader = MeshReaderType::New();
+    reader->SetFileName(fullpath.c_str());
+    reader->Update();
+    MeshType::Pointer mesh = reader->GetOutput();
+    dataManager->AddDataset(mesh, fullpath.c_str());
+  }
 
-    for (StringVectorType::const_iterator it = filenames.begin(); it != filenames.end(); it++) {
-        std::string fullpath = (std::string(dir) + "/") + *it;
+  ModelBuilderType::Pointer                pcaModelBuilder = ModelBuilderType::New();
+  StatisticalModelType::Pointer            model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0);
+  ReducedVarianceModelBuilderType::Pointer reducedVarianceModelBuilder = ReducedVarianceModelBuilderType::New();
+  StatisticalModelType::Pointer reducedModel = reducedVarianceModelBuilder->BuildNewModelWithVariance(model, 0.75);
 
-        MeshReaderType::Pointer reader = MeshReaderType::New();
-        reader->SetFileName(fullpath.c_str());
-        reader->Update();
-        MeshType::Pointer mesh = reader->GetOutput();
-        dataManager->AddDataset(mesh, fullpath.c_str());
-    }
+  std::cout << "number of modes in the direct model: " << model->GetNumberOfPrincipalComponents()
+            << ", and in the reduced model: " << reducedModel->GetNumberOfPrincipalComponents() << std::endl;
 
-    ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
-    StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0);
-    ReducedVarianceModelBuilderType::Pointer reducedVarianceModelBuilder = ReducedVarianceModelBuilderType::New();
-    StatisticalModelType::Pointer reducedModel = reducedVarianceModelBuilder->BuildNewModelWithVariance(model, 0.75);
-
-    std::cout<<"number of modes in the direct model: " <<model->GetNumberOfPrincipalComponents()
-             <<", and in the reduced model: "<< reducedModel->GetNumberOfPrincipalComponents() << std::endl;
-
-    itk::StatismoIO<MeshType>::SaveStatisticalModel(reducedModel, modelname);
-
-
-
+  itk::StatismoIO<MeshType>::SaveStatisticalModel(reducedModel, modelname);
 }
 
-int main(int argc, char* argv[]) {
+int
+main(int argc, char * argv[])
+{
 
-    if (argc < 4) {
-        std::cout << "usage " << argv[0] << " referenceShape shapeDir modelname" << std::endl;
-        exit(-1);
-    }
+  if (argc < 4)
+  {
+    std::cout << "usage " << argv[0] << " referenceShape shapeDir modelname" << std::endl;
+    exit(-1);
+  }
 
-    const char* reference = argv[1];
-    const char* dir = argv[2];
-    const char* modelname = argv[3];
+  const char * reference = argv[1];
+  const char * dir = argv[2];
+  const char * modelname = argv[3];
 
-    buildShapeModel(reference, dir, modelname);
+  buildShapeModel(reference, dir, modelname);
 
-    std::cout << "Model building is completed successfully." << std::endl;
+  std::cout << "Model building is completed successfully." << std::endl;
 }
-

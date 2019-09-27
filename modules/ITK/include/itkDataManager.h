@@ -48,7 +48,8 @@
 #include "DataManager.h"
 #include "statismoITKConfig.h"
 
-namespace itk {
+namespace itk
+{
 
 
 /**
@@ -56,91 +57,119 @@ namespace itk {
  * \see statismo::DataManager for detailed documentation.
  */
 template <class T>
-class DataManager : public Object {
-  public:
+class DataManager : public Object
+{
+public:
+  typedef DataManager              Self;
+  typedef Object                   Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
+
+  itkNewMacro(Self);
+  itkTypeMacro(DataManager, Object);
 
 
-    typedef DataManager            Self;
-    typedef Object	Superclass;
-    typedef SmartPointer<Self>                Pointer;
-    typedef SmartPointer<const Self>          ConstPointer;
+  typedef statismo::DataManager<T>                            ImplType;
+  typedef typename statismo::DataManager<T>::DataItemType     DataItemType;
+  typedef typename statismo::DataManager<T>::DataItemListType DataItemListType;
+  typedef statismo::Representer<T>                            RepresenterType;
 
-    itkNewMacro( Self );
-    itkTypeMacro( DataManager, Object );
-
-
-    typedef statismo::DataManager<T> ImplType;
-    typedef typename statismo::DataManager<T>::DataItemType     DataItemType;
-    typedef typename statismo::DataManager<T>::DataItemListType DataItemListType;
-    typedef statismo::Representer<T> RepresenterType;
-
-    template <class F>
-    typename std::result_of<F()>::type callstatismoImpl(F f) const {
-        if (m_impl == 0) {
-            itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
-        }
-        try {
-            return f();
-        } catch (statismo::StatisticalModelException& s) {
-            itkExceptionMacro(<< s.what());
-        }
+  template <class F>
+  typename std::result_of<F()>::type
+  callstatismoImpl(F f) const
+  {
+    if (m_impl == 0)
+    {
+      itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
     }
-
-
-    DataManager() : m_impl(0) {}
-
-    virtual ~DataManager() {
-        if (m_impl) {
-            delete m_impl;
-            m_impl = 0;
-        }
+    try
+    {
+      return f();
     }
-
-    ImplType* GetstatismoImplObj() const {
-        return m_impl;
+    catch (statismo::StatisticalModelException & s)
+    {
+      itkExceptionMacro(<< s.what());
     }
+  }
 
 
-    void SetstatismoImplObj(ImplType* impl) {
-        if (m_impl) {
-            delete m_impl;
-        }
-        m_impl = impl;
+  DataManager()
+    : m_impl(0)
+  {}
+
+  virtual ~DataManager()
+  {
+    if (m_impl)
+    {
+      delete m_impl;
+      m_impl = 0;
     }
+  }
 
-    void SetRepresenter(const RepresenterType* representer) {
-        SetstatismoImplObj(ImplType::Create(representer));
+  ImplType *
+  GetstatismoImplObj() const
+  {
+    return m_impl;
+  }
+
+
+  void
+  SetstatismoImplObj(ImplType * impl)
+  {
+    if (m_impl)
+    {
+      delete m_impl;
     }
+    m_impl = impl;
+  }
 
-    void AddDataset(typename RepresenterType::DatasetType* ds, const char* filename) {
-        callstatismoImpl(std::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
+  void
+  SetRepresenter(const RepresenterType * representer)
+  {
+    SetstatismoImplObj(ImplType::Create(representer));
+  }
+
+  void
+  AddDataset(typename RepresenterType::DatasetType * ds, const char * filename)
+  {
+    callstatismoImpl(std::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
+  }
+
+  void
+  Load(const char * filename)
+  {
+    try
+    {
+      SetstatismoImplObj(ImplType::Load(filename));
     }
-
-    void Load(const char* filename) {
-        try {
-            SetstatismoImplObj(ImplType::Load(filename));
-        } catch (statismo::StatisticalModelException& s) {
-            itkExceptionMacro(<< s.what());
-        }
+    catch (statismo::StatisticalModelException & s)
+    {
+      itkExceptionMacro(<< s.what());
     }
+  }
 
-    void Save(const char* filename) {
-        callstatismoImpl(std::bind(&ImplType::Save, this->m_impl, filename));
-    }
+  void
+  Save(const char * filename)
+  {
+    callstatismoImpl(std::bind(&ImplType::Save, this->m_impl, filename));
+  }
 
-    typename statismo::DataManager<T>::DataItemListType GetData() const {
-        return callstatismoImpl(std::bind(&ImplType::GetData, this->m_impl));
-    }
+  typename statismo::DataManager<T>::DataItemListType
+  GetData() const
+  {
+    return callstatismoImpl(std::bind(&ImplType::GetData, this->m_impl));
+  }
 
 
-  private:
-    DataManager(const DataManager& orig);
-    DataManager& operator=(const DataManager& rhs);
+private:
+  DataManager(const DataManager & orig);
+  DataManager &
+  operator=(const DataManager & rhs);
 
-    ImplType* m_impl;
+  ImplType * m_impl;
 };
 
 
-}
+} // namespace itk
 
 #endif /* ITK_DATAMANAGER_H_ */

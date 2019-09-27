@@ -83,6 +83,14 @@ foreach(p LIB BIN INCLUDE CMAKE)
 endforeach()
 
 # ----------------------------------------
+# Sanity
+# ----------------------------------------
+
+set(CLANG_FORMAT_BIN_NAME clang-format-6.0)
+set(CLANG_FORMAT_EXCLUDE_PATTERNS  "build*" ${PROJECT_BINARY_DIR})
+find_package(ClangFormat)
+
+# ----------------------------------------
 # Tests configuration
 # ----------------------------------------
 

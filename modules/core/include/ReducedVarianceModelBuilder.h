@@ -49,7 +49,8 @@
 #include "StatismoUtils.h"
 #include "StatisticalModel.h"
 
-namespace statismo {
+namespace statismo
+{
 
 
 /**
@@ -57,72 +58,77 @@ namespace statismo {
  *
  */
 template <typename Representer>
-class ReducedVarianceModelBuilder : public ModelBuilder<Representer> {
+class ReducedVarianceModelBuilder : public ModelBuilder<Representer>
+{
 
 
-  public:
+public:
+  typedef ModelBuilder<Representer>                 Superclass;
+  typedef typename Superclass::StatisticalModelType StatisticalModelType;
 
-    typedef ModelBuilder<Representer> Superclass;
-    typedef typename Superclass::StatisticalModelType StatisticalModelType;
+  /**
+   * Factory method to create a new ReducedVarianceModelBuilder
+   */
+  static ReducedVarianceModelBuilder *
+  Create()
+  {
+    return new ReducedVarianceModelBuilder();
+  }
 
-    /**
-     * Factory method to create a new ReducedVarianceModelBuilder
-     */
-    static ReducedVarianceModelBuilder* Create() {
-        return new ReducedVarianceModelBuilder();
-    }
-
-    /**
-     * Destroy the object.
-     * The same effect can be achieved by deleting the object in the usual
-     * way using the c++ delete keyword.
-     */
-    void Delete() {
-        delete this;
-    }
-
-
-    /**
-     * The desctructor
-     */
-    virtual ~ReducedVarianceModelBuilder() {}
-
-    /**
-     * Build a new model from the given model, which retains only the leading principal components
-     *
-     * \param model A statistical model.
-     * \param numberOfPrincipalComponents,
-     * \return a new statistical model
-     *
-     * \warning The returned model needs to be explicitly deleted by the user of this method.
-     */
-    StatisticalModelType* BuildNewModelWithLeadingComponents(const StatisticalModelType* model, unsigned numberOfPrincipalComponents) const;
+  /**
+   * Destroy the object.
+   * The same effect can be achieved by deleting the object in the usual
+   * way using the c++ delete keyword.
+   */
+  void
+  Delete()
+  {
+    delete this;
+  }
 
 
-    /**
-     * Build a new model from the given model, which retains only the specified variance
-     *
-     * \param model A statistical model.
-     * \param totalVariance, The fraction of the variance to be retained
-     * \return a new statistical model
-     *
-     * \warning The returned model needs to be explicitly deleted by the user of this method.
-     */
-    StatisticalModelType* BuildNewModelWithVariance(const StatisticalModelType* model, double totalVariance) const;
+  /**
+   * The desctructor
+   */
+  virtual ~ReducedVarianceModelBuilder() {}
+
+  /**
+   * Build a new model from the given model, which retains only the leading principal components
+   *
+   * \param model A statistical model.
+   * \param numberOfPrincipalComponents,
+   * \return a new statistical model
+   *
+   * \warning The returned model needs to be explicitly deleted by the user of this method.
+   */
+  StatisticalModelType *
+  BuildNewModelWithLeadingComponents(const StatisticalModelType * model, unsigned numberOfPrincipalComponents) const;
 
 
-    is_deprecated StatisticalModelType* BuildNewModelFromModel(const StatisticalModelType* model, double totalVariance) const ;
+  /**
+   * Build a new model from the given model, which retains only the specified variance
+   *
+   * \param model A statistical model.
+   * \param totalVariance, The fraction of the variance to be retained
+   * \return a new statistical model
+   *
+   * \warning The returned model needs to be explicitly deleted by the user of this method.
+   */
+  StatisticalModelType *
+  BuildNewModelWithVariance(const StatisticalModelType * model, double totalVariance) const;
 
 
-  private:
-    // to prevent use
-    ReducedVarianceModelBuilder();
-    ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder& orig);
-    ReducedVarianceModelBuilder& operator=(const ReducedVarianceModelBuilder& rhs);
+  is_deprecated StatisticalModelType *
+                BuildNewModelFromModel(const StatisticalModelType * model, double totalVariance) const;
 
 
+private:
+  // to prevent use
+  ReducedVarianceModelBuilder();
+  ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder & orig);
+  ReducedVarianceModelBuilder &
+  operator=(const ReducedVarianceModelBuilder & rhs);
 };
-
 
 
 } // namespace statismo

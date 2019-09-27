@@ -49,70 +49,88 @@
 
 #include <functional>
 
-namespace itk {
+namespace itk
+{
 
 /**
  * \brief ITK Wrapper for the statismo::PCAModelBuilder class.
  * \see statismo::PCAModelBuilder for detailed documentation.
  */
 template <class Representer>
-class ConditionalModelBuilder : public Object {
-  public:
+class ConditionalModelBuilder : public Object
+{
+public:
+  typedef ConditionalModelBuilder  Self;
+  typedef Object                   Superclass;
+  typedef SmartPointer<Self>       Pointer;
+  typedef SmartPointer<const Self> ConstPointer;
 
-    typedef ConditionalModelBuilder            Self;
-    typedef Object	Superclass;
-    typedef SmartPointer<Self>                Pointer;
-    typedef SmartPointer<const Self>          ConstPointer;
-
-    itkNewMacro( Self );
-    itkTypeMacro( ConditionalModelBuilder, Object );
+  itkNewMacro(Self);
+  itkTypeMacro(ConditionalModelBuilder, Object);
 
 
-    typedef statismo::ConditionalModelBuilder<Representer> ImplType;
-    typedef statismo::DataManager<Representer> DataManagerType;
-    typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
+  typedef statismo::ConditionalModelBuilder<Representer>        ImplType;
+  typedef statismo::DataManager<Representer>                    DataManagerType;
+  typedef typename DataManagerType::SampleDataStructureListType SampleDataStructureListType;
 
-    ConditionalModelBuilder() : m_impl(ImplType::Create()) {}
+  ConditionalModelBuilder()
+    : m_impl(ImplType::Create())
+  {}
 
-    virtual ~ConditionalModelBuilder() {
-        if (m_impl) {
-            delete m_impl;
-            m_impl = 0;
-        }
+  virtual ~ConditionalModelBuilder()
+  {
+    if (m_impl)
+    {
+      delete m_impl;
+      m_impl = 0;
     }
+  }
 
-    template <class F>
-    typename std::result_of<F()>::type callstatismoImpl(F f) const {
-        try {
-            return f();
-        } catch (statismo::StatisticalModelException& s) {
-            itkExceptionMacro(<< s.what());
-        }
+  template <class F>
+  typename std::result_of<F()>::type
+  callstatismoImpl(F f) const
+  {
+    try
+    {
+      return f();
     }
-
-
-    typename StatisticalModel<Representer>::Pointer
-    BuildNewModel(SampleDataStructureListType SampleDataStructureList,
-                  const typename statismo::ConditionalModelBuilder<Representer>::SurrogateTypeVectorType& surrogateTypes,
-                  const typename statismo::ConditionalModelBuilder<Representer>::CondVariableValueVectorType& conditioningInfo,
-                  float noiseVariance,
-                  double modelVarianceRetained
-                 ) {
-        statismo::StatisticalModel<Representer>* model_statismo = callstatismoImpl(std::bind(&ImplType::BuildNewModel, this->m_impl, SampleDataStructureList, surrogateTypes, conditioningInfo, noiseVariance, modelVarianceRetained));
-        typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
-        model_itk->SetstatismoImplObj(model_statismo);
-        return model_itk;
+    catch (statismo::StatisticalModelException & s)
+    {
+      itkExceptionMacro(<< s.what());
     }
+  }
 
 
-  private:
-    ConditionalModelBuilder(const ConditionalModelBuilder& orig);
-    ConditionalModelBuilder& operator=(const ConditionalModelBuilder& rhs);
+  typename StatisticalModel<Representer>::Pointer
+  BuildNewModel(
+    SampleDataStructureListType                                                              SampleDataStructureList,
+    const typename statismo::ConditionalModelBuilder<Representer>::SurrogateTypeVectorType & surrogateTypes,
+    const typename statismo::ConditionalModelBuilder<Representer>::CondVariableValueVectorType & conditioningInfo,
+    float                                                                                        noiseVariance,
+    double                                                                                       modelVarianceRetained)
+  {
+    statismo::StatisticalModel<Representer> * model_statismo = callstatismoImpl(std::bind(&ImplType::BuildNewModel,
+                                                                                          this->m_impl,
+                                                                                          SampleDataStructureList,
+                                                                                          surrogateTypes,
+                                                                                          conditioningInfo,
+                                                                                          noiseVariance,
+                                                                                          modelVarianceRetained));
+    typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
+    model_itk->SetstatismoImplObj(model_statismo);
+    return model_itk;
+  }
 
-    ImplType* m_impl;
+
+private:
+  ConditionalModelBuilder(const ConditionalModelBuilder & orig);
+  ConditionalModelBuilder &
+  operator=(const ConditionalModelBuilder & rhs);
+
+  ImplType * m_impl;
 };
 
 
-}
+} // namespace itk
 
 #endif /* ITKMODELBUILDER_H_ */

@@ -44,188 +44,206 @@
 #include <itkImage.h>
 #include <itkVector.h>
 
-namespace statismo {
+namespace statismo
+{
 
-template<>
-struct RepresenterTraits<itk::Image<itk::Vector<double, 4u>, 4u> > {
+template <>
+struct RepresenterTraits<itk::Image<itk::Vector<double, 4u>, 4u>>
+{
 
-    typedef itk::Image<itk::Vector<double, 4u>, 4u> VectorImageType;
-    typedef VectorImageType::Pointer DatasetPointerType;
-    typedef VectorImageType::Pointer DatasetConstPointerType;
-    typedef VectorImageType::PointType PointType;
-    typedef VectorImageType::PixelType ValueType;
+  typedef itk::Image<itk::Vector<double, 4u>, 4u> VectorImageType;
+  typedef VectorImageType::Pointer                DatasetPointerType;
+  typedef VectorImageType::Pointer                DatasetConstPointerType;
+  typedef VectorImageType::PointType              PointType;
+  typedef VectorImageType::PixelType              ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<itk::Vector<double, 3u>, 3u> > {
+template <>
+struct RepresenterTraits<itk::Image<itk::Vector<double, 3u>, 3u>>
+{
 
-    typedef itk::Image<itk::Vector<double, 3u>, 3u> VectorImageType;
-    typedef VectorImageType::Pointer DatasetPointerType;
-    typedef VectorImageType::Pointer DatasetConstPointerType;
-    typedef VectorImageType::PointType PointType;
-    typedef VectorImageType::PixelType ValueType;
+  typedef itk::Image<itk::Vector<double, 3u>, 3u> VectorImageType;
+  typedef VectorImageType::Pointer                DatasetPointerType;
+  typedef VectorImageType::Pointer                DatasetConstPointerType;
+  typedef VectorImageType::PointType              PointType;
+  typedef VectorImageType::PixelType              ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<itk::Vector<double, 2u>, 2u> > {
+template <>
+struct RepresenterTraits<itk::Image<itk::Vector<double, 2u>, 2u>>
+{
 
-    typedef itk::Image<itk::Vector<double, 2u>, 2u> VectorImageType;
-    typedef VectorImageType::Pointer DatasetPointerType;
-    typedef VectorImageType::Pointer DatasetConstPointerType;
-    typedef VectorImageType::PointType PointType;
-    typedef VectorImageType::PixelType ValueType;
+  typedef itk::Image<itk::Vector<double, 2u>, 2u> VectorImageType;
+  typedef VectorImageType::Pointer                DatasetPointerType;
+  typedef VectorImageType::Pointer                DatasetConstPointerType;
+  typedef VectorImageType::PointType              PointType;
+  typedef VectorImageType::PixelType              ValueType;
 };
 
 
+template <>
+struct RepresenterTraits<itk::Image<itk::Vector<float, 4u>, 4u>>
+{
 
-template<>
-struct RepresenterTraits<itk::Image<itk::Vector<float, 4u>, 4u> > {
-
-    typedef itk::Image<itk::Vector<float, 4u>, 4u> VectorImageType;
-    typedef VectorImageType::Pointer DatasetPointerType;
-    typedef VectorImageType::Pointer DatasetConstPointerType;
-    typedef VectorImageType::PointType PointType;
-    typedef VectorImageType::PixelType ValueType;
+  typedef itk::Image<itk::Vector<float, 4u>, 4u> VectorImageType;
+  typedef VectorImageType::Pointer               DatasetPointerType;
+  typedef VectorImageType::Pointer               DatasetConstPointerType;
+  typedef VectorImageType::PointType             PointType;
+  typedef VectorImageType::PixelType             ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<itk::Vector<float, 3u>, 3u> > {
+template <>
+struct RepresenterTraits<itk::Image<itk::Vector<float, 3u>, 3u>>
+{
 
-    typedef itk::Image<itk::Vector<float, 3u>, 3u> VectorImageType;
-    typedef VectorImageType::Pointer DatasetPointerType;
-    typedef VectorImageType::Pointer DatasetConstPointerType;
-    typedef VectorImageType::PointType PointType;
-    typedef VectorImageType::PixelType ValueType;
+  typedef itk::Image<itk::Vector<float, 3u>, 3u> VectorImageType;
+  typedef VectorImageType::Pointer               DatasetPointerType;
+  typedef VectorImageType::Pointer               DatasetConstPointerType;
+  typedef VectorImageType::PointType             PointType;
+  typedef VectorImageType::PixelType             ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<itk::Vector<float, 2u>, 2u> > {
+template <>
+struct RepresenterTraits<itk::Image<itk::Vector<float, 2u>, 2u>>
+{
 
-    typedef itk::Image<itk::Vector<float, 2u>, 2u> VectorImageType;
-    typedef VectorImageType::Pointer DatasetPointerType;
-    typedef VectorImageType::Pointer DatasetConstPointerType;
-    typedef VectorImageType::PointType PointType;
-    typedef VectorImageType::PixelType ValueType;
+  typedef itk::Image<itk::Vector<float, 2u>, 2u> VectorImageType;
+  typedef VectorImageType::Pointer               DatasetPointerType;
+  typedef VectorImageType::Pointer               DatasetConstPointerType;
+  typedef VectorImageType::PointType             PointType;
+  typedef VectorImageType::PixelType             ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<float, 4u> > {
+template <>
+struct RepresenterTraits<itk::Image<float, 4u>>
+{
 
-    typedef itk::Image<float, 4u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<float, 4u> ImageType;
+  typedef ImageType::Pointer    DatasetPointerType;
+  typedef ImageType::Pointer    DatasetConstPointerType;
+  typedef ImageType::PointType  PointType;
+  typedef ImageType::PixelType  ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<float, 3u> > {
+template <>
+struct RepresenterTraits<itk::Image<float, 3u>>
+{
 
-    typedef itk::Image<float, 3u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<float, 3u> ImageType;
+  typedef ImageType::Pointer    DatasetPointerType;
+  typedef ImageType::Pointer    DatasetConstPointerType;
+  typedef ImageType::PointType  PointType;
+  typedef ImageType::PixelType  ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<float, 2u> > {
+template <>
+struct RepresenterTraits<itk::Image<float, 2u>>
+{
 
-    typedef itk::Image<float, 2u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<float, 2u> ImageType;
+  typedef ImageType::Pointer    DatasetPointerType;
+  typedef ImageType::Pointer    DatasetConstPointerType;
+  typedef ImageType::PointType  PointType;
+  typedef ImageType::PixelType  ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<short, 4u> > {
+template <>
+struct RepresenterTraits<itk::Image<short, 4u>>
+{
 
-    typedef itk::Image<short, 4u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<short, 4u> ImageType;
+  typedef ImageType::Pointer    DatasetPointerType;
+  typedef ImageType::Pointer    DatasetConstPointerType;
+  typedef ImageType::PointType  PointType;
+  typedef ImageType::PixelType  ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<short, 3u> > {
+template <>
+struct RepresenterTraits<itk::Image<short, 3u>>
+{
 
-    typedef itk::Image<short, 3u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<short, 3u> ImageType;
+  typedef ImageType::Pointer    DatasetPointerType;
+  typedef ImageType::Pointer    DatasetConstPointerType;
+  typedef ImageType::PointType  PointType;
+  typedef ImageType::PixelType  ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<short, 2u> > {
+template <>
+struct RepresenterTraits<itk::Image<short, 2u>>
+{
 
-    typedef itk::Image<float, 2u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<float, 2u> ImageType;
+  typedef ImageType::Pointer    DatasetPointerType;
+  typedef ImageType::Pointer    DatasetConstPointerType;
+  typedef ImageType::PointType  PointType;
+  typedef ImageType::PixelType  ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<unsigned short, 4u> > {
+template <>
+struct RepresenterTraits<itk::Image<unsigned short, 4u>>
+{
 
-    typedef itk::Image<unsigned short, 4u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<unsigned short, 4u> ImageType;
+  typedef ImageType::Pointer             DatasetPointerType;
+  typedef ImageType::Pointer             DatasetConstPointerType;
+  typedef ImageType::PointType           PointType;
+  typedef ImageType::PixelType           ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<unsigned short, 3u> > {
+template <>
+struct RepresenterTraits<itk::Image<unsigned short, 3u>>
+{
 
-    typedef itk::Image<unsigned short, 3u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<unsigned short, 3u> ImageType;
+  typedef ImageType::Pointer             DatasetPointerType;
+  typedef ImageType::Pointer             DatasetConstPointerType;
+  typedef ImageType::PointType           PointType;
+  typedef ImageType::PixelType           ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<unsigned short, 2u> > {
+template <>
+struct RepresenterTraits<itk::Image<unsigned short, 2u>>
+{
 
-    typedef itk::Image<float, 2u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<float, 2u> ImageType;
+  typedef ImageType::Pointer    DatasetPointerType;
+  typedef ImageType::Pointer    DatasetConstPointerType;
+  typedef ImageType::PointType  PointType;
+  typedef ImageType::PixelType  ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<unsigned char, 4u> > {
+template <>
+struct RepresenterTraits<itk::Image<unsigned char, 4u>>
+{
 
-    typedef itk::Image<char, 4u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<char, 4u> ImageType;
+  typedef ImageType::Pointer   DatasetPointerType;
+  typedef ImageType::Pointer   DatasetConstPointerType;
+  typedef ImageType::PointType PointType;
+  typedef ImageType::PixelType ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<unsigned char, 3u> > {
+template <>
+struct RepresenterTraits<itk::Image<unsigned char, 3u>>
+{
 
-    typedef itk::Image<char, 3u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<char, 3u> ImageType;
+  typedef ImageType::Pointer   DatasetPointerType;
+  typedef ImageType::Pointer   DatasetConstPointerType;
+  typedef ImageType::PointType PointType;
+  typedef ImageType::PixelType ValueType;
 };
 
-template<>
-struct RepresenterTraits<itk::Image<unsigned char, 2u> > {
+template <>
+struct RepresenterTraits<itk::Image<unsigned char, 2u>>
+{
 
-    typedef itk::Image<short, 2u> ImageType;
-    typedef ImageType::Pointer DatasetPointerType;
-    typedef ImageType::Pointer DatasetConstPointerType;
-    typedef ImageType::PointType PointType;
-    typedef ImageType::PixelType ValueType;
+  typedef itk::Image<short, 2u> ImageType;
+  typedef ImageType::Pointer    DatasetPointerType;
+  typedef ImageType::Pointer    DatasetConstPointerType;
+  typedef ImageType::PointType  PointType;
+  typedef ImageType::PixelType  ValueType;
 };
 
 
