@@ -4,7 +4,15 @@
 #
 
 # Find all source files
-set(CLANG_FORMAT_CXX_FILE_EXTENSIONS ${CLANG_FORMAT_CXX_FILE_EXTENSIONS} ${PROJECT_SOURCE_DIR}/modules/*[.cpp|.h|.cxx|.hxx|.hpp|.cc|.ipp])
+set(CLANG_FORMAT_CXX_FILE_EXTENSIONS ${CLANG_FORMAT_CXX_FILE_EXTENSIONS} 
+    ${PROJECT_SOURCE_DIR}/modules/*.cpp
+    ${PROJECT_SOURCE_DIR}/modules/*.h
+    ${PROJECT_SOURCE_DIR}/modules/*.cxx
+    ${PROJECT_SOURCE_DIR}/modules/*.hxx
+    ${PROJECT_SOURCE_DIR}/modules/*.hpp
+    ${PROJECT_SOURCE_DIR}/modules/*.cc
+    ${PROJECT_SOURCE_DIR}/modules/*.ipp
+    )
 file(GLOB_RECURSE ALL_SOURCE_FILES ${CLANG_FORMAT_CXX_FILE_EXTENSIONS})
 
 # Don't include some common build folders

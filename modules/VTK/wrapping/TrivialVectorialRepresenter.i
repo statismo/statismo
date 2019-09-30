@@ -34,33 +34,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-%
-{
+ 
+%{
 #include "TrivialVectorialRepresenter.h"
-  %
-}
+%}
 
-struct PointIdType
-{
-  PointIdType();
-  PointIdType(unsigned);
-  unsigned ptId;
+struct PointIdType {
+	PointIdType();
+	PointIdType(unsigned);
+	unsigned ptId;
+
 };
-
-class TrivialVectorialRepresenter
-{
+	
+class TrivialVectorialRepresenter {
 public:
-  typedef statismo::VectorType       DatasetPointerType;
-  typedef const statismo::VectorType DatasetConstPointerType;
 
-  typedef PointIdType          PointType;
-  typedef statismo::ScalarType ValueType;
+	typedef statismo::VectorType DatasetPointerType;
+	typedef const statismo::VectorType DatasetConstPointerType;
 
-  % newobject Create;
-  static TrivialVectorialRepresenter *
-  Create(unsigned);
+	typedef PointIdType PointType;
+	typedef statismo::ScalarType ValueType;
 
-private:
-  TrivialVectorialRepresenter(unsigned);
+	 %newobject Create; 
+ 	 static TrivialVectorialRepresenter* Create(unsigned );
+ 	 
+ private:
+ 	TrivialVectorialRepresenter(unsigned);
+
 };

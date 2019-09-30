@@ -34,68 +34,66 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-%
-  {
+ 
+%{
 #include "Representer.h"
 #include "vtkStandardMeshRepresenter.h"
 #include "vtkHelper.h"
 #include "vtkPolyData.h"
-    %
-  }
+%}
 
-  % include "Representer.i"
-
-
-  namespace statismo
-{
+%include "Representer.i"
 
 
-  class vtkPoint
-  {
-  public:
-    vtkPoint(double x, double y, double z);
-  };
+namespace statismo { 
 
 
-  % rename(representerTraitsVtkPolyData) RepresenterTraits<vtkPolyData>;
-  class RepresenterTraits<vtkPolyData>
-  {
-  public:
-    typedef const vtkPolyData * DatasetConstPointerType;
-    typedef vtkPolyData *       DatasetPointerType;
-    typedef vtkPoint            PointType;
-    typedef vtkPoint            ValueType;
-  };
-}
-% template(RepresenterVTK) statismo::Representer<vtkPolyData>;
+class vtkPoint {
+	public:
+	vtkPoint(double x, double y, double z);
+};
 
 
-namespace statismo
-{
 
-class vtkStandardMeshRepresenter : public Representer<vtkPolyData>
-{
+
+
+%rename(representerTraitsVtkPolyData) RepresenterTraits<vtkPolyData>;  
+class RepresenterTraits<vtkPolyData> {
 public:
-  virtual ~vtkStandardMeshRepresenter();
+	typedef const vtkPolyData* DatasetConstPointerType;
+	typedef vtkPolyData* DatasetPointerType;
+	typedef vtkPoint PointType;
+	typedef vtkPoint ValueType;	
+};
 
-  typedef statismo::Domain<PointType> DomainType;
 
 
-  % newobject Create;
-  static vtkStandardMeshRepresenter *
-  Create();
-  static vtkStandardMeshRepresenter *
-  Create(const vtkPolyData * reference);
+}
+%template(RepresenterVTK) statismo::Representer<vtkPolyData>;
 
-  const DomainType &
-  GetDomain() const;
 
-  unsigned
-  GetNumberOfPoints();
-  // unsigned GetPointIdForPoint(const vtkPoint& pt);
+namespace statismo { 
+
+class vtkStandardMeshRepresenter : public Representer<vtkPolyData> {
+public:
+
+	virtual ~vtkStandardMeshRepresenter();
+
+typedef statismo::Domain<PointType> DomainType;
+
+ 
+ %newobject Create; 
+ static vtkStandardMeshRepresenter* Create(); 
+ static vtkStandardMeshRepresenter* Create(const vtkPolyData* reference);
+  
+  const DomainType& GetDomain() const;
+ 
+ unsigned GetNumberOfPoints();
+// unsigned GetPointIdForPoint(const vtkPoint& pt);
 
 private:
-  vtkStandardMeshRepresenter();
+ 
+ vtkStandardMeshRepresenter();
+
 };
 } // namespace statismo
