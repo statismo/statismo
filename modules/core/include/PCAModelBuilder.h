@@ -58,15 +58,17 @@ namespace statismo
  * This class implements the classical PCA based approach to Statistical Models.
  */
 template <typename T>
-class PCAModelBuilder : public ModelBuilder<T>
+class PCAModelBuilder : public ModelBuilderBase<T, PCAModelBuilder<T>>
 {
 
 
 public:
-  typedef ModelBuilder<T>                            Superclass;
+  using Superclass = ModelBuilderBase<T, PCAModelBuilder<T>>;
   typedef typename Superclass::DataManagerType       DataManagerType;
   typedef typename Superclass::StatisticalModelType  StatisticalModelType;
   typedef typename DataManagerType::DataItemListType DataItemListType;
+  friend Superclass;
+  friend typename Superclass::ObjectFactoryType;
 
   /**
    * @brief The EigenValueMethod enum This type is used to specify which decomposition method resp. eigenvalue solver
@@ -78,26 +80,6 @@ public:
     JacobiSVD,
     SelfAdjointEigenSolver
   } EigenValueMethod;
-
-  /**
-   * Factory method to create a new PCAModelBuilder
-   */
-  static PCAModelBuilder *
-  Create()
-  {
-    return new PCAModelBuilder();
-  }
-
-  /**
-   * Destroy the object.
-   * The same effect can be achieved by deleting the object in the usual
-   * way using the c++ delete keyword.
-   */
-  void
-  Delete()
-  {
-    delete this;
-  }
 
 
   /**
@@ -117,7 +99,7 @@ public:
    * \return A new Statistical model
    * \warning The method allocates a new Statistical Model object, that needs to be deleted by the user.
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModel(const DataItemListType & samples,
                 double                   noiseVariance,
                 bool                     computeScores = true,
@@ -127,11 +109,8 @@ public:
 private:
   // to prevent use
   PCAModelBuilder();
-  PCAModelBuilder(const PCAModelBuilder & orig);
-  PCAModelBuilder &
-  operator=(const PCAModelBuilder & rhs);
 
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModelInternal(const Representer<T> * representer,
                         const MatrixType &     X,
                         const VectorType &     mu,

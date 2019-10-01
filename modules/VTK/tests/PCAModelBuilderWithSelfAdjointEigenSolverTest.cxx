@@ -123,7 +123,7 @@ PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
 
 
   typedef vtkStandardMeshRepresenter              RepresenterType;
-  typedef statismo::DataManager<vtkPolyData>      DataManagerType;
+  typedef statismo::BasicDataManager<vtkPolyData> DataManagerType;
   typedef vtkStandardMeshRepresenter::PointType   PointType;
   typedef vtkStandardMeshRepresenter::DomainType  DomainType;
   typedef DomainType::DomainPointsListType        DomainPointsListType;
@@ -132,9 +132,9 @@ PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
 
   vtkPolyData * reference = loadPolyData(filenames[0]);
   reference = ReducePoints(reference, num_points);
-  RepresenterType * representer = RepresenterType::Create(reference);
+  auto representer = RepresenterType::SafeCreate(reference);
 
-  std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+  auto dataManager = DataManagerType::SafeCreate(representer.get());
 
   std::vector<std::string>::const_iterator it = filenames.begin();
   for (; it != filenames.end(); it++)
@@ -153,11 +153,10 @@ PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
   std::clock_t                                   begin = std::clock();
   double                                         data_noise = 0;
   typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
-  PCAModelBuilderType *                          pcaModelBuilder = PCAModelBuilderType::Create();
-  StatisticalModelType *                         jacobiModel;
+  auto                                           pcaModelBuilder = PCAModelBuilderType::SafeCreate();
 
   // perform with standard argument
-  jacobiModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(), data_noise, false);
+  auto       jacobiModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(), data_noise, false);
   VectorType variance1 = jacobiModel->GetPCAVarianceVector();
   MatrixType pcbasis1 = jacobiModel->GetPCABasisMatrix();
 
@@ -185,7 +184,7 @@ PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
   // ----------------------------------------------------------
   // Generate a lot of samples out of the JacobiSVD model
   // ----------------------------------------------------------
-  std::unique_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer));
+  auto dataManager2 = DataManagerType::SafeCreate(representer.get());
   dataManager->AddDataset(reference, "ref");
   for (unsigned i = 0; i < 5000; i++)
   {
@@ -201,7 +200,7 @@ PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
   std::cout << "PCAModelBuilderWithSelfAdjointEigenSolverTest: \t"
             << "building PCA model with SelfAdjointEigenSolver... " << std::flush;
   begin = std::clock();
-  StatisticalModelType * saesModel = pcaModelBuilder->BuildNewModel(
+  auto saesModel = pcaModelBuilder->BuildNewModel(
     dataManager2->GetData(), data_noise, false, PCAModelBuilderType::SelfAdjointEigenSolver);
   std::clock_t end = std::clock();
   std::cout << " (" << double(end - begin) / CLOCKS_PER_SEC << " sec) \t[passed]" << std::endl;

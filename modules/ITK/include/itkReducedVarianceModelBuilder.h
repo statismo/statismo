@@ -47,6 +47,8 @@
 #include "ReducedVarianceModelBuilder.h"
 #include "statismoITKConfig.h"
 #include "StatismoUtils.h"
+#include "ImplWrapper.h"
+#include "itkUtils.h"
 
 #include <functional>
 #include <utility>
@@ -59,7 +61,9 @@ namespace itk
  * \see statismo::ReducedVariance for detailed documentation.
  */
 template <class Representer>
-class ReducedVarianceModelBuilder : public Object
+class ReducedVarianceModelBuilder
+  : public Object
+  , public statismo::ImplWrapper<statismo::ReducedVarianceModelBuilder<Representer>, statismo::SafeInitializer>
 {
 public:
   typedef ReducedVarianceModelBuilder Self;
@@ -67,81 +71,55 @@ public:
   typedef SmartPointer<Self>          Pointer;
   typedef SmartPointer<const Self>    ConstPointer;
 
+  using ImplType = typename statismo::ImplWrapper<statismo::ReducedVarianceModelBuilder<Representer>,
+                                                  statismo::SafeInitializer>::ImplType;
+
   itkNewMacro(Self);
   itkTypeMacro(ReducedVarianceModelBuilder, Object);
 
-  typedef statismo::ReducedVarianceModelBuilder<Representer> ImplType;
 
+  ReducedVarianceModelBuilder() {}
 
-  template <class F>
-  typename std::result_of<F()>::type
-  callstatismoImpl(F f) const
-  {
-    try
-    {
-      return f();
-    }
-    catch (statismo::StatisticalModelException & s)
-    {
-      itkExceptionMacro(<< s.what());
-    }
-  }
-
-
-  ReducedVarianceModelBuilder()
-    : m_impl(ImplType::Create())
-  {}
-
-  virtual ~ReducedVarianceModelBuilder()
-  {
-    if (m_impl)
-    {
-      delete m_impl;
-      m_impl = 0;
-    }
-  }
+  virtual ~ReducedVarianceModelBuilder() {}
 
 
   typename StatisticalModel<Representer>::Pointer
   BuildNewModelWithLeadingComponents(const StatisticalModel<Representer> * model, unsigned numberOfPrincipalComponents)
   {
-    statismo::StatisticalModel<Representer> *       model_statismo = model->GetstatismoImplObj();
-    statismo::StatisticalModel<Representer> *       new_model_statismo = callstatismoImpl(std::bind(
-      &ImplType::BuildNewModelWithLeadingComponents, this->m_impl, model_statismo, numberOfPrincipalComponents));
+    const statismo::StatisticalModel<Representer> * model_statismo = model->GetStatismoImplObj();
+
+    auto new_model_statismo = this->callForwardImplTrans(ExceptionHandler{ *this },
+                                                         &ImplType::BuildNewModelWithLeadingComponents,
+                                                         model_statismo,
+                                                         numberOfPrincipalComponents);
     typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
-    model_itk->SetstatismoImplObj(new_model_statismo);
+    model_itk->SetStatismoImplObj(std::move(new_model_statismo));
     return model_itk;
   }
 
   typename StatisticalModel<Representer>::Pointer
   BuildNewModelWithVariance(const StatisticalModel<Representer> * model, double totalVariance)
   {
-    statismo::StatisticalModel<Representer> * model_statismo = model->GetstatismoImplObj();
-    statismo::StatisticalModel<Representer> * new_model_statismo =
-      callstatismoImpl(std::bind(&ImplType::BuildNewModelWithVariance, this->m_impl, model_statismo, totalVariance));
+    const statismo::StatisticalModel<Representer> * model_statismo = model->GetStatismoImplObj();
+    auto                                            new_model_statismo = this->callForwardImplTrans(
+      ExceptionHandler{ *this }, &ImplType::BuildNewModelWithVariance, model_statismo, totalVariance);
+
     typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
-    model_itk->SetstatismoImplObj(new_model_statismo);
+    model_itk->SetStatismoImplObj(std::move(new_model_statismo));
     return model_itk;
   }
 
   is_deprecated typename StatisticalModel<Representer>::Pointer
   BuildNewModelFromModel(const StatisticalModel<Representer> * model, double totalVariance)
   {
-    statismo::StatisticalModel<Representer> * model_statismo = model->GetstatismoImplObj();
-    statismo::StatisticalModel<Representer> * new_model_statismo =
-      callstatismoImpl(std::bind(&ImplType::BuildNewModelFromModel, this->m_impl, model_statismo, totalVariance));
+    statismo::StatisticalModel<Representer> * model_statismo = model->GetStatismoImplObj();
+    auto                                      new_model_statismo = this->callForwardImplTrans(
+      ExceptionHandler{ *this }, &ImplType::BuildNewModelFromModel, model_statismo, totalVariance);
+
     typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
-    model_itk->SetstatismoImplObj(new_model_statismo);
+    model_itk->SetStatismoImplObj(std::move(new_model_statismo));
     return model_itk;
   }
-
-
-private:
-  ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder & orig);
-  ReducedVarianceModelBuilder &
-  operator=(const ReducedVarianceModelBuilder & rhs);
-
-  ImplType * m_impl;
 };
 
 

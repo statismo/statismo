@@ -45,6 +45,7 @@
 #include "Domain.h"
 #include "CoreTraits.h"
 #include "Clonable.h"
+#include "GenericFactory.h"
 
 /**
  * \brief Provides the interface between statismo and the dataset type the application uses.
@@ -272,37 +273,14 @@ public:
  *  - gathering representers common code (creation/deletion) in a generic way
  */
 template <typename T, typename Derived>
-class RepresenterBase : public Representer<T>
+class RepresenterBase
+  : public Representer<T>
+  , public GenericFactory<Derived>
 {
 
 public:
   using DatasetPointerType = typename RepresenterTraits<T>::DatasetPointerType;
-
-  /**
-   * Generic object factory for representer
-   */
-  template <typename... Args>
-  static auto
-  Create(Args &&... args)
-  {
-    return new Derived{ std::forward<Args>(args)... };
-    ;
-  }
-
-  template <typename... Args>
-  static auto
-  SafeCreate(Args &&... args)
-  {
-    return SafeCreateWithCustomDeletor<StdDeletor>(std::forward<Args>(args)...);
-  }
-
-  template <typename Deletor, typename... Args>
-  static auto
-  SafeCreateWithCustomDeletor(Args &&... args)
-  {
-    std::unique_ptr<Derived, Deletor> ptr{ new Derived{ std::forward<Args>(args)... }, Deletor() };
-    return ptr;
-  }
+  using ObjectFactoryType = GenericFactory<Derived>;
 
   /// Delete basic implementation
   virtual void

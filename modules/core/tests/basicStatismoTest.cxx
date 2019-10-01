@@ -59,7 +59,7 @@ basicStatismoTest(int argc, char * argv[])
 
   typedef statismo::PCAModelBuilder<statismo::VectorType>  ModelBuilderType;
   typedef statismo::StatisticalModel<statismo::VectorType> StatisticalModelType;
-  typedef statismo::DataManager<statismo::VectorType>      DataManagerType;
+  typedef statismo::BasicDataManager<statismo::VectorType> DataManagerType;
 
   try
   {
@@ -83,8 +83,8 @@ basicStatismoTest(int argc, char * argv[])
     dataManager->AddDataset(dataset3, "dataset1");
 
 
-    std::unique_ptr<ModelBuilderType>     pcaModelBuilder(ModelBuilderType::Create());
-    std::unique_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
+    statismo::UniquePtrType<ModelBuilderType>     pcaModelBuilder(ModelBuilderType::Create());
+    statismo::UniquePtrType<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
 
     // As we have added 3 linearly independent samples, we get 2 principal components.
     if (model->GetNumberOfPrincipalComponents() != 2)
@@ -94,8 +94,8 @@ basicStatismoTest(int argc, char * argv[])
 
     statismo::IO<statismo::VectorType>::SaveStatisticalModel(model.get(), "test.h5");
 
-    RepresenterType *                     newRepresenter = RepresenterType::Create();
-    std::unique_ptr<StatisticalModelType> loadedModel(
+    RepresenterType *                             newRepresenter = RepresenterType::Create();
+    statismo::UniquePtrType<StatisticalModelType> loadedModel(
       statismo::IO<statismo::VectorType>::LoadStatisticalModel(newRepresenter, "test.h5"));
     if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents())
     {

@@ -88,6 +88,7 @@ class TrivialVectorialRepresenter : public RepresenterBase<statismo::VectorType,
 {
 public:
   typedef RepresenterBase<statismo::VectorType, TrivialVectorialRepresenter> RepresenterBaseType;
+  friend typename RepresenterBaseType::ObjectFactoryType;
   friend RepresenterBaseType;
   typedef statismo::ScalarType ValueType;
   using DomainType = typename statismo::Domain<PointType>;

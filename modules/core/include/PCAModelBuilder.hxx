@@ -58,7 +58,7 @@ PCAModelBuilder<T>::PCAModelBuilder()
 
 
 template <typename T>
-typename PCAModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename PCAModelBuilder<T>::StatisticalModelType>
 PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
                                   double                   noiseVariance,
                                   bool                     computeScores,
@@ -96,13 +96,13 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
 
 
   // build the model
-  StatisticalModelType * model = BuildNewModelInternal(representer, X0, mu, noiseVariance, method);
+  auto model = BuildNewModelInternal(representer, X0, mu, noiseVariance, method);
 
   // compute the scores if requested
   MatrixType scores;
   if (computeScores)
   {
-    scores = this->ComputeScores(sampleDataList, model);
+    scores = this->ComputeScores(sampleDataList, model.get());
   }
 
 
@@ -133,7 +133,7 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
 
 
 template <typename T>
-typename PCAModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename PCAModelBuilder<T>::StatisticalModelType>
 PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T> * representer,
                                           const MatrixType &     X0,
                                           const VectorType &     mu,
@@ -201,8 +201,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T> * representer,
         VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
         VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
 
-        StatisticalModelType * model =
-          StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+        auto model = StatisticalModelType::SafeCreate(representer, mu, pcaBasis, pcaVariance, noiseVariance);
 
         return model;
       }
@@ -224,8 +223,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T> * representer,
 
         VectorType sampleVarianceVector = singularValues.topRows(numComponentsToKeep);
         VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
-        StatisticalModelType * model =
-          StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+        auto       model = StatisticalModelType::SafeCreate(representer, mu, pcaBasis, pcaVariance, noiseVariance);
         return model;
       }
       break;
@@ -254,8 +252,7 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T> * representer,
 
       VectorType sampleVarianceVector = eigenValues.topRows(numComponentsToKeep);
       VectorType pcaVariance = (sampleVarianceVector - VectorType::Ones(numComponentsToKeep) * noiseVariance);
-      StatisticalModelType * model =
-        StatisticalModelType::Create(representer, mu, pcaBasis, pcaVariance, noiseVariance);
+      auto       model = StatisticalModelType::SafeCreate(representer, mu, pcaBasis, pcaVariance, noiseVariance);
       return model;
     }
     break;

@@ -33,56 +33,65 @@
  *
  */
 
-#ifndef __CLONABLE_H_
-#define __CLONABLE_H_
+#ifndef HASH_H_
+#define HASH_H_
 
-#include "CommonTypes.h"
+#include "Reflect.h"
 
-#include <memory>
-
+// Hashing utilities
 namespace statismo
 {
+namespace details
+{
+inline constexpr auto HasSize = is_valid([](auto x) -> decltype((void)value_t(x).size()) {});
 
-/* \class Clonable base class
+inline constexpr auto HasGetPointDimension = is_valid([](auto x) -> decltype((void)value_t(x).GetPointDimension()) {});
+
+template <typename T>
+inline void
+HashCombine(std::size_t & seed, const T & v)
+{
+  std::hash<T> hasher;
+  seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+template <typename T>
+inline auto
+HashImpl(const T & v) -> std::enable_if_t<HasSize(type<T>), size_t>
+{
+  size_t value = 0;
+  for (unsigned i = 0; i < v.size(); i++)
+  {
+    HashCombine(value, v(i));
+  }
+  return value;
+}
+
+template <typename T>
+inline auto
+HashImpl(const T & v) -> std::enable_if_t<HasGetPointDimension(type<T>), size_t>
+{
+  size_t value = 0;
+  for (unsigned i = 0; i < v.GetPointDimension(); i++)
+  {
+    HashCombine(value, v[i]);
+  }
+  return value;
+}
+} // namespace details
+
+/**
+ * Custom hash functor used in hashmap
  */
-template <typename Derived>
-class Clonable
+template <typename T>
+class Hash
 {
 public:
-  virtual ~Clonable() = default;
-  Clonable() = default;
-  Clonable(Clonable &&) = delete;
-  Clonable &
-  operator=(Clonable &&) = delete;
-  Clonable &
-  operator=(const Clonable &) = delete;
-
-  Derived *
-  CloneSelf() const
+  size_t
+  operator()(const T & v) const
   {
-    return this->CloneImpl();
+    return details::HashImpl(v);
   }
-
-  std::unique_ptr<Derived, DefaultDeletor<Derived>>
-  SafeCloneSelf() const
-  {
-    return SafeCloneSelfWithCustomDeletor<DefaultDeletor<Derived>>();
-  }
-
-  template <typename Deletor>
-  std::unique_ptr<Derived, Deletor>
-  SafeCloneSelfWithCustomDeletor() const
-  {
-    std::unique_ptr<Derived, Deletor> ptr{ this->CloneImpl(), Deletor() };
-    return ptr;
-  }
-
-protected:
-  Clonable(const Clonable &) = default;
-
-private:
-  virtual Derived *
-  CloneImpl() const = 0;
 };
 } // namespace statismo
 

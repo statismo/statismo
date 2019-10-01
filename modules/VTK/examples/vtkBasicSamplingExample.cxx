@@ -88,9 +88,8 @@ main(int argc, char ** argv)
 
     // To load a model, we call the static Load method, which returns (a pointer to) a
     // new StatisticalModel object
-    RepresenterType *                     representer = RepresenterType::Create();
-    std::unique_ptr<StatisticalModelType> model(
-      statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, modelname));
+    RepresenterType *                   representer = RepresenterType::Create();
+    UniquePtrType<StatisticalModelType> model(statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, modelname));
     std::cout << "loaded model with " << model->GetNumberOfPrincipalComponents() << " Principal Components"
               << std::endl;
 

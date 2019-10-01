@@ -17,6 +17,7 @@
 #include "Kernels.h"
 #include "Nystrom.h"
 #include "Representer.h"
+#include "Hash.h"
 
 #include <memory>
 #include <thread>

@@ -71,13 +71,13 @@ public:
    * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
    * to create the model.
    */
-  static StatisticalModelType *
+  static UniquePtrType<StatisticalModelType>
   LoadStatisticalModel(typename StatisticalModelType::RepresenterType * representer,
                        const std::string &                              filename,
                        unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max())
   {
 
-    StatisticalModelType * newModel = 0;
+    UniquePtrType<StatisticalModelType> newModel;
 
     H5::H5File file;
     try
@@ -106,14 +106,14 @@ public:
    * \param maxNumberOfPCAComponents The maximal number of pca components that are loaded
    * to create the model.
    */
-  static StatisticalModelType *
+  static UniquePtrType<StatisticalModelType>
   LoadStatisticalModel(typename StatisticalModelType::RepresenterType * representer,
                        const H5::Group &                                modelRoot,
                        unsigned maxNumberOfPCAComponents = std::numeric_limits<unsigned>::max())
   {
 
-    StatisticalModelType * newModel;
-    ModelInfo              modelInfo;
+    UniquePtrType<StatisticalModelType> newModel;
+    ModelInfo                           modelInfo;
 
     try
     {
@@ -158,12 +158,12 @@ public:
         VectorType D = pcaVariance.array().sqrt();
         MatrixType orthonormalPCABasisMatrix = pcaBasisMatrix * DiagMatrixType(D).inverse();
         newModel =
-          StatisticalModelType::Create(representer, mean, orthonormalPCABasisMatrix, pcaVariance, noiseVariance);
+          StatisticalModelType::SafeCreate(representer, mean, orthonormalPCABasisMatrix, pcaVariance, noiseVariance);
       }
       else if (majorVersion == 0 && minorVersion == 9)
       {
         HDF5Utils::readMatrix(modelGroup, "./pcaBasis", maxNumberOfPCAComponents, pcaBasisMatrix);
-        newModel = StatisticalModelType::Create(representer, mean, pcaBasisMatrix, pcaVariance, noiseVariance);
+        newModel = StatisticalModelType::SafeCreate(representer, mean, pcaBasisMatrix, pcaVariance, noiseVariance);
       }
       else
       {

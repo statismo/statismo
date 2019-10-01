@@ -70,11 +70,11 @@ namespace statismo
  * Add method that allows for the use of the pointId in the constraint.
  */
 template <typename T>
-class PosteriorModelBuilder : public ModelBuilder<T>
+class PosteriorModelBuilder : public ModelBuilderBase<T, PosteriorModelBuilder<T>>
 {
 public:
   typedef Representer<T>                                    RepresenterType;
-  typedef ModelBuilder<T>                                   Superclass;
+  typedef ModelBuilderBase<T, PosteriorModelBuilder<T>>     Superclass;
   typedef typename Superclass::DataManagerType              DataManagerType;
   typedef typename Superclass::StatisticalModelType         StatisticalModelType;
   typedef typename RepresenterType::ValueType               ValueType;
@@ -88,26 +88,28 @@ public:
   typedef typename StatisticalModelType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
   typedef typename StatisticalModelType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
 
+  friend typename Superclass::ObjectFactoryType;
+
   /**
    * Factory method to create a new PosteriorModelBuilder
    * \param representer The representer
    */
-  static PosteriorModelBuilder *
+  /*static PosteriorModelBuilder *
   Create()
   {
     return new PosteriorModelBuilder();
-  }
+  }*/
 
   /**
    * Destroy the object.
    * The same effect can be achieved by deleting the object in the usual
    * way using the c++ delete keyword.
    */
-  void
+  /*void
   Delete()
   {
     delete this;
-  }
+  }*/
 
   /**
    * destructor
@@ -126,7 +128,7 @@ public:
    *
    * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModel(const DataItemListType &   dataItemList,
                 const PointValueListType & pointValues,
                 double                     pointValueNoiseVariance,
@@ -145,7 +147,7 @@ public:
    *
    * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModel(const DataItemListType &                 DataItemList,
                 const PointValueWithCovarianceListType & pointValuesWithCovariance,
                 double                                   noiseVariance) const;
@@ -167,7 +169,7 @@ public:
    *
    * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModelFromModel(const StatisticalModelType * model,
                          const PointValueListType &   pointValues,
                          double                       pointValueNoiseVariance,
@@ -189,7 +191,7 @@ public:
    *
    * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModelFromModel(const StatisticalModelType *             model,
                          const PointValueWithCovarianceListType & pointValuesWithCovariance,
                          bool                                     computeScores = true) const;

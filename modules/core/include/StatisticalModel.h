@@ -47,6 +47,7 @@
 #include "DataManager.h"
 #include "ModelInfo.h"
 #include "Representer.h"
+#include "GenericFactory.h"
 
 
 namespace statismo
@@ -95,7 +96,7 @@ public:
  *
  */
 template <typename T>
-class StatisticalModel
+class StatisticalModel : public GenericFactory<StatisticalModel<T>>
 {
 public:
   typedef Representer<T>                                    RepresenterType;
@@ -103,6 +104,7 @@ public:
   typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
   typedef typename RepresenterType::ValueType               ValueType;
   typedef typename RepresenterType::PointType               PointType;
+  friend GenericFactory<StatisticalModel<T>>;
 
 
   typedef Domain<PointType> DomainType;
@@ -145,7 +147,7 @@ public:
    * \param pcaVariance The Variance for each principal Axis
    * \param noiseVariance The variance of the (N(0,noiseVariance)) noise on each point
    */
-  static StatisticalModel *
+  /*static StatisticalModel *
   Create(const RepresenterType * representer,
          const VectorType &      m,
          const MatrixType &      orthonormalPCABasis,
@@ -153,7 +155,7 @@ public:
          double                  noiseVariance)
   {
     return new StatisticalModel(representer, m, orthonormalPCABasis, pcaVariance, noiseVariance);
-  }
+  }*/
 
 
   /**
@@ -584,9 +586,9 @@ private:
                    double                  noiseVariance);
 
   // to prevent use
-  StatisticalModel(const StatisticalModel & rhs);
+  StatisticalModel(const StatisticalModel & rhs) = delete;
   StatisticalModel &
-  operator=(const StatisticalModel & rhs);
+  operator=(const StatisticalModel & rhs) = delete;
 
   const RepresenterType * m_representer;
 

@@ -33,56 +33,22 @@
  *
  */
 
-#ifndef __CLONABLE_H_
-#define __CLONABLE_H_
-
-#include "CommonTypes.h"
-
-#include <memory>
+#ifndef __NON_COPYABLE_H_
+#define __NON_COPYABLE_H_
 
 namespace statismo
 {
 
-/* \class Clonable base class
+/* \class Non copyable base class
  */
-template <typename Derived>
-class Clonable
+class NonCopyable
 {
 public:
-  virtual ~Clonable() = default;
-  Clonable() = default;
-  Clonable(Clonable &&) = delete;
-  Clonable &
-  operator=(Clonable &&) = delete;
-  Clonable &
-  operator=(const Clonable &) = delete;
-
-  Derived *
-  CloneSelf() const
-  {
-    return this->CloneImpl();
-  }
-
-  std::unique_ptr<Derived, DefaultDeletor<Derived>>
-  SafeCloneSelf() const
-  {
-    return SafeCloneSelfWithCustomDeletor<DefaultDeletor<Derived>>();
-  }
-
-  template <typename Deletor>
-  std::unique_ptr<Derived, Deletor>
-  SafeCloneSelfWithCustomDeletor() const
-  {
-    std::unique_ptr<Derived, Deletor> ptr{ this->CloneImpl(), Deletor() };
-    return ptr;
-  }
-
-protected:
-  Clonable(const Clonable &) = default;
-
-private:
-  virtual Derived *
-  CloneImpl() const = 0;
+  virtual ~NonCopyable() = default;
+  NonCopyable() = default;
+  NonCopyable(const NonCopyable &) = delete;
+  NonCopyable &
+  operator=(const NonCopyable &) = delete;
 };
 } // namespace statismo
 

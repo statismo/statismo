@@ -48,6 +48,10 @@
 #include "ModelInfo.h"
 #include "Representer.h"
 #include "StatismoUtils.h"
+#include "GenericFactory.h"
+#include "NonCopyable.h"
+
+#include <memory>
 
 namespace statismo
 {
@@ -114,7 +118,7 @@ private:
  * \sa DataItem
  */
 template <typename T>
-class DataManager
+class DataManager : public NonCopyable
 {
 
 public:
@@ -129,37 +133,97 @@ public:
   typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
 
   /**
-   * Factory method that creates a new instance of a DataManager class
-   *
+   * Destructor
    */
-  static DataManager<T> *
-  Create(const RepresenterType * representer)
-  {
-    return new DataManager<T>(representer);
-  }
+  virtual ~DataManager() = default;
+
+  /**
+   * Add a dataset to the data manager.
+   * \param dataset the dataset to be added
+   * \param URI A string containing the URI of the given dataset. This is only added as an info to the metadata.
+   *
+   * While it is not strictly necessary, and sometimes not even possible, to specify a URI for the given dataset,
+   * it is strongly encouraged to add a description. The string will be added to the metadata and stored with the model.
+   * Having this information stored with the model may prove valuable at a later point in time.
+   */
+  virtual void
+  AddDataset(DatasetConstPointerType dataset, const std::string & URI) = 0;
+
+  /**
+   * Saves the data matrix and all URIs into an HDF5 file.
+   * \param filename
+   */
+  virtual void
+  Save(const std::string & filename) const = 0;
+
+  /**
+   * return a list with all the sample data objects managed by the data manager
+   * \sa DataItem
+   */
+  virtual DataItemListType
+  GetData() const = 0;
+
+  /**
+   * returns the number of samples managed by the datamanager
+   */
+  virtual unsigned
+  GetNumberOfSamples() const = 0;
+
+  /**
+   * Assigns the data to one of n Folds to be used for cross validation.
+   * This method has to be called before cross validation can be started.
+   *
+   * \param nFolds The number of folds used in the crossvalidation
+   * \param randomize If true, the data will be randomly assigned to the nfolds, otherwise the order with which it was
+   * added is preserved
+   */
+  virtual CrossValidationFoldListType
+  GetCrossValidationFolds(unsigned nFolds, bool randomize = true) const = 0;
+
+  /**
+   * Generates Leave-one-out cross validation folds
+   */
+  virtual CrossValidationFoldListType
+  GetLeaveOneOutCrossValidationFolds() const = 0;
+
+  virtual void
+  Delete() const = 0;
+};
+
+/**
+ * \brief Base class for data manager
+ */
+template <typename T, typename Derived>
+class DataManagerBase
+  : public DataManager<T>
+  , public GenericFactory<Derived>
+{
+public:
+  using ObjectFactoryType = GenericFactory<Derived>;
+  friend ObjectFactoryType;
+
+public:
+  typedef Representer<T>                                    RepresenterType;
+  typedef typename RepresenterType::DatasetPointerType      DatasetPointerType;
+  typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
+
+  typedef DataItem<T>                        DataItemType;
+  typedef DataItemWithSurrogates<T>          DataItemWithSurrogatesType;
+  typedef std::list<const DataItemType *>    DataItemListType;
+  typedef CrossValidationFold<T>             CrossValidationFoldType;
+  typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
+
 
   /**
    * Create a new dataManager, with the data stored in the given hdf5 file
    */
-  static DataManager<T> *
+  static DataManagerBase *
   Load(Representer<T> * representer, const std::string & filename);
-
-
-  /**
-   * Destroy the object.
-   * The same effect can be achieved by deleting the object in the usual
-   * way using the c++ delete keyword.
-   */
-  void
-  Delete()
-  {
-    delete this;
-  }
 
   /**
    * Destructor
    */
-  virtual ~DataManager();
+  virtual ~DataManagerBase();
 
   /**
    * Add a dataset to the data manager.
@@ -213,17 +277,33 @@ public:
   CrossValidationFoldListType
   GetLeaveOneOutCrossValidationFolds() const;
 
+  /// Delete basic implementation
+  virtual void
+  Delete() const
+  {
+    delete this;
+  }
+
 protected:
-  DataManager(const RepresenterType * representer);
+  DataManagerBase(const RepresenterType * representer);
 
-  DataManager(const DataManager<T> & orig);
-  DataManager &
-  operator=(const DataManager<T> & rhs);
-
-  RepresenterType * m_representer;
+  UniquePtrType<RepresenterType> m_representer;
 
   // members
   DataItemListType m_DataItemList;
+};
+
+template <typename T>
+class BasicDataManager : public DataManagerBase<T, BasicDataManager<T>>
+{
+public:
+  friend typename DataManagerBase<T, BasicDataManager<T>>::ObjectFactoryType;
+  using RepresenterType = typename DataManagerBase<T, BasicDataManager<T>>::RepresenterType;
+
+private:
+  BasicDataManager(const RepresenterType * representer)
+    : DataManagerBase<T, BasicDataManager<T>>(representer)
+  {}
 };
 
 } // namespace statismo

@@ -81,6 +81,7 @@ class vtkStandardMeshRepresenter : public RepresenterBase<vtkPolyData, vtkStanda
 public:
   using RepresenterBaseType = RepresenterBase<vtkPolyData, vtkStandardMeshRepresenter>;
   friend RepresenterBaseType;
+  friend typename RepresenterBaseType::ObjectFactoryType;
 
   void
   Load(const H5::Group & fg);
@@ -188,7 +189,7 @@ private:
   static vtkDataArray *
   GetAsDataArray(const H5::Group & group, const std::string & name);
   static void
-                     FillDataArray(const statismo::GenericEigenType<double>::MatrixType & m, vtkDataArray * dataArray);
+                     FillDataArray(const statismo::GenericEigenTraits<double>::MatrixType & m, vtkDataArray * dataArray);
   DatasetPointerType m_reference;
 
   DomainType m_domain;

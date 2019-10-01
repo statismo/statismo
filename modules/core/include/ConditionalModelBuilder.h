@@ -35,17 +35,16 @@
  *
  */
 
-#ifndef __CONDITIONALMODELBUILDER_H_
-#define __CONDITIONALMODELBUILDER_H_
-
-#include <vector>
-#include <memory>
+#ifndef __CONDITIONAL_MODEL_BUILDER_H_
+#define __CONDITIONAL_MODEL_BUILDER_H_
 
 #include "CommonTypes.h"
-#include "Config.h"
 #include "DataManagerWithSurrogates.h"
 #include "ModelBuilder.h"
 #include "StatisticalModel.h"
+
+#include <vector>
+#include <memory>
 
 namespace statismo
 {
@@ -72,69 +71,50 @@ namespace statismo
  * \sa DataManagerWithSurrogates
  */
 template <typename T>
-class ConditionalModelBuilder : public ModelBuilder<T>
+class ConditionalModelBuilder : public ModelBuilderBase<T, ConditionalModelBuilder<T>>
 {
 public:
-  typedef ModelBuilder<T>                           Superclass;
-  typedef typename Superclass::StatisticalModelType StatisticalModelType;
-
-  typedef std::pair<bool, statismo::ScalarType>
-    CondVariableValuePair; // replace the first element by a bool (indicates whether the variable is in use)
-  typedef std::vector<CondVariableValuePair>
-    CondVariableValueVectorType; // replace list by vector, to gain direct access
-
-  typedef DataManagerWithSurrogates<T>                         DataManagerType;
-  typedef typename DataManagerType::DataItemListType           DataItemListType;
-  typedef typename DataManagerType::DataItemWithSurrogatesType DataItemWithSurrogatesType;
-  typedef typename DataManagerType::SurrogateTypeInfoType      SurrogateTypeInfoType;
-
-  /**
-   * Factory method to create a new ConditionalModelBuilder
-   * \param representer The representer
-   */
-  static ConditionalModelBuilder *
-  Create()
-  {
-    return new ConditionalModelBuilder();
-  }
-
-  /**
-   * Destroy the object.
-   * The same effect can be achieved by deleting the object in the usual
-   * way using the c++ delete keyword.
-   */
-  void
-  Delete()
-  {
-    delete this;
-  }
+  using Superclass = ModelBuilderBase<T, ConditionalModelBuilder<T>>;
+  using StatisticalModelType = typename Superclass::StatisticalModelType;
+  // bool indicates whether the variable is in use
+  using CondVariableValuePair = std::pair<bool, statismo::ScalarType>;
+  using CondVariableValueVectorType = std::vector<CondVariableValuePair>;
+  using DataManagerType = DataManagerWithSurrogates<T>;
+  using DataItemListType = typename DataManagerType::DataItemListType;
+  using DataItemWithSurrogatesType = typename DataManagerType::DataItemWithSurrogatesType;
+  using SurrogateTypeInfoType = typename DataManagerType::SurrogateTypeInfoType;
+  friend Superclass;
 
   /**
    * Builds a new model from the provided data and the requested constraints.
-   * \param sampleSet A list training samples with associated surrogate data - typically obtained from a
-   * DataManagerWithSurrogates. \param surrogateTypes A vector with length corresponding to the number of surrogate
-   * variables, indicating whether a variable is continuous or categorical - typically obtained from a
-   * DataManagerWithSurrogates. \param conditioningInfo A vector (length = number of surrogates) indicating which
-   * surrogates are used for conditioning, and the conditioning value. \param noiseVariance  The variance of the noise
-   * assumed on our data \return a new statistical model
    *
-   * \warning The returned model needs to be explicitly deleted by the user of this method.
+   * \param sampleSet A list training samples with associated surrogate data - typically obtained from a
+   * DataManagerWithSurrogates.
+   * \param surrogateTypes A vector with length corresponding to the number of surrogate
+   * variables, indicating whether a variable is continuous or categorical - typically obtained from a
+   * DataManagerWithSurrogates.
+   * \param conditioningInfo A vector (length = \a surrogateTypes) indicating which
+   * surrogates are used for conditioning, and the conditioning value.
+   * \param noiseVariance  The variance of the noise
+   * assumed on our data
+   * \return a new statistical model
+   *
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModel(const DataItemListType &            sampleSet,
                 const SurrogateTypeInfoType &       surrogateTypesInfo,
                 const CondVariableValueVectorType & conditioningInfo,
                 float                               noiseVariance,
-                double                              modelVarianceRetained = 1) const;
+                double                              modelVarianceRetained = 1.0f) const;
 
 private:
   unsigned
   PrepareData(const DataItemListType &            DataItemList,
               const SurrogateTypeInfoType &       surrogateTypesInfo,
               const CondVariableValueVectorType & conditioningInfo,
-              DataItemListType *                  acceptedSamples,
-              MatrixType *                        surrogateMatrix,
-              VectorType *                        conditions) const;
+              DataItemListType &                  acceptedSamples,
+              MatrixType &                        surrogateMatrix,
+              VectorType &                        conditions) const;
 
   CondVariableValueVectorType m_conditioningInfo; // keep in storage
 };
@@ -144,4 +124,4 @@ private:
 
 #include "ConditionalModelBuilder.hxx"
 
-#endif /* __PCAMODELBUILDER_H_ */
+#endif /* __CONDITIONAL_MODEL_BUILDER_H_ */

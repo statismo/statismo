@@ -74,7 +74,7 @@ PosteriorModelBuilderTest(int argc, char ** argv)
 
 
   typedef vtkStandardMeshRepresenter              RepresenterType;
-  typedef statismo::DataManager<vtkPolyData>      DataManagerType;
+  typedef statismo::BasicDataManager<vtkPolyData> DataManagerType;
   typedef vtkStandardMeshRepresenter::PointType   PointType;
   typedef vtkStandardMeshRepresenter::DomainType  DomainType;
   typedef DomainType::DomainPointsListType        DomainPointsListType;
@@ -125,8 +125,8 @@ PosteriorModelBuilderTest(int argc, char ** argv)
     pvcList.push_back(pvcPair);
   }
 
-  PosteriorModelBuilderType * pModelBuilder = PosteriorModelBuilderType::Create();
-  StatisticalModelType *      posteriorModel = pModelBuilder->BuildNewModel(dataManager->GetData(), pvcList, 0.1);
+  auto pModelBuilder = PosteriorModelBuilderType::SafeCreate();
+  auto posteriorModel = pModelBuilder->BuildNewModel(dataManager->GetData(), pvcList, 0.1);
 
   RepresenterType::DatasetPointerType posterior_mean = posteriorModel->DrawMean();
 
@@ -147,8 +147,8 @@ PosteriorModelBuilderTest(int argc, char ** argv)
 
 
   typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
-  PCAModelBuilderType *                          pcaModelBuilder = PCAModelBuilderType::Create();
-  StatisticalModelType * fullModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.1, false);
+  auto                                           pcaModelBuilder = PCAModelBuilderType::SafeCreate();
+  auto fullModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.1, false);
 
 
   PointType middleFiducial(244, 290, 0);
@@ -173,8 +173,8 @@ PosteriorModelBuilderTest(int argc, char ** argv)
   // pointValueWithCovarianceList.push_back(lowerPair);
 
   PosteriorModelBuilderType * anisotropicPosteriorModelBuilder = PosteriorModelBuilderType::Create();
-  StatisticalModelType *      anisotropicPosteriorModel =
-    anisotropicPosteriorModelBuilder->BuildNewModelFromModel(fullModel, pointValueWithCovarianceList, false);
+  auto                        anisotropicPosteriorModel =
+    anisotropicPosteriorModelBuilder->BuildNewModelFromModel(fullModel.get(), pointValueWithCovarianceList, false);
 
   vtkPolyData * posteriorMean = anisotropicPosteriorModel->DrawMean();
 
@@ -218,8 +218,8 @@ PosteriorModelBuilderTest(int argc, char ** argv)
   onePointVar << 1, 1, 1;
   MatrixType onePointPCABasis = MatrixType::Identity(3, 3);
 
-  StatisticalModelType * onePointModel =
-    StatisticalModelType::Create(onePointRepresenter, onePointMean, onePointPCABasis, onePointVar, 0.0);
+  auto onePointModel =
+    StatisticalModelType::SafeCreate(onePointRepresenter, onePointMean, onePointPCABasis, onePointVar, 0.0);
 
 
   Eigen::Matrix3f rotMatrix;
@@ -250,9 +250,9 @@ PosteriorModelBuilderTest(int argc, char ** argv)
   PointValueWithCovarianceListType onePointPvcList;
   onePointPvcList.push_back(pvcPair);
 
-  PosteriorModelBuilderType * onePointPosteriorModelBuilder = PosteriorModelBuilderType::Create();
-  StatisticalModelType *      onePointPosteriorModel =
-    onePointPosteriorModelBuilder->BuildNewModelFromModel(onePointModel, onePointPvcList);
+  auto onePointPosteriorModelBuilder = PosteriorModelBuilderType::SafeCreate();
+  auto onePointPosteriorModel =
+    onePointPosteriorModelBuilder->BuildNewModelFromModel(onePointModel.get(), onePointPvcList);
 
   VectorType posteriorModelMean = rotMatrix.inverse() * onePointPosteriorModel->GetMeanVector();
   VectorType knownSolution(3);

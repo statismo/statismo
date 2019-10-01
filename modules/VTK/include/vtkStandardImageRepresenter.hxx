@@ -135,7 +135,7 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group &
     spacing[i] = spacingVec[i];
   }
 
-  typename statismo::GenericEigenType<int>::VectorType sizeVec;
+  typename statismo::GenericEigenTraits<int>::VectorType sizeVec;
   HDF5Utils::readVectorOfType<int>(fg, "size", sizeVec);
   int size[3] = { 1, 1, 1 };
   for (unsigned i = 0; i < imageDimension; i++)
@@ -145,7 +145,7 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group &
 
   H5::Group pdGroup = fg.openGroup("./pointData");
 
-  typename statismo::GenericEigenType<double>::MatrixType pixelMat;
+  typename statismo::GenericEigenTraits<double>::MatrixType pixelMat;
   HDF5Utils::readMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
   H5::DataSet  ds = pdGroup.openDataSet("pixelValues");
   unsigned int datatype = static_cast<unsigned>(HDF5Utils::readIntAttribute(ds, "datatype"));
@@ -448,8 +448,8 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group & fg) con
   }
   HDF5Utils::writeVector(fg, "spacing", spacingVec);
 
-  statismo::GenericEigenType<int>::VectorType sizeVec =
-    statismo::GenericEigenType<int>::VectorType::Zero(imageDimension);
+  statismo::GenericEigenTraits<int>::VectorType sizeVec =
+    statismo::GenericEigenTraits<int>::VectorType::Zero(imageDimension);
   for (unsigned i = 0; i < imageDimension; i++)
   {
     sizeVec(i) = size[i];
@@ -460,7 +460,7 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group & fg) con
   statismo::MatrixType directionMat = statismo::MatrixType::Identity(imageDimension, imageDimension);
   HDF5Utils::writeMatrix(fg, "direction", directionMat);
 
-  typedef statismo::GenericEigenType<double>::MatrixType DoubleMatrixType;
+  typedef statismo::GenericEigenTraits<double>::MatrixType DoubleMatrixType;
   DoubleMatrixType pixelMat(vtkStandardImageRepresenter::GetDimensions(), GetNumberOfPoints());
 
   for (unsigned i = 0; i < static_cast<unsigned>(size[2]); i++)

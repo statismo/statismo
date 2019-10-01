@@ -98,7 +98,7 @@ main(int argc, char ** argv)
   // All the statismo classes have to be parameterized with the RepresenterType.
   // For building a shape model with vtk, we use the vtkPolyDataRepresenter.
   typedef vtkStandardMeshRepresenter    RepresenterType;
-  typedef DataManager<vtkPolyData>      DataManagerType;
+  typedef BasicDataManager<vtkPolyData> DataManagerType;
   typedef PCAModelBuilder<vtkPolyData>  ModelBuilderType;
   typedef StatisticalModel<vtkPolyData> StatisticalModelType;
 
@@ -141,9 +141,9 @@ main(int argc, char ** argv)
     // To actually build a model, we need to create a model builder object.
     // Calling the build model with a list of samples from the data manager, returns a new model.
     // The second parameter to BuildNewModel is the variance of the noise on our data
-    std::unique_ptr<ModelBuilderType> modelBuilder(ModelBuilderType::Create());
+    auto modelBuilder = ModelBuilderType::SafeCreate();
 
-    std::unique_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
+    auto model = modelBuilder->BuildNewModel(dataManager->GetData(), 0.01);
 
     // Once we have built the model, we can save it to disk.
     statismo::IO<vtkPolyData>::SaveStatisticalModel(model.get(), modelname);

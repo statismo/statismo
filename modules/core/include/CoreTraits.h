@@ -36,6 +36,8 @@
 #ifndef CORE_TRAITS_H_
 #define CORE_TRAITS_H_
 
+#include <Eigen/Dense>
+
 namespace statismo
 {
 
@@ -46,6 +48,18 @@ namespace statismo
  */
 template <typename P>
 struct PointTraits;
+
+// wrapper struct that allows us to easily select matrix and vectors of an arbitrary
+// type, which has the same traits as the standard matrix / vector traits
+template <typename TScalar>
+struct GenericEigenTraits
+{
+  using MatrixType = Eigen::Matrix<TScalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+  using DiagMatrixType = Eigen::DiagonalMatrix<TScalar, Eigen::Dynamic>;
+  using VectorType = Eigen::Matrix<TScalar, Eigen::Dynamic, 1>;
+  using RowVectorType = Eigen::Matrix<TScalar, 1, Eigen::Dynamic>;
+};
+
 } // namespace statismo
 
 #endif

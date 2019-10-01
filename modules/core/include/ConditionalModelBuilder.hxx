@@ -1,5 +1,5 @@
 /*
- * Representer.hxx
+ * ConditionalBuilder.hxx
  *
  * Created by Remi Blanc, Marcel Luethi
  *
@@ -35,49 +35,48 @@
  *
  */
 
-#ifndef __ConditionalModelBuilder_hxx
-#define __ConditionalModelBuilder_hxx
+#ifndef __CONDITIONAL_MODEL_BUILDER_HXX_
+#define __CONDITIONAL_MODEL_BUILDER_HXX_
 
 #include "ConditionalModelBuilder.h"
-
-#include <iostream>
-
-#include <Eigen/SVD>
-
 #include "Exceptions.h"
 #include "PCAModelBuilder.h"
 
+#include <iostream>
+#include <Eigen/SVD>
+
 namespace statismo
 {
-
-//
-// ConditionalModelBuilder
-//
-//
-
 
 template <typename T>
 unsigned
 ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            sampleDataList,
                                         const SurrogateTypeInfoType &       surrogateTypesInfo,
                                         const CondVariableValueVectorType & conditioningInfo,
-                                        DataItemListType *                  acceptedSamples,
-                                        MatrixType *                        surrogateMatrix,
-                                        VectorType *                        conditions) const
+                                        DataItemListType &                  acceptedSamples,
+                                        MatrixType &                        surrogateMatrix,
+                                        VectorType &                        conditions) const
 {
+  assert(conditioningInfo.size() == surrogateTypesInfo.types.size() && "programming error: should be caught before");
+
   bool                  acceptSample;
   unsigned              nbAcceptedSamples = 0;
   unsigned              nbContinuousSurrogatesInUse = 0, nbCategoricalSurrogatesInUse = 0;
   std::vector<unsigned> indicesContinuousSurrogatesInUse;
   std::vector<unsigned> indicesCategoricalSurrogatesInUse;
 
-  // first: identify the continuous and categorical variables, which are used for conditioning and which are not
+  // 1- identify the continuous and categorical variables, which are used for conditioning and which are not
   for (unsigned i = 0; i < conditioningInfo.size(); i++)
   {
+    std::cout << "condition with info " << conditioningInfo[i].first << " and " << conditioningInfo[i].second
+              << std::endl;
     if (conditioningInfo[i].first)
-    { // only variables that are used for conditioning are of interest here
+    {
+      std::cout << "taking it" << std::endl;
+      // only variables that are used for conditioning are of interest here
       if (surrogateTypesInfo.types[i] == DataItemWithSurrogatesType::Continuous)
       {
+        std::cout << "conditioningInfo with indix " << i << std::endl;
         nbContinuousSurrogatesInUse++;
         indicesContinuousSurrogatesInUse.push_back(i);
       }
@@ -88,12 +87,19 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
       }
     }
   }
-  conditions->resize(nbContinuousSurrogatesInUse);
+
+  conditions.resize(nbContinuousSurrogatesInUse);
+
   for (unsigned i = 0; i < nbContinuousSurrogatesInUse; i++)
-    (*conditions)(i) = conditioningInfo[i].second;
-  surrogateMatrix->resize(nbContinuousSurrogatesInUse,
-                          sampleDataList.size()); // number of variables is now known: nbContinuousSurrogatesInUse ; the
-                                                  // number of samples is yet unknown...
+  {
+    std::cout << "continuous number " << i << std::endl;
+    std::cout << "conditioning info with indix " << i << "is taken  = " << conditioningInfo[i].second << std::endl;
+    conditions(i) = conditioningInfo[i].second;
+  }
+
+  surrogateMatrix.resize(nbContinuousSurrogatesInUse,
+                         sampleDataList.size()); // number of variables is now known: nbContinuousSurrogatesInUse ; the
+                                                 // number of samples is yet unknown...
 
   // now, browse all samples to select the ones which fall into the requested categories
   for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
@@ -123,41 +129,46 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
 
     if (acceptSample)
     { // if the sample is of the right category
-      acceptedSamples->push_back(*it);
+      acceptedSamples.push_back(*it);
       // and fill in the matrix of continuous variables
       for (unsigned j = 0; j < nbContinuousSurrogatesInUse; j++)
       {
-        (*surrogateMatrix)(j, nbAcceptedSamples) = surrogateData[indicesContinuousSurrogatesInUse[j]];
+        surrogateMatrix(j, nbAcceptedSamples) = surrogateData[indicesContinuousSurrogatesInUse[j]];
       }
       nbAcceptedSamples++;
     }
   }
   // resize the matrix of surrogate data to the effective number of accepted samples
-  surrogateMatrix->conservativeResize(Eigen::NoChange_t(), nbAcceptedSamples);
+  surrogateMatrix.conservativeResize(Eigen::NoChange_t(), nbAcceptedSamples);
 
   return nbAcceptedSamples;
 }
 
 template <typename T>
-typename ConditionalModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename ConditionalModelBuilder<T>::StatisticalModelType>
 ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sampleDataList,
                                           const SurrogateTypeInfoType &       surrogateTypesInfo,
                                           const CondVariableValueVectorType & conditioningInfo,
                                           float                               noiseVariance,
                                           double                              modelVarianceRetained) const
 {
+  if (conditioningInfo.size() != surrogateTypesInfo.types.size())
+  {
+    throw StatisticalModelException("mismatch between conditioning info size and surrogates info size");
+  }
+
   DataItemListType acceptedSamples;
   MatrixType       X;
   VectorType       x0;
-  unsigned nSamples = PrepareData(sampleDataList, surrogateTypesInfo, conditioningInfo, &acceptedSamples, &X, &x0);
+  unsigned         nSamples = PrepareData(sampleDataList, surrogateTypesInfo, conditioningInfo, acceptedSamples, X, x0);
   assert(nSamples == acceptedSamples.size());
 
   unsigned nCondVariables = X.rows();
 
   // build a normal PCA model
   typedef PCAModelBuilder<T> PCAModelBuilderType;
-  PCAModelBuilderType *      modelBuilder = PCAModelBuilderType::Create();
-  StatisticalModelType *     pcaModel = modelBuilder->BuildNewModel(acceptedSamples, noiseVariance);
+  auto                       modelBuilder = PCAModelBuilderType::SafeCreate();
+  auto                       pcaModel = modelBuilder->BuildNewModel(acceptedSamples, noiseVariance);
 
   unsigned nPCAComponents = pcaModel->GetNumberOfPrincipalComponents();
 
@@ -235,7 +246,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
     MatrixType newPCABasisMatrix =
       (pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).leftCols(numComponentsToKeep);
 
-    StatisticalModelType * model = StatisticalModelType::Create(
+    auto model = StatisticalModelType::SafeCreate(
       pcaModel->GetRepresenter(), condMeanSample, newPCABasisMatrix, newPCAVariance, noiseVariance);
 
     // add builder info and data info to the info list
@@ -280,7 +291,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
     ModelInfo info(scores, biList);
     model->SetModelInfo(info);
 
-    delete pcaModel;
+    // delete pcaModel;
 
     return model;
   }

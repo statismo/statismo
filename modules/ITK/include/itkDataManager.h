@@ -45,8 +45,11 @@
 #include <itkObject.h>
 #include <itkObjectFactory.h>
 
+#include "itkUtils.h"
 #include "DataManager.h"
 #include "statismoITKConfig.h"
+#include "ImplWrapper.h"
+#include "itkUtils.h"
 
 namespace itk
 {
@@ -57,7 +60,9 @@ namespace itk
  * \see statismo::DataManager for detailed documentation.
  */
 template <class T>
-class DataManager : public Object
+class DataManager
+  : public Object
+  , public statismo::ImplWrapper<statismo::BasicDataManager<T>>
 {
 public:
   typedef DataManager              Self;
@@ -68,71 +73,26 @@ public:
   itkNewMacro(Self);
   itkTypeMacro(DataManager, Object);
 
+  typedef typename statismo::BasicDataManager<T>::DataItemType     DataItemType;
+  typedef typename statismo::BasicDataManager<T>::DataItemListType DataItemListType;
+  typedef statismo::Representer<T>                                 RepresenterType;
 
-  typedef statismo::DataManager<T>                            ImplType;
-  typedef typename statismo::DataManager<T>::DataItemType     DataItemType;
-  typedef typename statismo::DataManager<T>::DataItemListType DataItemListType;
-  typedef statismo::Representer<T>                            RepresenterType;
+  using ImplType = typename statismo::ImplWrapper<statismo::BasicDataManager<T>>::ImplType;
 
-  template <class F>
-  typename std::result_of<F()>::type
-  callstatismoImpl(F f) const
-  {
-    if (m_impl == 0)
-    {
-      itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
-    }
-    try
-    {
-      return f();
-    }
-    catch (statismo::StatisticalModelException & s)
-    {
-      itkExceptionMacro(<< s.what());
-    }
-  }
+  DataManager() {}
 
-
-  DataManager()
-    : m_impl(0)
-  {}
-
-  virtual ~DataManager()
-  {
-    if (m_impl)
-    {
-      delete m_impl;
-      m_impl = 0;
-    }
-  }
-
-  ImplType *
-  GetstatismoImplObj() const
-  {
-    return m_impl;
-  }
-
-
-  void
-  SetstatismoImplObj(ImplType * impl)
-  {
-    if (m_impl)
-    {
-      delete m_impl;
-    }
-    m_impl = impl;
-  }
+  virtual ~DataManager() {}
 
   void
   SetRepresenter(const RepresenterType * representer)
   {
-    SetstatismoImplObj(ImplType::Create(representer));
+    this->SetStatismoImplObj(representer);
   }
 
   void
   AddDataset(typename RepresenterType::DatasetType * ds, const char * filename)
   {
-    callstatismoImpl(std::bind(&ImplType::AddDataset, this->m_impl, ds, filename));
+    this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::AddDataset, ds, filename);
   }
 
   void
@@ -140,7 +100,7 @@ public:
   {
     try
     {
-      SetstatismoImplObj(ImplType::Load(filename));
+      this->SetStatismoImplObj(ImplType::Load(filename));
     }
     catch (statismo::StatisticalModelException & s)
     {
@@ -151,22 +111,14 @@ public:
   void
   Save(const char * filename)
   {
-    callstatismoImpl(std::bind(&ImplType::Save, this->m_impl, filename));
+    this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::Save, filename);
   }
 
   typename statismo::DataManager<T>::DataItemListType
   GetData() const
   {
-    return callstatismoImpl(std::bind(&ImplType::GetData, this->m_impl));
+    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetData);
   }
-
-
-private:
-  DataManager(const DataManager & orig);
-  DataManager &
-  operator=(const DataManager & rhs);
-
-  ImplType * m_impl;
 };
 
 

@@ -105,7 +105,7 @@ public:
    */
   template <class T>
   static void
-  readMatrixOfType(const H5::H5Location & fg, const char * name, typename GenericEigenType<T>::MatrixType & matrix);
+  readMatrixOfType(const H5::H5Location & fg, const char * name, typename GenericEigenTraits<T>::MatrixType & matrix);
 
   /**
    * Write a Matrix to the HDF5 File
@@ -124,9 +124,9 @@ public:
    */
   template <class T>
   static H5::DataSet
-  writeMatrixOfType(const H5::H5Location &                           fg,
-                    const char *                                     name,
-                    const typename GenericEigenType<T>::MatrixType & matrix);
+  writeMatrixOfType(const H5::H5Location &                             fg,
+                    const char *                                       name,
+                    const typename GenericEigenTraits<T>::MatrixType & matrix);
 
 
   /**
@@ -151,7 +151,7 @@ public:
 
   template <class T>
   static void
-  readVectorOfType(const H5::H5Location & fg, const char * name, typename GenericEigenType<T>::VectorType & vector);
+  readVectorOfType(const H5::H5Location & fg, const char * name, typename GenericEigenTraits<T>::VectorType & vector);
 
   /**
    * Write a vector to the HDF5 File
@@ -164,9 +164,9 @@ public:
 
   template <class T>
   static H5::DataSet
-  writeVectorOfType(const H5::H5Location &                           fg,
-                    const char *                                     name,
-                    const typename GenericEigenType<T>::VectorType & vector);
+  writeVectorOfType(const H5::H5Location &                             fg,
+                    const char *                                       name,
+                    const typename GenericEigenTraits<T>::VectorType & vector);
 
 
   /**

@@ -126,9 +126,8 @@ main(int argc, char ** argv)
 
     vtkPolyData * partialShape = loadVTKPolyData(partialShapeMeshName);
 
-    RepresenterType *                     representer = RepresenterType::Create();
-    std::unique_ptr<StatisticalModelType> inputModel(
-      statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, inputModelName));
+    auto          representer = RepresenterType::SafeCreate();
+    auto          inputModel = statismo::IO<vtkPolyData>::LoadStatisticalModel(representer.get(), inputModelName);
     vtkPolyData * refPd = const_cast<vtkPolyData *>(inputModel->GetRepresenter()->GetReference());
 
 
@@ -154,9 +153,8 @@ main(int argc, char ** argv)
     // build the new model. In addition to the input model and the constraints, we also specify
     // the inaccuracy of our value (variance of the error).
 
-    std::unique_ptr<PosteriorModelBuilderType> posteriorModelBuilder(PosteriorModelBuilderType::Create());
-    std::unique_ptr<StatisticalModelType>      constraintModel(
-      posteriorModelBuilder->BuildNewModelFromModel(inputModel.get(), constraints, 0.5));
+    auto posteriorModelBuilder = PosteriorModelBuilderType::SafeCreate();
+    auto constraintModel = posteriorModelBuilder->BuildNewModelFromModel(inputModel.get(), constraints, 0.5);
 
 
     // The resulting model is a normal statistical model, from which we could for example sample examples.

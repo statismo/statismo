@@ -33,57 +33,43 @@
  *
  */
 
-#ifndef __CLONABLE_H_
-#define __CLONABLE_H_
+#ifndef REFLECT_H_
+#define REFLECT_H_
 
-#include "CommonTypes.h"
+#include <type_traits>
 
-#include <memory>
-
+// Compile-time reflection utilities
 namespace statismo
 {
-
-/* \class Clonable base class
- */
-template <typename Derived>
-class Clonable
+namespace details
 {
-public:
-  virtual ~Clonable() = default;
-  Clonable() = default;
-  Clonable(Clonable &&) = delete;
-  Clonable &
-  operator=(Clonable &&) = delete;
-  Clonable &
-  operator=(const Clonable &) = delete;
+// general compile-time validator (ref: C++ template the complete guide)
+template <typename F, typename... Args, typename = decltype(std::declval<F>()(std::declval<Args &&>()...))>
+auto
+is_valid_impl(void *) -> std::true_type;
 
-  Derived *
-  CloneSelf() const
-  {
-    return this->CloneImpl();
-  }
+template <typename F, typename... Args>
+auto
+is_valid_impl(...) -> std::false_type;
+} // namespace details
 
-  std::unique_ptr<Derived, DefaultDeletor<Derived>>
-  SafeCloneSelf() const
-  {
-    return SafeCloneSelfWithCustomDeletor<DefaultDeletor<Derived>>();
-  }
-
-  template <typename Deletor>
-  std::unique_ptr<Derived, Deletor>
-  SafeCloneSelfWithCustomDeletor() const
-  {
-    std::unique_ptr<Derived, Deletor> ptr{ this->CloneImpl(), Deletor() };
-    return ptr;
-  }
-
-protected:
-  Clonable(const Clonable &) = default;
-
-private:
-  virtual Derived *
-  CloneImpl() const = 0;
+inline constexpr auto is_valid = [](auto f) {
+  using input_type = decltype(f);
+  return [](auto &&... args) { return decltype(details::is_valid_impl<input_type, decltype(args) &&...>(nullptr)){}; };
 };
+
+template <typename T>
+struct type_t
+{
+  using type = T;
+};
+
+template <typename T>
+constexpr auto type = type_t<T>{};
+
+template <typename T>
+T value_t(type_t<T>);
+
 } // namespace statismo
 
 #endif

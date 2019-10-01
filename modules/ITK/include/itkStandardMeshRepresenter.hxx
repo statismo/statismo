@@ -101,8 +101,8 @@ StandardMeshRepresenter<TPixel, MeshDimension>::LoadRef(const H5::Group & fg) co
   statismo::MatrixType vertexMat;
   statismo::HDF5Utils::readMatrix(fg, "./points", vertexMat);
 
-  typedef typename statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
-  UIntMatrixType                                                        cellsMat;
+  typedef typename statismo::GenericEigenTraits<unsigned int>::MatrixType UIntMatrixType;
+  UIntMatrixType                                                          cellsMat;
   statismo::HDF5Utils::readMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
 
   unsigned nVertices = vertexMat.cols();
@@ -366,7 +366,7 @@ StandardMeshRepresenter<TPixel, MeshDimension>::Save(const H5::Group & fg) const
     numPointsPerCell = cellPtr->GetNumberOfPoints();
   }
 
-  typedef typename statismo::GenericEigenType<unsigned int>::MatrixType UIntMatrixType;
+  typedef typename statismo::GenericEigenTraits<unsigned int>::MatrixType UIntMatrixType;
   UIntMatrixType facesMat = UIntMatrixType::Zero(numPointsPerCell, m_reference->GetNumberOfCells());
 
 

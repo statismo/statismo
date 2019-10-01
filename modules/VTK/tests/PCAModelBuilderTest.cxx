@@ -96,7 +96,7 @@ PCAModelBuilderTest(int argc, char ** argv)
 
 
   typedef vtkStandardMeshRepresenter              RepresenterType;
-  typedef statismo::DataManager<vtkPolyData>      DataManagerType;
+  typedef statismo::BasicDataManager<vtkPolyData> DataManagerType;
   typedef vtkStandardMeshRepresenter::PointType   PointType;
   typedef vtkStandardMeshRepresenter::DomainType  DomainType;
   typedef DomainType::DomainPointsListType        DomainPointsListType;
@@ -131,10 +131,10 @@ PCAModelBuilderTest(int argc, char ** argv)
   double                                         data_noise = 0;
   typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
   PCAModelBuilderType *                          pcaModelBuilder = PCAModelBuilderType::Create();
-  StatisticalModelType *                         PCAModel;
+  // StatisticalModelType *                         PCAModel;
 
   // perform with standard argument
-  PCAModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(), data_noise, false);
+  auto       PCAModel = pcaModelBuilder->BuildNewModel(dataManager->GetData(), data_noise, false);
   VectorType variance1 = PCAModel->GetPCAVarianceVector();
 
   // max. acceptable difference between expected and calculated values in percent
@@ -180,10 +180,10 @@ PCAModelBuilderTest(int argc, char ** argv)
 
   typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
   PCAModelBuilderType *                          pcaModelBuilder2 = PCAModelBuilderType::Create();
-  StatisticalModelType *                         PCAModel2;
+  // StatisticalModelType *                         PCAModel2;
 
   // perform with standard argument
-  PCAModel2 = pcaModelBuilder2->BuildNewModel(dataManager2->GetData(), data_noise, false);
+  auto       PCAModel2 = pcaModelBuilder2->BuildNewModel(dataManager2->GetData(), data_noise, false);
   VectorType variance2 = PCAModel2->GetPCAVarianceVector();
 
   if (CompareVectors(variance2, baselineVariance2) < maxPermittedDifference)

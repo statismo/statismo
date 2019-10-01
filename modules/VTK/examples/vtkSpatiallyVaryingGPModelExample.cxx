@@ -179,12 +179,12 @@ main(int argc, char ** argv)
 
     // We create a new model using the combined kernel. The new model will be more flexible than the original
     // statistical model.
-    ModelBuilderType * modelBuilder = ModelBuilderType::Create(representer);
+    auto modelBuilder = ModelBuilderType::SafeCreate(representer);
 
-    StatisticalModelType * newModel = modelBuilder->BuildNewModel(referenceMesh, temperedKernel, numberOfComponents);
+    auto newModel = modelBuilder->BuildNewModel(referenceMesh, temperedKernel, numberOfComponents);
 
     // Once we have built the model, we can save it to disk.
-    statismo::IO<vtkPolyData>::SaveStatisticalModel(newModel, outputModelFilename);
+    statismo::IO<vtkPolyData>::SaveStatisticalModel(newModel.get(), outputModelFilename);
     std::cout << "Successfully saved shape model as " << outputModelFilename << std::endl;
 
     referenceMesh->Delete();

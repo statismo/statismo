@@ -133,7 +133,7 @@ itkExample(const char * referenceFilename, double gaussianKernelSigma, const cha
 
   typename ModelBuilderType::Pointer gpModelBuilder = ModelBuilderType::New();
   gpModelBuilder->SetRepresenter(representer);
-  typename StatisticalModelType::Pointer model = gpModelBuilder->BuildNewZeroMeanModel(scaledGk, 100);
+  auto model = gpModelBuilder->BuildNewZeroMeanModel(scaledGk, 100);
   itk::StatismoIO<ImageType>::SaveStatisticalModel(model, modelname);
 }
 

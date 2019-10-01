@@ -121,8 +121,8 @@ itkExample(const char * dir, const char * modelname, double noiseVariance)
     dataManager->AddDataset(df, fullpath.c_str());
   }
 
-  typename ModelBuilderType::Pointer     pcaModelBuilder = ModelBuilderType::New();
-  typename StatisticalModelType::Pointer model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), noiseVariance);
+  typename ModelBuilderType::Pointer pcaModelBuilder = ModelBuilderType::New();
+  auto                               model = pcaModelBuilder->BuildNewModel(dataManager->GetData(), noiseVariance);
   itk::StatismoIO<ImageType>::SaveStatisticalModel(model, modelname);
 }
 

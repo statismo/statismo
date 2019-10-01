@@ -58,33 +58,35 @@ namespace statismo
  *
  */
 template <typename Representer>
-class ReducedVarianceModelBuilder : public ModelBuilder<Representer>
+class ReducedVarianceModelBuilder : public ModelBuilderBase<Representer, ReducedVarianceModelBuilder<Representer>>
 {
 
 
 public:
-  typedef ModelBuilder<Representer>                 Superclass;
-  typedef typename Superclass::StatisticalModelType StatisticalModelType;
+  typedef ModelBuilderBase<Representer, ReducedVarianceModelBuilder<Representer>> Superclass;
+  typedef typename Superclass::StatisticalModelType                               StatisticalModelType;
+
+  friend typename Superclass::ObjectFactoryType;
 
   /**
    * Factory method to create a new ReducedVarianceModelBuilder
    */
-  static ReducedVarianceModelBuilder *
+  /*static ReducedVarianceModelBuilder *
   Create()
   {
     return new ReducedVarianceModelBuilder();
-  }
+  }*/
 
   /**
    * Destroy the object.
    * The same effect can be achieved by deleting the object in the usual
    * way using the c++ delete keyword.
    */
-  void
+  /*void
   Delete()
   {
     delete this;
-  }
+  }*/
 
 
   /**
@@ -101,7 +103,7 @@ public:
    *
    * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModelWithLeadingComponents(const StatisticalModelType * model, unsigned numberOfPrincipalComponents) const;
 
 
@@ -114,11 +116,11 @@ public:
    *
    * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModelWithVariance(const StatisticalModelType * model, double totalVariance) const;
 
 
-  is_deprecated StatisticalModelType *
+  is_deprecated UniquePtrType<StatisticalModelType>
                 BuildNewModelFromModel(const StatisticalModelType * model, double totalVariance) const;
 
 

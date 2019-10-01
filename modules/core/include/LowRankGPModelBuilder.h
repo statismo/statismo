@@ -66,40 +66,42 @@ struct EigenfunctionComputationResult
  */
 
 template <typename T>
-class LowRankGPModelBuilder : public ModelBuilder<T>
+class LowRankGPModelBuilder : public ModelBuilderBase<T, LowRankGPModelBuilder<T>>
 {
 
 public:
   typedef Representer<T>                      RepresenterType;
   typedef typename RepresenterType::PointType PointType;
 
-  typedef ModelBuilder<T>                           Superclass;
-  typedef typename Superclass::StatisticalModelType StatisticalModelType;
+  typedef ModelBuilderBase<T, LowRankGPModelBuilder<T>> Superclass;
+  typedef typename Superclass::StatisticalModelType     StatisticalModelType;
 
   typedef Domain<PointType>                         DomainType;
   typedef typename DomainType::DomainPointsListType DomainPointsListType;
 
   typedef MatrixValuedKernel<PointType> MatrixValuedKernelType;
 
+  friend typename Superclass::ObjectFactoryType;
+
   /**
    * Factory method to create a new ModelBuilder
    */
-  static LowRankGPModelBuilder *
+  /*static LowRankGPModelBuilder *
   Create(const RepresenterType * representer)
   {
     return new LowRankGPModelBuilder(representer);
-  }
+  }*/
 
   /**
    * Destroy the object.
    * The same effect can be achieved by deleting the object in the usual
    * way using the c++ delete keyword.
    */
-  void
+  /*void
   Delete()
   {
     delete this;
-  }
+  }*/
 
   /**
    * The desctructor
@@ -115,7 +117,7 @@ public:
    *
    * \return a new statistical model representing the given Gaussian process
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewZeroMeanModel(const MatrixValuedKernelType & kernel,
                         unsigned                       numComponents,
                         unsigned                       numPointsForNystrom = 500) const
@@ -133,7 +135,7 @@ public:
    *
    * \return a new statistical model representing the given Gaussian process
    */
-  StatisticalModelType *
+  UniquePtrType<StatisticalModelType>
   BuildNewModel(typename RepresenterType::DatasetConstPointerType mean,
                 const MatrixValuedKernelType &                    kernel,
                 unsigned                                          numComponents,
@@ -199,7 +201,7 @@ public:
 
     RowVectorType mu = m_representer->SampleToSampleVector(mean);
 
-    StatisticalModelType * model = StatisticalModelType::Create(m_representer, mu, pcaBasis, pcaVariance, 0);
+    auto model = StatisticalModelType::SafeCreate(m_representer, mu, pcaBasis, pcaVariance, 0);
 
     // the model builder does not use any data. Hence the scores and the datainfo is emtpy
     MatrixType                         scores; // no scores

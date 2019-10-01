@@ -75,6 +75,7 @@ public:
   using Base =
     statismo::RepresenterBase<itk::Image<TPixel, ImageDimension>, StandardImageRepresenter<TPixel, ImageDimension>>;
   friend Base;
+  friend typename Base::ObjectFactoryType;
 
   /** New macro for creation of through a Smart Pointer. */
   itkSimpleNewMacro(Self);

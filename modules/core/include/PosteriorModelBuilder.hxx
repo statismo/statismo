@@ -62,7 +62,7 @@ PosteriorModelBuilder<T>::PosteriorModelBuilder()
 
 
 template <typename T>
-typename PosteriorModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename PosteriorModelBuilder<T>::StatisticalModelType>
 PosteriorModelBuilder<T>::BuildNewModel(const DataItemListType &   sampleDataList,
                                         const PointValueListType & pointValues,
                                         double                     pointValuesNoiseVariance,
@@ -75,7 +75,7 @@ PosteriorModelBuilder<T>::BuildNewModel(const DataItemListType &   sampleDataLis
 
 
 template <typename T>
-typename PosteriorModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename PosteriorModelBuilder<T>::StatisticalModelType>
 PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType * inputModel,
                                                  const PointValueListType &   pointValues,
                                                  double                       pointValuesNoiseVariance,
@@ -108,23 +108,21 @@ PosteriorModelBuilder<T>::TrivialPointValueWithCovarianceListWithUniformNoise(co
 
 
 template <typename T>
-typename PosteriorModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename PosteriorModelBuilder<T>::StatisticalModelType>
 PosteriorModelBuilder<T>::BuildNewModel(const DataItemListType &                 sampleDataList,
                                         const PointValueWithCovarianceListType & pointValuesWithCovariance,
                                         double                                   noiseVariance) const
 {
   typedef PCAModelBuilder<T> PCAModelBuilderType;
-  PCAModelBuilderType *      modelBuilder = PCAModelBuilderType::Create();
-  StatisticalModelType *     model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
-  StatisticalModelType *     PosteriorModel = BuildNewModelFromModel(model, pointValuesWithCovariance, noiseVariance);
-  delete modelBuilder;
-  delete model;
+  auto                       modelBuilder = PCAModelBuilderType::SafeCreate();
+  auto                       model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
+  auto PosteriorModel = BuildNewModelFromModel(model.get(), pointValuesWithCovariance, noiseVariance);
   return PosteriorModel;
 }
 
 
 template <typename T>
-typename PosteriorModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename PosteriorModelBuilder<T>::StatisticalModelType>
 PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *             inputModel,
                                                  const PointValueWithCovarianceListType & pointValuesWithCovariance,
                                                  bool                                     computeScores) const
@@ -219,7 +217,7 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
   // Todo: Maybe it is possible to do this with Q, so that we don"t need to get U as well.
   MatrixType U_c = inputModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>();
 
-  StatisticalModelType * PosteriorModel = StatisticalModelType::Create(representer, mu_c, U_c, D_c, rho2);
+  auto PosteriorModel = StatisticalModelType::SafeCreate(representer, mu_c, U_c, D_c, rho2);
 
   // Write the parameters used to build the models into the builderInfo
 

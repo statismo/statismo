@@ -44,6 +44,7 @@
 #include "CommonTypes.h"
 #include "DataManager.h"
 #include "StatisticalModel.h"
+#include "GenericFactory.h"
 
 namespace statismo
 {
@@ -58,7 +59,7 @@ class ModelBuilder
 public:
   typedef Representer<T>                             RepresenterType;
   typedef StatisticalModel<T>                        StatisticalModelType;
-  typedef DataManager<T>                             DataManagerType;
+  typedef BasicDataManager<T>                        DataManagerType;
   typedef typename DataManagerType::DataItemListType DataItemListType;
 
   // Values below this tolerance are treated as 0.
@@ -111,7 +112,28 @@ private:
 template <class Representer>
 const double ModelBuilder<Representer>::TOLERANCE = 1e-5;
 
-} // namespace statismo
+/**
+ * \brief Base class for model builder
+ *
+ * The main purposes of this class are:
+ *  - gathering model builder common code (creation/deletion) in a generic way
+ */
+template <typename T, typename Derived>
+class ModelBuilderBase
+  : public ModelBuilder<T>
+  , public GenericFactory<Derived>
+{
+public:
+  using ObjectFactoryType = GenericFactory<Derived>;
 
+  /// Delete basic implementation
+  virtual void
+  Delete() const
+  {
+    delete this;
+  }
+};
+
+} // namespace statismo
 
 #endif /* __MODELBUILDER_H_ */

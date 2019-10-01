@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef __CLONABLE_H_
-#define __CLONABLE_H_
+#ifndef GENERIC_FACTORY_H_
+#define GENERIC_FACTORY_H_
 
 #include "CommonTypes.h"
 
@@ -43,46 +43,36 @@
 namespace statismo
 {
 
-/* \class Clonable base class
+/* \class Generic factory class
  */
-template <typename Derived>
-class Clonable
+template <typename T>
+class GenericFactory
 {
 public:
-  virtual ~Clonable() = default;
-  Clonable() = default;
-  Clonable(Clonable &&) = delete;
-  Clonable &
-  operator=(Clonable &&) = delete;
-  Clonable &
-  operator=(const Clonable &) = delete;
-
-  Derived *
-  CloneSelf() const
+  /**
+   * Generic object factory for model
+   */
+  template <typename... Args>
+  static T *
+  Create(Args &&... args)
   {
-    return this->CloneImpl();
+    return new T{ std::forward<Args>(args)... };
   }
 
-  std::unique_ptr<Derived, DefaultDeletor<Derived>>
-  SafeCloneSelf() const
+  template <typename... Args>
+  static std::unique_ptr<T, DefaultDeletor<T>>
+  SafeCreate(Args &&... args)
   {
-    return SafeCloneSelfWithCustomDeletor<DefaultDeletor<Derived>>();
+    return SafeCreateWithCustomDeletor<DefaultDeletor<T>>(std::forward<Args>(args)...);
   }
 
-  template <typename Deletor>
-  std::unique_ptr<Derived, Deletor>
-  SafeCloneSelfWithCustomDeletor() const
+  template <typename Deletor, typename... Args>
+  static std::unique_ptr<T, Deletor>
+  SafeCreateWithCustomDeletor(Args &&... args)
   {
-    std::unique_ptr<Derived, Deletor> ptr{ this->CloneImpl(), Deletor() };
+    std::unique_ptr<T, Deletor> ptr{ new T{ std::forward<Args>(args)... }, Deletor() };
     return ptr;
   }
-
-protected:
-  Clonable(const Clonable &) = default;
-
-private:
-  virtual Derived *
-  CloneImpl() const = 0;
 };
 } // namespace statismo
 

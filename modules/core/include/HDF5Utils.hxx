@@ -120,18 +120,18 @@ HDF5Utils::openPath(H5::H5File & file, const std::string & path, bool createPath
 
 template <class T>
 inline void
-HDF5Utils::readMatrixOfType(const H5::H5Location &                     fg,
-                            const char *                               name,
-                            typename GenericEigenType<T>::MatrixType & matrix)
+HDF5Utils::readMatrixOfType(const H5::H5Location &                       fg,
+                            const char *                                 name,
+                            typename GenericEigenTraits<T>::MatrixType & matrix)
 {
   throw StatisticalModelException("Invalid type proided for writeMatrixOfType");
 }
 
 template <>
 inline void
-HDF5Utils::readMatrixOfType<unsigned int>(const H5::H5Location &                       fg,
-                                          const char *                                 name,
-                                          GenericEigenType<unsigned int>::MatrixType & matrix)
+HDF5Utils::readMatrixOfType<unsigned int>(const H5::H5Location &                         fg,
+                                          const char *                                   name,
+                                          GenericEigenTraits<unsigned int>::MatrixType & matrix)
 {
   H5::DataSet ds = fg.openDataSet(name);
   hsize_t     dims[2];
@@ -144,9 +144,9 @@ HDF5Utils::readMatrixOfType<unsigned int>(const H5::H5Location &                
 
 template <>
 inline void
-HDF5Utils::readMatrixOfType<float>(const H5::H5Location &                fg,
-                                   const char *                          name,
-                                   GenericEigenType<float>::MatrixType & matrix)
+HDF5Utils::readMatrixOfType<float>(const H5::H5Location &                  fg,
+                                   const char *                            name,
+                                   GenericEigenTraits<float>::MatrixType & matrix)
 {
   H5::DataSet ds = fg.openDataSet(name);
   hsize_t     dims[2];
@@ -159,9 +159,9 @@ HDF5Utils::readMatrixOfType<float>(const H5::H5Location &                fg,
 
 template <>
 inline void
-HDF5Utils::readMatrixOfType<double>(const H5::H5Location &                 fg,
-                                    const char *                           name,
-                                    GenericEigenType<double>::MatrixType & matrix)
+HDF5Utils::readMatrixOfType<double>(const H5::H5Location &                   fg,
+                                    const char *                             name,
+                                    GenericEigenTraits<double>::MatrixType & matrix)
 {
   H5::DataSet ds = fg.openDataSet(name);
   hsize_t     dims[2];
@@ -219,18 +219,18 @@ HDF5Utils::readMatrix(const H5::H5Location & fg, const char * name, unsigned max
 
 template <class T>
 inline H5::DataSet
-HDF5Utils::writeMatrixOfType(const H5::H5Location &                           fg,
-                             const char *                                     name,
-                             const typename GenericEigenType<T>::MatrixType & matrix)
+HDF5Utils::writeMatrixOfType(const H5::H5Location &                             fg,
+                             const char *                                       name,
+                             const typename GenericEigenTraits<T>::MatrixType & matrix)
 {
   throw StatisticalModelException("Invalid type proided for writeMatrixOfType");
 }
 
 template <>
 inline H5::DataSet
-HDF5Utils::writeMatrixOfType<unsigned int>(const H5::H5Location &                             fg,
-                                           const char *                                       name,
-                                           const GenericEigenType<unsigned int>::MatrixType & matrix)
+HDF5Utils::writeMatrixOfType<unsigned int>(const H5::H5Location &                               fg,
+                                           const char *                                         name,
+                                           const GenericEigenTraits<unsigned int>::MatrixType & matrix)
 {
   // HDF5 does not like empty matrices.
   //
@@ -247,9 +247,9 @@ HDF5Utils::writeMatrixOfType<unsigned int>(const H5::H5Location &               
 
 template <>
 inline H5::DataSet
-HDF5Utils::writeMatrixOfType<float>(const H5::H5Location &                      fg,
-                                    const char *                                name,
-                                    const GenericEigenType<float>::MatrixType & matrix)
+HDF5Utils::writeMatrixOfType<float>(const H5::H5Location &                        fg,
+                                    const char *                                  name,
+                                    const GenericEigenTraits<float>::MatrixType & matrix)
 {
   // HDF5 does not like empty matrices.
   //
@@ -266,9 +266,9 @@ HDF5Utils::writeMatrixOfType<float>(const H5::H5Location &                      
 
 template <>
 inline H5::DataSet
-HDF5Utils::writeMatrixOfType<double>(const H5::H5Location &                       fg,
-                                     const char *                                 name,
-                                     const GenericEigenType<double>::MatrixType & matrix)
+HDF5Utils::writeMatrixOfType<double>(const H5::H5Location &                         fg,
+                                     const char *                                   name,
+                                     const GenericEigenTraits<double>::MatrixType & matrix)
 {
   // HDF5 does not like empty matrices.
   //
@@ -293,18 +293,18 @@ HDF5Utils::writeMatrix(const H5::H5Location & fg, const char * name, const Matri
 
 template <class T>
 inline void
-HDF5Utils::readVectorOfType(const H5::H5Location &                     fg,
-                            const char *                               name,
-                            typename GenericEigenType<T>::VectorType & vector)
+HDF5Utils::readVectorOfType(const H5::H5Location &                       fg,
+                            const char *                                 name,
+                            typename GenericEigenTraits<T>::VectorType & vector)
 {
   throw StatisticalModelException("Invalid type proided for readVectorOfType");
 }
 
 template <>
 inline void
-HDF5Utils::readVectorOfType<double>(const H5::H5Location &                 fg,
-                                    const char *                           name,
-                                    GenericEigenType<double>::VectorType & vector)
+HDF5Utils::readVectorOfType<double>(const H5::H5Location &                   fg,
+                                    const char *                             name,
+                                    GenericEigenTraits<double>::VectorType & vector)
 {
   H5::DataSet ds = fg.openDataSet(name);
   hsize_t     dims[1];
@@ -315,9 +315,9 @@ HDF5Utils::readVectorOfType<double>(const H5::H5Location &                 fg,
 
 template <>
 inline void
-HDF5Utils::readVectorOfType<float>(const H5::H5Location &                fg,
-                                   const char *                          name,
-                                   GenericEigenType<float>::VectorType & vector)
+HDF5Utils::readVectorOfType<float>(const H5::H5Location &                  fg,
+                                   const char *                            name,
+                                   GenericEigenTraits<float>::VectorType & vector)
 {
   H5::DataSet ds = fg.openDataSet(name);
   hsize_t     dims[1];
@@ -328,9 +328,9 @@ HDF5Utils::readVectorOfType<float>(const H5::H5Location &                fg,
 
 template <>
 inline void
-HDF5Utils::readVectorOfType<int>(const H5::H5Location &              fg,
-                                 const char *                        name,
-                                 GenericEigenType<int>::VectorType & vector)
+HDF5Utils::readVectorOfType<int>(const H5::H5Location &                fg,
+                                 const char *                          name,
+                                 GenericEigenTraits<int>::VectorType & vector)
 {
   H5::DataSet ds = fg.openDataSet(name);
   hsize_t     dims[1];
@@ -382,18 +382,18 @@ HDF5Utils::readVector(const H5::H5Location & fg, const char * name, unsigned max
 
 template <class T>
 inline H5::DataSet
-HDF5Utils::writeVectorOfType(const H5::H5Location &                           fg,
-                             const char *                                     name,
-                             const typename GenericEigenType<T>::VectorType & vector)
+HDF5Utils::writeVectorOfType(const H5::H5Location &                             fg,
+                             const char *                                       name,
+                             const typename GenericEigenTraits<T>::VectorType & vector)
 {
   throw StatisticalModelException("Invalid type provided for writeVectorOfType");
 }
 
 template <>
 inline H5::DataSet
-HDF5Utils::writeVectorOfType<double>(const H5::H5Location &                       fg,
-                                     const char *                                 name,
-                                     const GenericEigenType<double>::VectorType & vector)
+HDF5Utils::writeVectorOfType<double>(const H5::H5Location &                         fg,
+                                     const char *                                   name,
+                                     const GenericEigenTraits<double>::VectorType & vector)
 {
   hsize_t     dims[1] = { static_cast<hsize_t>(vector.size()) };
   H5::DataSet ds = fg.createDataSet(name, H5::PredType::NATIVE_DOUBLE, H5::DataSpace(1, dims));
@@ -403,9 +403,9 @@ HDF5Utils::writeVectorOfType<double>(const H5::H5Location &                     
 
 template <>
 inline H5::DataSet
-HDF5Utils::writeVectorOfType<float>(const H5::H5Location &                      fg,
-                                    const char *                                name,
-                                    const GenericEigenType<float>::VectorType & vector)
+HDF5Utils::writeVectorOfType<float>(const H5::H5Location &                        fg,
+                                    const char *                                  name,
+                                    const GenericEigenTraits<float>::VectorType & vector)
 {
   hsize_t     dims[1] = { static_cast<hsize_t>(vector.size()) };
   H5::DataSet ds = fg.createDataSet(name, H5::PredType::NATIVE_FLOAT, H5::DataSpace(1, dims));
@@ -415,9 +415,9 @@ HDF5Utils::writeVectorOfType<float>(const H5::H5Location &                      
 
 template <>
 inline H5::DataSet
-HDF5Utils::writeVectorOfType<int>(const H5::H5Location &                    fg,
-                                  const char *                              name,
-                                  const GenericEigenType<int>::VectorType & vector)
+HDF5Utils::writeVectorOfType<int>(const H5::H5Location &                      fg,
+                                  const char *                                name,
+                                  const GenericEigenTraits<int>::VectorType & vector)
 {
   hsize_t     dims[1] = { static_cast<hsize_t>(vector.size()) };
   H5::DataSet ds = fg.createDataSet(name, H5::PredType::NATIVE_INT, H5::DataSpace(1, dims));

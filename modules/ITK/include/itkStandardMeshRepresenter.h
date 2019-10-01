@@ -49,6 +49,7 @@
 #include "CommonTypes.h"
 #include "Exceptions.h"
 #include "Representer.h"
+#include "Hash.h"
 
 #include "itkPixelConversionTraits.h"
 
@@ -93,6 +94,7 @@ public:
   using Base =
     statismo::RepresenterBase<itk::Mesh<TPixel, MeshDimension>, StandardMeshRepresenter<TPixel, MeshDimension>>;
   friend Base;
+  friend typename Base::ObjectFactoryType;
 
 
   typedef itk::Mesh<TPixel, MeshDimension>                      MeshType;

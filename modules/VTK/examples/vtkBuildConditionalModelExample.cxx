@@ -96,8 +96,8 @@ main(int argc, char ** argv)
     // We use the SurrogateDataManager, as we need to specify surrogate data in addition to the images.
     // We provide in addition to the representer also a file that contains a description of the surrogate
     // variables (e.g. whether they are categorical or continuous). See the API doc for more details.
-    std::unique_ptr<DataManagerWithSurrogatesType> dataManager(
-      DataManagerWithSurrogatesType::Create(representer.get(), datadir + "/surrogates/hand_surrogates_types.txt"));
+    auto * dataManager =
+      DataManagerWithSurrogatesType::Create(representer.get(), datadir + "/surrogates/hand_surrogates_types.txt");
 
     // add the data information. The first argument is the dataset, the second the surrogate information
     // and the 3rd the surrogate type
@@ -136,8 +136,9 @@ main(int argc, char ** argv)
     // Create the model builder and build the model
     std::unique_ptr<ConditionalModelBuilderType> modelBuilder(ConditionalModelBuilderType::Create());
 
-    std::unique_ptr<StatisticalModelType> model(
-      modelBuilder->BuildNewModel(dataManager->GetData(), dataManager->GetSurrogateTypeInfo(), conditioningInfo, 0.1));
+    auto model =
+      modelBuilder->BuildNewModel(dataManager->GetData(), dataManager->GetSurrogateTypeInfo(), conditioningInfo, 0.1);
+
     std::cout << "successfully built conditional model" << std::endl;
 
     // The resulting model is a normal statistical model, from which we could for example sample examples.

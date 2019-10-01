@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __DataManager_hxx
-#define __DataManager_hxx
+#ifndef __DataManagerBase_hxx
+#define __DataManagerBase_hxx
 
 #include <iostream>
 
@@ -50,33 +50,29 @@ namespace statismo
 // Data manager
 ////////////////////////////////////////////////
 
-template <typename T>
-DataManager<T>::DataManager(const RepresenterType * representer)
-  : m_representer(representer->CloneSelf())
+template <typename T, typename Derived>
+DataManagerBase<T, Derived>::DataManagerBase(const RepresenterType * representer)
+  : m_representer(representer->SafeCloneSelf())
 {}
 
-template <typename T>
-DataManager<T>::~DataManager()
+template <typename T, typename Derived>
+DataManagerBase<T, Derived>::~DataManagerBase()
 {
   for (typename DataItemListType::iterator it = m_DataItemList.begin(); it != m_DataItemList.end(); ++it)
   {
     delete (*it);
   }
   m_DataItemList.clear();
-  if (m_representer)
-  {
-    m_representer->Delete();
-  }
 }
 
 
-template <typename T>
-DataManager<T> *
-DataManager<T>::Load(Representer<T> * representer, const std::string & filename)
+template <typename T, typename Derived>
+DataManagerBase<T, Derived> *
+DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::string & filename)
 {
   using namespace H5;
 
-  DataManager<T> * newDataManager = 0;
+  DataManagerBase<T, Derived> * newDataManagerBase = 0;
 
   H5File file;
   try
@@ -128,7 +124,7 @@ DataManager<T>::Load(Representer<T> * representer, const std::string & filename)
 
     representer->Load(representerGroup);
     representerGroup.close();
-    newDataManager = new DataManager<T>(representer);
+    newDataManagerBase = new DataManagerBase<T, Derived>(representer);
 
 
     Group    publicGroup = file.openGroup("/data");
@@ -140,7 +136,7 @@ DataManager<T>::Load(Representer<T> * representer, const std::string & filename)
       ss << "./dataset-" << num;
 
       Group dsGroup = file.openGroup(ss.str().c_str());
-      newDataManager->m_DataItemList.push_back(DataItemType::Load(representer, dsGroup));
+      newDataManagerBase->m_DataItemList.push_back(DataItemType::Load(representer, dsGroup));
     }
   }
   catch (H5::Exception & e)
@@ -151,13 +147,13 @@ DataManager<T>::Load(Representer<T> * representer, const std::string & filename)
 
   file.close();
 
-  assert(newDataManager != 0);
-  return newDataManager;
+  assert(newDataManagerBase != 0);
+  return newDataManagerBase;
 }
 
-template <typename T>
+template <typename T, typename Derived>
 void
-DataManager<T>::Save(const std::string & filename) const
+DataManagerBase<T, Derived>::Save(const std::string & filename) const
 {
   using namespace H5;
 
@@ -215,28 +211,28 @@ DataManager<T>::Save(const std::string & filename) const
   file.close();
 }
 
-template <typename T>
+template <typename T, typename Derived>
 void
-DataManager<T>::AddDataset(DatasetConstPointerType dataset, const std::string & URI)
+DataManagerBase<T, Derived>::AddDataset(DatasetConstPointerType dataset, const std::string & URI)
 {
 
   DatasetPointerType sample;
   sample = m_representer->CloneDataset(dataset);
 
-  m_DataItemList.push_back(DataItemType::Create(m_representer, URI, m_representer->SampleToSampleVector(sample)));
+  m_DataItemList.push_back(DataItemType::Create(m_representer.get(), URI, m_representer->SampleToSampleVector(sample)));
   m_representer->DeleteDataset(sample);
 }
 
-template <typename T>
-typename DataManager<T>::DataItemListType
-DataManager<T>::GetData() const
+template <typename T, typename Derived>
+typename DataManagerBase<T, Derived>::DataItemListType
+DataManagerBase<T, Derived>::GetData() const
 {
   return m_DataItemList;
 }
 
-template <typename T>
-typename DataManager<T>::CrossValidationFoldListType
-DataManager<T>::GetCrossValidationFolds(unsigned nFolds, bool randomize) const
+template <typename T, typename Derived>
+typename DataManagerBase<T, Derived>::CrossValidationFoldListType
+DataManagerBase<T, Derived>::GetCrossValidationFolds(unsigned nFolds, bool randomize) const
 {
   if (nFolds <= 1 || nFolds > GetNumberOfSamples())
   {
@@ -286,9 +282,9 @@ DataManager<T>::GetCrossValidationFolds(unsigned nFolds, bool randomize) const
   return foldList;
 }
 
-template <typename T>
-typename DataManager<T>::CrossValidationFoldListType
-DataManager<T>::GetLeaveOneOutCrossValidationFolds() const
+template <typename T, typename Derived>
+typename DataManagerBase<T, Derived>::CrossValidationFoldListType
+DataManagerBase<T, Derived>::GetLeaveOneOutCrossValidationFolds() const
 {
   CrossValidationFoldListType foldList;
   for (unsigned currentFold = 0; currentFold < GetNumberOfSamples(); currentFold++)

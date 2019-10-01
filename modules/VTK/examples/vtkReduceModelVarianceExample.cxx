@@ -77,16 +77,14 @@ main(int argc, char ** argv)
 
     // To load a model, we call the static Load method, which returns (a pointer to) a
     // new StatisticalModel object
-    RepresenterType *                     representer = RepresenterType::Create();
-    std::unique_ptr<StatisticalModelType> model(
-      statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, inputModelName));
+    RepresenterType * representer = RepresenterType::Create();
+    auto              model = statismo::IO<vtkPolyData>::LoadStatisticalModel(representer, inputModelName);
     std::cout << "loaded model with variance of " << model->GetPCAVarianceVector().sum() << std::endl;
 
     std::unique_ptr<ReducedVarianceModelBuilderType> reducedVarModelBuilder(ReducedVarianceModelBuilderType::Create());
 
     // build a model with only half the variance
-    std::unique_ptr<StatisticalModelType> reducedModel(
-      reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5));
+    auto reducedModel = reducedVarModelBuilder->BuildNewModelWithVariance(model.get(), 0.5);
     std::cout << "new model has variance of " << reducedModel->GetPCAVarianceVector().sum() << std::endl;
 
     statismo::IO<vtkPolyData>::SaveStatisticalModel(reducedModel.get(), outputModelName);

@@ -56,17 +56,17 @@ ReducedVarianceModelBuilder<T>::ReducedVarianceModelBuilder()
 {}
 
 template <typename T>
-typename ReducedVarianceModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename ReducedVarianceModelBuilder<T>::StatisticalModelType>
 ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(const StatisticalModelType * inputModel,
                                                                    unsigned numberOfPrincipalComponents) const
 
 {
-  StatisticalModelType * reducedModel =
-    StatisticalModelType::Create(inputModel->GetRepresenter(),
-                                 inputModel->GetMeanVector(),
-                                 inputModel->GetOrthonormalPCABasisMatrix().leftCols(numberOfPrincipalComponents),
-                                 inputModel->GetPCAVarianceVector().topRows(numberOfPrincipalComponents),
-                                 inputModel->GetNoiseVariance());
+  auto reducedModel =
+    StatisticalModelType::SafeCreate(inputModel->GetRepresenter(),
+                                     inputModel->GetMeanVector(),
+                                     inputModel->GetOrthonormalPCABasisMatrix().leftCols(numberOfPrincipalComponents),
+                                     inputModel->GetPCAVarianceVector().topRows(numberOfPrincipalComponents),
+                                     inputModel->GetNoiseVariance());
 
   // Write the parameters used to build the models into the builderInfo
   typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
@@ -92,7 +92,7 @@ ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(const Statist
 
 
 template <typename T>
-typename ReducedVarianceModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename ReducedVarianceModelBuilder<T>::StatisticalModelType>
 ReducedVarianceModelBuilder<T>::BuildNewModelWithVariance(const StatisticalModelType * inputModel,
                                                           double                       totalVariance) const
 {
@@ -114,7 +114,7 @@ ReducedVarianceModelBuilder<T>::BuildNewModelWithVariance(const StatisticalModel
 }
 
 template <typename T>
-typename ReducedVarianceModelBuilder<T>::StatisticalModelType *
+UniquePtrType<typename ReducedVarianceModelBuilder<T>::StatisticalModelType>
 ReducedVarianceModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType * inputModel,
                                                        double                       totalVariance) const
 {

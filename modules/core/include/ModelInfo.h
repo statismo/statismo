@@ -43,6 +43,7 @@
 
 #include <memory>
 #include <vector>
+#include <list>
 
 #include "CommonTypes.h"
 #include <H5Cpp.h>

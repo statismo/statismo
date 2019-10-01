@@ -130,7 +130,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::LoadRef(const H5::Group & fg) 
     spacing[i] = spacingVec[i];
   }
 
-  typename statismo::GenericEigenType<int>::VectorType sizeVec;
+  typename statismo::GenericEigenTraits<int>::VectorType sizeVec;
   statismo::HDF5Utils::readVectorOfType<int>(fg, "size", sizeVec);
   typename ImageType::SizeType size;
   for (unsigned i = 0; i < ImageDimension; i++)
@@ -157,7 +157,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::LoadRef(const H5::Group & fg) 
       "the pixel dimension specified in the statismo file does not match the one specified as template parameter");
   }
 
-  typename statismo::GenericEigenType<double>::MatrixType pixelMatDouble;
+  typename statismo::GenericEigenTraits<double>::MatrixType pixelMatDouble;
   statismo::HDF5Utils::readMatrixOfType<double>(pdGroup, "pixelValues", pixelMatDouble);
   statismo::MatrixType          pixelMat = pixelMatDouble.cast<statismo::ScalarType>();
   typename ImageType::Pointer   newImage = ImageType::New();
@@ -359,7 +359,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::Save(const H5::Group & fg) con
   statismo::HDF5Utils::writeVector(fg, "spacing", spacingVec);
 
 
-  statismo::GenericEigenType<int>::VectorType sizeVec(ImageDimension);
+  statismo::GenericEigenTraits<int>::VectorType sizeVec(ImageDimension);
   for (unsigned i = 0; i < ImageDimension; i++)
   {
     sizeVec(i) = m_reference->GetLargestPossibleRegion().GetSize()[i];
@@ -383,7 +383,7 @@ StandardImageRepresenter<TPixel, ImageDimension>::Save(const H5::Group & fg) con
   statismo::HDF5Utils::writeInt(pdGroup, "pixelDimension", StandardImageRepresenter::GetDimensions());
 
 
-  typedef statismo::GenericEigenType<double>::MatrixType DoubleMatrixType;
+  typedef statismo::GenericEigenTraits<double>::MatrixType DoubleMatrixType;
   statismo::MatrixType pixelMat(StandardImageRepresenter::GetDimensions(), GetNumberOfPoints());
 
   itk::ImageRegionIterator<DatasetType> it(m_reference, m_reference->GetLargestPossibleRegion());

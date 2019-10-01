@@ -87,6 +87,7 @@ public:
   using RepresenterBaseType =
     RepresenterBase<vtkStructuredPoints, vtkStandardImageRepresenter<TScalar, PixelDimensions>>;
   friend RepresenterBaseType;
+  friend typename RepresenterBaseType::ObjectFactoryType;
 
   using DatasetPointerType = typename RepresenterBaseType::DatasetPointerType;
   using DatasetConstPointerType = typename RepresenterBaseType::DatasetConstPointerType;

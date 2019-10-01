@@ -48,6 +48,9 @@
 #include "DataManagerWithSurrogates.h"
 #include "statismoITKConfig.h"
 
+#include "ImplWrapper.h"
+#include "itkUtils.h"
+
 namespace itk
 {
 
@@ -57,7 +60,9 @@ namespace itk
  * \see statismo::DataManager for detailed documentation.
  */
 template <class Representer>
-class DataManagerWithSurrogates : public statismo::DataManager<Representer>
+class DataManagerWithSurrogates
+  : public statismo::DataManager<Representer>
+  , public statismo::ImplWrapper<statismo::DataManagerWithSurrogates<Representer>>
 {
 public:
   typedef DataManagerWithSurrogates          Self;
@@ -65,59 +70,20 @@ public:
   typedef SmartPointer<Self>                 Pointer;
   typedef SmartPointer<const Self>           ConstPointer;
 
+  using ImplType = typename statismo::ImplWrapper<statismo::DataManagerWithSurrogates<Representer>>::ImplType;
+
   itkNewMacro(Self);
   itkTypeMacro(DataManagerWithSurrogates, Object);
 
 
-  typedef statismo::DataManagerWithSurrogates<Representer> ImplType;
+  DataManagerWithSurrogates() {}
 
-  template <class F>
-  typename std::result_of<F()>::type
-  callstatismoImpl(F f) const
-  {
-    if (m_impl == 0)
-    {
-      itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetParameters");
-    }
-    try
-    {
-      return f();
-    }
-    catch (statismo::StatisticalModelException & s)
-    {
-      itkExceptionMacro(<< s.what());
-    }
-  }
-
-
-  DataManagerWithSurrogates()
-    : m_impl(0)
-  {}
-
-  virtual ~DataManagerWithSurrogates()
-  {
-    if (m_impl)
-    {
-      delete m_impl;
-      m_impl = 0;
-    }
-  }
-
-
-  void
-  SetstatismoImplObj(ImplType * impl)
-  {
-    if (m_impl)
-    {
-      delete m_impl;
-    }
-    m_impl = impl;
-  }
+  virtual ~DataManagerWithSurrogates() {}
 
   void
   SetRepresenterAndSurrogateFilename(const Representer * representer, const char * surrogTypeFilename)
   {
-    SetstatismoImplObj(ImplType::Create(representer, surrogTypeFilename));
+    this->SetStatismoImplObj(ImplType::SafeCreate(representer, surrogTypeFilename));
   }
 
   void
@@ -132,16 +98,9 @@ public:
                            const char *                                  datasetURI,
                            const char *                                  surrogateFilename)
   {
-    callstatismoImpl(std::bind(&ImplType::AddDatasetWithSurrogates, this->m_impl, ds, datasetURI, surrogateFilename));
+    this->callForwardImplTrans(
+      ExceptionHandler{ *this }, &ImplType::AddDasetWithSurrogates, ds, datasetURI, surrogateFilename);
   }
-
-
-private:
-  DataManagerWithSurrogates(const DataManagerWithSurrogates & orig);
-  DataManagerWithSurrogates &
-  operator=(const DataManagerWithSurrogates & rhs);
-
-  ImplType * m_impl;
 };
 
 

@@ -33,57 +33,35 @@
  *
  */
 
-#ifndef __CLONABLE_H_
-#define __CLONABLE_H_
+#ifndef __ITK_UTILS_H_
+#define __ITK_UTILS_H_
 
-#include "CommonTypes.h"
+#include <itkObject.h>
 
-#include <memory>
+#include <string>
+#include <sstream>
 
-namespace statismo
+namespace itk
 {
-
-/* \class Clonable base class
- */
-template <typename Derived>
-class Clonable
+struct ExceptionHandler
 {
-public:
-  virtual ~Clonable() = default;
-  Clonable() = default;
-  Clonable(Clonable &&) = delete;
-  Clonable &
-  operator=(Clonable &&) = delete;
-  Clonable &
-  operator=(const Clonable &) = delete;
+  explicit ExceptionHandler(const Object & o)
+    : m_obj{ o }
+  {}
 
-  Derived *
-  CloneSelf() const
+  void
+  operator()(const std::string & str) const
   {
-    return this->CloneImpl();
+    std::ostringstream message;
+    message << "itk::ERROR: " << m_obj.GetNameOfClass() << "(" << &m_obj << "): " << str;
+    ::itk::ExceptionObject e_(__FILE__, __LINE__, message.str().c_str(), ITK_LOCATION);
+    throw e_;
   }
-
-  std::unique_ptr<Derived, DefaultDeletor<Derived>>
-  SafeCloneSelf() const
-  {
-    return SafeCloneSelfWithCustomDeletor<DefaultDeletor<Derived>>();
-  }
-
-  template <typename Deletor>
-  std::unique_ptr<Derived, Deletor>
-  SafeCloneSelfWithCustomDeletor() const
-  {
-    std::unique_ptr<Derived, Deletor> ptr{ this->CloneImpl(), Deletor() };
-    return ptr;
-  }
-
-protected:
-  Clonable(const Clonable &) = default;
 
 private:
-  virtual Derived *
-  CloneImpl() const = 0;
+  const Object & m_obj;
 };
-} // namespace statismo
+
+} // namespace itk
 
 #endif

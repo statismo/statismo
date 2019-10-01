@@ -56,7 +56,7 @@ namespace statismo
 template <typename T>
 DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType * representer,
                                                         const std::string &     filename)
-  : DataManager<T>(representer)
+  : Superclass(representer)
 {
   LoadSurrogateTypes(filename);
 }
@@ -100,7 +100,7 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
   DatasetPointerType sample;
   sample = this->m_representer->CloneDataset(ds);
 
-  this->m_DataItemList.push_back(DataItemWithSurrogatesType::Create(this->m_representer,
+  this->m_DataItemList.push_back(DataItemWithSurrogatesType::Create(this->m_representer.get(),
                                                                     datasetURI,
                                                                     this->m_representer->SampleToSampleVector(sample),
                                                                     surrogateFilename,

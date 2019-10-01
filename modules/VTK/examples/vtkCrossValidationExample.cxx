@@ -78,7 +78,7 @@ main(int argc, char ** argv)
 
   // All the statismo classes have to be parameterized with the RepresenterType.
   typedef vtkStandardMeshRepresenter                   RepresenterType;
-  typedef DataManager<vtkPolyData>                     DataManagerType;
+  typedef BasicDataManager<vtkPolyData>                DataManagerType;
   typedef StatisticalModel<vtkPolyData>                StatisticalModelType;
   typedef PCAModelBuilder<vtkPolyData>                 ModelBuilderType;
   typedef DataManagerType::CrossValidationFoldListType CVFoldListType;
@@ -87,11 +87,11 @@ main(int argc, char ** argv)
 
   try
   {
-    vtkPolyData *                    reference = loadVTKPolyData(datadir + "/hand-0.vtk");
-    std::unique_ptr<RepresenterType> representer(RepresenterType::Create(reference));
+    vtkPolyData * reference = loadVTKPolyData(datadir + "/hand-0.vtk");
+    auto          representer = RepresenterType::SafeCreate(reference);
 
     // create a data manager and add a number of datasets for model building
-    std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
+    auto dataManager = DataManagerType::SafeCreate(representer.get());
 
     for (unsigned i = 0; i < 17; i++)
     {
@@ -112,7 +112,7 @@ main(int argc, char ** argv)
     std::cout << "succesfully loaded " << dataManager->GetNumberOfSamples() << " samples " << std::endl;
 
     // create the model builder
-    std::unique_ptr<ModelBuilderType> pcaModelBuilder(ModelBuilderType::Create());
+    auto pcaModelBuilder = ModelBuilderType::SafeCreate();
 
     // We perform 4-fold cross validation
     CVFoldListType cvFoldList = dataManager->GetCrossValidationFolds(4, true);
@@ -121,7 +121,7 @@ main(int argc, char ** argv)
     for (CVFoldListType::const_iterator it = cvFoldList.begin(); it != cvFoldList.end(); ++it)
     {
       // build the model as usual
-      std::unique_ptr<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(it->GetTrainingData(), 0.01));
+      auto model = pcaModelBuilder->BuildNewModel(it->GetTrainingData(), 0.01);
       std::cout << "built model with  " << model->GetNumberOfPrincipalComponents() << " principal components"
                 << std::endl;
 

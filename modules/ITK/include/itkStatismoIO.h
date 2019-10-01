@@ -64,7 +64,7 @@ public:
     try
     {
       ITKStatisticalModelTypePointer pModel = ITKStatisticalModelType::New();
-      pModel->SetstatismoImplObj(
+      pModel->SetStatismoImplObj(
         statismo::IO<T>::LoadStatisticalModel(representer, filename, maxNumberOfPCAComponents));
       return pModel;
     }
@@ -82,7 +82,7 @@ public:
     try
     {
       ITKStatisticalModelTypePointer pModel = ITKStatisticalModelType::New();
-      pModel->SetstatismoImplObj(
+      pModel->SetStatismoImplObj(
         statismo::IO<T>::LoadStatisticalModel(representer, modelRoot, maxNumberOfPCAComponents));
       return pModel;
     }
@@ -97,7 +97,7 @@ public:
   {
     try
     {
-      statismo::IO<T>::SaveStatisticalModel(model->GetstatismoImplObj(), filename);
+      statismo::IO<T>::SaveStatisticalModel(model->GetStatismoImplObj(), filename);
     }
     catch (const statismo::StatisticalModelException & e)
     {
@@ -110,7 +110,7 @@ public:
   {
     try
     {
-      statismo::IO<T>::SaveStatisticalModel(model->GetstatismoImplObj(), modelRoot);
+      statismo::IO<T>::SaveStatisticalModel(model->GetStatismoImplObj(), modelRoot);
     }
     catch (const statismo::StatisticalModelException & e)
     {

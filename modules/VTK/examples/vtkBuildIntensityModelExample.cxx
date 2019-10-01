@@ -83,7 +83,7 @@ main(int argc, char ** argv)
   // Here, we work with unsigned character images. The second template parameter specifies
   // the pixel dimension (1 means scalar image, whereas 3 is a 3D vector image).
   typedef vtkStandardImageRepresenter<unsigned char, 1> RepresenterType;
-  typedef DataManager<vtkStructuredPoints>              DataManagerType;
+  typedef BasicDataManager<vtkStructuredPoints>         DataManagerType;
   typedef PCAModelBuilder<vtkStructuredPoints>          ModelBuilderType;
   typedef StatisticalModel<vtkStructuredPoints>         StatisticalModelType;
 
@@ -111,8 +111,8 @@ main(int argc, char ** argv)
       // it is save to delete the dataset after it was added, as the datamanager direclty copies it.
       dataset->Delete();
     }
-    std::unique_ptr<ModelBuilderType>     modelBuilder(ModelBuilderType::Create());
-    std::unique_ptr<StatisticalModelType> model(modelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
+    auto modelBuilder = ModelBuilderType::SafeCreate();
+    auto model = modelBuilder->BuildNewModel(dataManager->GetData(), 0.01);
     statismo::IO<vtkStructuredPoints>::SaveStatisticalModel(model.get(), modelname);
 
     reference->Delete();

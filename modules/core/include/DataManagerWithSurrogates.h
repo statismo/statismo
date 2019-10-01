@@ -55,14 +55,16 @@ namespace statismo
  * type-file. \sa DataManager
  */
 template <typename T>
-class DataManagerWithSurrogates : public DataManager<T>
+class DataManagerWithSurrogates : public DataManagerBase<T, DataManagerWithSurrogates<T>>
 {
 
 public:
+  using Superclass = DataManagerBase<T, DataManagerWithSurrogates<T>>;
   typedef Representer<T> RepresenterType;
 
   typedef typename RepresenterType::DatasetPointerType      DatasetPointerType;
   typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
+  friend typename DataManagerBase<T, DataManagerWithSurrogates<T>>::ObjectFactoryType;
 
 
   typedef DataItemWithSurrogates<T> DataItemWithSurrogatesType;
@@ -86,11 +88,11 @@ public:
    * Factory method that creates a new instance of a DataManager class
    *
    */
-  static DataManagerWithSurrogates<T> *
+  /*static DataManagerWithSurrogates<T> *
   Create(const RepresenterType * representer, const std::string & surrogTypeFilename)
   {
     return new DataManagerWithSurrogates<T>(representer, surrogTypeFilename);
-  }
+  }*/
 
 
   /**

@@ -261,7 +261,7 @@ buildAndSaveModel(const ProgramOptions & opt)
   KernelPointerType pModelBuildingKernel;
 
   typedef statismo::StatisticalModel<DataType>         RawModelType;
-  typedef std::shared_ptr<RawModelType>                RawModelPointerType;
+  typedef statismo::UniquePtrType<RawModelType>        RawModelPointerType;
   typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
 
   RawModelPointerType               pRawStatisticalModel;
@@ -273,8 +273,8 @@ buildAndSaveModel(const ProgramOptions & opt)
   {
     try
     {
-      pRawStatisticalModel.reset(
-        statismo::IO<DataType>::LoadStatisticalModel(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str()));
+      pRawStatisticalModel =
+        statismo::IO<DataType>::LoadStatisticalModel(pRepresenter.GetPointer(), opt.strOptionalModelPath.c_str());
       pStatModelKernel.reset(new statismo::StatisticalModelKernel<DataType>(pRawStatisticalModel.get()));
       pModelBuildingKernel.reset(new statismo::SumKernel<PointType>(pStatModelKernel.get(), pScaledKernel.get()));
     }
