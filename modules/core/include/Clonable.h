@@ -63,7 +63,7 @@ public:
     return this->CloneImpl();
   }
 
-  std::unique_ptr<Derived, DefaultDeletor<Derived>>
+  UniquePtrType<Derived>
   SafeCloneSelf() const
   {
     return SafeCloneSelfWithCustomDeletor<DefaultDeletor<Derived>>();

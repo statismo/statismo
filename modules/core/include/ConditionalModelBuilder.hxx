@@ -42,8 +42,10 @@
 #include "Exceptions.h"
 #include "PCAModelBuilder.h"
 
-#include <iostream>
 #include <Eigen/SVD>
+
+#include <iostream>
+
 
 namespace statismo
 {
@@ -68,15 +70,11 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
   // 1- identify the continuous and categorical variables, which are used for conditioning and which are not
   for (unsigned i = 0; i < conditioningInfo.size(); i++)
   {
-    std::cout << "condition with info " << conditioningInfo[i].first << " and " << conditioningInfo[i].second
-              << std::endl;
     if (conditioningInfo[i].first)
     {
-      std::cout << "taking it" << std::endl;
       // only variables that are used for conditioning are of interest here
       if (surrogateTypesInfo.types[i] == DataItemWithSurrogatesType::Continuous)
       {
-        std::cout << "conditioningInfo with indix " << i << std::endl;
         nbContinuousSurrogatesInUse++;
         indicesContinuousSurrogatesInUse.push_back(i);
       }
@@ -92,9 +90,7 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
 
   for (unsigned i = 0; i < nbContinuousSurrogatesInUse; i++)
   {
-    std::cout << "continuous number " << i << std::endl;
-    std::cout << "conditioning info with indix " << i << "is taken  = " << conditioningInfo[i].second << std::endl;
-    conditions(i) = conditioningInfo[i].second;
+    conditions(i) = conditioningInfo[indicesContinuousSurrogatesInUse[i]].second;
   }
 
   surrogateMatrix.resize(nbContinuousSurrogatesInUse,
