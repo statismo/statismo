@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef CORE_TRAITS_H_
-#define CORE_TRAITS_H_
+#ifndef __CORE_TRAITS_H_
+#define __CORE_TRAITS_H_
 
 #include <Eigen/Dense>
 

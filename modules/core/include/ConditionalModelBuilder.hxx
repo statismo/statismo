@@ -59,15 +59,11 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
                                         MatrixType &                        surrogateMatrix,
                                         VectorType &                        conditions) const
 {
-  assert(conditioningInfo.size() == surrogateTypesInfo.types.size() && "programming error: should be caught before");
-
-  bool                  acceptSample;
-  unsigned              nbAcceptedSamples = 0;
-  unsigned              nbContinuousSurrogatesInUse = 0, nbCategoricalSurrogatesInUse = 0;
-  std::vector<unsigned> indicesContinuousSurrogatesInUse;
-  std::vector<unsigned> indicesCategoricalSurrogatesInUse;
+  assert(conditioningInfo.size() == surrogateTypesInfo.types.size());
 
   // 1- identify the continuous and categorical variables, which are used for conditioning and which are not
+  std::vector<unsigned> indicesContinuousSurrogatesInUse;
+  std::vector<unsigned> indicesCategoricalSurrogatesInUse;
   for (unsigned i = 0; i < conditioningInfo.size(); i++)
   {
     if (conditioningInfo[i].first)
@@ -75,69 +71,55 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
       // only variables that are used for conditioning are of interest here
       if (surrogateTypesInfo.types[i] == DataItemWithSurrogatesType::Continuous)
       {
-        nbContinuousSurrogatesInUse++;
         indicesContinuousSurrogatesInUse.push_back(i);
       }
       else
       {
-        nbCategoricalSurrogatesInUse++;
         indicesCategoricalSurrogatesInUse.push_back(i);
       }
     }
   }
 
-  conditions.resize(nbContinuousSurrogatesInUse);
-
-  for (unsigned i = 0; i < nbContinuousSurrogatesInUse; i++)
+  conditions.resize(indicesContinuousSurrogatesInUse.size());
+  for (unsigned i = 0; i < indicesContinuousSurrogatesInUse.size(); i++)
   {
     conditions(i) = conditioningInfo[indicesContinuousSurrogatesInUse[i]].second;
   }
 
-  surrogateMatrix.resize(nbContinuousSurrogatesInUse,
+  surrogateMatrix.resize(indicesContinuousSurrogatesInUse.size(),
                          sampleDataList.size()); // number of variables is now known: nbContinuousSurrogatesInUse ; the
                                                  // number of samples is yet unknown...
 
   // now, browse all samples to select the ones which fall into the requested categories
-  for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
+  for (const auto* item : sampleDataList)
   {
-    const DataItemWithSurrogatesType * sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(*it);
-    if (sampleData == 0)
+    const auto* sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item);
+    if (!sampleData)
     {
       // this is a normal sample without surrogate information.
       // we simply discard it
-      std::cout << "WARNING: ConditionalModelBuilder, sample data " << (*it)->GetDatasetURI()
+      std::cout << "WARNING: ConditionalModelBuilder, sample data " << item->GetDatasetURI()
                 << " has no surrogate data associated, and is ignored" << std::endl;
       continue;
     }
 
-    VectorType surrogateData = sampleData->GetSurrogateVector();
-    acceptSample = true;
-    for (unsigned i = 0; i < nbCategoricalSurrogatesInUse; i++)
-    { // check that this sample respect the requested categories
-      if (conditioningInfo[indicesCategoricalSurrogatesInUse[i]].second !=
-          surrogateData[indicesCategoricalSurrogatesInUse[i]])
-      {
-        // if one of the categories does not fit the requested one, then the sample is discarded
-        acceptSample = false;
-        continue;
-      }
-    }
-
-    if (acceptSample)
-    { // if the sample is of the right category
-      acceptedSamples.push_back(*it);
+    auto surrogateData = sampleData->GetSurrogateVector();
+    if (std::all_of(std::cbegin(indicesCategoricalSurrogatesInUse), std::cend(indicesCategoricalSurrogatesInUse), [&](auto i) {
+      return conditioningInfo[indicesCategoricalSurrogatesInUse[i]].second == surrogateData[indicesCategoricalSurrogatesInUse[i]];
+    }))
+    {
+      acceptedSamples.push_back(item);
       // and fill in the matrix of continuous variables
-      for (unsigned j = 0; j < nbContinuousSurrogatesInUse; j++)
+      for (unsigned j = 0; j < indicesContinuousSurrogatesInUse.size(); j++)
       {
-        surrogateMatrix(j, nbAcceptedSamples) = surrogateData[indicesContinuousSurrogatesInUse[j]];
+        surrogateMatrix(j, acceptedSamples.size() - 1) = surrogateData[indicesContinuousSurrogatesInUse[j]];
       }
-      nbAcceptedSamples++;
     }
   }
   // resize the matrix of surrogate data to the effective number of accepted samples
-  surrogateMatrix.conservativeResize(Eigen::NoChange_t(), nbAcceptedSamples);
+  surrogateMatrix.conservativeResize(Eigen::NoChange_t(), acceptedSamples.size());
 
-  return nbAcceptedSamples;
+  return acceptedSamples.size();
 }
 
 template <typename T>
@@ -156,15 +138,15 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
   DataItemListType acceptedSamples;
   MatrixType       X;
   VectorType       x0;
-  unsigned         nSamples = PrepareData(sampleDataList, surrogateTypesInfo, conditioningInfo, acceptedSamples, X, x0);
+  auto nSamples = PrepareData(sampleDataList, surrogateTypesInfo, conditioningInfo, acceptedSamples, X, x0);
   assert(nSamples == acceptedSamples.size());
 
   unsigned nCondVariables = X.rows();
 
   // build a normal PCA model
-  typedef PCAModelBuilder<T> PCAModelBuilderType;
-  auto                       modelBuilder = PCAModelBuilderType::SafeCreate();
-  auto                       pcaModel = modelBuilder->BuildNewModel(acceptedSamples, noiseVariance);
+  using  PCAModelBuilderType = PCAModelBuilder<T>;
+  auto modelBuilder = PCAModelBuilderType::SafeCreate();
+  auto pcaModel = modelBuilder->BuildNewModel(acceptedSamples, noiseVariance);
 
   unsigned nPCAComponents = pcaModel->GetNumberOfPrincipalComponents();
 
@@ -183,63 +165,63 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
     // Thus the i-th row of A contains the PCA parameters b of the i-th sample,
     // together with the conditional information for each sample
     MatrixType A(nSamples, nPCAComponents + nCondVariables);
-    A << B, X.transpose();
+    A << (B, X.transpose());
 
     // Compute the mean and the covariance of the joint data matrix
-    VectorType mu = A.colwise().mean().transpose(); // colwise returns a row vector
+    auto mu = A.colwise().mean().transpose(); // colwise returns a row vector
     assert(mu.rows() == nPCAComponents + nCondVariables);
 
-    MatrixType A0 = A.rowwise() - mu.transpose(); //
-    MatrixType cov = 1.0 / (nSamples - 1) * A0.transpose() * A0;
+    auto A0 = A.rowwise() - mu.transpose();
+    auto cov = 1.0 / (nSamples - 1) * A0.transpose() * A0;
 
     assert(cov.rows() == cov.cols());
-    assert(cov.rows() == pcaModel->GetNumberOfPrincipalComponents() + nCondVariables);
+    assert(cov.rows() == (nPCAComponents + nCondVariables));
 
     // extract the submatrices involving the conditionals x
     // note that since the matrix is symmetric, Sbx = Sxb.transpose(), hence we only store one
-    MatrixType Sbx = cov.topRightCorner(nPCAComponents, nCondVariables);
-    MatrixType Sxx = cov.bottomRightCorner(nCondVariables, nCondVariables);
-    MatrixType Sbb = cov.topLeftCorner(nPCAComponents, nPCAComponents);
+    auto Sbx = cov.topRightCorner(nPCAComponents, nCondVariables);
+    auto Sxx = cov.bottomRightCorner(nCondVariables, nCondVariables);
+    auto Sbb = cov.topLeftCorner(nPCAComponents, nPCAComponents);
 
     // compute the conditional mean
-    VectorType condMean = mu.topRows(nPCAComponents) + Sbx * Sxx.inverse() * (x0 - mu.bottomRows(nCondVariables));
+    auto condMean = mu.topRows(nPCAComponents) + Sbx * Sxx.inverse() * (x0 - mu.bottomRows(nCondVariables));
 
     // compute the conditional covariance
     MatrixType condCov = Sbb - Sbx * Sxx.inverse() * Sbx.transpose();
 
-    // get the sample mean corresponding the the conditional given mean of the parameter vectors
-    VectorType condMeanSample = pcaModel->GetRepresenter()->SampleToSampleVector(pcaModel->DrawSample(condMean));
-
+    // get the sample mean corresponding the conditional given mean of the parameter vectors
+    auto condMeanSample = pcaModel->GetRepresenter()->SampleToSampleVector(pcaModel->DrawSample(condMean));
 
     // so far all the computation have been done in parameter (latent) space. Go back to sample space.
     // (see PartiallyFixedModelBuilder for a detailed documentation)
-    // TODO we should factor this out into the base class, as it is the same code as it is used in
+    // TODO: we should factor this out into the base class, as it is the same code as it is used in
     // the partially fixed model builder
     const VectorType &        pcaVariance = pcaModel->GetPCAVarianceVector();
     VectorTypeDoublePrecision pcaSdev = pcaVariance.cast<double>().array().sqrt();
 
-    typedef Eigen::JacobiSVD<MatrixTypeDoublePrecision> SVDType;
-    MatrixTypeDoublePrecision innerMatrix = pcaSdev.asDiagonal() * condCov.cast<double>() * pcaSdev.asDiagonal();
+    using SVDType = Eigen::JacobiSVD<MatrixTypeDoublePrecision>;
+    auto innerMatrix = pcaSdev.asDiagonal() * condCov.cast<double>() * pcaSdev.asDiagonal();
     SVDType                   svd(innerMatrix, Eigen::ComputeThinU);
-    VectorType                singularValues = svd.singularValues().cast<ScalarType>();
+    auto                singularValues = svd.singularValues().cast<ScalarType>();
 
     // keep only the necessary number of modes, wrt modelVarianceRetained...
     double totalRemainingVariance = singularValues.sum(); //
     // and count the number of modes required for the model
     double   cumulatedVariance = singularValues(0);
-    unsigned numComponentsToReachPrescribedVariance = 1;
-    while (cumulatedVariance / totalRemainingVariance < modelVarianceRetained)
+    unsigned numComponentsToReachPrescribedVariance{1};
+    while ((cumulatedVariance / totalRemainingVariance) < modelVarianceRetained)
     {
       numComponentsToReachPrescribedVariance++;
-      if (numComponentsToReachPrescribedVariance == singularValues.size())
+      if (numComponentsToReachPrescribedVariance == singularValues.size()) {
         break;
+      }
       cumulatedVariance += singularValues(numComponentsToReachPrescribedVariance - 1);
     }
 
     unsigned numComponentsToKeep = std::min<unsigned>(numComponentsToReachPrescribedVariance, singularValues.size());
 
-    VectorType newPCAVariance = singularValues.topRows(numComponentsToKeep);
-    MatrixType newPCABasisMatrix =
+    auto newPCAVariance = singularValues.topRows(numComponentsToKeep);
+    auto newPCABasisMatrix =
       (pcaModel->GetOrthonormalPCABasisMatrix() * svd.matrixU().cast<ScalarType>()).leftCols(numComponentsToKeep);
 
     auto model = StatisticalModelType::SafeCreate(
@@ -248,8 +230,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
     // add builder info and data info to the info list
     MatrixType                     scores(0, 0);
     BuilderInfo::ParameterInfoList bi;
-
-    bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
+    bi.emplace_back("NoiseVariance ", Utils::toString(noiseVariance));
 
     // generate a matrix ; first column = boolean (yes/no, this variable is used) ; second: conditioning value.
     MatrixType conditioningInfoMatrix(conditioningInfo.size(), 2);
@@ -258,36 +239,25 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
       conditioningInfoMatrix(i, 0) = conditioningInfo[i].first;
       conditioningInfoMatrix(i, 1) = conditioningInfo[i].second;
     }
-    bi.push_back(BuilderInfo::KeyValuePair("ConditioningInfo ", Utils::toString(conditioningInfoMatrix)));
+    bi.emplace_back("ConditioningInfo ", Utils::toString(conditioningInfoMatrix));
 
     typename BuilderInfo::DataInfoList di;
-
-    unsigned i = 0;
-    for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it, i++)
+    for (const auto* item : sampleDataList)
     {
-      const DataItemWithSurrogatesType * sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(*it);
+      const auto * sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item);
       std::ostringstream                 os;
-      os << "URI_" << i;
-      di.push_back(BuilderInfo::KeyValuePair(os.str().c_str(), sampleData->GetDatasetURI()));
+      os << "URI_" << (di.size() / 2);
+      di.emplace_back(os.str().c_str(), sampleData->GetDatasetURI());
 
       os << "_surrogates";
-      di.push_back(BuilderInfo::KeyValuePair(os.str().c_str(), sampleData->GetSurrogateFilename()));
+      di.emplace_back(os.str().c_str(), sampleData->GetSurrogateFilename());
     }
 
-    std::ostringstream os;
-    os << "surrogates_types";
-    di.push_back(BuilderInfo::KeyValuePair(os.str().c_str(), surrogateTypesInfo.typeFilename));
-
-
-    BuilderInfo builderInfo("ConditionalModelBuilder", di, bi);
+    di.emplace_back("surrogates_types", surrogateTypesInfo.typeFilename);
 
     ModelInfo::BuilderInfoList biList;
-    biList.push_back(builderInfo);
-
-    ModelInfo info(scores, biList);
-    model->SetModelInfo(info);
-
-    // delete pcaModel;
+    biList.emplace_back("ConditionalModelBuilder", di, bi);
+    model->SetModelInfo(ModelInfo{scores, biList});
 
     return model;
   }

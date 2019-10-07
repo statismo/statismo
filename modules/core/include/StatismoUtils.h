@@ -252,11 +252,10 @@ public:
   }
 
   static std::string
-  ToLowerCopy(const std::string & str)
+  ToLowerCopy(std::string str)
   {
-    std::string dup;
-    ToLower(dup);
-    return dup;
+    ToLower(str);
+    return str;
   }
 
   template <typename T>

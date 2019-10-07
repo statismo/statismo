@@ -74,7 +74,7 @@ public:
   }
 
   /** Returns the number of poitns of the domain */
-  const unsigned
+  unsigned
   GetNumberOfPoints() const
   {
     return m_domainPoints.size();
