@@ -43,7 +43,6 @@
 namespace statismo
 {
 
-
 /**
  * \brief Manages Training and Test Data for building Statistical Models and provides functionality for Crossvalidation.
  * Manages data together with surrogate information.
@@ -146,6 +145,11 @@ protected:
   operator=(const DataManagerWithSurrogates & rhs);
 
   SurrogateTypeInfoType m_typeInfo;
+};
+
+template <typename T>
+struct DataManagerTraits<DataManagerWithSurrogates<T>> {
+  using DataItemType = DataItemWithSurrogates<T>;
 };
 
 } // namespace statismo

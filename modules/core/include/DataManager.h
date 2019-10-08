@@ -127,7 +127,7 @@ public:
   typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
   typedef DataItem<T>                        DataItemType;
-  typedef DataItemWithSurrogates<T>          DataItemWithSurrogatesType;
+  //typedef DataItemWithSurrogates<T>          DataItemWithSurrogatesType;
   typedef std::list<const DataItemType *>    DataItemListType;
   typedef CrossValidationFold<T>             CrossValidationFoldType;
   typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
@@ -190,6 +190,14 @@ public:
   Delete() const = 0;
 };
 
+template <typename T>
+struct DataManagerTraits;
+
+template<typename T, template <typename> typename DM>
+struct DataManagerTraits<DM<T>> {
+  using DataItemType = BasicDataItem<T> ;
+};
+
 /**
  * \brief Base class for data manager
  */
@@ -207,9 +215,9 @@ public:
   typedef typename RepresenterType::DatasetPointerType      DatasetPointerType;
   typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
 
-  typedef DataItem<T>                        DataItemType;
-  typedef DataItemWithSurrogates<T>          DataItemWithSurrogatesType;
-  typedef std::list<const DataItemType *>    DataItemListType;
+  using AbstractDataItemType = DataItem<T>;
+  using ConcreteDataItemType = BasicDataItem<T>;
+  typedef std::list<const AbstractDataItemType *>    DataItemListType;
   typedef CrossValidationFold<T>             CrossValidationFoldType;
   typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
 

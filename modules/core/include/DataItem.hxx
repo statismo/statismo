@@ -44,16 +44,16 @@ namespace statismo
 {
 
 
-template <class T>
-DataItem<T> *
-DataItem<T>::Load(const RepresenterType * representer, const H5::Group & dsGroup)
+template <typename T, typename Derived>
+DataItemBase<T, Derived>*
+DataItemBase<T, Derived>::Load(const RepresenterType * representer, const H5::Group & dsGroup)
 {
   VectorType  dsVector;
   std::string sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
-  DataItem *  newSample = 0;
+  DataItemBase *  newSample = 0;
   if (sampleType == "DataItem")
   {
-    newSample = new DataItem<T>(representer);
+    newSample = new BasicDataItem<T>(representer);
   }
   else if (sampleType == "DataItemWithSurrogates")
   {
@@ -67,9 +67,9 @@ DataItem<T>::Load(const RepresenterType * representer, const H5::Group & dsGroup
   return newSample;
 }
 
-template <class T>
+template <typename T, typename Derived>
 void
-DataItem<T>::Save(const H5::Group & dsGroup) const
+DataItemBase<T, Derived>::Save(const H5::Group & dsGroup) const
 {
   if (dynamic_cast<const DataItemWithSurrogates<T> *>(this) != 0)
   {

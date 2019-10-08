@@ -136,7 +136,7 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
       ss << "./dataset-" << num;
 
       Group dsGroup = file.openGroup(ss.str().c_str());
-      newDataManagerBase->m_DataItemList.push_back(DataItemType::Load(representer, dsGroup));
+      newDataManagerBase->m_DataItemList.push_back(AbstractDataItemType::Load(representer, dsGroup));
     }
   }
   catch (H5::Exception & e)
@@ -219,7 +219,7 @@ DataManagerBase<T, Derived>::AddDataset(DatasetConstPointerType dataset, const s
   DatasetPointerType sample;
   sample = m_representer->CloneDataset(dataset);
 
-  m_DataItemList.push_back(DataItemType::Create(m_representer.get(), URI, m_representer->SampleToSampleVector(sample)));
+  m_DataItemList.push_back(ConcreteDataItemType::Create(m_representer.get(), URI, m_representer->SampleToSampleVector(sample)));
   m_representer->DeleteDataset(sample);
 }
 
