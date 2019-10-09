@@ -73,9 +73,9 @@ DataManagerWithSurrogates<T>::LoadSurrogateTypes(const std::string & filename)
   for (unsigned i = 0; i < tmpVector.size(); i++)
   {
     if (tmpVector(i) == 0)
-      m_typeInfo.types.push_back(DataItemWithSurrogatesType::Categorical);
+      m_typeInfo.types.push_back(DataItemWithSurrogatesType::SurrogateType::Categorical);
     else
-      m_typeInfo.types.push_back(DataItemWithSurrogatesType::Continuous);
+      m_typeInfo.types.push_back(DataItemWithSurrogatesType::SurrogateType::Continuous);
   }
 }
 

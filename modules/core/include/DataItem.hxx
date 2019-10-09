@@ -35,35 +35,35 @@
  *
  */
 
-#ifndef __SAMPLE_DATA_TXX
-#define __SAMPLE_DATA_TXX
+#ifndef __DATA_ITEM_HXX_
+#define __DATA_ITEM_HXX_
 
 #include "DataItem.h"
 
 namespace statismo
 {
 
-
 template <typename T, typename Derived>
-DataItemBase<T, Derived>*
+UniquePtrType<DataItemBase<T, Derived>>
 DataItemBase<T, Derived>::Load(const RepresenterType * representer, const H5::Group & dsGroup)
 {
-  VectorType  dsVector;
-  std::string sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
-  DataItemBase *  newSample = 0;
+  auto sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
+  UniquePtrType<DataItemBase<T, Derived>>  newSample;
   if (sampleType == "DataItem")
   {
-    newSample = new BasicDataItem<T>(representer);
+    newSample = std::make_unique<BasicDataItem<T>>(representer);
   }
   else if (sampleType == "DataItemWithSurrogates")
   {
-    newSample = new DataItemWithSurrogates<T>(representer);
+    newSample = std::make_unique<DataItemWithSurrogates<T>>(representer);
   }
   else
   {
     throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") + sampleType).c_str());
   }
+
   newSample->LoadInternal(dsGroup);
+  
   return newSample;
 }
 
@@ -71,17 +71,9 @@ template <typename T, typename Derived>
 void
 DataItemBase<T, Derived>::Save(const H5::Group & dsGroup) const
 {
-  if (dynamic_cast<const DataItemWithSurrogates<T> *>(this) != 0)
-  {
-    HDF5Utils::writeString(dsGroup, "./sampletype", "DataItemWithSurrogates");
-  }
-  else
-  {
-    HDF5Utils::writeString(dsGroup, "./sampletype", "DataItem");
-  }
   SaveInternal(dsGroup);
 }
 
 } // namespace statismo
 
-#endif // __SAMPLE_DATA_TXX
+#endif

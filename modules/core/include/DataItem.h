@@ -41,26 +41,22 @@
 #include "CommonTypes.h"
 #include "HDF5Utils.h"
 #include "Representer.h"
+#include "NonCopyable.h"
+
+#include <vector>
 
 namespace statismo
 {
 /* \class DataItem
  * \brief Holds all the information for a given sample.
  * Use GetSample() to recover a Sample
- * \warning This method generates a new object containing the sample. If the Representer does not provide a smart
- * pointer, the user is responsible for releasing memory.
  */
 template <typename T>
-class DataItem
+class DataItem : public NonCopyable
 {
 public:
-  typedef Representer<T>                               RepresenterType;
-  typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
-
-  /**
-   * Dtor
-   */
-  virtual ~DataItem() {}
+  using RepresenterType = Representer<T>;
+  using DatasetPointerType = typename RepresenterType::DatasetPointerType;
 
   /**
    *  Save the sample data to the hdf5 group dsGroup.
@@ -73,6 +69,7 @@ public:
    */
   virtual std::string
   GetDatasetURI() const = 0;
+
   /**
    * Get the representer used to create this sample
    */
@@ -82,7 +79,7 @@ public:
   /**
    * Get the vectorial representation of this sample
    */
-  virtual const VectorType &
+  virtual VectorType
   GetSampleVector() const = 0;
 
   /**
@@ -90,7 +87,7 @@ public:
    * \warning This method generates a new object containing the sample. If the Representer does not provide a smart
    * pointer, the user is responsible for releasing memory.
    */
-  virtual const DatasetPointerType
+  virtual DatasetPointerType
   GetSample() const = 0;
 };
 
@@ -102,64 +99,41 @@ class DataItemBase : public DataItem<T>
   , public GenericFactory<Derived>
 {
   public:
+    using RepresenterType = typename DataItem<T>::RepresenterType;
+    using DatasetPointerType = typename DataItem<T>::DatasetPointerType;
     using ObjectFactoryType = GenericFactory<Derived>;
     friend ObjectFactoryType;
 
-  public:
-  typedef Representer<T>                               RepresenterType;
-  typedef typename RepresenterType::DatasetPointerType DatasetPointerType;
-
-  /**
-   * Dtor
-   */
-  virtual ~DataItemBase() {}
-
-  /** Create a new DataItem object, using the data from the group in the HDF5 file
+  /** 
+   * Create a new DataItem object, using the data from the group in the HDF5 file
    * \param dsGroup. The group in the hdf5 file for this dataset
    */
-  static DataItemBase *
+  static UniquePtrType<DataItemBase>
   Load(const RepresenterType * representer, const H5::Group & dsGroup);
   
-  /**
-   *  Save the sample data to the hdf5 group dsGroup.
-   */
   virtual void
-  Save(const H5::Group & dsGroup) const;
+  Save(const H5::Group & dsGroup) const override;
 
-  /**
-   * Get the URI of the original dataset
-   */
   std::string
-  GetDatasetURI() const
+  GetDatasetURI() const override
   {
     return m_URI;
   }
 
-  /**
-   * Get the representer used to create this sample
-   */
   const RepresenterType *
-  GetRepresenter() const
+  GetRepresenter() const override
   {
     return m_representer;
   }
 
-  /**
-   * Get the vectorial representation of this sample
-   */
-  const VectorType &
-  GetSampleVector() const
+  VectorType
+  GetSampleVector() const override
   {
     return m_sampleVector;
   }
 
-  /**
-   * Returns the sample in the representation given by the representer
-   * \warning This method generates a new object containing the sample. If the Representer does not provide a smart
-   * pointer, the user is responsible for releasing memory.
-   */
-  const DatasetPointerType
-  GetSample() const
+  DatasetPointerType
+  GetSample() const override
   {
     return m_representer->SampleVectorToSample(m_sampleVector);
   }
@@ -179,25 +153,31 @@ protected:
   virtual void
   LoadInternal(const H5::Group & dsGroup)
   {
-    VectorType v;
     HDF5Utils::readVector(dsGroup, "./samplevector", m_sampleVector);
     m_URI = HDF5Utils::readString(dsGroup, "./URI");
   }
 
-  virtual void
+  void
   SaveInternal(const H5::Group & dsGroup) const
   {
     HDF5Utils::writeVector(dsGroup, "./samplevector", m_sampleVector);
     HDF5Utils::writeString(dsGroup, "./URI", m_URI);
+
+    SaveInternalImpl(dsGroup);
   }
 
+  virtual void SaveInternalImpl(const H5::Group & dsGroup) const {
+    HDF5Utils::writeString(dsGroup, "./sampletype", "DataItem");
+  }
 
   const RepresenterType * m_representer;
   std::string             m_URI;
   VectorType              m_sampleVector;
-
 };
 
+/* \class BasicDataItem
+ * \brief Standard data item implementation
+ */
 template <typename T>
 class BasicDataItem : public DataItemBase<T, BasicDataItem<T>>
 {
@@ -216,16 +196,13 @@ private:
   {}
 };
 
-
 /* \class DataItemWithSurrogates
- * \brief Holds all the information for a given sample.
- * Use GetSample() to recover a Sample
- * \warning This method generates a new object containing the sample. If the Representer does not provide a smart
- * pointer, the user is responsible for releasing memory. In particular, it enables to associate categorical or
- * continuous variables with a sample, in a vectorial representation. The vector is provided by a file providing the
+ * \brief Specific data item implementation that associates surrogates to the data
+ * 
+ * In particular, it enables to associate categorical or continuous variables with a sample, 
+ * in a vectorial representation. The vector is provided by a file providing the
  * values in ascii format (empty space or EOL separating the values) \sa DataItem \sa DataManagerWithSurrogates
  */
-
 template <typename T>
 class DataItemWithSurrogates : public DataItemBase<T, DataItemWithSurrogates<T>>
 {
@@ -234,23 +211,20 @@ class DataItemWithSurrogates : public DataItemBase<T, DataItemWithSurrogates<T>>
   friend typename Superclass::ObjectFactoryType;
   
 public:
-  enum SurrogateType
+  enum class SurrogateType
   {
-    Categorical = 0,
-    Continuous = 1
+    Categorical = 0, // e.g. Gender
+    Continuous = 1 // e.g. Size, weight
   };
+  using SurrogateTypeVectorType = std::vector<SurrogateType>;
 
-
-  typedef std::vector<SurrogateType> SurrogateTypeVectorType;
-
-  virtual ~DataItemWithSurrogates() {}
-
-  const VectorType &
+  VectorType
   GetSurrogateVector() const
   {
     return m_surrogateVector;
   }
-  const std::string &
+
+  std::string
   GetSurrogateFilename() const
   {
     return m_surrogateFilename;
@@ -273,18 +247,17 @@ private:
 
   // loads the internal state from the hdf5 file
   virtual void
-  LoadInternal(const H5::Group & dsGroup)
+  LoadInternal(const H5::Group & dsGroup) override
   {
     Superclass::LoadInternal(dsGroup);
-    VectorType v;
     HDF5Utils::readVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
     m_surrogateFilename = HDF5Utils::readString(dsGroup, "./surrogateFilename");
   }
 
   virtual void
-  SaveInternal(const H5::Group & dsGroup) const
+  SaveInternalImpl(const H5::Group & dsGroup) const override
   {
-    Superclass::SaveInternal(dsGroup);
+    HDF5Utils::writeString(dsGroup, "./sampletype", "DataItemWithSurrogates");
     HDF5Utils::writeVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
     HDF5Utils::writeString(dsGroup, "./surrogateFilename", this->m_surrogateFilename);
   }
@@ -298,4 +271,4 @@ private:
 
 #include "DataItem.hxx"
 
-#endif // __SAMPLE_DATA_H
+#endif

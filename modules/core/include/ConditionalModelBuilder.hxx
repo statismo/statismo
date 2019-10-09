@@ -69,7 +69,7 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
     if (conditioningInfo[i].first)
     {
       // only variables that are used for conditioning are of interest here
-      if (surrogateTypesInfo.types[i] == DataItemWithSurrogatesType::Continuous)
+      if (surrogateTypesInfo.types[i] == DataItemWithSurrogatesType::SurrogateType::Continuous)
       {
         indicesContinuousSurrogatesInUse.push_back(i);
       }
