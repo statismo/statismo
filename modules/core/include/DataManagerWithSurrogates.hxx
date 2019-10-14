@@ -100,11 +100,11 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
   DatasetPointerType sample;
   sample = this->m_representer->CloneDataset(ds);
 
-  this->m_DataItemList.push_back(DataItemWithSurrogatesType::Create(this->m_representer.get(),
+  this->m_dataItemList.push_back(MakeSharedPointer<DataItemType>(DataItemWithSurrogatesType::Create(this->m_representer.get(),
                                                                     datasetURI,
                                                                     this->m_representer->SampleToSampleVector(sample),
                                                                     surrogateFilename,
-                                                                    surrogateVector));
+                                                                    surrogateVector)));
   this->m_representer->DeleteDataset(sample);
 }
 

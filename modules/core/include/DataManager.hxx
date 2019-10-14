@@ -35,76 +35,64 @@
  *
  */
 
-#ifndef __DataManagerBase_hxx
-#define __DataManagerBase_hxx
-
-#include <iostream>
+#ifndef __DATA_MANAGER_HXX_
+#define __DATA_MANAGER_HXX_
 
 #include "DataManager.h"
+#include "ModelInfo.h"
+#include "Exceptions.h"
+#include "StatismoUtils.h"
 #include "HDF5Utils.h"
+
+#include <iostream>
+#include <random>
 
 namespace statismo
 {
 
-////////////////////////////////////////////////
-// Data manager
-////////////////////////////////////////////////
-
 template <typename T, typename Derived>
 DataManagerBase<T, Derived>::DataManagerBase(const RepresenterType * representer)
-  : m_representer(representer->SafeCloneSelf())
+  : m_representer{representer->SafeCloneSelf()}
 {}
 
 template <typename T, typename Derived>
-DataManagerBase<T, Derived>::~DataManagerBase()
-{
-  for (typename DataItemListType::iterator it = m_DataItemList.begin(); it != m_DataItemList.end(); ++it)
-  {
-    delete (*it);
-  }
-  m_DataItemList.clear();
-}
-
-
-template <typename T, typename Derived>
-DataManagerBase<T, Derived> *
+UniquePtrType<DataManagerBase<T, Derived>>
 DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::string & filename)
 {
   using namespace H5;
-
-  DataManagerBase<T, Derived> * newDataManagerBase = 0;
 
   H5File file;
   try
   {
     file = H5File(filename.c_str(), H5F_ACC_RDONLY);
   }
-  catch (H5::Exception & e)
+  catch (const H5::Exception & e)
   {
     std::string msg(std::string("could not open HDF5 file \n") + e.getCDetailMsg());
     throw StatisticalModelException(msg.c_str());
   }
 
+  UniquePtrType<DataManagerBase<T, Derived>> newDataManagerBase;
   try
   {
     // loading representer
-
-    Group       representerGroup = file.openGroup("./representer");
-    std::string rep_name = HDF5Utils::readStringAttribute(representerGroup, "name");
-    std::string repTypeStr = HDF5Utils::readStringAttribute(representerGroup, "datasetType");
-    std::string versionStr = HDF5Utils::readStringAttribute(representerGroup, "version");
-    typename RepresenterType::RepresenterDataType type = RepresenterType::TypeFromString(repTypeStr);
+    auto       representerGroup = file.openGroup("./representer");
+    auto repName = HDF5Utils::readStringAttribute(representerGroup, "name");
+    auto repTypeStr = HDF5Utils::readStringAttribute(representerGroup, "datasetType");
+    auto versionStr = HDF5Utils::readStringAttribute(representerGroup, "version");
+    auto type = RepresenterType::TypeFromString(repTypeStr);
     if (type == RepresenterType::CUSTOM || type == RepresenterType::UNKNOWN)
     {
-      if (rep_name != representer->GetName())
+      if (repName != representer->GetName())
       {
         std::ostringstream os;
         os << "A different representer was used to create the file and the representer is not of a standard type ";
-        os << ("(RepresenterName = ") << rep_name << " does not match required name = " << representer->GetName()
+        os << ("(RepresenterName = ") << repName << " does not match required name = " << representer->GetName()
            << ")";
         os << "Cannot load hdf5 file";
         throw StatisticalModelException(os.str().c_str());
       }
+
       if (versionStr != representer->GetVersion())
       {
         std::ostringstream os;
@@ -113,6 +101,7 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
         os << "Cannot load hdf5 file";
       }
     }
+
     if (type != representer->GetType())
     {
       std::ostringstream os;
@@ -123,31 +112,26 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
     }
 
     representer->Load(representerGroup);
-    representerGroup.close();
-    newDataManagerBase = new DataManagerBase<T, Derived>(representer);
+    newDataManagerBase = std::make_unique<DataManagerBase<T, Derived>>(representer);
 
-
-    Group    publicGroup = file.openGroup("/data");
-    unsigned numds = HDF5Utils::readInt(publicGroup, "./NumberOfDatasets");
-
+    auto dataGroup = file.openGroup("/data");
+    unsigned numds = HDF5Utils::readInt(dataGroup, "./NumberOfDatasets");
     for (unsigned num = 0; num < numds; num++)
     {
       std::ostringstream ss;
       ss << "./dataset-" << num;
 
-      Group dsGroup = file.openGroup(ss.str().c_str());
-      newDataManagerBase->m_DataItemList.push_back(AbstractDataItemType::Load(representer, dsGroup));
+      auto dsGroup = file.openGroup(ss.str().c_str());
+      newDataManagerBase->m_dataItemList.push_back(DataItemType::Load(representer, dsGroup));
     }
   }
-  catch (H5::Exception & e)
+  catch (const H5::Exception & e)
   {
-    std::string msg(std::string("an exception occurred while reading data matrix to HDF5 file \n") + e.getCDetailMsg());
+    std::string msg = std::string("an exception occurred while reading data matrix to HDF5 file \n") + e.getCDetailMsg();
     throw StatisticalModelException(msg.c_str());
   }
 
-  file.close();
-
-  assert(newDataManagerBase != 0);
+  assert(newDataManagerBase);
   return newDataManagerBase;
 }
 
@@ -157,10 +141,9 @@ DataManagerBase<T, Derived>::Save(const std::string & filename) const
 {
   using namespace H5;
 
-  assert(m_representer != 0);
+  assert(m_representer);
 
   H5File file;
-
   try
   {
     file = H5File(filename.c_str(), H5F_ACC_TRUNC);
@@ -173,71 +156,64 @@ DataManagerBase<T, Derived>::Save(const std::string & filename) const
 
   try
   {
-
-    Group       representerGroup = file.createGroup("./representer");
-    std::string dataTypeStr = TypeToString(m_representer->GetType());
+    auto       representerGroup = file.createGroup("./representer");
+    auto dataTypeStr = TypeToString(m_representer->GetType());
 
     HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
     HDF5Utils::writeStringAttribute(representerGroup, "version", m_representer->GetVersion());
     HDF5Utils::writeStringAttribute(representerGroup, "datasetType", dataTypeStr);
 
     this->m_representer->Save(representerGroup);
-    representerGroup.close();
 
+    auto dataGroup = file.createGroup("./data");
+    HDF5Utils::writeInt(dataGroup, "./NumberOfDatasets", this->m_dataItemList.size());
 
-    Group publicGroup = file.createGroup("./data");
-    HDF5Utils::writeInt(publicGroup, "./NumberOfDatasets", this->m_DataItemList.size());
-
-    unsigned num = 0;
-    for (typename DataItemListType::const_iterator it = this->m_DataItemList.begin(); it != this->m_DataItemList.end();
-         ++it)
+    unsigned num{0};
+    for (const auto& item : m_dataItemList)
     {
       std::ostringstream ss;
       ss << "./dataset-" << num;
 
       Group dsGroup = file.createGroup(ss.str().c_str());
+      item->Save(dsGroup);
 
-      (*it)->Save(dsGroup);
-
-      dsGroup.close();
       num++;
     }
   }
   catch (H5::Exception & e)
   {
-    std::string msg(std::string("an exception occurred while writing data matrix to HDF5 file \n") + e.getCDetailMsg());
+    std::string msg = std::string("an exception occurred while writing data matrix to HDF5 file \n") + e.getCDetailMsg();
     throw StatisticalModelException(msg.c_str());
   }
-  file.close();
 }
 
 template <typename T, typename Derived>
 void
 DataManagerBase<T, Derived>::AddDataset(DatasetConstPointerType dataset, const std::string & URI)
 {
+  auto sample = m_representer->CloneDataset(dataset);
+  auto uw = MakeStackUnwinder([&]() {m_representer->DeleteDataset(sample);});
 
-  DatasetPointerType sample;
-  sample = m_representer->CloneDataset(dataset);
-
-  m_DataItemList.push_back(ConcreteDataItemType::Create(m_representer.get(), URI, m_representer->SampleToSampleVector(sample)));
-  m_representer->DeleteDataset(sample);
+  m_dataItemList.push_back(MakeSharedPointer<DataItemType>(
+    ConcreteDataItemType::Create(m_representer.get(), URI, m_representer->SampleToSampleVector(sample))));
 }
 
 template <typename T, typename Derived>
 typename DataManagerBase<T, Derived>::DataItemListType
 DataManagerBase<T, Derived>::GetData() const
 {
-  return m_DataItemList;
+  return m_dataItemList;
 }
 
 template <typename T, typename Derived>
 typename DataManagerBase<T, Derived>::CrossValidationFoldListType
-DataManagerBase<T, Derived>::GetCrossValidationFolds(unsigned nFolds, bool randomize) const
+DataManagerBase<T, Derived>::GetCrossValidationFolds(unsigned nFolds, bool isRandomized) const
 {
   if (nFolds <= 1 || nFolds > GetNumberOfSamples())
   {
     throw StatisticalModelException("Invalid number of folds specified in GetCrossValidationFolds");
   }
+
   unsigned nElemsPerFold = GetNumberOfSamples() / nFolds;
 
   // we create a vector with as many entries as datasets. Each entry contains the
@@ -250,10 +226,11 @@ DataManagerBase<T, Derived>::GetCrossValidationFolds(unsigned nFolds, bool rando
   }
 
   // randomly shuffle the vector
-  srand(time(0));
-  if (randomize)
+  if (isRandomized)
   {
-    std::random_shuffle(batchAssignment.begin(), batchAssignment.end());
+    std::random_device rd;
+    std::mt19937 g(rd());
+    std::shuffle(batchAssignment.begin(), batchAssignment.end(), g);
   }
 
   // now we create the folds
@@ -263,20 +240,20 @@ DataManagerBase<T, Derived>::GetCrossValidationFolds(unsigned nFolds, bool rando
     DataItemListType trainingData;
     DataItemListType testingData;
 
-    unsigned sampleNum = 0;
-    for (typename DataItemListType::const_iterator it = m_DataItemList.begin(); it != m_DataItemList.end(); ++it)
+    unsigned sampleNum{0};
+    for (const auto& item : m_dataItemList)
     {
       if (batchAssignment[sampleNum] != currentFold)
       {
-        trainingData.push_back(*it);
+        trainingData.push_back(item);
       }
       else
       {
-        testingData.push_back(*it);
+        testingData.push_back(item);
       }
       ++sampleNum;
     }
-    CrossValidationFoldType fold(trainingData, testingData);
+    CrossValidationFoldType fold{trainingData, testingData};
     foldList.push_back(fold);
   }
   return foldList;
@@ -292,18 +269,18 @@ DataManagerBase<T, Derived>::GetLeaveOneOutCrossValidationFolds() const
     DataItemListType trainingData;
     DataItemListType testingData;
 
-    unsigned sampleNum = 0;
-    for (typename DataItemListType::const_iterator it = m_DataItemList.begin(); it != m_DataItemList.end();
-         ++it, ++sampleNum)
+    unsigned sampleNum{0};
+    for (const auto& item : m_dataItemList)
     {
       if (sampleNum == currentFold)
       {
-        testingData.push_back(*it);
+        testingData.push_back(item);
       }
       else
       {
-        trainingData.push_back(*it);
+        trainingData.push_back(item);
       }
+      ++sampleNum;
     }
     CrossValidationFoldType fold(trainingData, testingData);
     foldList.push_back(fold);

@@ -91,9 +91,9 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
                                                  // number of samples is yet unknown...
 
   // now, browse all samples to select the ones which fall into the requested categories
-  for (const auto* item : sampleDataList)
+  for (const auto& item : sampleDataList)
   {
-    const auto* sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item);
+    const auto* sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item.get());
     if (!sampleData)
     {
       // this is a normal sample without surrogate information.
@@ -242,9 +242,9 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
     bi.emplace_back("ConditioningInfo ", Utils::toString(conditioningInfoMatrix));
 
     typename BuilderInfo::DataInfoList di;
-    for (const auto* item : sampleDataList)
+    for (const auto& item : sampleDataList)
     {
-      const auto * sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item);
+      const auto * sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item.get());
       std::ostringstream                 os;
       os << "URI_" << (di.size() / 2);
       di.emplace_back(os.str().c_str(), sampleData->GetDatasetURI());

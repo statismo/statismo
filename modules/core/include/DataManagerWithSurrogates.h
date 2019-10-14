@@ -59,6 +59,7 @@ class DataManagerWithSurrogates : public DataManagerBase<T, DataManagerWithSurro
 
 public:
   using Superclass = DataManagerBase<T, DataManagerWithSurrogates<T>>;
+  using DataItemType = typename Superclass::DataItemType;
   typedef Representer<T> RepresenterType;
 
   typedef typename RepresenterType::DatasetPointerType      DatasetPointerType;
@@ -145,11 +146,6 @@ protected:
   operator=(const DataManagerWithSurrogates & rhs);
 
   SurrogateTypeInfoType m_typeInfo;
-};
-
-template <typename T>
-struct DataManagerTraits<DataManagerWithSurrogates<T>> {
-  using DataItemType = DataItemWithSurrogates<T>;
 };
 
 } // namespace statismo

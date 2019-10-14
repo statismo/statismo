@@ -89,6 +89,12 @@ public:
    */
   virtual DatasetPointerType
   GetSample() const = 0;
+
+  /**
+   * Generic delete function
+   */
+  virtual void
+  Delete() const = 0;
 };
 
 /**
@@ -136,6 +142,12 @@ class DataItemBase : public DataItem<T>
   GetSample() const override
   {
     return m_representer->SampleVectorToSample(m_sampleVector);
+  }
+
+  virtual void
+  Delete() const override
+  {
+    delete this;
   }
 
 protected:

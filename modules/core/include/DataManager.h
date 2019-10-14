@@ -35,23 +35,16 @@
  *
  */
 
-#ifndef __DATAMANAGER_H_
-#define __DATAMANAGER_H_
+#ifndef __DATA_MANAGER_H_
+#define __DATA_MANAGER_H_
 
-#include <list>
-
-#include "Config.h"
 #include "CommonTypes.h"
-#include "DataItem.h"
-#include "Exceptions.h"
-#include "HDF5Utils.h"
-#include "ModelInfo.h"
-#include "Representer.h"
-#include "StatismoUtils.h"
 #include "GenericFactory.h"
 #include "NonCopyable.h"
+#include "Representer.h"
+#include "DataItem.h"
 
-#include <memory>
+#include <list>
 
 namespace statismo
 {
@@ -63,10 +56,10 @@ template <typename T>
 class CrossValidationFold
 {
 public:
-  typedef DataItem<T>                     DataItemType;
-  typedef std::list<const DataItemType *> DataItemListType;
+  using DataItemType = DataItem<T>;
+  using DataItemListType = std::list<SharedPtrType<DataItemType>>;
 
-  /***
+  /**
    * Create an empty fold
    */
   CrossValidationFold(){};
@@ -120,22 +113,14 @@ private:
 template <typename T>
 class DataManager : public NonCopyable
 {
-
 public:
-  typedef Representer<T>                                    RepresenterType;
-  typedef typename RepresenterType::DatasetPointerType      DatasetPointerType;
-  typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
-
-  typedef DataItem<T>                        DataItemType;
-  //typedef DataItemWithSurrogates<T>          DataItemWithSurrogatesType;
-  typedef std::list<const DataItemType *>    DataItemListType;
-  typedef CrossValidationFold<T>             CrossValidationFoldType;
-  typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
-
-  /**
-   * Destructor
-   */
-  virtual ~DataManager() = default;
+  using RepresenterType = Representer<T>;
+  using DatasetPointerType = typename RepresenterType::DatasetPointerType;
+  using DatasetConstPointerType = typename RepresenterType::DatasetConstPointerType;
+  using DataItemType = DataItem<T>;
+  using DataItemListType = std::list<SharedPtrType<DataItemType>>;
+  using CrossValidationFoldType = CrossValidationFold<T>;
+  using CrossValidationFoldListType = std::list<CrossValidationFoldType>;
 
   /**
    * Add a dataset to the data manager.
@@ -174,11 +159,11 @@ public:
    * This method has to be called before cross validation can be started.
    *
    * \param nFolds The number of folds used in the crossvalidation
-   * \param randomize If true, the data will be randomly assigned to the nfolds, otherwise the order with which it was
+   * \param isRandomized If true, the data will be randomly assigned to the nfolds, otherwise the order with which it was
    * added is preserved
    */
   virtual CrossValidationFoldListType
-  GetCrossValidationFolds(unsigned nFolds, bool randomize = true) const = 0;
+  GetCrossValidationFolds(unsigned nFolds, bool isRandomized = true) const = 0;
 
   /**
    * Generates Leave-one-out cross validation folds
@@ -186,16 +171,11 @@ public:
   virtual CrossValidationFoldListType
   GetLeaveOneOutCrossValidationFolds() const = 0;
 
+  /**
+   * Generic delete function
+   */
   virtual void
   Delete() const = 0;
-};
-
-template <typename T>
-struct DataManagerTraits;
-
-template<typename T, template <typename> typename DM>
-struct DataManagerTraits<DM<T>> {
-  using DataItemType = BasicDataItem<T> ;
 };
 
 /**
@@ -207,87 +187,53 @@ class DataManagerBase
   , public GenericFactory<Derived>
 {
 public:
+  
+  using Superclass = DataManager<T>;
+  using RepresenterType = typename Superclass::RepresenterType;
+  using DatasetPointerType = typename Superclass::DatasetPointerType;
+  using DatasetConstPointerType = typename Superclass::DatasetConstPointerType;
+  using DataItemType = typename Superclass::DataItemType;
+  using DataItemListType = typename Superclass::DataItemListType;
+  using ConcreteDataItemType = BasicDataItem<T>;
+  using CrossValidationFoldType = typename Superclass::CrossValidationFoldType;
+  using CrossValidationFoldListType = typename Superclass::CrossValidationFoldListType;
   using ObjectFactoryType = GenericFactory<Derived>;
+  
   friend ObjectFactoryType;
 
 public:
-  typedef Representer<T>                                    RepresenterType;
-  typedef typename RepresenterType::DatasetPointerType      DatasetPointerType;
-  typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
-
-  using AbstractDataItemType = DataItem<T>;
-  using ConcreteDataItemType = BasicDataItem<T>;
-  typedef std::list<const AbstractDataItemType *>    DataItemListType;
-  typedef CrossValidationFold<T>             CrossValidationFoldType;
-  typedef std::list<CrossValidationFoldType> CrossValidationFoldListType;
-
 
   /**
    * Create a new dataManager, with the data stored in the given hdf5 file
    */
-  static DataManagerBase *
+  static UniquePtrType<DataManagerBase>
   Load(Representer<T> * representer, const std::string & filename);
 
-  /**
-   * Destructor
-   */
-  virtual ~DataManagerBase();
+  virtual ~DataManagerBase() = default;
 
-  /**
-   * Add a dataset to the data manager.
-   * \param dataset the dataset to be added
-   * \param URI A string containing the URI of the given dataset. This is only added as an info to the metadata.
-   *
-   * While it is not strictly necessary, and sometimes not even possible, to specify a URI for the given dataset,
-   * it is strongly encouraged to add a description. The string will be added to the metadata and stored with the model.
-   * Having this information stored with the model may prove valuable at a later point in time.
-   */
   virtual void
-  AddDataset(DatasetConstPointerType dataset, const std::string & URI);
+  AddDataset(DatasetConstPointerType dataset, const std::string & URI) override;
 
-  /**
-   * Saves the data matrix and all URIs into an HDF5 file.
-   * \param filename
-   */
   virtual void
-  Save(const std::string & filename) const;
+  Save(const std::string & filename) const override;
 
-  /**
-   * return a list with all the sample data objects managed by the data manager
-   * \sa DataItem
-   */
-  DataItemListType
-  GetData() const;
+  virtual DataItemListType
+  GetData() const override;
 
-  /**
-   * returns the number of samples managed by the datamanager
-   */
-  unsigned
-  GetNumberOfSamples() const
+  virtual unsigned
+  GetNumberOfSamples() const override
   {
-    return m_DataItemList.size();
+    return m_dataItemList.size();
   }
 
-  /**
-   * Assigns the data to one of n Folds to be used for cross validation.
-   * This method has to be called before cross validation can be started.
-   *
-   * \param nFolds The number of folds used in the crossvalidation
-   * \param randomize If true, the data will be randomly assigned to the nfolds, otherwise the order with which it was
-   * added is preserved
-   */
-  CrossValidationFoldListType
-  GetCrossValidationFolds(unsigned nFolds, bool randomize = true) const;
+  virtual CrossValidationFoldListType
+  GetCrossValidationFolds(unsigned nFolds, bool randomize = true) const override;
 
-  /**
-   * Generates Leave-one-out cross validation folds
-   */
-  CrossValidationFoldListType
-  GetLeaveOneOutCrossValidationFolds() const;
+  virtual CrossValidationFoldListType
+  GetLeaveOneOutCrossValidationFolds() const override;
 
-  /// Delete basic implementation
   virtual void
-  Delete() const
+  Delete() const override
   {
     delete this;
   }
@@ -296,17 +242,21 @@ protected:
   DataManagerBase(const RepresenterType * representer);
 
   UniquePtrType<RepresenterType> m_representer;
-
-  // members
-  DataItemListType m_DataItemList;
+  DataItemListType m_dataItemList;
 };
 
+/**
+ * \brief Basic data manager is a standard data manager
+ */
 template <typename T>
 class BasicDataManager : public DataManagerBase<T, BasicDataManager<T>>
 {
 public:
-  friend typename DataManagerBase<T, BasicDataManager<T>>::ObjectFactoryType;
-  using RepresenterType = typename DataManagerBase<T, BasicDataManager<T>>::RepresenterType;
+  using Superclass = DataManagerBase<T, BasicDataManager<T>>;
+  using RepresenterType = typename Superclass::RepresenterType;
+  using ObjectFactoryType = typename Superclass::ObjectFactoryType;
+
+  friend ObjectFactoryType;
 
 private:
   BasicDataManager(const RepresenterType * representer)
@@ -318,4 +268,4 @@ private:
 
 #include "DataManager.hxx"
 
-#endif /* __DATAMANAGER_H_ */
+#endif
