@@ -35,47 +35,39 @@
  *
  */
 
-#ifndef __DataManagerWithSurrogates_hxx
-#define __DataManagerWithSurrogates_hxx
+#ifndef __DATA_MANAGER_WITH_SURROGATES_HXX_
+#define __DATA_MANAGER_WITH_SURROGATES_HXX_
 
 #include "DataManagerWithSurrogates.h"
+#include "StatismoUtils.h"
+#include "HDF5Utils.h"
 
 #include <iostream>
 
-#include "HDF5Utils.h"
-
 namespace statismo
 {
-
-
-////////////////////////////////////////////////
-// Data manager With Surrogates
-////////////////////////////////////////////////
-
-
 template <typename T>
 DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType * representer,
                                                         const std::string &     filename)
-  : Superclass(representer)
+  : Superclass{representer}
 {
   LoadSurrogateTypes(filename);
 }
-
 
 template <typename T>
 void
 DataManagerWithSurrogates<T>::LoadSurrogateTypes(const std::string & filename)
 {
-  VectorType tmpVector;
-  tmpVector = Utils::ReadVectorFromTxtFile(filename.c_str());
   m_typeInfo.typeFilename = filename;
   m_typeInfo.types.clear();
-  for (unsigned i = 0; i < tmpVector.size(); i++)
-  {
-    if (tmpVector(i) == 0)
+
+  auto surrogateTypes = Utils::ReadVectorFromTxtFile(filename.c_str());
+  for (unsigned i = 0; i < surrogateTypes.size(); ++i) {
+    if (surrogateTypes(i) == 0) {
       m_typeInfo.types.push_back(DataItemWithSurrogatesType::SurrogateType::Categorical);
-    else
+    } else {
       m_typeInfo.types.push_back(DataItemWithSurrogatesType::SurrogateType::Continuous);
+    }
   }
 }
 
@@ -86,29 +78,23 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
                                                        const std::string &     datasetURI,
                                                        const std::string &     surrogateFilename)
 {
+  assert(m_representer);
+  auto surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
 
-
-  // assert(this->m_representer != 0);
-  // assert(this->m_surrogateTypes.size() > 0);
-  assert(this->m_representer != 0);
-
-  const VectorType & surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
-
-  if (static_cast<unsigned>(surrogateVector.size()) != m_typeInfo.types.size())
+  if (static_cast<std::size_t>(surrogateVector.size()) != m_typeInfo.types.size()) {
     throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
+  }
 
-  DatasetPointerType sample;
-  sample = this->m_representer->CloneDataset(ds);
+  DatasetPointerType sample = this->m_representer->CloneDataset(ds);
+  auto uw = MakeStackUnwinder([&]() {this->m_representer->DeleteDataset(sample);});
 
   this->m_dataItemList.push_back(MakeSharedPointer<DataItemType>(DataItemWithSurrogatesType::Create(this->m_representer.get(),
                                                                     datasetURI,
                                                                     this->m_representer->SampleToSampleVector(sample),
                                                                     surrogateFilename,
                                                                     surrogateVector)));
-  this->m_representer->DeleteDataset(sample);
 }
 
-
-} // Namespace statismo
+}
 
 #endif

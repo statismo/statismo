@@ -35,14 +35,13 @@
  *
  */
 
-#ifndef __DATAMANAGERWITHSURROGATES_H_
-#define __DATAMANAGERWITHSURROGATES_H_
+#ifndef __DATA_MANAGER_WITH_SURROGATES_H_
+#define __DATA_MANAGER_WITH_SURROGATES_H_
 
 #include "DataManager.h"
 
 namespace statismo
 {
-
 /**
  * \brief Manages Training and Test Data for building Statistical Models and provides functionality for Crossvalidation.
  * Manages data together with surrogate information.
@@ -51,7 +50,7 @@ namespace statismo
  * the types of surrogates. This file is also an ascii file with space or EOL separated values. Those values are either
  * 0 or 1, standing for respectively categorical or continuous variable. This class does not support any missing data,
  * so each dataset must come with a surrogate data file, all of which must contain the same number of entries as the
- * type-file. \sa DataManager
+ * type-file. \sa DataManagerBase
  */
 template <typename T>
 class DataManagerWithSurrogates : public DataManagerBase<T, DataManagerWithSurrogates<T>>
@@ -60,40 +59,20 @@ class DataManagerWithSurrogates : public DataManagerBase<T, DataManagerWithSurro
 public:
   using Superclass = DataManagerBase<T, DataManagerWithSurrogates<T>>;
   using DataItemType = typename Superclass::DataItemType;
-  typedef Representer<T> RepresenterType;
+  using RepresenterType = typename Superclass::RepresenterType;
+  using DatasetPointerType = typename Superclass::DatasetPointerType;
+  using DatasetConstPointerType = typename Superclass::DatasetConstPointerType;
+  using DataItemWithSurrogatesType = DataItemWithSurrogates<T>;
+  using SurrogateTypeVectorType = typename DataItemWithSurrogatesType::SurrogateTypeVectorType;
+  using ObjectFactoryType = typename Superclass::ObjectFactoryType;
 
-  typedef typename RepresenterType::DatasetPointerType      DatasetPointerType;
-  typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
-  friend typename DataManagerBase<T, DataManagerWithSurrogates<T>>::ObjectFactoryType;
-
-
-  typedef DataItemWithSurrogates<T> DataItemWithSurrogatesType;
-
-  typedef typename DataItemWithSurrogatesType::SurrogateTypeVectorType SurrogateTypeVectorType;
+  friend ObjectFactoryType;
 
   struct SurrogateTypeInfoType
   {
     SurrogateTypeVectorType types;
     std::string             typeFilename;
   };
-
-
-  /**
-   * Destructor
-   */
-  virtual ~DataManagerWithSurrogates() {}
-
-
-  /**
-   * Factory method that creates a new instance of a DataManager class
-   *
-   */
-  /*static DataManagerWithSurrogates<T> *
-  Create(const RepresenterType * representer, const std::string & surrogTypeFilename)
-  {
-    return new DataManagerWithSurrogates<T>(representer, surrogTypeFilename);
-  }*/
-
 
   /**
    * Add a dataset, together with surrogate information
@@ -115,14 +94,18 @@ public:
     return m_typeInfo.types;
   }
 
-  /** Returns the source filename defining the surrogate types */
+  /** 
+   * Returns the source filename defining the surrogate types 
+   */
   std::string
   GetSurrogateTypeFilename() const
   {
     return m_typeInfo.typeFilename;
   }
 
-  /** Get a structure containing the type info: vector of types, and source filename */
+  /** 
+   * Get a structure containing the type info: vector of types, and source filename 
+   */
   SurrogateTypeInfoType
   GetSurrogateTypeInfo() const
   {
@@ -132,18 +115,13 @@ public:
 protected:
   /**
    * Loads the information concerning the types of the surrogates variables (categorical=0, continuous=1)
-   * => it is assumed to be in a text file with the entries separated by spaces or EOL character
+   * \warning it is assumed to be in a text file with the entries separated by spaces or EOL character
    */
   void
   LoadSurrogateTypes(const std::string & filename);
 
-
-  // private - to prevent use
+private:
   DataManagerWithSurrogates(const RepresenterType * r, const std::string & filename);
-
-  DataManagerWithSurrogates(const DataManagerWithSurrogates & orig);
-  DataManagerWithSurrogates &
-  operator=(const DataManagerWithSurrogates & rhs);
 
   SurrogateTypeInfoType m_typeInfo;
 };
