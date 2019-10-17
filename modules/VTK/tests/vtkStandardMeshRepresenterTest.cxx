@@ -38,7 +38,7 @@
 #include <vtkPolyDataReader.h>
 #include <vtkSmartPointer.h>
 
-#include "GenericRepresenterTest.hxx"
+#include "GenericRepresenterValidator.h"
 #include "vtkStandardMeshRepresenter.h"
 
 #include "vtkTestHelper.h"
@@ -48,7 +48,7 @@ using namespace statismo::test;
 using statismo::vtkStandardMeshRepresenter;
 using statismo::vtkPoint;
 
-typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
+typedef GenericRepresenterValidator<vtkStandardMeshRepresenter> RepresenterTestType;
 
 int
 vtkStandardMeshRepresenterTest(int argc, char ** argv)
@@ -75,7 +75,7 @@ vtkStandardMeshRepresenterTest(int argc, char ** argv)
 
   RepresenterTestType representerTest(representer, testDataset, std::make_pair(testPt, testValue));
 
-  bool testsOk = representerTest.runAllTests();
+  bool testsOk = representerTest.RunAllTests();
   delete representer;
   reference->Delete();
   testDataset->Delete();

@@ -35,7 +35,7 @@
  *
  */
 
-#include "GenericRepresenterTest.hxx"
+#include "GenericRepresenterValidator.h"
 #include "vtkStandardImageRepresenter.h"
 
 #include "vtkTestHelper.h"
@@ -44,7 +44,7 @@ using namespace statismo::test;
 
 
 typedef statismo::vtkStandardImageRepresenter<double, 2> RepresenterType;
-typedef GenericRepresenterTest<RepresenterType>          RepresenterTestType;
+typedef GenericRepresenterValidator<RepresenterType>          RepresenterTestType;
 
 int
 vtkStandardImageRepresenterTest(int argc, char ** argv)
@@ -71,7 +71,7 @@ vtkStandardImageRepresenterTest(int argc, char ** argv)
   statismo::vtkNDPixel  testValue(testDataset->GetPointData()->GetScalars()->GetTuple2(testPtId), 2);
   RepresenterTestType   representerTest(representer, testDataset, std::make_pair(testPt, testValue));
 
-  bool testsOk = representerTest.runAllTests();
+  bool testsOk = representerTest.RunAllTests();
   delete representer;
   reference->Delete();
   testDataset->Delete();

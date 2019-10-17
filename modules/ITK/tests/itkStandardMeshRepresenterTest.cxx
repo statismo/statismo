@@ -37,7 +37,7 @@
 
 #include <itkMeshFileReader.h>
 
-#include "GenericRepresenterTest.hxx"
+#include "GenericRepresenterValidator.h"
 
 #include "itkStandardMeshRepresenter.h"
 
@@ -46,7 +46,7 @@ typedef itk::Mesh<float, Dimensions>                    MeshType;
 typedef itk::StandardMeshRepresenter<float, Dimensions> RepresenterType;
 
 
-typedef GenericRepresenterTest<RepresenterType> RepresenterTestType;
+typedef GenericRepresenterValidator<RepresenterType> RepresenterTestType;
 
 MeshType::Pointer
 loadMesh(const std::string & filename)
@@ -87,7 +87,7 @@ itkStandardMeshRepresenterTest(int argc, char ** argv)
 
   RepresenterTestType representerTest(representer, testDataset, std::make_pair(testPt, testValue));
 
-  if (representerTest.runAllTests() == true)
+  if (representerTest.RunAllTests() == true)
   {
     return EXIT_SUCCESS;
   }

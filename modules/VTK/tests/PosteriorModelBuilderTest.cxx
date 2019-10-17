@@ -43,7 +43,6 @@
 #include "CommonTypes.h"
 #include "DataManager.h"
 #include "Domain.h"
-#include "GenericRepresenterTest.hxx"
 #include "PosteriorModelBuilder.h"
 #include "PCAModelBuilder.h"
 #include "vtkStandardMeshRepresenter.h"
@@ -53,8 +52,6 @@
 
 using namespace statismo;
 using namespace statismo::test;
-
-typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
 
 int
 PosteriorModelBuilderTest(int argc, char ** argv)

@@ -135,7 +135,7 @@ namespace statismo
 {
 namespace details {
 template <typename Callable, typename R = std::invoke_result_t<Callable>>
-struct translate_imp {
+struct TranslateImpl {
   std::tuple<Status, std::optional<R>> operator()(Callable &&f) {
     try {
       return std::make_tuple(Status::SUCCESS, std::forward<Callable>(f)());
@@ -147,7 +147,7 @@ struct translate_imp {
   }
 };
 
-template <typename Callable> struct translate_imp<Callable, void> {
+template <typename Callable> struct TranslateImpl<Callable, void> {
   auto operator()(Callable &&f) {
     try {
       std::forward<Callable>(f)();
@@ -159,14 +159,14 @@ template <typename Callable> struct translate_imp<Callable, void> {
     }
   }
 };
-} // namespace details
+}
 
 /**
  * \brief Exception conversion utilities to build exception safe interface over
  *        Statismo
  */
-template <typename Callable> auto translate(Callable &&f) {
-  return details::translate_imp<Callable>()(std::forward<Callable>(f));
+template <typename Callable> auto Translate(Callable &&f) {
+  return details::TranslateImpl<Callable>()(std::forward<Callable>(f));
 }
 }
 

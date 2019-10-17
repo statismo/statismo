@@ -35,7 +35,7 @@
  *
  */
 
-#include "GenericRepresenterTest.hxx"
+#include "GenericRepresenterValidator.h"
 #include "itkStandardImageRepresenter.h"
 
 
@@ -57,7 +57,7 @@ int
 testRepresenterForScalarImage(const std::string & datadir)
 {
   typedef itk::StandardImageRepresenter<float, 2> RepresenterType;
-  typedef GenericRepresenterTest<RepresenterType> RepresenterTestType;
+  typedef GenericRepresenterValidator<RepresenterType> RepresenterTestType;
 
   const std::string referenceFilename = datadir + "/hand_images/hand-1.vtk";
   const std::string testDatasetFilename = datadir + "/hand_images/hand-2.vtk";
@@ -77,7 +77,7 @@ testRepresenterForScalarImage(const std::string & datadir)
 
   RepresenterTestType representerTest(representer, testDataset, std::make_pair(testPt, testValue));
 
-  return (representerTest.runAllTests() == true);
+  return (representerTest.RunAllTests() == true);
 }
 
 
@@ -99,7 +99,7 @@ testRepresenterForVectorImage(const std::string & datadir)
 {
 
   typedef itk::StandardImageRepresenter<itk::Vector<float, 2>, 2> RepresenterType;
-  typedef GenericRepresenterTest<RepresenterType>                 RepresenterTestType;
+  typedef GenericRepresenterValidator<RepresenterType>                 RepresenterTestType;
 
   const std::string referenceFilename = datadir + "/hand_dfs/df-hand-1.vtk";
   const std::string testDatasetFilename = datadir + "/hand_dfs/df-hand-2.vtk";
@@ -119,7 +119,7 @@ testRepresenterForVectorImage(const std::string & datadir)
 
   RepresenterTestType representerTest(representer, testDataset, std::make_pair(testPt, testValue));
 
-  return (representerTest.runAllTests() == true);
+  return (representerTest.RunAllTests() == true);
 }
 
 

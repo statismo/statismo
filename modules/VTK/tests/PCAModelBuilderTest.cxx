@@ -47,7 +47,7 @@
 #include "CommonTypes.h"
 #include "DataManager.h"
 #include "Domain.h"
-#include "GenericRepresenterTest.hxx"
+#include "GenericRepresenterValidator.h"
 #include "PCAModelBuilder.h"
 #include "vtkStandardMeshRepresenter.h"
 #include "vtkTestHelper.h"
@@ -60,7 +60,7 @@
 using namespace statismo;
 using namespace statismo::test;
 
-typedef GenericRepresenterTest<vtkStandardMeshRepresenter> RepresenterTestType;
+typedef GenericRepresenterValidator<vtkStandardMeshRepresenter> RepresenterTestType;
 
 int
 PCAModelBuilderTest(int argc, char ** argv)
