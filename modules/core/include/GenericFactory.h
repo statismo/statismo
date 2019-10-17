@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef GENERIC_FACTORY_H_
-#define GENERIC_FACTORY_H_
+#ifndef __GENERIC_FACTORY_H_
+#define __GENERIC_FACTORY_H_
 
 #include "CommonTypes.h"
 
@@ -49,6 +49,7 @@ template <typename T>
 class GenericFactory
 {
 public:
+  virtual ~GenericFactory() = default;
   /**
    * Generic object factory for model
    */
@@ -56,7 +57,7 @@ public:
   static T *
   Create(Args &&... args)
   {
-    return new T{ std::forward<Args>(args)... };
+    return new T(std::forward<Args>(args)...);
   }
 
   template <typename... Args>
@@ -70,7 +71,7 @@ public:
   static std::unique_ptr<T, Deletor>
   SafeCreateWithCustomDeletor(Args &&... args)
   {
-    std::unique_ptr<T, Deletor> ptr{ new T{ std::forward<Args>(args)... }, Deletor() };
+    std::unique_ptr<T, Deletor> ptr(new T(std::forward<Args>(args)... ), Deletor());
     return ptr;
   }
 };

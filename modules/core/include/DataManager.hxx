@@ -69,7 +69,7 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
   catch (const H5::Exception & e)
   {
     std::string msg(std::string("could not open HDF5 file \n") + e.getCDetailMsg());
-    throw StatisticalModelException(msg.c_str());
+    throw StatisticalModelException(msg.c_str(), Status::IO_ERROR);
   }
 
   UniquePtrType<DataManagerBase<T, Derived>> newDataManagerBase;
@@ -90,7 +90,7 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
         os << ("(RepresenterName = ") << repName << " does not match required name = " << representer->GetName()
            << ")";
         os << "Cannot load hdf5 file";
-        throw StatisticalModelException(os.str().c_str());
+        throw StatisticalModelException(os.str().c_str(), Status::INVALID_DATA_ERROR);
       }
 
       if (versionStr != representer->GetVersion())
@@ -108,7 +108,7 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
       os << "The representer that was provided cannot be used to load the dataset ";
       os << "(" << type << " != " << representer->GetType() << ").";
       os << "Cannot load hdf5 file.";
-      throw StatisticalModelException(os.str().c_str());
+      throw StatisticalModelException(os.str().c_str(), Status::INVALID_DATA_ERROR);
     }
 
     representer->Load(representerGroup);
@@ -128,7 +128,7 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
   catch (const H5::Exception & e)
   {
     std::string msg = std::string("an exception occurred while reading data matrix to HDF5 file \n") + e.getCDetailMsg();
-    throw StatisticalModelException(msg.c_str());
+    throw StatisticalModelException(msg.c_str(), Status::IO_ERROR);
   }
 
   assert(newDataManagerBase);
@@ -151,7 +151,7 @@ DataManagerBase<T, Derived>::Save(const std::string & filename) const
   catch (H5::Exception & e)
   {
     std::string msg(std::string("Could not open HDF5 file for writing \n") + e.getCDetailMsg());
-    throw StatisticalModelException(msg.c_str());
+    throw StatisticalModelException(msg.c_str(), Status::IO_ERROR);
   }
 
   try
@@ -183,7 +183,7 @@ DataManagerBase<T, Derived>::Save(const std::string & filename) const
   catch (H5::Exception & e)
   {
     std::string msg = std::string("an exception occurred while writing data matrix to HDF5 file \n") + e.getCDetailMsg();
-    throw StatisticalModelException(msg.c_str());
+    throw StatisticalModelException(msg.c_str(), Status::IO_ERROR);
   }
 }
 
@@ -211,7 +211,7 @@ DataManagerBase<T, Derived>::GetCrossValidationFolds(unsigned nFolds, bool isRan
 {
   if (nFolds <= 1 || nFolds > GetNumberOfSamples())
   {
-    throw StatisticalModelException("Invalid number of folds specified in GetCrossValidationFolds");
+    throw StatisticalModelException("Invalid number of folds specified in GetCrossValidationFolds", Status::BAD_INPUT_ERROR);
   }
 
   unsigned nElemsPerFold = GetNumberOfSamples() / nFolds;

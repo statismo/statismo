@@ -45,6 +45,7 @@
 #include "DataManager.h"
 #include "StatisticalModel.h"
 #include "GenericFactory.h"
+#include "NonCopyable.h"
 
 namespace statismo
 {
@@ -53,7 +54,7 @@ namespace statismo
  * \brief Common base class for all the model builder classes
  */
 template <typename T>
-class ModelBuilder
+class ModelBuilder : public NonCopyable
 {
 
 public:

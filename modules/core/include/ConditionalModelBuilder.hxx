@@ -132,7 +132,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
 {
   if (conditioningInfo.size() != surrogateTypesInfo.types.size())
   {
-    throw StatisticalModelException("mismatch between conditioning info size and surrogates info size");
+    throw StatisticalModelException("mismatch between conditioning info size and surrogates info size", Status::BAD_INPUT_ERROR);
   }
 
   DataItemListType acceptedSamples;

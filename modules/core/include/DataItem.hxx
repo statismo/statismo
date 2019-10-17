@@ -59,7 +59,7 @@ DataItemBase<T, Derived>::Load(const RepresenterType * representer, const H5::Gr
   }
   else
   {
-    throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") + sampleType).c_str());
+    throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") + sampleType).c_str(), Status::INVALID_DATA_ERROR);
   }
 
   newSample->LoadInternal(dsGroup);

@@ -82,7 +82,7 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
   auto surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
 
   if (static_cast<std::size_t>(surrogateVector.size()) != m_typeInfo.types.size()) {
-    throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates");
+    throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates", Status::INVALID_DATA_ERROR);
   }
 
   DatasetPointerType sample = this->m_representer->CloneDataset(ds);

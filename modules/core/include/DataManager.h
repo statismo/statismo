@@ -239,7 +239,7 @@ public:
   }
 
 protected:
-  DataManagerBase(const RepresenterType * representer);
+  explicit DataManagerBase(const RepresenterType * representer);
 
   UniquePtrType<RepresenterType> m_representer;
   DataItemListType m_dataItemList;
@@ -259,7 +259,7 @@ public:
   friend ObjectFactoryType;
 
 private:
-  BasicDataManager(const RepresenterType * representer)
+  explicit BasicDataManager(const RepresenterType * representer)
     : DataManagerBase<T, BasicDataManager<T>>(representer)
   {}
 };

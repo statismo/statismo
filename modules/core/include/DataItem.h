@@ -157,7 +157,7 @@ protected:
     , m_sampleVector(sampleVector)
   {}
 
-  DataItemBase(const RepresenterType * representer)
+  explicit DataItemBase(const RepresenterType * representer)
     : m_representer(representer)
   {}
 
@@ -203,7 +203,7 @@ private:
     : Superclass(representer, URI, sampleVector)
   {}
 
-  BasicDataItem(const RepresenterType * representer)
+  explicit BasicDataItem(const RepresenterType * representer)
     : Superclass(representer)
   {}
 };
@@ -253,8 +253,8 @@ private:
     , m_surrogateVector(surrogateVector)
   {}
 
-  DataItemWithSurrogates(const RepresenterType * r)
-    : Superclass(r)
+  explicit DataItemWithSurrogates(const RepresenterType * representer)
+    : Superclass(representer)
   {}
 
   // loads the internal state from the hdf5 file

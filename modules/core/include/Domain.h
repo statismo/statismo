@@ -35,8 +35,8 @@
  *
  */
 
-#ifndef __DOMAIN_H
-#define __DOMAIN_H
+#ifndef __DOMAIN_H_
+#define __DOMAIN_H_
 
 #include <vector>
 
@@ -47,33 +47,39 @@ namespace statismo
  * This class represents the domain on which a statistical model is defined.
  * A domain is simply a list of points.
  */
-// RB: enable adding / removing elements to avoid copying data?
 template <typename PointType>
 class Domain
 {
 public:
-  typedef std::vector<PointType> DomainPointsListType;
+  using DomainPointsListType = std::vector<PointType>;
 
   /**
    * Create an empty domain
    */
-  Domain() {}
+  Domain() = default;
 
   /**
-   * Create a new domain from the given list of points
+   * Create a new domain from the given list of points (copy version)
    */
-  Domain(const DomainPointsListType & domainPoints)
+  explicit Domain(const DomainPointsListType & domainPoints)
     : m_domainPoints(domainPoints)
   {}
 
+  /**
+   * Create a new domain from the given list of points (move version)
+   */
+  explicit Domain(DomainPointsListType && domainPoints)
+    : m_domainPoints(std::move(domainPoints))
+  {}
+
   /** Returns a list of points that define the domain */
-  const DomainPointsListType &
+  DomainPointsListType
   GetDomainPoints() const
   {
     return m_domainPoints;
   }
 
-  /** Returns the number of poitns of the domain */
+  /** Returns the number of points of the domain */
   unsigned
   GetNumberOfPoints() const
   {
