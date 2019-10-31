@@ -1,10 +1,11 @@
 # Create target
 add_library(statismo_core ${statismo_LIB_TYPE}
+  src/HDF5Utils.cxx 
   src/ModelInfo.cxx
   src/Representer.cxx
 )
 
-target_link_libraries(statismo_core ${HDF5_LIBRARIES})
+target_link_libraries(statismo_core PUBLIC ${HDF5_LIBRARIES})
 target_include_directories(statismo_core PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/statismo/core>

@@ -36,11 +36,10 @@
  */
 
 
-#ifndef HDF5UTILS_H_
-#define HDF5UTILS_H_
+#ifndef __HDF5_UTILS_H_
+#define __HDF5_UTILS_H_
 
 #include "CommonTypes.h"
-
 
 namespace H5
 {
@@ -64,12 +63,11 @@ public:
    * Opens the hdf5 file with the given name, or creates it if the file does not exist
    */
   static H5::H5File
-  openOrCreateFile(const std::string filename);
-
+  openOrCreateFile(const std::string& filename);
 
   /**
    * Opens the hdf5 group or creates it if it doesn't exist.
-   * @param a file object
+   * @param fg A file object
    * @param path An absolute path that defines a group
    * @param createPath if true, creates the path if it does not exist
    *
@@ -81,8 +79,8 @@ public:
   /**
    * Read a Matrix from a HDF5 File
    * @param fg The group
-   * @param name the name of the entry
-   * @param the output matrix
+   * @param name The name of the entry
+   * @param matrix The output matrix
    */
   static void
   readMatrix(const H5::H5Location & fg, const char * name, MatrixType & matrix);
@@ -90,9 +88,9 @@ public:
   /**
    * Read a submatrix from the file, with the given number of Columns
    * @param fg The group
-   * @param name the name of the entry
-   * @param nCols the number of columns to be read
-   * @param the output matrix
+   * @param name The name of the entry
+   * @param nCols The number of columns to be read
+   * @param matrix The output matrix
    */
   static void
   readMatrix(const H5::H5Location & fg, const char * name, unsigned nCols, MatrixType & matrix);
@@ -100,8 +98,8 @@ public:
   /**
    * Read a Matrix of a given type from a HDF5 File
    * @param fg The group
-   * @param name the name of the entry
-   * @param the output matrix
+   * @param name The name of the entry
+   * @param matrix The output matrix
    */
   template <class T>
   static void
@@ -298,4 +296,4 @@ public:
 
 #include "HDF5Utils.hxx"
 
-#endif /* HDF5UTILS_H_ */
+#endif

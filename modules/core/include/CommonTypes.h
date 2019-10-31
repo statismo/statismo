@@ -48,7 +48,7 @@ namespace statismo
 {
 
 // numerical value
-constexpr double PI = 3.14159265358979323846;
+static constexpr double PI = 3.14159265358979323846;
 
 // the type that is used for all vector and matrices throughout the library.
 using ScalarType = float;
@@ -63,17 +63,17 @@ using RowVectorType = GenericEigenTraits<ScalarType>::RowVectorType;
 
 // type definitions used in the standard file format.
 // Note that these are the same as used by VTK
-constexpr static unsigned Void = 0; // not capitalized, as windows defines: #define VOID void, which causes trouble
-constexpr static unsigned SIGNED_CHAR = 2;
-constexpr static unsigned UNSIGNED_CHAR = 3;
-constexpr static unsigned SIGNED_SHORT = 4;
-constexpr static unsigned UNSIGNED_SHORT = 5;
-constexpr static unsigned SIGNED_INT = 6;
-constexpr static unsigned UNSIGNED_INT = 7;
-constexpr static unsigned SIGNED_LONG = 8;
-constexpr static unsigned UNSIGNED_LONG = 9;
-constexpr static unsigned FLOAT = 10;
-constexpr static unsigned DOUBLE = 11;
+static constexpr unsigned Void = 0; // not capitalized, as windows defines: #define VOID void, which causes trouble
+static constexpr unsigned SIGNED_CHAR = 2;
+static constexpr unsigned UNSIGNED_CHAR = 3;
+static constexpr unsigned SIGNED_SHORT = 4;
+static constexpr unsigned UNSIGNED_SHORT = 5;
+static constexpr unsigned SIGNED_INT = 6;
+static constexpr unsigned UNSIGNED_INT = 7;
+static constexpr unsigned SIGNED_LONG = 8;
+static constexpr unsigned UNSIGNED_LONG = 9;
+static constexpr unsigned FLOAT = 10;
+static constexpr unsigned DOUBLE = 11;
 
 template <class T>
 unsigned

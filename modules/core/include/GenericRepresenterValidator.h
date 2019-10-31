@@ -34,6 +34,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+#ifndef __GENERIC_REPRESENTER_VALIDATOR_H_
+#define __GENERIC_REPRESENTER_VALIDATOR_H_
 
 #include "CommonTypes.h"
 #include "HDF5Utils.h"
@@ -401,3 +403,5 @@ private:
   ValueType               m_testValue;
   mutable std::string     m_errString;
 };
+
+#endif

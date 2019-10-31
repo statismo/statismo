@@ -33,8 +33,8 @@
  *
  */
 
-#ifndef HASH_H_
-#define HASH_H_
+#ifndef __HASH_H_
+#define __HASH_H_
 
 #include "Reflect.h"
 
@@ -57,7 +57,7 @@ HashCombine(std::size_t & seed, const T & v)
 
 template <typename T>
 inline auto
-HashImpl(const T & v) -> std::enable_if_t<HasSize(type<T>), size_t>
+HashImpl(const T & v) -> std::enable_if_t<HasSize(type<T>), std::size_t>
 {
   size_t value = 0;
   for (unsigned i = 0; i < v.size(); i++)

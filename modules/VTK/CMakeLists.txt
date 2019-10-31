@@ -6,7 +6,7 @@ add_library(statismo_VTK ${statismo_LIB_TYPE}
   src/vtkStandardMeshRepresenter.cxx
   src/vtkUnstructuredGridRepresenter.cxx
 )
-target_link_libraries(statismo_VTK statismo_core ${VTK_LIBRARIES})
+target_link_libraries(statismo_VTK PUBLIC statismo_core ${VTK_LIBRARIES})
 target_include_directories(statismo_VTK PUBLIC  
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"  
     "$<INSTALL_INTERFACE:include/statismo/VTK;>"
