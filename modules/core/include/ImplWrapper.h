@@ -126,6 +126,9 @@ public:
     {
       std::invoke(std::forward<Handler>(h), ex.what());
     }
+
+    // Should never reach here the handler must be a thrower
+    throw;
   }
 
   template <typename Handler, typename Callable, typename... Args>
@@ -145,6 +148,9 @@ public:
     {
       std::invoke(std::forward<Handler>(h), ex.what());
     }
+
+    // Should never reach here the handler must be a thrower
+    throw;
   }
 
   template <typename Callable, typename... Args>

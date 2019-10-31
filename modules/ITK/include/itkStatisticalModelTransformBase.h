@@ -156,7 +156,7 @@ public:
    * Does nothing - as the transform does not have any fixed parameters
    */
   virtual void
-  SetFixedParameters(const ParametersType & p)
+  SetFixedParameters(const ParametersType &)
   {
     // there no fixed parameters
   }

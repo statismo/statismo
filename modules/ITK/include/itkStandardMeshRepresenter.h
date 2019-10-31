@@ -200,7 +200,7 @@ public:
 
 
   void
-  DeleteDataset(DatasetPointerType d) const {};
+  DeleteDataset(DatasetPointerType) const {};
   DatasetPointerType
   CloneDataset(DatasetConstPointerType mesh) const;
 
