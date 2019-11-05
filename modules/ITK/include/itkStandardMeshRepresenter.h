@@ -70,6 +70,21 @@ struct RepresenterTraits<itk::Mesh<float, 3u>>
   static constexpr unsigned Dimension = 3;
 };
 
+template <>
+struct RepresenterTraits<itk::Mesh<double, 3u>>
+{
+
+  typedef itk::Mesh<double, 3u> MeshType;
+
+  typedef MeshType::Pointer DatasetPointerType;
+  typedef MeshType::Pointer DatasetConstPointerType;
+
+  typedef MeshType::PointType PointType;
+  typedef MeshType::PointType ValueType;
+
+  static constexpr unsigned Dimension = 3;
+};
+
 } // namespace statismo
 
 namespace itk

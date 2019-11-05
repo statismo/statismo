@@ -51,7 +51,8 @@ struct NullInitializer
 struct SafeInitializer
 {};
 
-/* \class Base class for class that wrap a statismo implementation
+/* 
+ * \brief Base class for class that wraps a statismo implementation
  */
 template <typename I, typename T = NullInitializer>
 class ImplWrapper : public NonCopyable
@@ -69,18 +70,27 @@ public:
     }
   }
 
+  /**
+   * Get internal implementation
+   */
   const I *
   GetStatismoImplObj() const
   {
     return m_impl.get();
   }
 
+  /**
+   * Set internal implementation
+   */
   void
   SetStatismoImplObj(UniquePtrType<I> impl)
   {
     m_impl = std::move(impl);
   }
 
+  /**
+   * Create internal implementation by forwarding ctor args
+   */
   template <typename U, typename = std::enable_if_t<!std::is_same_v<UniquePtrType<I>, std::decay_t<U>>>>
   void
   SetStatismoImplObj(U && arg)
@@ -88,6 +98,9 @@ public:
     this->SetStatismoImplObj(ImplType::SafeCreate(std::forward<U>(arg)));
   }
 
+  /**
+   * Create internal implementation by forwarding ctor args
+   */
   template <typename... Args>
   void
   SetStatismoImplObj(Args &&... args)
@@ -95,13 +108,19 @@ public:
     this->SetStatismoImplObj(ImplType::SafeCreate(std::forward<Args>(args)...));
   }
 
+  /**
+   * Forward call to implementation
+   */
   template <typename Callable, typename... Args>
   decltype(auto)
   callForwardImpl(Callable && op, Args &&... args)
   {
-    return callForward(std::forward<Callable>(op), m_impl.get(), std::forward<Args>(args)...);
+    return static_cast<const ImplWrapper*>(this)->callForwardImpl(std::forward<Callable>(op), std::forward<Args>(args)...);
   }
 
+  /**
+   * Forward call to implementation
+   */
   template <typename Callable, typename... Args>
   decltype(auto)
   callForwardImpl(Callable && op, Args &&... args) const
@@ -109,28 +128,24 @@ public:
     return callForward(std::forward<Callable>(op), m_impl.get(), std::forward<Args>(args)...);
   }
 
+  /**
+   * Forward call to implementation with exception handling
+   * 
+   * \warning Note that \a h must be handler that throws
+   */
   template <typename Handler, typename Callable, typename... Args>
   decltype(auto)
   callForwardImplTrans(Handler && h, Callable && op, Args &&... args)
   {
-    if (!m_impl)
-    {
-      std::invoke(std::forward<Handler>(h), "invalid null implementation");
-    }
-
-    try
-    {
-      return callForwardImpl(std::forward<Callable>(op), std::forward<Args>(args)...);
-    }
-    catch (const StatisticalModelException & ex)
-    {
-      std::invoke(std::forward<Handler>(h), ex.what());
-    }
-
-    // Should never reach here the handler must be a thrower
-    throw;
+    return static_cast<const ImplWrapper*>(this)->callForwardImplTrans(std::forward<Handler>(h),
+    std::forward<Callable>(op), std::forward<Args>(args)...);
   }
 
+  /**
+   * Forward call to implementation with exception handling
+   * 
+   * \warning Note that \a h must be handler that throws
+   */
   template <typename Handler, typename Callable, typename... Args>
   decltype(auto)
   callForwardImplTrans(Handler && h, Callable && op, Args &&... args) const
