@@ -36,17 +36,14 @@
  */
 
 
-#ifndef MODELINFO_H_
-#define MODELINFO_H_
-
-#include <ctime>
-
-#include <memory>
-#include <vector>
-#include <list>
+#ifndef __MODEL_INFO_H_
+#define __MODEL_INFO_H_
 
 #include "CommonTypes.h"
+
 #include <H5Cpp.h>
+
+#include <list>
 
 namespace statismo
 {
@@ -62,13 +59,12 @@ class BuilderInfo; // forward declaration
  * a model, there will be a list of n builder objects.
  *
  */
-class ModelInfo
+class ModelInfo final
 {
 public:
-  typedef std::vector<BuilderInfo> BuilderInfoList;
+  using BuilderInfoList = std::vector<BuilderInfo>;
 
-  /// create an new, empty model info object
-  ModelInfo();
+  ModelInfo() = default;
 
   /**
    * Creates a new ModelInfo object with the given information
@@ -81,16 +77,7 @@ public:
    * Create a ModelInfo object without specifying any BuilderInfos
    * \param scores A matrix holding the scores
    */
-  ModelInfo(const MatrixType & scores);
-
-
-  /// destructor
-  virtual ~ModelInfo();
-
-  ModelInfo &
-  operator=(const ModelInfo & rhs);
-
-  ModelInfo(const ModelInfo & orig) { operator=(orig); }
+  explicit ModelInfo(const MatrixType & scores);
 
   /**
    * Returns a list with BuilderInfos
@@ -108,15 +95,14 @@ public:
   /**
    * Saves the model info to the given group in the HDF5 file
    */
-  virtual void
+  void
   Save(const H5::H5Location & publicFg) const;
 
   /**
    * Loads the model info from the given group in the HDF5 file.
    */
-  virtual void
+  void
   Load(const H5::H5Location & publicFg);
-
 
 private:
   BuilderInfo
@@ -129,19 +115,18 @@ private:
 /**
  * \brief Holds information about the data and the parameters used by a specific modelbuilder
  */
-class BuilderInfo
+class BuilderInfo final
 {
-
   friend class ModelInfo;
 
 public:
-  typedef std::pair<std::string, std::string> KeyValuePair;
-  typedef std::list<KeyValuePair>             KeyValueList;
+  using KeyValuePair = std::pair<std::string, std::string>;
+  using KeyValueList = std::list<KeyValuePair>;
 
   // Currently all the info entries are just simple list of string pairs.
-  // We  don't want to use maps, as this would sort the items according to the key.
-  typedef KeyValueList DataInfoList;
-  typedef KeyValueList ParameterInfoList;
+  // We don't want to use maps, as this would sort the items according to the key.
+  using DataInfoList = KeyValueList;
+  using ParameterInfoList = KeyValueList;
 
   /**
    * Creates a new BuilderInfo object with the given information
@@ -156,27 +141,18 @@ public:
   /**
    * Create a new, empty BilderInfo object
    */
-  BuilderInfo();
-
-  /// destructor
-  virtual ~BuilderInfo();
-
-  BuilderInfo &
-  operator=(const BuilderInfo & rhs);
-
-  BuilderInfo(const BuilderInfo & orig);
-
+  BuilderInfo() = default;
 
   /**
    * Saves the builder info to the given group in the HDF5 file
    */
-  virtual void
+  void
   Save(const H5::H5Location & publicFg) const;
 
   /**
    * Loads the builder info from the given group in the HDF5 file.
    */
-  virtual void
+  void
   Load(const H5::H5Location & publicFg);
 
   /**
@@ -203,4 +179,4 @@ private:
 
 } // namespace statismo
 
-#endif /* MODELINFO_H_ */
+#endif

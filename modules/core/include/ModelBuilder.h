@@ -38,14 +38,14 @@
 #ifndef __MODELBUILDER_H_
 #define __MODELBUILDER_H_
 
-#include <vector>
-#include <memory>
-
 #include "CommonTypes.h"
 #include "DataManager.h"
 #include "StatisticalModel.h"
 #include "GenericFactory.h"
 #include "NonCopyable.h"
+
+#include <vector>
+#include <memory>
 
 namespace statismo
 {
@@ -58,20 +58,18 @@ class ModelBuilder : public NonCopyable
 {
 
 public:
-  typedef Representer<T>                             RepresenterType;
-  typedef StatisticalModel<T>                        StatisticalModelType;
-  typedef BasicDataManager<T>                        DataManagerType;
-  typedef typename DataManagerType::DataItemListType DataItemListType;
+  using RepresenterType = Representer<T>;
+  using StatisticalModelType = StatisticalModel<T>;
+  using DataManagerType = BasicDataManager<T>;
+  using DataItemListType = typename DataManagerType::DataItemListType ;
 
   // Values below this tolerance are treated as 0.
-  static const double TOLERANCE;
-
+  static constexpr double TOLERANCE = 1e-5;
 
 protected:
   MatrixType
   ComputeScores(const MatrixType & X, const StatisticalModelType * model) const
   {
-
     MatrixType scores(model->GetNumberOfPrincipalComponents(), X.rows());
     for (unsigned i = 0; i < scores.cols(); i++)
     {
@@ -80,38 +78,25 @@ protected:
     return scores;
   }
 
-
   MatrixType
   ComputeScores(const DataItemListType & sampleDataList, const StatisticalModelType * model) const
   {
-
-    unsigned   n = sampleDataList.size();
+    auto   n = sampleDataList.size();
     MatrixType scores(model->GetNumberOfPrincipalComponents(), n);
 
-    unsigned i = 0;
-    for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
-    {
-      // Todo: for sample or for dataset??
-      scores.col(i++) = model->ComputeCoefficientsForSampleVector((*it)->GetSampleVector());
+    unsigned i{0};
+    for (const auto& item : sampleDataList) {
+      scores.col(i++) = model->ComputeCoefficientsForSampleVector(item->GetSampleVector());
     }
+
     return scores;
   }
 
-
-  ModelBuilder() {}
+  ModelBuilder() = default;
 
   ModelInfo
   CollectModelInfo() const;
-
-private:
-  // private - to prevent use
-  ModelBuilder(const ModelBuilder & orig);
-  ModelBuilder &
-  operator=(const ModelBuilder & rhs);
 };
-
-template <class Representer>
-const double ModelBuilder<Representer>::TOLERANCE = 1e-5;
 
 /**
  * \brief Base class for model builder

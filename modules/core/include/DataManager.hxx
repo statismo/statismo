@@ -253,8 +253,7 @@ DataManagerBase<T, Derived>::GetCrossValidationFolds(unsigned nFolds, bool isRan
       }
       ++sampleNum;
     }
-    CrossValidationFoldType fold{trainingData, testingData};
-    foldList.push_back(fold);
+    foldList.emplace_back(trainingData, testingData);
   }
   return foldList;
 }

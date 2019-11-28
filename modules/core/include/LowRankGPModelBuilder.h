@@ -158,7 +158,7 @@ public:
         break;
       }
 
-      futvec.push_back(pool.submit([=, nys = nystrom.get(), k=&kernel]() {
+      futvec.emplace_back(pool.submit([=, nys = nystrom.get(), k=&kernel]() {
         return computeEigenfunctionsForPoints(nys, k, numComponents, domainPoints, lowerInd, upperInd);
       }));
     }
@@ -181,8 +181,8 @@ public:
     MatrixType                         scores; // no scores
     typename BuilderInfo::DataInfoList dataInfo;
     typename BuilderInfo::ParameterInfoList bi;
-    bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance", Utils::toString(0)));
-    bi.push_back(BuilderInfo::KeyValuePair("KernelInfo", kernel.GetKernelInfo()));
+    bi.emplace_back(BuilderInfo::KeyValuePair("NoiseVariance", Utils::toString(0)));
+    bi.emplace_back(BuilderInfo::KeyValuePair("KernelInfo", kernel.GetKernelInfo()));
 
     // finally add meta data to the model info
     BuilderInfo builderInfo("LowRankGPModelBuilder", dataInfo, bi);
