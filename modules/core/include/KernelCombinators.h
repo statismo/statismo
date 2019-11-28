@@ -1,28 +1,51 @@
-/**
+/*
  * This file is part of the statismo library.
  *
  * Author: Marcel Luethi (marcel.luethi@unibas.ch)
- *         Thomas Gerig  (thomas.gerig@unibas.ch)
  *
  * Copyright (c) 2011 University of Basel
  * All rights reserved.
  *
- * Statismo is licensed under the BSD licence (3 clause) license
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * Neither the name of the project's author nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
-#ifndef KERNELCOMBINATORS_H
-#define KERNELCOMBINATORS_H
+#ifndef __KERNEL_COMBINATORS_H_
+#define __KERNEL_COMBINATORS_H_
 
 #include "CommonTypes.h"
 #include "Kernels.h"
 #include "Nystrom.h"
 #include "Representer.h"
 #include "Hash.h"
+#include "SafeContainer.h"
 
 #include <memory>
-#include <thread>
-#include <unordered_map>
-#include <mutex>
 
 namespace statismo
 {
@@ -34,8 +57,7 @@ template <class TPoint>
 class SumKernel : public MatrixValuedKernel<TPoint>
 {
 public:
-  typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
-
+  using MatrixValuedKernelType = MatrixValuedKernel<TPoint> ;
 
   SumKernel(const MatrixValuedKernelType * lhs, const MatrixValuedKernelType * rhs)
     : MatrixValuedKernelType(lhs->GetDimension())
@@ -44,7 +66,7 @@ public:
   {
     if (lhs->GetDimension() != rhs->GetDimension())
     {
-      throw StatisticalModelException("Kernels in SumKernel must have the same dimensionality");
+      throw StatisticalModelException("Kernels in SumKernel must have the same dimensionality", Status::BAD_INPUT_ERROR);
     }
   }
 
@@ -57,9 +79,7 @@ public:
   std::string
   GetKernelInfo() const
   {
-    std::ostringstream os;
-    os << m_lhs->GetKernelInfo() << " + " << m_rhs->GetKernelInfo();
-    return os.str();
+    return m_lhs->GetKernelInfo() + " + " + m_rhs->GetKernelInfo();
   }
 
 private:
@@ -71,13 +91,12 @@ private:
 /**
  * A (matrix valued) kernel, which represents the product of two matrix valued kernels.
  */
-
 template <class TPoint>
 class ProductKernel : public MatrixValuedKernel<TPoint>
 {
 
 public:
-  typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
+  using MatrixValuedKernelType = MatrixValuedKernel<TPoint>;
 
   ProductKernel(const MatrixValuedKernelType * lhs, const MatrixValuedKernelType * rhs)
     : MatrixValuedKernelType(lhs->GetDimension())
@@ -99,9 +118,7 @@ public:
   std::string
   GetKernelInfo() const
   {
-    std::ostringstream os;
-    os << m_lhs->GetKernelInfo() << " * " << m_rhs->GetKernelInfo();
-    return os.str();
+    return m_lhs->GetKernelInfo() + " * " + m_rhs->GetKernelInfo();
   }
 
 private:
@@ -113,13 +130,11 @@ private:
 /**
  * A (matrix valued) kernel, which represents a scalar multiple of a matrix valued kernel.
  */
-
 template <class TPoint>
 class ScaledKernel : public MatrixValuedKernel<TPoint>
 {
 public:
-  typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
-
+  using MatrixValuedKernelType = MatrixValuedKernel<TPoint>;
 
   ScaledKernel(const MatrixValuedKernelType * kernel, double scalingFactor)
     : MatrixValuedKernelType(kernel->GetDimension())
@@ -132,12 +147,11 @@ public:
   {
     return (*m_kernel)(x, y) * m_scalingFactor;
   }
+
   std::string
   GetKernelInfo() const
   {
-    std::ostringstream os;
-    os << (*m_kernel).GetKernelInfo() << " * " << m_scalingFactor;
-    return os.str();
+    return m_kernel->GetKernelInfo() + " * " + std::to_string(m_scalingFactor);
   }
 
 private:
@@ -155,7 +169,7 @@ template <class TPoint>
 class UncorrelatedMatrixValuedKernel : public MatrixValuedKernel<TPoint>
 {
 public:
-  typedef MatrixValuedKernel<TPoint> MatrixValuedKernelType;
+  using MatrixValuedKernelType = MatrixValuedKernel<TPoint>;
 
   UncorrelatedMatrixValuedKernel(const ScalarValuedKernel<TPoint> * scalarKernel, unsigned dimension)
     : MatrixValuedKernelType(dimension)
@@ -169,8 +183,6 @@ public:
 
     return m_ident * (*m_kernel)(x, y);
   }
-
-  virtual ~UncorrelatedMatrixValuedKernel() {}
 
   std::string
   GetKernelInfo() const
@@ -199,7 +211,7 @@ public:
 };
 
 /**
- * spatially-varing kernel, as described in the paper:
+ * Spatially-varing kernel, as described in the paper:
  *
  * T. Gerig, K. Shahim, M. Reyes, T. Vetter, M. Luethi
  * Spatially varying registration using gaussian processes
@@ -209,12 +221,9 @@ template <class T>
 class SpatiallyVaryingKernel : public MatrixValuedKernel<typename Representer<T>::PointType>
 {
 
-  typedef std::unordered_map<statismo::VectorType, statismo::MatrixType, Hash<statismo::VectorType>> CacheType;
-
 public:
-  typedef Representer<T>                      RepresenterType;
-  typedef typename RepresenterType::PointType PointType;
-
+  using RepresenterType = Representer<T>;
+  using PointType = typename RepresenterType::PointType;
 
   /**
    * @brief Make a given kernel spatially varying according to the given tempering function
@@ -233,13 +242,13 @@ public:
                          bool                                  cacheValues = true)
     : m_representer(representer)
     , m_eta(eta)
-    , m_nystrom(Nystrom<T>::Create(representer,
+    , m_nystrom(Nystrom<T>::SafeCreateStd(representer,
                                    kernel,
                                    numEigenfunctions,
                                    numberOfPointsForApproximation == 0 ? numEigenfunctions * 2
                                                                        : numberOfPointsForApproximation))
     , m_eigenvalues(m_nystrom->getEigenvalues())
-    , m_cacheValues(cacheValues)
+    , m_doCacheValues(cacheValues)
     , MatrixValuedKernel<PointType>(kernel.GetDimension())
   {}
 
@@ -249,21 +258,19 @@ public:
 
     MatrixType sum = MatrixType::Zero(this->m_dimension, this->m_dimension);
 
-    float eta_x = m_eta(x);
-    float eta_y = m_eta(y);
+    auto etaX = m_eta(x);
+    auto etaY = m_eta(y);
 
+    auto phisAtX = phiAtPoint(x);
+    auto phisAtY = phiAtPoint(y);
 
-    statismo::MatrixType phisAtX = phiAtPoint(x);
-    statismo::MatrixType phisAtY = phiAtPoint(y);
-
-    double largestTemperedEigenvalue = std::pow(m_eigenvalues(0), (eta_x + eta_y) / 2);
+    double largestTemperedEigenvalue = std::pow(m_eigenvalues(0), (etaX + etaY) / 2);
 
     for (unsigned i = 0; i < m_eigenvalues.size(); ++i)
     {
+      double temperedEigenvalue = std::pow(m_eigenvalues(i), (etaX + etaY) / 2);
 
-      float temperedEigenvalue = std::pow(m_eigenvalues(i), (eta_x + eta_y) / 2);
-
-      // ignore too small eigenvalues, as they don't contribute much.
+      // Ignore too small eigenvalues, as they don't contribute much.
       // (the eigenvalues are ordered, all the following are smaller and can also be ignored)
       if (temperedEigenvalue / largestTemperedEigenvalue < 1e-6)
       {
@@ -275,48 +282,39 @@ public:
       }
     }
     // normalize such that the largest eigenvalue is unaffected by the tempering
-    float normalizationFactor = largestTemperedEigenvalue / m_eigenvalues(0);
+    double normalizationFactor = largestTemperedEigenvalue / m_eigenvalues(0);
     sum *= 1.0 / normalizationFactor;
     return sum;
   }
 
-
-  virtual ~SpatiallyVaryingKernel() {}
+  virtual ~SpatiallyVaryingKernel() = default;
 
   std::string
   GetKernelInfo() const
   {
-    std::ostringstream os;
-    os << "SpatiallyVaryingKernel";
-    return os.str();
+    return "SpatiallyVaryingKernel";
   }
 
-
 private:
+
+ using CacheType = SafeUnorderedMap<statismo::VectorType, statismo::MatrixType, Hash<statismo::VectorType>>;
+
   // returns a d x n matrix holding the value of all n eigenfunctions evaluated at the given point.
-  const statismo::MatrixType
+  statismo::MatrixType
   phiAtPoint(const PointType & pt) const
   {
-
     statismo::MatrixType v;
-    if (m_cacheValues)
+    if (m_doCacheValues)
     {
       // we need to convert the point to a vector, as the function hash_value (required by boost)
       // is not defined for an arbitrary point.
-      const VectorType ptAsVec = this->m_representer->PointToVector(pt);
-      _phiCacheLock.lock();
-      typename CacheType::const_iterator got = m_phiCache.find(ptAsVec);
-      _phiCacheLock.unlock();
-      if (got == m_phiCache.end())
-      {
+      auto ptAsVec = this->m_representer->PointToVector(pt);
+      // TODO: Create thread-safe data structure in statismo instead
+      //       of putting the burden of thread-safety on science related
+      //       classes
+      if (!m_phiCache.find(ptAsVec, v)) {
         v = m_nystrom->computeEigenfunctionsAtPoint(pt);
-        _phiCacheLock.lock();
         m_phiCache.insert(std::make_pair(ptAsVec, v));
-        _phiCacheLock.unlock();
-      }
-      else
-      {
-        v = got->second;
       }
     }
     else
@@ -326,7 +324,6 @@ private:
     return v;
   }
 
-
   //
   // members
 
@@ -334,9 +331,8 @@ private:
   std::unique_ptr<Nystrom<T>>          m_nystrom;
   statismo::VectorType                 m_eigenvalues;
   const TemperingFunction<PointType> & m_eta;
-  bool                                 m_cacheValues;
+  bool                                 m_doCacheValues;
   mutable CacheType                    m_phiCache;
-  mutable std::mutex                   _phiCacheLock;
 };
 
 

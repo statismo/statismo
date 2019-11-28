@@ -52,7 +52,7 @@ struct SafeInitializer
 {};
 
 /* 
- * \brief Base class for class that wraps a statismo implementation
+ * Base class for class that wraps a statismo implementation
  */
 template <typename I, typename T = NullInitializer>
 class ImplWrapper : public NonCopyable

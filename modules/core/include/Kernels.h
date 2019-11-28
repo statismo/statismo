@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of the statismo library.
  *
  * Author: Marcel Luethi (marcel.luethi@unibas.ch)
@@ -6,18 +6,37 @@
  * Copyright (c) 2011 University of Basel
  * All rights reserved.
  *
- * Statismo is licensed under the BSD licence (3 clause) license
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * Neither the name of the project's author nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
 
-
-#ifndef __KERNELS_H
-#define __KERNELS_H
-
-#include <cmath>
-
-#include <vector>
-#include <memory>
-#include <functional>
+#ifndef __KERNELS_H_
+#define __KERNELS_H_
 
 #include "CommonTypes.h"
 #include "Config.h"
@@ -25,6 +44,10 @@
 #include "Representer.h"
 #include "StatisticalModel.h"
 
+#include <cmath>
+#include <vector>
+#include <memory>
+#include <functional>
 
 namespace statismo
 {
@@ -41,7 +64,7 @@ public:
    */
   ScalarValuedKernel() {}
 
-  virtual ~ScalarValuedKernel() {}
+  virtual ~ScalarValuedKernel() = default;
 
   /**
    * Evaluate the kernel function at the points x and y
@@ -85,7 +108,8 @@ public:
   {
     return m_dimension;
   };
-  virtual ~MatrixValuedKernel() {}
+
+  virtual ~MatrixValuedKernel() = default;
 
   /**
    * Return a description of this kernel.
@@ -101,26 +125,26 @@ template <class T>
 class StatisticalModelKernel : public MatrixValuedKernel<typename Representer<T>::PointType>
 {
 public:
-  typedef Representer<T>                      RepresenterType;
-  typedef typename RepresenterType::PointType PointType;
-  typedef StatisticalModel<T>                 StatisticalModelType;
+  using RepresenterType = Representer<T>;
+  using PointType = typename RepresenterType::PointType;
+  using StatisticalModelType = StatisticalModel<T>;
 
   StatisticalModelKernel(const StatisticalModelType * model)
     : MatrixValuedKernel<PointType>(model->GetRepresenter()->GetDimensions())
     , m_statisticalModel(model)
   {}
 
-  virtual ~StatisticalModelKernel() {}
+  virtual ~StatisticalModelKernel() = default;
 
   inline MatrixType
-  operator()(const PointType & x, const PointType & y) const
+  operator()(const PointType & x, const PointType & y) const override
   {
-    MatrixType m = m_statisticalModel->GetCovarianceAtPoint(x, y);
+    auto m = m_statisticalModel->GetCovarianceAtPoint(x, y);
     return m;
   }
 
   std::string
-  GetKernelInfo() const
+  GetKernelInfo() const override
   {
     return "StatisticalModelKernel";
   }
@@ -132,4 +156,4 @@ private:
 
 } // namespace statismo
 
-#endif // __KERNELS_H
+#endif

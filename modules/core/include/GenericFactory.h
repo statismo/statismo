@@ -37,13 +37,16 @@
 #define __GENERIC_FACTORY_H_
 
 #include "CommonTypes.h"
+#include "Reflect.h"
 
 #include <memory>
 
 namespace statismo
 {
 
-/* \class Generic factory class
+/**
+ * Generic factory used to gather common code
+ * related to object creation
  */
 template <typename T>
 class GenericFactory
@@ -61,7 +64,7 @@ public:
   }
 
   template <typename... Args>
-  static std::unique_ptr<T, DefaultDeletor<T>>
+  static auto
   SafeCreate(Args &&... args)
   {
     return SafeCreateWithCustomDeletor<DefaultDeletor<T>>(std::forward<Args>(args)...);
@@ -73,6 +76,13 @@ public:
   {
     std::unique_ptr<T, Deletor> ptr(new T(std::forward<Args>(args)... ), Deletor());
     return ptr;
+  }
+
+  template <typename... Args>
+  static std::unique_ptr<T>
+  SafeCreateStd(Args &&... args)
+  {
+    return SafeCreateWithCustomDeletor<std::default_delete<T>>(std::forward<Args>(args)...);
   }
 };
 } // namespace statismo

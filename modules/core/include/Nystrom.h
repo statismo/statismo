@@ -12,10 +12,9 @@
  * Statismo is licensed under the BSD licence (3 clause) license
  */
 
-#include <memory>
-
+#include "NonCopyable.h"
+#include "GenericFactory.h"
 #include "CommonTypes.h"
-#include "Config.h"
 #include "Kernels.h"
 #include "RandSVD.h"
 #include "Representer.h"
@@ -28,31 +27,22 @@ namespace statismo
  * The type parameter T is the type of the dataset (e.g. Mesh, Image) for which the nystom approximation is computed
  */
 template <class T>
-class Nystrom
+class Nystrom : public GenericFactory<Nystrom<T>>, public NonCopyable
 {
 public:
-  typedef typename Representer<T>::PointType                   PointType;
-  typedef statismo::Domain<typename Representer<T>::PointType> DomainType;
-  typedef typename DomainType::DomainPointsListType            DomainPointsListType;
-
-  static auto
-  Create(const Representer<T> *                representer,
-         const MatrixValuedKernel<PointType> & kernel,
-         unsigned                              numEigenfunctions,
-         unsigned                              numberOfPointsForApproximation)
-  {
-    return std::unique_ptr<Nystrom>(
-      new Nystrom(representer, kernel, numEigenfunctions, numberOfPointsForApproximation));
-  }
-
+  using PointType = typename Representer<T>::PointType;
+  using DomainType = statismo::Domain<typename Representer<T>::PointType>;
+  using DomainPointsListType = typename DomainType::DomainPointsListType;
+  using ObjectFactoryType = GenericFactory<Nystrom>;
+  
+  friend ObjectFactoryType;
 
   /**
-   * Returns a d x n matrix, which holds the d-dimension value of all the n eigenfunctiosn at the given point
+   * Returns a d x n matrix, which holds the d-dimension value of all the n eigenfunctions at the given point
    */
   MatrixType
   computeEigenfunctionsAtPoint(const PointType & pt) const
   {
-
     unsigned kernelDim = m_kernel.GetDimension();
 
     // for every domain point x in the list, we compute the kernel vector
@@ -95,7 +85,6 @@ private:
     , m_kernel(kernel)
     , m_numEigenfunctions(numEigenfunctions)
   {
-
     DomainType domain = m_representer->GetDomain();
     m_nystromPoints = getNystromPoints(domain, numberOfPointsForApproximation);
     unsigned numDomainPoints = domain.GetNumberOfPoints();
@@ -105,8 +94,7 @@ private:
 
     MatrixType U; // will hold the eigenvectors (principal components)
     VectorType D; // will hold the eigenvalues (variance)
-    computeKernelMatrixDecomposition(&kernel, m_nystromPoints, numEigenfunctions, U, D);
-
+    computeKernelMatrixDecomposition(&m_kernel, m_nystromPoints, numEigenfunctions, U, D);
 
     // precompute the part of the nystrom approximation, which is independent of the domain point
     float normFactor = static_cast<float>(m_nystromPoints.size()) / static_cast<float>(numDomainPoints);
@@ -115,7 +103,6 @@ private:
 
     m_eigenvalues = (1.0f / normFactor) * D.topRows(numEigenfunctions);
   }
-
 
   /*
    * Returns a random set of points from the domain.
@@ -126,13 +113,13 @@ private:
   std::vector<PointType>
   getNystromPoints(DomainType & domain, unsigned numberOfPoints) const
   {
-
     numberOfPoints = std::min(numberOfPoints, domain.GetNumberOfPoints());
 
     std::vector<PointType> shuffledDomainPoints = domain.GetDomainPoints();
-    std::random_shuffle(shuffledDomainPoints.begin(), shuffledDomainPoints.end());
+    std::random_shuffle(std::begin(shuffledDomainPoints), std::end(shuffledDomainPoints));
+    shuffledDomainPoints.resize(numberOfPoints);
 
-    return std::vector<PointType>(shuffledDomainPoints.begin(), shuffledDomainPoints.begin() + numberOfPoints);
+    return shuffledDomainPoints;
   }
 
 
@@ -169,23 +156,11 @@ private:
       }
     }
 
-    typedef RandSVD<double> SVDType;
+    using SVDType = RandSVD<double> ;
     SVDType                 svd(K, numComponents * kernelDim);
     U = svd.matrixU().cast<ScalarType>();
     D = svd.singularValues().cast<ScalarType>();
   }
-
-
-  // private, to prevent use
-  Nystrom();
-  Nystrom<T> &
-  operator=(const Nystrom<T> & rhs);
-  Nystrom(const Nystrom<T> & orig);
-
-
-  //
-  // members
-  //
 
   const Representer<T> *                m_representer;
   MatrixType                            m_nystromMatrix;

@@ -1,4 +1,4 @@
-/**
+/*
  * This file is part of the statismo library.
  *
  * Author: Marcel Luethi (marcel.luethi@unibas.ch)
@@ -6,19 +6,36 @@
  * Copyright (c) 2011 University of Basel
  * All rights reserved.
  *
- * Statismo is licensed under the BSD licence (3 clause) license
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
+ *
+ * Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * Neither the name of the project's author nor the names of its
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
  */
-
-
-#ifndef __LOW_RANK_GP_MODEL_BUILDER_H
-#define __LOW_RANK_GP_MODEL_BUILDER_H
-
-#include <cmath>
-
-#include <vector>
-#include <future>
-#include <thread>
-#include <memory>
+#ifndef __LOW_RANK_GP_MODEL_BUILDER_H_
+#define __LOW_RANK_GP_MODEL_BUILDER_H_
 
 #include "CommonTypes.h"
 #include "Config.h"
@@ -29,10 +46,16 @@
 #include "Nystrom.h"
 #include "Representer.h"
 #include "StatisticalModel.h"
+#include "ThreadPool.h"
+
+#include <cmath>
+#include <vector>
+#include <future>
+#include <thread>
+#include <memory>
 
 namespace statismo
 {
-
 
 /**
  * This class holds the result of the eigenfunction computation for
@@ -40,12 +63,10 @@ namespace statismo
  */
 struct EigenfunctionComputationResult
 {
-
-
-  EigenfunctionComputationResult(unsigned _lowerInd, unsigned _upperInd, const MatrixType & _resMat)
-    : lowerInd(_lowerInd)
-    , upperInd(_upperInd)
-    , resultForPoints(_resMat)
+  EigenfunctionComputationResult(unsigned l, unsigned u, const MatrixType & resMat)
+    : lowerInd(l)
+    , upperInd(u)
+    , resultForPoints(resMat)
   {}
 
   unsigned   lowerInd;
@@ -56,61 +77,31 @@ struct EigenfunctionComputationResult
 
 /**
  * A model builder for building statistical models that are specified by an arbitrary Gaussian Process.
- * For details on the theoretical basis for this type of model builder, see the paper
+ * For details on the theoretical basis for this type of model builder, see the paper:
  *
- * A unified approach to shape model fitting and non-rigid registration
+ * "A unified approach to shape model fitting and non-rigid registration"
  * Marcel Lüthi, Christoph Jud and Thomas Vetter
- * IN: Proceedings of the 4th International Workshop on Machine Learning in Medical Imaging,
+ * in Proceedings of the 4th International Workshop on Machine Learning in Medical Imaging,
  * LNCS 8184, pp.66-73 Nagoya, Japan, September 2013
  *
  */
-
 template <typename T>
 class LowRankGPModelBuilder : public ModelBuilderBase<T, LowRankGPModelBuilder<T>>
 {
-
 public:
-  typedef Representer<T>                      RepresenterType;
-  typedef typename RepresenterType::PointType PointType;
-
-  typedef ModelBuilderBase<T, LowRankGPModelBuilder<T>> Superclass;
-  typedef typename Superclass::StatisticalModelType     StatisticalModelType;
-
-  typedef Domain<PointType>                         DomainType;
-  typedef typename DomainType::DomainPointsListType DomainPointsListType;
-
-  typedef MatrixValuedKernel<PointType> MatrixValuedKernelType;
-
-  friend typename Superclass::ObjectFactoryType;
+  using Superclass = ModelBuilderBase<T, LowRankGPModelBuilder<T>>;
+  using ObjectFactoryType = typename Superclass::ObjectFactoryType;
+  using RepresenterType = typename Superclass::RepresenterType;
+  using PointType = typename RepresenterType::PointType;
+  using DomainType = typename RepresenterType::DomainType;
+  using DomainPointsListType = typename DomainType::DomainPointsListType;
+  using MatrixValuedKernelType = MatrixValuedKernel<PointType>;
+  using StatisticalModelType = typename Superclass::StatisticalModelType;
+ 
+  friend ObjectFactoryType;
 
   /**
-   * Factory method to create a new ModelBuilder
-   */
-  /*static LowRankGPModelBuilder *
-  Create(const RepresenterType * representer)
-  {
-    return new LowRankGPModelBuilder(representer);
-  }*/
-
-  /**
-   * Destroy the object.
-   * The same effect can be achieved by deleting the object in the usual
-   * way using the c++ delete keyword.
-   */
-  /*void
-  Delete()
-  {
-    delete this;
-  }*/
-
-  /**
-   * The desctructor
-   */
-  virtual ~LowRankGPModelBuilder() {}
-
-
-  /**
-   * Build a new model using a zero-mean Gaussian process with given  kernel.
+   * Build a new model using a zero-mean Gaussian process with given kernel.
    * \param kernel: A kernel (or covariance) function
    * \param numComponents The number of components used for the low rank approximation.
    * \param numPointsForNystrom  The number of points used for the Nystrom approximation
@@ -141,27 +132,22 @@ public:
                 unsigned                                          numComponents,
                 unsigned                                          numPointsForNystrom = 500) const
   {
+    auto domainPoints = m_representer->GetDomain().GetDomainPoints();
+    auto               numDomainPoints = m_representer->GetDomain().GetNumberOfPoints();
+    auto               kernelDim = kernel.GetDimension();
 
-
-    std::vector<PointType> domainPoints = m_representer->GetDomain().GetDomainPoints();
-    unsigned               numDomainPoints = m_representer->GetDomain().GetNumberOfPoints();
-    unsigned               kernelDim = kernel.GetDimension();
-
-
-    auto nystrom(Nystrom<T>::Create(m_representer, kernel, numComponents, numPointsForNystrom));
-
-    // we precompute the value of the eigenfunction for each domain point
+    auto nystrom = Nystrom<T>::SafeCreateStd(m_representer, kernel, numComponents, numPointsForNystrom);
+  
+    // We precompute the value of the eigenfunction for each domain point
     // and store it later in the pcaBasis matrix. In this way we obtain
     // a standard statismo model.
     // To save time, we parallelize over the rows
-    std::vector<std::future<EigenfunctionComputationResult> *> futvec;
-
-
     unsigned numChunks = std::thread::hardware_concurrency() + 1;
-
+    ThreadPool pool{numChunks - 1};
+    std::vector<std::future<EigenfunctionComputationResult>> futvec;
+    
     for (unsigned i = 0; i <= numChunks; i++)
     {
-
       unsigned chunkSize =
         static_cast<unsigned>(ceil(static_cast<float>(numDomainPoints) / static_cast<float>(numChunks)));
       unsigned lowerInd = i * chunkSize;
@@ -172,58 +158,41 @@ public:
         break;
       }
 
-      std::future<EigenfunctionComputationResult> * fut = new std::future<EigenfunctionComputationResult>(
-        std::async(std::launch::async,
-                   std::bind(&LowRankGPModelBuilder<T>::computeEigenfunctionsForPoints,
-                             this,
-                             nystrom.get(),
-                             &kernel,
-                             numComponents,
-                             domainPoints,
-                             lowerInd,
-                             upperInd)));
-      futvec.push_back(fut);
+      futvec.push_back(pool.submit([=, nys = nystrom.get(), k=&kernel]() {
+        return computeEigenfunctionsForPoints(nys, k, numComponents, domainPoints, lowerInd, upperInd);
+      }));
     }
 
     MatrixType pcaBasis = MatrixType::Zero(numDomainPoints * kernelDim, numComponents);
 
     // collect the result
-    for (unsigned i = 0; i < futvec.size(); i++)
-    {
-      EigenfunctionComputationResult res = futvec[i]->get();
+    for (auto& f : futvec) {
+      auto res = f.get();
       pcaBasis.block(res.lowerInd * kernelDim, 0, (res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
         res.resultForPoints;
-      delete futvec[i];
     }
-
-
-    VectorType pcaVariance = nystrom->getEigenvalues();
-
-    RowVectorType mu = m_representer->SampleToSampleVector(mean);
-
+    futvec.clear();
+  
+    auto pcaVariance = nystrom->getEigenvalues();
+    auto mu = m_representer->SampleToSampleVector(mean);
     auto model = StatisticalModelType::SafeCreate(m_representer, mu, pcaBasis, pcaVariance, 0);
 
     // the model builder does not use any data. Hence the scores and the datainfo is emtpy
     MatrixType                         scores; // no scores
     typename BuilderInfo::DataInfoList dataInfo;
-
-
     typename BuilderInfo::ParameterInfoList bi;
     bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance", Utils::toString(0)));
     bi.push_back(BuilderInfo::KeyValuePair("KernelInfo", kernel.GetKernelInfo()));
 
     // finally add meta data to the model info
     BuilderInfo builderInfo("LowRankGPModelBuilder", dataInfo, bi);
-
     ModelInfo::BuilderInfoList biList(1, builderInfo);
-    ;
 
     ModelInfo info(scores, biList);
     model->SetModelInfo(info);
 
     return model;
   }
-
 
 private:
   /*
@@ -240,8 +209,7 @@ private:
                                  unsigned                       upperInd) const
   {
 
-    unsigned kernelDim = kernel->GetDimension();
-
+    auto kernelDim = kernel->GetDimension();
     assert(upperInd <= domainPts.size());
 
     // holds the results of the computation
@@ -251,30 +219,20 @@ private:
     // i is in the right range
     for (unsigned i = lowerInd; i < upperInd; i++)
     {
-
-      PointType pti = domainPts[i];
+      auto pti = domainPts[i];
       resMat.block((i - lowerInd) * kernelDim, 0, kernelDim, resMat.cols()) =
         nystrom->computeEigenfunctionsAtPoint(pti);
     }
     return EigenfunctionComputationResult(lowerInd, upperInd, resMat);
   }
 
-
-  /**
-   * constructor - only used internally
-   */
   LowRankGPModelBuilder(const RepresenterType * representer)
     : m_representer(representer)
   {}
-
-  // purposely not implemented
-  LowRankGPModelBuilder(const LowRankGPModelBuilder & orig);
-  LowRankGPModelBuilder &
-  operator=(const LowRankGPModelBuilder & rhs);
 
   const RepresenterType * m_representer;
 };
 
 } // namespace statismo
 
-#endif // __LOW_RANK_GP_MODEL_BUILDER_H
+#endif // __LOW_RANK_GP_MODEL_BUILDER_H_

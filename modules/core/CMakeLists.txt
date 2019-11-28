@@ -3,9 +3,21 @@ add_library(statismo_core ${statismo_LIB_TYPE}
   src/HDF5Utils.cxx 
   src/ModelInfo.cxx
   src/Representer.cxx
+  src/ThreadPool.cxx 
 )
 
-target_link_libraries(statismo_core PUBLIC ${HDF5_LIBRARIES})
+set(deps
+  ${HDF5_LIBRARIES}
+)
+
+if(UNIX)
+  set(deps
+    ${deps}
+    pthread
+  )
+endif()
+
+target_link_libraries(statismo_core PUBLIC ${deps})
 target_include_directories(statismo_core PUBLIC  
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/statismo/core>

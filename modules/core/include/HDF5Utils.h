@@ -35,7 +35,6 @@
  *
  */
 
-
 #ifndef __HDF5_UTILS_H_
 #define __HDF5_UTILS_H_
 
