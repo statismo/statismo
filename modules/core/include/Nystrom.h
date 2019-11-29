@@ -41,7 +41,7 @@ public:
    * Returns a d x n matrix, which holds the d-dimension value of all the n eigenfunctions at the given point
    */
   MatrixType
-  computeEigenfunctionsAtPoint(const PointType & pt) const
+  ComputeEigenfunctionsAtPoint(const PointType & pt) const
   {
     unsigned kernelDim = m_kernel.GetDimension();
 
@@ -70,7 +70,7 @@ public:
    * Returns a vector of size n, where n is the number of eigenfunctions/eigenvalues that were approximated
    */
   const VectorType &
-  getEigenvalues() const
+  GetEigenvalues() const
   {
     return m_eigenvalues;
   }
@@ -86,7 +86,7 @@ private:
     , m_numEigenfunctions(numEigenfunctions)
   {
     DomainType domain = m_representer->GetDomain();
-    m_nystromPoints = getNystromPoints(domain, numberOfPointsForApproximation);
+    m_nystromPoints = GetNystromPoints(domain, numberOfPointsForApproximation);
     unsigned numDomainPoints = domain.GetNumberOfPoints();
 
     // compute a eigenvalue decomposition of the kernel matrix, evaluated at the points used for the
@@ -94,7 +94,7 @@ private:
 
     MatrixType U; // will hold the eigenvectors (principal components)
     VectorType D; // will hold the eigenvalues (variance)
-    computeKernelMatrixDecomposition(&m_kernel, m_nystromPoints, numEigenfunctions, U, D);
+    ComputeKernelMatrixDecomposition(&m_kernel, m_nystromPoints, numEigenfunctions, U, D);
 
     // precompute the part of the nystrom approximation, which is independent of the domain point
     float normFactor = static_cast<float>(m_nystromPoints.size()) / static_cast<float>(numDomainPoints);
@@ -111,7 +111,7 @@ private:
    * @param numberOfPoints the size of the sample
    */
   std::vector<PointType>
-  getNystromPoints(DomainType & domain, unsigned numberOfPoints) const
+  GetNystromPoints(DomainType & domain, unsigned numberOfPoints) const
   {
     numberOfPoints = std::min(numberOfPoints, domain.GetNumberOfPoints());
 
@@ -129,7 +129,7 @@ private:
    * the corresponding eigenvalues of this kernel matrix
    */
   void
-  computeKernelMatrixDecomposition(const MatrixValuedKernel<PointType> * kernel,
+  ComputeKernelMatrixDecomposition(const MatrixValuedKernel<PointType> * kernel,
                                    const std::vector<PointType> &        xs,
                                    unsigned                              numComponents,
                                    MatrixType &                          U,
@@ -158,8 +158,8 @@ private:
 
     using SVDType = RandSVD<double> ;
     SVDType                 svd(K, numComponents * kernelDim);
-    U = svd.matrixU().cast<ScalarType>();
-    D = svd.singularValues().cast<ScalarType>();
+    U = svd.MatrixU().cast<ScalarType>();
+    D = svd.SingularValues().cast<ScalarType>();
   }
 
   const Representer<T> *                m_representer;

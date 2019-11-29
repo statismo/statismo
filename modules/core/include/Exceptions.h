@@ -50,6 +50,7 @@ namespace statismo
 
 enum class Status {
    SUCCESS = 0,
+   BAD_VERSION_ERROR,
    BAD_INPUT_ERROR,
    IO_ERROR,
    INVALID_DATA_ERROR,
@@ -168,6 +169,23 @@ template <typename Callable> struct TranslateImpl<Callable, void> {
  */
 template <typename Callable> auto Translate(Callable &&f) {
   return details::TranslateImpl<Callable>()(std::forward<Callable>(f));
+}
+
+/**
+ * \brief Exception conversion result check
+ */
+template <typename R>
+bool CheckResult(const std::tuple<Status, std::optional<R>>& res) {
+  return std::get<0>(res) == Status::SUCCESS && std::get<1>(res);
+}
+
+/**
+ * \brief Exception conversion result check and assert
+ */
+template <typename R>
+bool CheckResultAndAssert(const std::tuple<Status, std::optional<R>>& res, R&& expected) {
+  return std::get<0>(res) == Status::SUCCESS && std::get<1>(res) &&
+  std::get<1>(res).value() == std::forward<R>(expected);
 }
 }
 

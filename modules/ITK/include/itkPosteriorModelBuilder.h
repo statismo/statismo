@@ -108,7 +108,7 @@ public:
                                                                           const PointValueListType & pointValues,
                                                                           double pointValuesNoiseVariance,
                                                                           bool   computeScores) const;
-    auto                                   new_model_statismo = this->callForwardImplTrans(ExceptionHandler{ *this },
+    auto                                   new_model_statismo = this->CallForwardImplTrans(ExceptionHandler{ *this },
                                                          static_cast<OverloadType>(&ImplType::BuildNewModelFromModel),
                                                          model_statismo,
                                                          pointValues,
@@ -125,7 +125,7 @@ public:
                 double                     pointValuesNoiseVariance,
                 double                     noiseVariance)
   {
-    auto                                   model_statismo = this->callForwardImplTrans(ExceptionHandler{ *this },
+    auto                                   model_statismo = this->CallForwardImplTrans(ExceptionHandler{ *this },
                                                      &ImplType::BuildNewModel,
                                                      model_statismo,
                                                      DataItemList,
@@ -148,7 +148,7 @@ public:
       const StatismoStatisticalModelType *     model,
       const PointValueWithCovarianceListType & pointValuesWithCovariance,
       bool                                     computeScores) const;
-    auto new_model_statismo = this->callForwardImplTrans(ExceptionHandler{ *this },
+    auto new_model_statismo = this->CallForwardImplTrans(ExceptionHandler{ *this },
                                                          static_cast<OverloadType>(&ImplType::BuildNewModelFromModel),
                                                          model_statismo,
                                                          pointValuesWithCovariance,
@@ -164,7 +164,7 @@ public:
                 const PointValueWithCovarianceListType & pointValuesWithCovariance,
                 double                                   noiseVariance)
   {
-    auto model_statismo = this->callForwardImplTrans(
+    auto model_statismo = this->CallForwardImplTrans(
       ExceptionHandler{ *this }, &ImplType::BuildNewModel, DataItemList, pointValuesWithCovariance, noiseVariance);
     typename StatisticalModelType::Pointer model_itk = StatisticalModelType::New();
     model_itk->SetStatismoImplObj(std::move(model_statismo));

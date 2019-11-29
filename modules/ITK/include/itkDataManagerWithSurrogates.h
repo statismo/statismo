@@ -98,7 +98,7 @@ public:
                            const char *                                  datasetURI,
                            const char *                                  surrogateFilename)
   {
-    this->callForwardImplTrans(
+    this->CallForwardImplTrans(
       ExceptionHandler{ *this }, &ImplType::AddDasetWithSurrogates, ds, datasetURI, surrogateFilename);
   }
 };

@@ -61,7 +61,7 @@ DataManagerWithSurrogates<T>::LoadSurrogateTypes(const std::string & filename)
   m_typeInfo.typeFilename = filename;
   m_typeInfo.types.clear();
 
-  auto surrogateTypes = Utils::ReadVectorFromTxtFile(filename.c_str());
+  auto surrogateTypes = utils::ReadVectorFromTxtFile(filename.c_str());
   for (unsigned i = 0; i < surrogateTypes.size(); ++i) {
     if (surrogateTypes(i) == 0) {
       m_typeInfo.types.push_back(DataItemWithSurrogatesType::SurrogateType::Categorical);
@@ -79,7 +79,7 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
                                                        const std::string &     surrogateFilename)
 {
   assert(this->m_representer);
-  auto surrogateVector = Utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
+  auto surrogateVector = utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
 
   if (static_cast<std::size_t>(surrogateVector.size()) != m_typeInfo.types.size()) {
     throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates", Status::INVALID_DATA_ERROR);

@@ -92,7 +92,7 @@ public:
   void
   AddDataset(typename RepresenterType::DatasetType * ds, const char * filename)
   {
-    this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::AddDataset, ds, filename);
+    this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::AddDataset, ds, filename);
   }
 
   void
@@ -111,13 +111,13 @@ public:
   void
   Save(const char * filename)
   {
-    this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::Save, filename);
+    this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::Save, filename);
   }
 
   typename statismo::DataManager<T>::DataItemListType
   GetData() const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetData);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetData);
   }
 };
 

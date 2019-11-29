@@ -154,7 +154,7 @@ main(int argc, char ** argv)
 bool
 isOptionsConflictPresent(ProgramOptions & opt)
 {
-  statismo::Utils::ToLower(opt.strType);
+  statismo::utils::ToLower(opt.strType);
 
   if (opt.strType != "shape" && opt.strType != "deformation")
   {

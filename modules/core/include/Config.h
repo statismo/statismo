@@ -38,6 +38,11 @@
 #ifndef __STATISMO_CONFIG_H_
 #define __STATISMO_CONFIG_H_
 
+static constexpr unsigned s_oldFileVersionMajor = 0;
+static constexpr unsigned s_oldFileVersionMinor = 8;
+static constexpr unsigned s_currenFileVersionMajor = 0;
+static constexpr unsigned s_currentFileVersionMinor = 9;
+
 // gccxml (as used by e.g. wrapitk) does not compile with vectorization enabled.
 #if defined(__GCCXML__)
 #  define EIGEN_DONT_VECTORIZE 1

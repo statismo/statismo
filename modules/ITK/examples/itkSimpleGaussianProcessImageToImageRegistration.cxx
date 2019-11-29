@@ -130,7 +130,6 @@ buildLowRankGPModel(const char * referenceFilename)
 {
 
   typedef itk::LowRankGPModelBuilder<TImage>   ModelBuilderType;
-  typedef std::vector<std::string>             StringVectorType;
   typedef itk::ImageFileReader<TImage>         ImageFileReaderType;
   typedef typename TRepresenterType::PointType PointType;
 

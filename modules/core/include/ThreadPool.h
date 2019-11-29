@@ -52,7 +52,7 @@ namespace statismo
 // homogeneous manner
 class FunctionWrapper : public NonCopyable {
     struct ImplBase {
-        virtual void call() = 0;
+        virtual void Call() = 0;
         virtual ~ImplBase() = default;
     };
     std::unique_ptr<ImplBase> m_impl;
@@ -60,7 +60,7 @@ class FunctionWrapper : public NonCopyable {
     struct Impl : ImplBase {
         F f;
         Impl(F&& f) : f{std::move(f)} {}
-        void call() override { f(); }
+        void Call() override { f(); }
     };
 
    public:
@@ -68,7 +68,7 @@ class FunctionWrapper : public NonCopyable {
     FunctionWrapper(F&& f)
         : m_impl{std::make_unique<Impl<F>>(std::forward<F>(f))} {}
 
-    void operator()() { m_impl->call(); }
+    void operator()() { m_impl->Call(); }
     FunctionWrapper() = default;
     FunctionWrapper(FunctionWrapper&& other)
         : m_impl{std::move(other.m_impl)} {}
@@ -82,17 +82,17 @@ class WorkStealingQueue : public NonCopyable {
    public:
     using TaskType = FunctionWrapper;
 
-    void push(TaskType data) {
+    void Push(TaskType data) {
         std::lock_guard<std::mutex> lock{m_mut};
         m_queue.push_front(std::move(data));
     }
 
-    bool empty() const {
+    bool Empty() const {
         std::lock_guard<std::mutex> lock{m_mut};
         return m_queue.empty();
     }
 
-    bool tryPop(TaskType& t) {
+    bool TryPop(TaskType& t) {
         std::lock_guard<std::mutex> lock{m_mut};
 
         if (m_queue.empty()) {
@@ -104,7 +104,7 @@ class WorkStealingQueue : public NonCopyable {
         return true;
     }
 
-    bool trySteal(TaskType& t) {
+    bool TrySteal(TaskType& t) {
         std::lock_guard<std::mutex> lock{m_mut};
 
         if (m_queue.empty()) {
@@ -147,7 +147,7 @@ class RaiiThread : public NonCopyable {
         return *this;
     }
 
-    std::thread& get() { return m_thread; }
+    std::thread& Get() { return m_thread; }
 
    private:
     std::thread m_thread;
@@ -173,25 +173,25 @@ class ThreadPool final : public NonCopyable {
     virtual ~ThreadPool() { m_isDone = true; }
 
     template <typename F>
-    std::future<std::invoke_result_t<F>> submit(F t) {
+    std::future<std::invoke_result_t<F>> Submit(F t) {
         std::packaged_task<std::invoke_result_t<F>()> task{t};
         std::future<std::invoke_result_t<F>> res{task.get_future()};
 
         if (s_localQueue != nullptr) {
-            s_localQueue->push(std::move(task));
+            s_localQueue->Push(std::move(task));
         } else {
-            m_poolQueue.push(std::move(task));
+            m_poolQueue.Push(std::move(task));
         }
 
         return res;
     }
 
    private:
-    void doThreadJob(std::size_t idx);
-    bool popTaskFromLocalQueue(TaskType& t);
-    bool popTaskFromPoolQueue(TaskType& t);
-    bool popTaskFromOtherLocalQueues(TaskType& t);
-    void runPendingTask();
+    void DoThreadJob(std::size_t idx);
+    bool PopTaskFromLocalQueue(TaskType& t);
+    bool PopTaskFromPoolQueue(TaskType& t);
+    bool PopTaskFromOtherLocalQueues(TaskType& t);
+    void RunPendingTask();
 
     std::atomic_bool m_isDone{false};
     WaitingMode m_waitMode{WaitingMode::YIELD};

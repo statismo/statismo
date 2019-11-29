@@ -86,16 +86,56 @@ endforeach()
 # Sanity
 # ----------------------------------------
 
+# Formating
 set(CLANG_FORMAT_BIN_NAME clang-format-6.0)
 set(CLANG_FORMAT_EXCLUDE_PATTERNS  "build*" ${PROJECT_BINARY_DIR})
 find_package(ClangFormat)
+
+# Extra compiler options for warnings
+string(
+    APPEND STATISMO_COMPILE_OPTIONS
+    "$<IF:$<CXX_COMPILER_ID:MSVC>,"
+        "/W4;$<$<CONFIG:RELEASE>:/O2>,"
+        "-Wall;-Wextra;-Werror;"
+            "$<$<CONFIG:RELEASE>:-O3>"
+            "$<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>"
+    ">"
+)
+
+# Clang tidy
+
+#
+# sudo ln -s /usr/bin/clang-tidy-6.0 /usr/bin/clang-tidy
+#
+if (BUILD_WITH_TIDY)
+  find_program(
+    CLANG_TIDY_EXE
+    NAMES "clang-tidy"
+    DOC "Path to clang-tidy executable"
+  )
+
+  if(NOT CLANG_TIDY_EXE)
+    message(FATAL_ERROR "clang-tidy not found")
+  else()
+    message(STATUS "clang-tidy found: ${CLANG_TIDY_EXE}")
+    set(WITH_CLANG_TIDY "${CLANG_TIDY_EXE}" "-checks=-*,cert-*,bugprone-*,cppcoreguidelines-*,google-*,hicpp-*,misc-*,\
+    modernize-*,performance-*,readability-*,-google-readability-namespace-comments,-cert-dcl58-cpp,\
+    -hicpp-special-member-functions,-cppcoreguidelines-pro-type-reinterpret-cast,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,\
+    -cppcoreguidelines-owning-memory,-readability-implicit-bool-conversion,-hicpp-no-array-decay,\
+    -cppcoreguidelines-pro-bounds-pointer-arithmetic,-google-build-using-namespace,\
+    -cppcoreguidelines-pro-bounds-constant-array-index")
+  endif()
+endif()
 
 # ----------------------------------------
 # Tests configuration
 # ----------------------------------------
 
-enable_testing()
-include(CTest)
+if (BUILD_TESTS)
+  include_directories(${PROJECT_SOURCE_DIR}/helpers/tests)
+  enable_testing()
+  include(CTest)
+endif()
 
 # ----------------------------------------
 # Dependencies

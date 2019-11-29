@@ -119,26 +119,26 @@ public:
   const RepresenterType *
   GetRepresenter() const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetRepresenter);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetRepresenter);
   }
 
   const DomainType &
   GetDomain() const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetDomain);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetDomain);
   }
 
   DatasetPointerType
   DrawMean() const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::DrawMean);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::DrawMean);
   }
 
   ValueType
   DrawMeanAtPoint(const PointType & pt) const
   {
     using OverloadType = ValueType (ImplType::*)(const PointType &) const;
-    return this->callForwardImplTrans(
+    return this->CallForwardImplTrans(
       ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::DrawMeanAtPoint), pt);
   }
 
@@ -146,7 +146,7 @@ public:
   DrawMeanAtPoint(unsigned ptid) const
   {
     using OverloadType = ValueType (ImplType::*)(unsigned) const;
-    return this->callForwardImplTrans(
+    return this->CallForwardImplTrans(
       ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::DrawMeanAtPoint), ptid);
     // return callstatismoImpl(std::bind(static_cast<functype>(&ImplType::DrawMeanAtPoint), this->m_impl, ptid));
   }
@@ -157,7 +157,7 @@ public:
     using OverloadType = DatasetPointerType (ImplType::*)(const statismo::VectorType &, bool) const;
     /*return callstatismoImpl(
       std::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, fromVnlVector(coeffs), addNoise));*/
-    return this->callForwardImplTrans(
+    return this->CallForwardImplTrans(
       ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::DrawSample), fromVnlVector(coeffs), addNoise);
   }
 
@@ -165,7 +165,7 @@ public:
   DrawSample(bool addNoise = false) const
   {
     using OverloadType = DatasetPointerType (ImplType::*)(bool) const;
-    return this->callForwardImplTrans(
+    return this->CallForwardImplTrans(
       ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::DrawSample), addNoise);
     // return callstatismoImpl(std::bind(static_cast<functype>(&ImplType::DrawSample), this->m_impl, addNoise));
   }
@@ -174,7 +174,7 @@ public:
   DrawPCABasisSample(unsigned componentNumber) const
   {
     using OverloadType = DatasetPointerType (ImplType::*)(unsigned) const;
-    return this->callForwardImplTrans(
+    return this->CallForwardImplTrans(
       ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::DrawPCABasisSample), componentNumber);
 
     // return callstatismoImpl(
@@ -185,7 +185,7 @@ public:
   DrawSampleAtPoint(const VectorType & coeffs, const PointType & pt, bool addNoise = false) const
   {
     using OverloadType = ValueType (ImplType::*)(const statismo::VectorType &, const PointType &, bool) const;
-    return this->callForwardImplTrans(ExceptionHandler{ *this },
+    return this->CallForwardImplTrans(ExceptionHandler{ *this },
                                       static_cast<OverloadType>(&ImplType::DrawSampleAtPoint),
                                       fromVnlVector(coeffs),
                                       pt,
@@ -198,7 +198,7 @@ public:
   DrawSampleAtPoint(const VectorType & coeffs, unsigned ptid, bool addNoise = false) const
   {
     using OverloadType = ValueType (ImplType::*)(const statismo::VectorType &, unsigned, bool) const;
-    return this->callForwardImplTrans(ExceptionHandler{ *this },
+    return this->CallForwardImplTrans(ExceptionHandler{ *this },
                                       static_cast<OverloadType>(&ImplType::DrawSampleAtPoint),
                                       fromVnlVector(coeffs),
                                       ptid,
@@ -212,7 +212,7 @@ public:
   VectorType
   ComputeCoefficients(DatasetConstPointerType ds) const
   {
-    return toVnlVector(this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::ComputeCoefficients, ds));
+    return toVnlVector(this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::ComputeCoefficients, ds));
 
     // return toVnlVector(callstatismoImpl(std::bind(&ImplType::ComputeCoefficients, this->m_impl, ds)));
   }
@@ -220,21 +220,21 @@ public:
   double
   ComputeLogProbability(DatasetConstPointerType ds) const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::ComputeLogProbability, ds);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::ComputeLogProbability, ds);
     // return callstatismoImpl(std::bind(&ImplType::ComputeLogProbability, this->m_impl, ds));
   }
 
   double
   ComputeProbability(DatasetConstPointerType ds) const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::ComputeProbability, ds);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::ComputeProbability, ds);
     // return callstatismoImpl(std::bind(&ImplType::ComputeProbability, this->m_impl, ds));
   }
 
   double
   ComputeLogProbabilityOfCoefficients(const VectorType & coeffs) const
   {
-    return this->callForwardImplTrans(
+    return this->CallForwardImplTrans(
       ExceptionHandler{ *this }, &ImplType::ComputeLogProbabilityOfCoefficients, fromVnlVector(coeffs));
     // return callstatismoImpl(
     // std::bind(&ImplType::ComputeLogProbabilityOfCoefficients, this->m_impl, fromVnlVector(coeffs)));
@@ -243,14 +243,14 @@ public:
   double
   ComputeProbabilityOfCoefficients(const VectorType & coeffs) const
   {
-    return this->callForwardImplTrans(
+    return this->CallForwardImplTrans(
       ExceptionHandler{ *this }, &ImplType::ComputeProbabilityOfCoefficients, fromVnlVector(coeffs));
   }
 
   double
   ComputeMahalanobisDistance(DatasetConstPointerType ds) const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::ComputeMahalanobisDistance, ds);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::ComputeMahalanobisDistance, ds);
     // return callstatismoImpl(std::bind(&ImplType::ComputeMahalanobisDistance, this->m_impl, ds));
   }
 
@@ -259,7 +259,7 @@ public:
   {
     using OverloadType = statismo::VectorType (ImplType::*)(const PointValueListType &, double) const;
     return toVnlVector(
-      this->callForwardImplTrans(ExceptionHandler{ *this },
+      this->CallForwardImplTrans(ExceptionHandler{ *this },
                                  static_cast<OverloadType>(&ImplType::ComputeCoefficientsForPointValues),
                                  pvlist,
                                  variance));
@@ -272,7 +272,7 @@ public:
   {
     using OverloadType = statismo::VectorType (ImplType::*)(const PointValueWithCovarianceListType &) const;
     return toVnlVector(
-      this->callForwardImplTrans(ExceptionHandler{ *this },
+      this->CallForwardImplTrans(ExceptionHandler{ *this },
                                  static_cast<OverloadType>(&ImplType::ComputeCoefficientsForPointValuesWithCovariance),
                                  pvclist));
     // return toVnlVector(callstatismoImpl(std::bind(
@@ -282,14 +282,14 @@ public:
   unsigned
   GetNumberOfPrincipalComponents() const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetNumberOfPrincipalComponents);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetNumberOfPrincipalComponents);
     // return callstatismoImpl(std::bind(&ImplType::GetNumberOfPrincipalComponents, this->m_impl));
   }
 
   float
   GetNoiseVariance() const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetNoiseVariance);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetNoiseVariance);
     // return callstatismoImpl(std::bind(&ImplType::GetNoiseVariance, this->m_impl));
   }
 
@@ -297,7 +297,7 @@ public:
   GetCovarianceAtPoint(const PointType & pt1, const PointType & pt2) const
   {
     using OverloadType = statismo::MatrixType (ImplType::*)(const PointType &, const PointType &) const;
-    return toVnlMatrix(this->callForwardImplTrans(
+    return toVnlMatrix(this->CallForwardImplTrans(
       ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::GetCovarianceAtPoint), pt1, pt2));
     // return toVnlMatrix(
     // callstatismoImpl(std::bind(static_cast<functype>(&ImplType::GetCovarianceAtPoint), this->m_impl, pt1, pt2)));
@@ -307,7 +307,7 @@ public:
   GetCovarianceAtPoint(unsigned ptid1, unsigned ptid2) const
   {
     using OverloadType = statismo::MatrixType (ImplType::*)(unsigned, unsigned) const;
-    return toVnlMatrix(this->callForwardImplTrans(
+    return toVnlMatrix(this->CallForwardImplTrans(
       ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::GetCovarianceAtPoint), ptid1, ptid2));
     // return toVnlMatrix(
     // callstatismoImpl(std::bind(static_cast<functype>(&ImplType::GetCovarianceAtPoint), this->m_impl, ptid1, ptid2)));
@@ -318,7 +318,7 @@ public:
   {
     using OverloadType = statismo::MatrixType (ImplType::*)(const PointType &) const;
     return toVnlMatrix(
-      this->callForwardImplTrans(ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::GetJacobian), pt));
+      this->CallForwardImplTrans(ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::GetJacobian), pt));
     // return toVnlMatrix(callstatismoImpl(std::bind(static_cast<functype>(&ImplType::GetJacobian), this->m_impl, pt)));
   }
 
@@ -327,7 +327,7 @@ public:
   {
     using OverloadType = statismo::MatrixType (ImplType::*)(unsigned) const;
     return toVnlMatrix(
-      this->callForwardImplTrans(ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::GetJacobian), ptId));
+      this->CallForwardImplTrans(ExceptionHandler{ *this }, static_cast<OverloadType>(&ImplType::GetJacobian), ptId));
     // return toVnlMatrix(callstatismoImpl(std::bind(static_cast<functype>(&ImplType::GetJacobian), this->m_impl,
     // ptId)));
   }
@@ -335,35 +335,35 @@ public:
   MatrixType
   GetPCABasisMatrix() const
   {
-    return toVnlMatrix(this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetPCABasisMatrix));
+    return toVnlMatrix(this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetPCABasisMatrix));
     // return toVnlMatrix(callstatismoImpl(std::bind(&ImplType::GetPCABasisMatrix, this->m_impl)));
   }
 
   MatrixType
   GetOrthonormalPCABasisMatrix() const
   {
-    return toVnlMatrix(this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetOrthonormalPCABasisMatrix));
+    return toVnlMatrix(this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetOrthonormalPCABasisMatrix));
     // return toVnlMatrix(callstatismoImpl(std::bind(&ImplType::GetOrthonormalPCABasisMatrix, this->m_impl)));
   }
 
   VectorType
   GetPCAVarianceVector() const
   {
-    return toVnlVector(this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetPCAVarianceVector));
+    return toVnlVector(this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetPCAVarianceVector));
     // return toVnlVector(callstatismoImpl(std::bind(&ImplType::GetPCAVarianceVector, this->m_impl)));
   }
 
   VectorType
   GetMeanVector() const
   {
-    return toVnlVector(this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetMeanVector));
+    return toVnlVector(this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetMeanVector));
     // return toVnlVector(callstatismoImpl(std::bind(&ImplType::GetMeanVector, this->m_impl)));
   }
 
   const statismo::ModelInfo &
   GetModelInfo() const
   {
-    return this->callForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetModelInfo);
+    return this->CallForwardImplTrans(ExceptionHandler{ *this }, &ImplType::GetModelInfo);
   }
 
 private:

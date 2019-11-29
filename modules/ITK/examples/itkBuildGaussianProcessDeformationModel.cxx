@@ -110,8 +110,6 @@ itkExample(const char * referenceFilename, double gaussianKernelSigma, const cha
 
 
   typedef itk::LowRankGPModelBuilder<ImageType> ModelBuilderType;
-  typedef itk::StatisticalModel<ImageType>      StatisticalModelType;
-  typedef std::vector<std::string>              StringVectorType;
   typedef itk::ImageFileReader<ImageType>       ImageFileReaderType;
   typedef typename ImageType::PointType         PointType;
 

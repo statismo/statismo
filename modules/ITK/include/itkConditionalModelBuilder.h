@@ -90,7 +90,7 @@ public:
     float                                                                                        noiseVariance,
     double                                                                                       modelVarianceRetained)
   {
-    auto model_statismo = this->callForwardImplTrans(ExceptionHandler{ *this },
+    auto model_statismo = this->CallForwardImplTrans(ExceptionHandler{ *this },
                                                      &ImplType::BuildNewModel,
                                                      SampleDataStructureList,
                                                      surrogateTypes,

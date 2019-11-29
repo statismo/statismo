@@ -34,38 +34,31 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef REPRESENTER_H_
-#define REPRESENTER_H_
-
-#include <string>
-#include <H5Cpp.h>
-#include <memory>
+#ifndef __REPRESENTER_H_
+#define __REPRESENTER_H_
 
 #include "CommonTypes.h"
 #include "Domain.h"
 #include "CoreTraits.h"
 #include "Clonable.h"
 #include "GenericFactory.h"
+#include "StatismoCoreExport.h"
 
-/**
- * \brief Provides the interface between statismo and the dataset type the application uses.
- *
- * A Representer is a type that provides the connection between the statismo library
- * and the application. It distinguishes three different representations of the data, and provides methods for
- * conversion between those representations:
- * - a Dataset, typically as read from a file on the disk
- * - a Sample, which is a geometric (generally a rigid or affine) transform of the dataset
- * - a SampleVector, which is an internal representation (vector) useful from the statistical analysis.
- *
- * In the following the methods and types that have to be implemented to write a new
- * Representer for your application are given.
- *
- * \warning This class is never actually used, but serves only for documentation purposes.
- */
-// RB: would it be possible to make all representers inherit from it, so as to strictly enforce the interface?
+#include <H5Cpp.h>
+#include <string>
+#include <memory>
+
+
 namespace statismo
 {
-
+/**
+ * When defining a new representer, a traits class must be bound to it with the
+ * following attributes:
+ * - DatasetPointerType
+ * - DatasetConstPointerType
+ * - PointType
+ * - ValueType
+ */
 template <class T>
 class RepresenterTraits
 {};
@@ -81,12 +74,24 @@ enum class RepresenterDataType
   CUSTOM = 99
 };
 
-RepresenterDataType
+STATISMO_CORE_EXPORT RepresenterDataType
 TypeFromString(const std::string & s);
 
-std::string
+STATISMO_CORE_EXPORT std::string
 TypeToString(RepresenterDataType type);
 
+/**
+ * \brief Provides the interface between statismo and the dataset type the application uses.
+ *
+ * A Representer is a type that provides the connection between the statismo library
+ * and the application. It distinguishes three different representations of the data, and provides methods for
+ * conversion between those representations:
+ * - a Dataset, typically as read from a file on the disk
+ * - a Sample, which is a geometric (generally a rigid or affine) transform of the dataset
+ * - a SampleVector, which is an internal representation (vector) useful from the statistical analysis.
+ *
+ * A good starting point to define a new representer is to look at \a TrivialVectorialRepresenter
+ */
 template <class T>
 class Representer : public Clonable<Representer<T>>
 {
@@ -98,41 +103,67 @@ public:
   ///@{
   /// Defines (a pointer to) the type of the dataset that is represented.
   /// This could either be a naked pointer or a smart pointer.
-  typedef typename RepresenterTraits<T>::DatasetPointerType DatasetPointerType;
+  using DatasetPointerType  = typename RepresenterTraits<T>::DatasetPointerType;
 
   /// Defines the const pointer type o fthe datset that is represented
-  typedef typename RepresenterTraits<T>::DatasetConstPointerType DatasetConstPointerType;
+  using DatasetConstPointerType = typename RepresenterTraits<T>::DatasetConstPointerType;
 
   /// Defines the pointtype of the dataset
-  typedef typename RepresenterTraits<T>::PointType PointType;
+  using PointType = typename RepresenterTraits<T>::PointType;
 
   /// Defines the type of the value when the dataset is evaluated at a given point
   /// (for a image, this could for example be a scalar value or an RGB value)
-  typedef typename RepresenterTraits<T>::ValueType ValueType;
+  using ValueType = typename RepresenterTraits<T>::ValueType;
 
+  using DatasetType = T;
+  using DomainType = Domain<PointType>;
+
+  ///
+  /// Defines the real (computational) dimension of the point type
+  ///
+  /// Even if the data dimension given by \a GetDimensions is 2 (for instance, a 2D image), 
+  /// the points used to store data could be a 3 dimension vector (with last dimension unused).
+  /// In this case, the real dimension (used for computation) is 3.
+  ///
   static constexpr unsigned RealPointDimension = PointTraits<PointType>::RealDimension;
 
-  typedef T DatasetType;
+  ///@}
 
-  typedef Domain<PointType> DomainType;
-
-  virtual ~Representer() {}
-
-  /// Returns a name that identifies the representer
+  /**
+   * \name Representer attributes
+   */
+  ///@{
+  
+  /**
+   * Returns representer identifier
+   */
   virtual std::string
   GetName() const = 0;
 
+  /**
+   * Returns representer data type
+   */
   virtual RepresenterDataType
   GetType() const = 0;
 
-  /// Returns the dimensionality of the dataset (for a mesh this is 3, for a scalar image
-  /// this would be 1)
-  virtual unsigned
-  GetDimensions() const = 0;
-  ///@}
-
+  /**
+   * Returns representer version
+   */
   virtual std::string
   GetVersion() const = 0;
+
+  /**
+   * Returns the dimensionality of the dataset
+   * 
+   * - for a mesh, should be 3
+   * - for a scalar image, should be 1
+   * - 
+   */
+  virtual unsigned
+  GetDimensions() const = 0;
+
+  ///@}
+
 
   /**
    * \name Object creation and destruction
@@ -148,9 +179,6 @@ public:
   /** Delete the representer object */
   virtual void
   Delete() const = 0;
-
-
-  ///@}
 
   /**
    * \name Adapter methods
@@ -172,7 +200,6 @@ public:
    */
   virtual const statismo::Domain<PointType> &
   GetDomain() const = 0;
-
 
   virtual DatasetConstPointerType
   GetReference() const = 0;
@@ -309,7 +336,6 @@ public:
   {
     return Derived::GetDimensionsImpl();
   }
-  ///@}
 
   virtual std::string
   GetVersion() const final

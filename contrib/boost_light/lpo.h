@@ -134,6 +134,7 @@ template <typename... Ts> class program_options {
 private:
   template <typename T, typename = void> struct opt {
     using value_type = std::decay_t<T>;
+
     std::string name;
     std::string short_name;
     std::string desc;
@@ -144,6 +145,7 @@ private:
   template <typename T>
   struct opt<T, std::enable_if_t<std::is_arithmetic_v<T>>> {
     using value_type = std::decay_t<T>;
+
     std::string name;
     std::string short_name;
     std::string desc;
@@ -416,7 +418,7 @@ bool program_options<Ts...>::parse(int argc, char **argv) {
   //   return false;
   // }
 
-  if ((argc - args_count) != m_pos_list.size()) {
+  if (static_cast<unsigned>(argc - args_count) != m_pos_list.size()) {
     std::cerr << "[-] missing positionnal args" << std::endl;
     return false;
   }
@@ -464,7 +466,7 @@ void program_options<Ts...>::print(std::ostream &os) const {
 
   for (unsigned i = 0; i < m_pos_list.size(); ++i) {
     std::visit(
-        [&os, &i](auto &&opt) {
+        [&os, &i](auto &&) {
           os << "[ARG" << std::to_string(i + 1) << "] ";
         },
         m_pos_list[i]);

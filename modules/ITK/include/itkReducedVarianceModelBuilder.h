@@ -88,7 +88,7 @@ public:
   {
     const statismo::StatisticalModel<Representer> * model_statismo = model->GetStatismoImplObj();
 
-    auto new_model_statismo = this->callForwardImplTrans(ExceptionHandler{ *this },
+    auto new_model_statismo = this->CallForwardImplTrans(ExceptionHandler{ *this },
                                                          &ImplType::BuildNewModelWithLeadingComponents,
                                                          model_statismo,
                                                          numberOfPrincipalComponents);
@@ -101,7 +101,7 @@ public:
   BuildNewModelWithVariance(const StatisticalModel<Representer> * model, double totalVariance)
   {
     const statismo::StatisticalModel<Representer> * model_statismo = model->GetStatismoImplObj();
-    auto                                            new_model_statismo = this->callForwardImplTrans(
+    auto                                            new_model_statismo = this->CallForwardImplTrans(
       ExceptionHandler{ *this }, &ImplType::BuildNewModelWithVariance, model_statismo, totalVariance);
 
     typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();
@@ -109,11 +109,11 @@ public:
     return model_itk;
   }
 
-  is_deprecated typename StatisticalModel<Representer>::Pointer
+  [[deprecated]] typename StatisticalModel<Representer>::Pointer
   BuildNewModelFromModel(const StatisticalModel<Representer> * model, double totalVariance)
   {
     statismo::StatisticalModel<Representer> * model_statismo = model->GetStatismoImplObj();
-    auto                                      new_model_statismo = this->callForwardImplTrans(
+    auto                                      new_model_statismo = this->CallForwardImplTrans(
       ExceptionHandler{ *this }, &ImplType::BuildNewModelFromModel, model_statismo, totalVariance);
 
     typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();

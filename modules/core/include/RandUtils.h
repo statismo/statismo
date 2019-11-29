@@ -33,43 +33,15 @@
  *
  */
 
-#ifndef __REFLECT_H_
-#define __REFLECT_H_
+#ifndef __RAND_UTILS_H_
+#define __RAND_UTILS_H_
 
-#include <type_traits>
+#include <random>
 
-// Compile-time reflection utilities
-namespace statismo
+namespace statismo::rand
 {
-namespace details
-{
-// general compile-time validator (ref: C++ template the complete guide)
-template <typename F, typename... Args, typename = decltype(std::declval<F>()(std::declval<Args &&>()...))>
-auto
-is_valid_impl(void *) -> std::true_type;
-
-template <typename F, typename... Args>
-auto
-is_valid_impl(...) -> std::false_type;
-} // namespace details
-
-inline constexpr auto is_valid = [](auto f) {
-  using input_type = decltype(f);
-  return [](auto &&... args) { return decltype(details::is_valid_impl<input_type, decltype(args) &&...>(nullptr)){}; };
-};
-
-template <typename T>
-struct type_t
-{
-  using type = T;
-};
-
-template <typename T>
-constexpr auto type = type_t<T>{};
-
-template <typename T>
-T value_t(type_t<T>);
-
+std::minstd_rand &
+RandGen(unsigned seed = static_cast<unsigned>(time(0)));
 } // namespace statismo
 
 #endif

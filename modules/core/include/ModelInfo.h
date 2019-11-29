@@ -40,6 +40,7 @@
 #define __MODEL_INFO_H_
 
 #include "CommonTypes.h"
+#include "StatismoCoreExport.h"
 
 #include <H5Cpp.h>
 
@@ -59,7 +60,7 @@ class BuilderInfo; // forward declaration
  * a model, there will be a list of n builder objects.
  *
  */
-class ModelInfo final
+class STATISMO_CORE_EXPORT ModelInfo final
 {
 public:
   using BuilderInfoList = std::vector<BuilderInfo>;
@@ -115,7 +116,7 @@ private:
 /**
  * \brief Holds information about the data and the parameters used by a specific modelbuilder
  */
-class BuilderInfo final
+class STATISMO_CORE_EXPORT BuilderInfo final
 {
   friend class ModelInfo;
 

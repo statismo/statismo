@@ -36,11 +36,8 @@
  */
 
 
-#ifndef STATISTICALMODEL_H_
-#define STATISTICALMODEL_H_
-
-#include <limits>
-#include <vector>
+#ifndef __STATISTICAL_MODEL_H_
+#define __STATISTICAL_MODEL_H_
 
 #include "CommonTypes.h"
 #include "Config.h"
@@ -48,27 +45,13 @@
 #include "ModelInfo.h"
 #include "Representer.h"
 #include "GenericFactory.h"
+#include "NonCopyable.h"
 
+#include <limits>
+#include <vector>
 
 namespace statismo
 {
-
-/**
- * \brief A Point/Value pair that is used to specify a value at a given point.
- */
-/*
-template <typename Representer>
-class PointValuePair {
-public:
-  typedef typename Representer::PointType PointType;
-  typedef typename Representer::ValueType ValueType;
-
-  PointValuePair(const PointType& pt, const ValueType& val) : point(pt), value(val) {}
-
-  PointType point;
-  ValueType value;
-};
-*/
 
 /**
  * \brief Representation of a linear statistical model (PCA Model).
@@ -96,67 +79,32 @@ public:
  *
  */
 template <typename T>
-class StatisticalModel : public GenericFactory<StatisticalModel<T>>
+class StatisticalModel : public GenericFactory<StatisticalModel<T>>, NonCopyable
 {
 public:
-  typedef Representer<T>                                    RepresenterType;
-  typedef typename RepresenterType::DatasetPointerType      DatasetPointerType;
-  typedef typename RepresenterType::DatasetConstPointerType DatasetConstPointerType;
-  typedef typename RepresenterType::ValueType               ValueType;
-  typedef typename RepresenterType::PointType               PointType;
+  using RepresenterType = Representer<T>;
+  using DatasetPointerType = typename RepresenterType::DatasetPointerType;
+  using DatasetConstPointerType = typename RepresenterType::DatasetConstPointerType;
+  using ValueType = typename RepresenterType::ValueType;
+  using PointType = typename RepresenterType::PointType;
+  using DomainType = Domain<PointType>;
+  using PointIdType = unsigned;
   friend GenericFactory<StatisticalModel<T>>;
 
-
-  typedef Domain<PointType> DomainType;
-
-  typedef unsigned PointIdType;
-
-
-  // typedef  PointValuePair<Representer>  PointValuePairType;
-  typedef std::pair<PointType, ValueType> PointValuePairType;
-  typedef std::pair<unsigned, ValueType>  PointIdValuePairType;
-  typedef std::list<PointValuePairType>   PointValueListType;
-  typedef std::list<PointIdValuePairType> PointIdValueListType;
+  using PointValuePairType = std::pair<PointType, ValueType>;
+  using PointIdValuePairType = std::pair<unsigned, ValueType>;
+  using PointValueListType = std::list<PointValuePairType>;
+  using PointIdValueListType = std::list<PointIdValuePairType>;
 
   // Maybe at some point, we can statically define a 3x3 resp. 2x3 matrix type.
-  typedef MatrixType                                               PointCovarianceMatrixType;
-  typedef std::pair<PointValuePairType, PointCovarianceMatrixType> PointValueWithCovariancePairType;
-  typedef std::list<PointValueWithCovariancePairType>              PointValueWithCovarianceListType;
-
+  using PointCovarianceMatrixType = MatrixType;
+  using PointValueWithCovariancePairType = std::pair<PointValuePairType, PointCovarianceMatrixType>;
+  using PointValueWithCovarianceListType = std::list<PointValueWithCovariancePairType>;
 
   /**
    * Destructor
    */
   virtual ~StatisticalModel();
-
-
-  /**
-   * @name Creating models
-   */
-  ///@{
-
-  /**
-   * Factory method that creates a new Model.
-   *
-   * \warning The use of this constructor is discouraged. If possible, use a ModelBuilder to create
-   * a new model or call Load to load an existing model
-   *
-   * \param representer the represener
-   * \param m the mean
-   * \param orthonormalPCABasis An orthonormal matrix with the principal Axes.
-   * \param pcaVariance The Variance for each principal Axis
-   * \param noiseVariance The variance of the (N(0,noiseVariance)) noise on each point
-   */
-  /*static StatisticalModel *
-  Create(const RepresenterType * representer,
-         const VectorType &      m,
-         const MatrixType &      orthonormalPCABasis,
-         const VectorType &      pcaVariance,
-         double                  noiseVariance)
-  {
-    return new StatisticalModel(representer, m, orthonormalPCABasis, pcaVariance, noiseVariance);
-  }*/
-
 
   /**
    * Destroy the object.
@@ -168,8 +116,6 @@ public:
   {
     delete this;
   }
-
-  ///@}
 
 
   /**
@@ -574,7 +520,6 @@ private:
   void
   CheckAndUpdateCachedParameters() const;
 
-
   /**
    * Create an instance of the StatisticalModel
    * @param representer An instance of the representer, used to convert the samples to dataset of the represented type.
@@ -585,25 +530,16 @@ private:
                    const VectorType &      pcaVariance,
                    double                  noiseVariance);
 
-  // to prevent use
-  StatisticalModel(const StatisticalModel & rhs) = delete;
-  StatisticalModel &
-  operator=(const StatisticalModel & rhs) = delete;
 
   const RepresenterType * m_representer;
-
   VectorType m_mean;
   MatrixType m_pcaBasisMatrix;
   VectorType m_pcaVariance;
   float      m_noiseVariance;
-
-
   // caching
   mutable bool m_cachedValuesValid;
-
   // the matrix M^{-1} in Bishops PRML book. This is roughly the Latent Covariance matrix (but not exactly)
   mutable MatrixType m_MInverseMatrix;
-
   ModelInfo m_modelInfo;
 };
 
@@ -611,4 +547,4 @@ private:
 
 #include "StatisticalModel.hxx"
 
-#endif /* STATISTICALMODEL_H_ */
+#endif

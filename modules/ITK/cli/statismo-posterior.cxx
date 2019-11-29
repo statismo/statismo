@@ -189,7 +189,7 @@ isOptionsConflictPresent(ProgramOptions & opt)
     return true;
   }
 
-  statismo::Utils::ToLower(opt.strModelType);
+  statismo::utils::ToLower(opt.strModelType);
   if (opt.strModelType != "shape" && opt.strModelType != "deformation")
   {
     return true;

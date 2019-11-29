@@ -95,13 +95,13 @@ vtkUnstructuredGridRepresenter::Load(const H5::H5Location & fg)
 {
 
 
-  std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+  std::string tmpfilename = statismo::utils::CreateTmpName(".vtk");
 
-  statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
+  statismo::hdf5utils::GetFileFromHDF5(fg, "./reference", tmpfilename.c_str());
   DatasetConstPointerType ref = ReadDataset(tmpfilename.c_str());
   std::remove(tmpfilename.c_str());
 
-  int alignment = static_cast<AlignmentType>(statismo::HDF5Utils::readInt(fg, "./alignment"));
+  int alignment = static_cast<AlignmentType>(statismo::hdf5utils::ReadInt(fg, "./alignment"));
   return vtkUnstructuredGridRepresenter::Create(ref, AlignmentType(alignment));
 }
 
@@ -109,14 +109,14 @@ vtkUnstructuredGridRepresenter::Load(const H5::H5Location & fg)
 void
 vtkUnstructuredGridRepresenter::Save(const H5::H5Location & fg) const
 {
-  std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+  std::string tmpfilename = statismo::utils::CreateTmpName(".vtk");
 
   WriteDataset(tmpfilename.c_str(), this->m_reference);
 
-  statismo::HDF5Utils::dumpFileToHDF5(tmpfilename.c_str(), fg, "./reference");
+  statismo::hdf5utils::DumpFileToHDF5(tmpfilename.c_str(), fg, "./reference");
 
   std::remove(tmpfilename.c_str());
-  statismo::HDF5Utils::writeInt(fg, "./alignment", m_alignment);
+  statismo::hdf5utils::WriteInt(fg, "./alignment", m_alignment);
 }
 
 statismo::VectorType

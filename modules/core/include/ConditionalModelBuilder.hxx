@@ -230,7 +230,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
     // add builder info and data info to the info list
     MatrixType                     scores(0, 0);
     BuilderInfo::ParameterInfoList bi;
-    bi.emplace_back("NoiseVariance ", Utils::toString(noiseVariance));
+    bi.emplace_back("NoiseVariance ", std::to_string(noiseVariance));
 
     // generate a matrix ; first column = boolean (yes/no, this variable is used) ; second: conditioning value.
     MatrixType conditioningInfoMatrix(conditioningInfo.size(), 2);
@@ -239,7 +239,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
       conditioningInfoMatrix(i, 0) = conditioningInfo[i].first;
       conditioningInfoMatrix(i, 1) = conditioningInfo[i].second;
     }
-    bi.emplace_back("ConditioningInfo ", Utils::toString(conditioningInfoMatrix));
+    bi.emplace_back("ConditioningInfo ", std::to_string(conditioningInfoMatrix));
 
     typename BuilderInfo::DataInfoList di;
     for (const auto& item : sampleDataList)

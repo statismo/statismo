@@ -124,7 +124,7 @@ main(int argc, char ** argv)
 bool
 isOptionsConflictPresent(ProgramOptions & opt)
 {
-  statismo::Utils::ToLower(opt.strProcrustesMode);
+  statismo::utils::ToLower(opt.strProcrustesMode);
 
   if (opt.strProcrustesMode != "reference" && opt.strProcrustesMode != "gpa")
   {

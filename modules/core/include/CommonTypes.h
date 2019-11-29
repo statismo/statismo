@@ -221,6 +221,18 @@ auto MakeStackUnwinder(Callable&& c) {
   return StackUnwinder(std::forward<Callable>(c));
 }
 
+template <char D>
+struct WordDelimiter : public std::string
+{};
+
+template <char D>
+std::istream &
+operator>>(std::istream & is, statismo::WordDelimiter<D> & output)
+{
+  std::getline(is, output, D);
+  return is;
+}
+
 } // namespace statismo
 
 #endif

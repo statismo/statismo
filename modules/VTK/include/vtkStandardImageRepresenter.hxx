@@ -83,7 +83,7 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::Load(const H5::Group & fg
 
   vtkStructuredPoints * ref = 0;
 
-  std::string repName = HDF5Utils::readStringAttribute(fg, "name");
+  std::string repName = hdf5utils::ReadStringAttribute(fg, "name");
   if (repName == "vtkStructuredPointsRepresenter" || repName == "itkImageRepresenter" ||
       repName == "itkVectorImageRepresenter")
   {
@@ -101,7 +101,7 @@ vtkStructuredPoints *
 vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group & fg) const
 {
 
-  std::string type = HDF5Utils::readStringAttribute(fg, "datasetType");
+  std::string type = hdf5utils::ReadStringAttribute(fg, "datasetType");
   if (type != "IMAGE")
   {
     throw StatisticalModelException((std::string("Cannot load representer data: The ") +
@@ -111,9 +111,9 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group &
   }
 
   statismo::VectorType originVec;
-  HDF5Utils::readVector(fg, "origin", originVec);
+  hdf5utils::ReadVector(fg, "origin", originVec);
 
-  unsigned imageDimension = static_cast<unsigned>(HDF5Utils::readInt(fg, "imageDimension"));
+  unsigned imageDimension = static_cast<unsigned>(hdf5utils::ReadInt(fg, "imageDimension"));
 
   if (imageDimension > 3)
   {
@@ -128,7 +128,7 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group &
   }
 
   statismo::VectorType spacingVec;
-  HDF5Utils::readVector(fg, "spacing", spacingVec);
+  hdf5utils::ReadVector(fg, "spacing", spacingVec);
   float spacing[3] = { 0, 0, 0 };
   for (unsigned i = 0; i < imageDimension; i++)
   {
@@ -136,7 +136,7 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group &
   }
 
   typename statismo::GenericEigenTraits<int>::VectorType sizeVec;
-  HDF5Utils::readVectorOfType<int>(fg, "size", sizeVec);
+  hdf5utils::ReadVectorOfType<int>(fg, "size", sizeVec);
   int size[3] = { 1, 1, 1 };
   for (unsigned i = 0; i < imageDimension; i++)
   {
@@ -146,9 +146,9 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group &
   H5::Group pdGroup = fg.openGroup("./pointData");
 
   typename statismo::GenericEigenTraits<double>::MatrixType pixelMat;
-  HDF5Utils::readMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
+  hdf5utils::ReadMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
   H5::DataSet  ds = pdGroup.openDataSet("pixelValues");
-  unsigned int datatype = static_cast<unsigned>(HDF5Utils::readIntAttribute(ds, "datatype"));
+  unsigned int datatype = static_cast<unsigned>(hdf5utils::ReadIntAttribute(ds, "datatype"));
 
   if (statismo::GetDataTypeId<TScalar>() != datatype)
   {
@@ -156,7 +156,6 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRef(const H5::Group &
                  "this representer."
               << std::endl;
   }
-  pdGroup.close();
 
   vtkStructuredPoints * newImage = vtkStructuredPoints::New();
   newImage->SetDimensions(size[0], size[1], size[2]);
@@ -274,16 +273,16 @@ vtkStandardImageRepresenter<TScalar, PixelDimensions>::LoadRefLegacy(const H5::G
 
   vtkStructuredPoints * ref = vtkStructuredPoints::New();
 
-  std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+  std::string tmpfilename = statismo::utils::CreateTmpName(".vtk");
 
-  statismo::HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
+  statismo::hdf5utils::GetFileFromHDF5(fg, "./reference", tmpfilename.c_str());
 
   std::remove(tmpfilename.c_str());
 
   vtkStructuredPointsReader * reader = vtkStructuredPointsReader::New();
   reader->SetFileName(tmpfilename.c_str());
   reader->Update();
-  statismo::Utils::RemoveFile(tmpfilename);
+  statismo::utils::RemoveFile(tmpfilename);
   if (reader->GetErrorCode() != 0)
   {
     throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
@@ -430,7 +429,7 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group & fg) con
   else
     imageDimension = 3;
 
-  HDF5Utils::writeInt(fg, "imageDimension", imageDimension);
+  hdf5utils::WriteInt(fg, "imageDimension", imageDimension);
 
   double *             origin = m_reference->GetOrigin();
   statismo::VectorType originVec = statismo::VectorType::Zero(imageDimension);
@@ -438,7 +437,7 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group & fg) con
   {
     originVec(i) = origin[i];
   }
-  HDF5Utils::writeVector(fg, "origin", originVec);
+  hdf5utils::WriteVector(fg, "origin", originVec);
 
   double *             spacing = m_reference->GetSpacing();
   statismo::VectorType spacingVec = statismo::VectorType::Zero(imageDimension);
@@ -446,7 +445,7 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group & fg) con
   {
     spacingVec(i) = spacing[i];
   }
-  HDF5Utils::writeVector(fg, "spacing", spacingVec);
+  hdf5utils::WriteVector(fg, "spacing", spacingVec);
 
   statismo::GenericEigenTraits<int>::VectorType sizeVec =
     statismo::GenericEigenTraits<int>::VectorType::Zero(imageDimension);
@@ -454,11 +453,11 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group & fg) con
   {
     sizeVec(i) = size[i];
   }
-  HDF5Utils::writeVectorOfType<int>(fg, "size", sizeVec);
+  hdf5utils::WriteVectorOfType<int>(fg, "size", sizeVec);
 
   // VTK does not support image direction. We write the identity matrix
   statismo::MatrixType directionMat = statismo::MatrixType::Identity(imageDimension, imageDimension);
-  HDF5Utils::writeMatrix(fg, "direction", directionMat);
+  hdf5utils::WriteMatrix(fg, "direction", directionMat);
 
   typedef statismo::GenericEigenTraits<double>::MatrixType DoubleMatrixType;
   DoubleMatrixType pixelMat(vtkStandardImageRepresenter::GetDimensions(), GetNumberOfPoints());
@@ -480,12 +479,11 @@ vtkStandardImageRepresenter<TScalar, Dimensions>::Save(const H5::Group & fg) con
   }
 
   H5::Group pdGroup = fg.createGroup("pointData");
-  statismo::HDF5Utils::writeInt(pdGroup, "pixelDimension", vtkStandardImageRepresenter::GetDimensions());
+  statismo::hdf5utils::WriteInt(pdGroup, "pixelDimension", vtkStandardImageRepresenter::GetDimensions());
 
 
-  H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
-  HDF5Utils::writeIntAttribute(ds, "datatype", statismo::GetDataTypeId<TScalar>());
-  pdGroup.close();
+  H5::DataSet ds = hdf5utils::WriteMatrixOfType<double>(pdGroup, "pixelValues", pixelMat);
+  hdf5utils::WriteIntAttribute(ds, "datatype", statismo::GetDataTypeId<TScalar>());
 }
 
 template <class TScalar, unsigned Dimensions>

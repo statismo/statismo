@@ -35,11 +35,8 @@
  *
  */
 
-#ifndef __ReducedVarianceModelBuilder_H_
-#define __ReducedVarianceModelBuilder_H_
-
-#include <vector>
-#include <memory>
+#ifndef __REDUCED_VARIANCE_MODEL_BUILDER_H_
+#define __REDUCED_VARIANCE_MODEL_BUILDER_H_
 
 #include "Config.h"
 #include "CommonTypes.h"
@@ -49,9 +46,11 @@
 #include "StatismoUtils.h"
 #include "StatisticalModel.h"
 
+#include <vector>
+#include <memory>
+
 namespace statismo
 {
-
 
 /**
  * \brief Builds a new model which retains only the specified total variance
@@ -61,38 +60,10 @@ template <typename Representer>
 class ReducedVarianceModelBuilder : public ModelBuilderBase<Representer, ReducedVarianceModelBuilder<Representer>>
 {
 
-
 public:
-  typedef ModelBuilderBase<Representer, ReducedVarianceModelBuilder<Representer>> Superclass;
-  typedef typename Superclass::StatisticalModelType                               StatisticalModelType;
-
+  using Superclass = ModelBuilderBase<Representer, ReducedVarianceModelBuilder<Representer>>;
+  using StatisticalModelType = typename Superclass::StatisticalModelType;
   friend typename Superclass::ObjectFactoryType;
-
-  /**
-   * Factory method to create a new ReducedVarianceModelBuilder
-   */
-  /*static ReducedVarianceModelBuilder *
-  Create()
-  {
-    return new ReducedVarianceModelBuilder();
-  }*/
-
-  /**
-   * Destroy the object.
-   * The same effect can be achieved by deleting the object in the usual
-   * way using the c++ delete keyword.
-   */
-  /*void
-  Delete()
-  {
-    delete this;
-  }*/
-
-
-  /**
-   * The desctructor
-   */
-  virtual ~ReducedVarianceModelBuilder() {}
 
   /**
    * Build a new model from the given model, which retains only the leading principal components
@@ -120,16 +91,12 @@ public:
   BuildNewModelWithVariance(const StatisticalModelType * model, double totalVariance) const;
 
 
-  is_deprecated UniquePtrType<StatisticalModelType>
+  [[deprecated]] UniquePtrType<StatisticalModelType>
                 BuildNewModelFromModel(const StatisticalModelType * model, double totalVariance) const;
 
 
 private:
-  // to prevent use
-  ReducedVarianceModelBuilder();
-  ReducedVarianceModelBuilder(const ReducedVarianceModelBuilder & orig);
-  ReducedVarianceModelBuilder &
-  operator=(const ReducedVarianceModelBuilder & rhs);
+  ReducedVarianceModelBuilder() = default;
 };
 
 
@@ -137,4 +104,4 @@ private:
 
 #include "ReducedVarianceModelBuilder.hxx"
 
-#endif /* __ReducedVarianceModelBuilder_H_ */
+#endif

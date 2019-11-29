@@ -150,7 +150,7 @@ public:
   }
 
   void
-  DeleteDataset(DatasetConstPointerType d) const
+  DeleteDataset(DatasetConstPointerType) const
   {}
   DatasetPointerType
   CloneDataset(DatasetConstPointerType d) const;

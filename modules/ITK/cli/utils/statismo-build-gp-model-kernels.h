@@ -327,7 +327,7 @@ struct GaussianKernelBuilder
     {
       try
       {
-        double sigma = statismo::Utils::LexicalCast<double>(kernelArgs[0]);
+        double sigma = statismo::utils::LexicalCast<double>(kernelArgs[0]);
         if (sigma <= 0)
         {
           itkGenericExceptionMacro(<< "Error: sigma has to be > 0");
@@ -359,8 +359,8 @@ struct MultiscaleKernelBuilder
     {
       try
       {
-        double   baseLevel = statismo::Utils::LexicalCast<double>(kernelArgs[0]);
-        unsigned numberOfLevels = statismo::Utils::LexicalCast<unsigned>(kernelArgs[1]);
+        double   baseLevel = statismo::utils::LexicalCast<double>(kernelArgs[0]);
+        unsigned numberOfLevels = statismo::utils::LexicalCast<unsigned>(kernelArgs[1]);
 
         if (baseLevel <= 0)
         {

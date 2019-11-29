@@ -35,7 +35,8 @@
  *
  */
 
-#include <memory>
+#include "StatismoUnitTest.h"
+#include "Exceptions.h"
 
 #include "DataManager.h"
 #include "PCAModelBuilder.h"
@@ -43,34 +44,18 @@
 #include "StatismoIO.h"
 #include "TrivialVectorialRepresenter.h"
 
-typedef statismo::TrivialVectorialRepresenter RepresenterType;
+#include <memory>
 
-/**
- * This basic test case, covers the model creation pipeline and tests whether a model can be successfully
- * saved to disk. If the test runs correctly, it merely means that statismo has been setup correclty and hdf5
- * works.
- *
- * Real unit tests that test the functionality of statismo are provided in the statismoTests directory (these tests
- * require VTK to be installed and the statismo python wrapping to be working).
- */
-int
-basicStatismoTest(int argc, char * argv[])
-{
+namespace {
+  int Test1() {
+    using RepresenterType = statismo::TrivialVectorialRepresenter;
+    using ModelBuilderType = statismo::PCAModelBuilder<statismo::VectorType>;
+    using StatisticalModelType = statismo::StatisticalModel<statismo::VectorType>;
+    using DataManagerType = statismo::BasicDataManager<statismo::VectorType>;
 
-  typedef statismo::PCAModelBuilder<statismo::VectorType>  ModelBuilderType;
-  typedef statismo::StatisticalModel<statismo::VectorType> StatisticalModelType;
-  typedef statismo::BasicDataManager<statismo::VectorType> DataManagerType;
-
-  try
-  {
     const unsigned                   Dim = 3;
     std::unique_ptr<RepresenterType> representer(RepresenterType::Create(Dim));
     std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer.get()));
-
-    // TODO:
-    // - test basic GetVersion etc.
-    // - test safe factory
-    // - test safe clone
 
     // we create three simple datasets
     statismo::VectorType dataset1(Dim), dataset2(Dim), dataset3(Dim);
@@ -86,26 +71,37 @@ basicStatismoTest(int argc, char * argv[])
     statismo::UniquePtrType<ModelBuilderType>     pcaModelBuilder(ModelBuilderType::Create());
     statismo::UniquePtrType<StatisticalModelType> model(pcaModelBuilder->BuildNewModel(dataManager->GetData(), 0.01));
 
-    // As we have added 3 linearly independent samples, we get 2 principal components.
-    if (model->GetNumberOfPrincipalComponents() != 2)
-    {
-      return EXIT_FAILURE;
-    }
+    STATISMO_ASSERT_EQ(model->GetNumberOfPrincipalComponents(), 2U);
 
     statismo::IO<statismo::VectorType>::SaveStatisticalModel(model.get(), "test.h5");
 
-    RepresenterType *                             newRepresenter = RepresenterType::Create();
+    auto                             newRepresenter = RepresenterType::SafeCreate();
     statismo::UniquePtrType<StatisticalModelType> loadedModel(
-      statismo::IO<statismo::VectorType>::LoadStatisticalModel(newRepresenter, "test.h5"));
-    if (model->GetNumberOfPrincipalComponents() != loadedModel->GetNumberOfPrincipalComponents())
-    {
-      return EXIT_FAILURE;
-    }
+      statismo::IO<statismo::VectorType>::LoadStatisticalModel(newRepresenter.get(), "test.h5"));
+
+    STATISMO_ASSERT_EQ(model->GetNumberOfPrincipalComponents(), loadedModel->GetNumberOfPrincipalComponents());
+
+    return EXIT_SUCCESS;
   }
-  catch (statismo::StatisticalModelException & e)
-  {
-    std::cout << e.what() << std::endl;
-    return EXIT_FAILURE;
-  }
-  return EXIT_SUCCESS;
+}
+
+/**
+ * This basic test case covers the model creation pipeline and tests whether a model can be successfully
+ * saved to disk. If the test runs correctly, it merely means that statismo has been setup correclty and hdf5
+ * works.
+ *
+ * Real unit tests that test the functionality of statismo are provided in the statismoTests directory (these tests
+ * require VTK to be installed and the statismo python wrapping to be working).
+ */
+int
+basicStatismoTest([[maybe_unused]] int argc, [[maybe_unused]] char * argv[])
+{
+  auto res = statismo::Translate([]() {
+    return statismo::test::RunAllTests(
+      "basicStatismoTest",
+      {{"Test1", Test1}}
+    );
+  });
+
+  return !CheckResultAndAssert(res, EXIT_SUCCESS);
 }

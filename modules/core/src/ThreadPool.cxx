@@ -56,7 +56,7 @@ ThreadPool::ThreadPool(unsigned maxThreads, WaitingMode m, unsigned waitTime)
         for (std::remove_cv_t<decltype(threadCount)> i = 0; i < threadCount;
              ++i) {
             m_threads.push_back(
-                RaiiThread{std::thread{&ThreadPool::doThreadJob, this, i}});
+                RaiiThread{std::thread{&ThreadPool::DoThreadJob, this, i}});
         }
     } catch (...) {
         m_isDone = true;
@@ -64,28 +64,28 @@ ThreadPool::ThreadPool(unsigned maxThreads, WaitingMode m, unsigned waitTime)
     }
 }
 
-void ThreadPool::doThreadJob(std::size_t idx) {
+void ThreadPool::DoThreadJob(std::size_t idx) {
     s_tid = idx;
     s_localQueue = m_queues[s_tid].get();
 
     while (!m_isDone) {
-        runPendingTask();
+        RunPendingTask();
     }
 }
 
-bool ThreadPool::popTaskFromLocalQueue(TaskType& t) {
-    return s_localQueue->tryPop(t);
+bool ThreadPool::PopTaskFromLocalQueue(TaskType& t) {
+    return s_localQueue->TryPop(t);
 }
 
-bool ThreadPool::popTaskFromPoolQueue(TaskType& t) {
-    return m_poolQueue.tryPop(t);
+bool ThreadPool::PopTaskFromPoolQueue(TaskType& t) {
+    return m_poolQueue.TryPop(t);
 }
 
-bool ThreadPool::popTaskFromOtherLocalQueues(TaskType& t) {
+bool ThreadPool::PopTaskFromOtherLocalQueues(TaskType& t) {
     for (std::size_t i = 0; i < m_queues.size(); ++i) {
         const auto idx = (s_tid + i + 1) % m_queues.size();
 
-        if (m_queues[idx]->trySteal(t)) {
+        if (m_queues[idx]->TrySteal(t)) {
             return true;
         }
     }
@@ -93,11 +93,11 @@ bool ThreadPool::popTaskFromOtherLocalQueues(TaskType& t) {
     return false;
 }
 
-void ThreadPool::runPendingTask() {
+void ThreadPool::RunPendingTask() {
     TaskType t;
 
-    if (popTaskFromLocalQueue(t) || popTaskFromPoolQueue(t) ||
-        popTaskFromOtherLocalQueues(t)) {
+    if (PopTaskFromLocalQueue(t) || PopTaskFromPoolQueue(t) ||
+        PopTaskFromOtherLocalQueues(t)) {
         t();
     } else {
         if (m_waitMode == WaitingMode::YIELD) {

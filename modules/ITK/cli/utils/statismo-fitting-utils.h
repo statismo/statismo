@@ -406,7 +406,7 @@ readLandmarksFile(std::string path)
         // typedef boost::tokenizer<boost::escaped_list_separator<char> > TokenizerType;
         // TokenizerType t(line);
         // TODO: Replace with a real csv tokenizer that can handle coma in escaped string
-        auto                                   t = statismo::Utils::Split<','>(line);
+        auto                                   t = statismo::utils::Split<','>(line);
         typename DataType::PointType           p;
         typename DataType::PointType::Iterator pointIter = p.Begin();
         // The first element is the description/name and will be ignored
@@ -414,7 +414,7 @@ readLandmarksFile(std::string path)
         {
           try
           {
-            float fCoordValue = statismo::Utils::LexicalCast<float>(*i);
+            float fCoordValue = statismo::utils::LexicalCast<float>(*i);
             if (pointIter == p.End())
             {
               // ignore the last point if it is equal to 0 in the 2D case (and it really is the last point)

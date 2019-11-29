@@ -158,8 +158,8 @@ public:
         break;
       }
 
-      futvec.emplace_back(pool.submit([=, nys = nystrom.get(), k=&kernel]() {
-        return computeEigenfunctionsForPoints(nys, k, numComponents, domainPoints, lowerInd, upperInd);
+      futvec.emplace_back(pool.Submit([=, nys = nystrom.get(), k=&kernel]() {
+        return ComputeEigenfunctionsForPoints(nys, k, numComponents, domainPoints, lowerInd, upperInd);
       }));
     }
 
@@ -173,7 +173,7 @@ public:
     }
     futvec.clear();
   
-    auto pcaVariance = nystrom->getEigenvalues();
+    auto pcaVariance = nystrom->GetEigenvalues();
     auto mu = m_representer->SampleToSampleVector(mean);
     auto model = StatisticalModelType::SafeCreate(m_representer, mu, pcaBasis, pcaVariance, 0);
 
@@ -181,15 +181,13 @@ public:
     MatrixType                         scores; // no scores
     typename BuilderInfo::DataInfoList dataInfo;
     typename BuilderInfo::ParameterInfoList bi;
-    bi.emplace_back(BuilderInfo::KeyValuePair("NoiseVariance", Utils::toString(0)));
+    bi.emplace_back(BuilderInfo::KeyValuePair("NoiseVariance", std::to_string(0)));
     bi.emplace_back(BuilderInfo::KeyValuePair("KernelInfo", kernel.GetKernelInfo()));
 
     // finally add meta data to the model info
-    BuilderInfo builderInfo("LowRankGPModelBuilder", dataInfo, bi);
-    ModelInfo::BuilderInfoList biList(1, builderInfo);
+    ModelInfo::BuilderInfoList biList(1, BuilderInfo{"LowRankGPModelBuilder", dataInfo, bi});
 
-    ModelInfo info(scores, biList);
-    model->SetModelInfo(info);
+    model->SetModelInfo(ModelInfo{scores, biList});
 
     return model;
   }
@@ -201,7 +199,7 @@ private:
    * This method is used to be able to parallelize the computations.
    */
   EigenfunctionComputationResult
-  computeEigenfunctionsForPoints(const Nystrom<T> *             nystrom,
+  ComputeEigenfunctionsForPoints(const Nystrom<T> *             nystrom,
                                  const MatrixValuedKernelType * kernel,
                                  unsigned                       numEigenfunctions,
                                  const std::vector<PointType> & domainPts,
@@ -221,7 +219,7 @@ private:
     {
       auto pti = domainPts[i];
       resMat.block((i - lowerInd) * kernelDim, 0, kernelDim, resMat.cols()) =
-        nystrom->computeEigenfunctionsAtPoint(pti);
+        nystrom->ComputeEigenfunctionsAtPoint(pti);
     }
     return EigenfunctionComputationResult(lowerInd, upperInd, resMat);
   }

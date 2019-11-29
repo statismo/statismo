@@ -144,7 +144,6 @@ buildLowRankGPModel(const char * referenceFilename,
 {
 
   typedef itk::LowRankGPModelBuilder<TImage> ModelBuilderType;
-  typedef std::vector<std::string>           StringVectorType;
   typedef itk::ImageFileReader<TImage>       ImageFileReaderType;
   typedef typename TImage::PointType         PointType;
 
@@ -228,7 +227,6 @@ ReadLandmarkFile(std::string landmarkFilename)
     }
     pointVector.push_back(point);
   }
-  infile.close();
 
   return pointVector;
 }
@@ -648,7 +646,6 @@ main(int argc, char * argv[])
 
 
   // derive number of space dimensions
-  typedef itk::ImageIOBase::IOComponentType ScalarPixelType;
   itk::ImageIOBase::Pointer                 imageIO =
     itk::ImageIOFactory::CreateImageIO(referenceFilename.c_str(), itk::ImageIOFactory::ReadMode);
 

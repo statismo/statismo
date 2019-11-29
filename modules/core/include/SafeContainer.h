@@ -66,22 +66,22 @@ class SafeUnorderedMap : public NonCopyable {
   public:
     using ValueType =	std::pair<const Key, T>;
 
-    void insert(const ValueType& value) {
+    void Insert(const ValueType& value) {
       std::lock_guard<std::mutex> l{m_guard};
       m_map.insert(value);
     }
 
-    std::size_t size() const {
+    std::size_t Size() const {
       std::lock_guard<std::mutex> l{m_guard};
       return m_map.size();
     }
 
-    bool empty() const {
+    bool Empty() const {
       std::lock_guard<std::mutex> l{m_guard};
       return m_map.empty();
     }
 
-    bool find(const Key& key, T& value) const {
+    bool Find(const Key& key, T& value) const {
       std::lock_guard<std::mutex> l{m_guard};
       auto got = m_map.find(key);
 
@@ -109,12 +109,12 @@ class SafeQueue : public NonCopyable {
    public:
     SafeQueue() : m_head{new Node}, m_tail{m_head.get()} {}
 
-    std::shared_ptr<T> tryPop();
-    bool tryPop(T &value);
-    std::shared_ptr<T> waitPop();
-    void waitPop(T &value);
-    void push(T new_value);
-    bool empty() const;
+    std::shared_ptr<T> TryPop();
+    bool TryPop(T &value);
+    std::shared_ptr<T> WaitPop();
+    void WaitPop(T &value);
+    void Push(T new_value);
+    bool Empty() const;
 
    private:
     struct Node {
@@ -122,49 +122,49 @@ class SafeQueue : public NonCopyable {
         std::unique_ptr<Node> next;
     };
 
-    Node *getTail() const {
+    Node *GetTail() const {
         std::lock_guard<std::mutex> tailLock{m_tailMutex};
         return m_tail;
     }
 
-    std::unique_ptr<Node> popHead() {
+    std::unique_ptr<Node> PopHead() {
         auto oldHead = std::move(m_head);
         m_head = std::move(oldHead->next);
         return oldHead;
     }
 
-    std::unique_lock<std::mutex> waitForData() {
+    std::unique_lock<std::mutex> WaitForData() {
         std::unique_lock<std::mutex> headLock{m_headMutex};
-        m_dataCond.wait(headLock, [&] { return m_head.get() != getTail(); });
+        m_dataCond.wait(headLock, [&] { return m_head.get() != GetTail(); });
         return headLock;
     }
 
-    std::unique_ptr<Node> waitPopHead() {
-        std::unique_lock<std::mutex> headLock{waitForData()};
-        return popHead();
+    std::unique_ptr<Node> WaitPopHead() {
+        std::unique_lock<std::mutex> headLock{WaitForData()};
+        return PopHead();
     }
 
-    std::unique_ptr<Node> waitPopHead(T &value) {
-        std::unique_lock<std::mutex> headLock{waitForData()};
+    std::unique_ptr<Node> WaitPopHead(T &value) {
+        std::unique_lock<std::mutex> headLock{WaitForData()};
         value = std::move(*m_head->data);
-        return popHead();
+        return PopHead();
     }
 
-    std::unique_ptr<Node> tryPopHead() {
+    std::unique_ptr<Node> TryPopHead() {
         std::lock_guard<std::mutex> headLock{m_headMutex};
-        if (m_head.get() == getTail()) {
+        if (m_head.get() == GetTail()) {
             return std::unique_ptr<Node>();
         }
-        return popHead();
+        return PopHead();
     }
 
-    std::unique_ptr<Node> tryPopHead(T &value) {
+    std::unique_ptr<Node> TryPopHead(T &value) {
         std::lock_guard<std::mutex> headLock{m_headMutex};
-        if (m_head.get() == getTail()) {
+        if (m_head.get() == GetTail()) {
             return std::unique_ptr<Node>();
         }
         value = std::move(*m_head->data);
-        return popHead();
+        return PopHead();
     }
 
     mutable std::mutex m_headMutex;
@@ -175,7 +175,7 @@ class SafeQueue : public NonCopyable {
 };
 
 template <typename T>
-void SafeQueue<T>::push(T new_value) {
+void SafeQueue<T>::Push(T new_value) {
     std::shared_ptr<T> new_data{std::make_shared<T>(std::move(new_value))};
     std::unique_ptr<Node> p(new Node);
     {
@@ -189,32 +189,32 @@ void SafeQueue<T>::push(T new_value) {
 }
 
 template <typename T>
-std::shared_ptr<T> SafeQueue<T>::waitPop() {
-    const auto oldHead = waitPopHead();
+std::shared_ptr<T> SafeQueue<T>::WaitPop() {
+    const auto oldHead = WaitPopHead();
     return oldHead->data;
 }
 
 template <typename T>
-void SafeQueue<T>::waitPop(T &value) {
-    const auto oldHead = waitPopHead(value);
+void SafeQueue<T>::WaitPop(T &value) {
+    const auto oldHead = WaitPopHead(value);
 }
 
 template <typename T>
-std::shared_ptr<T> SafeQueue<T>::tryPop() {
-    const auto oldHead = tryPopHead();
+std::shared_ptr<T> SafeQueue<T>::TryPop() {
+    const auto oldHead = TryPopHead();
     return oldHead ? oldHead->data : std::shared_ptr<T>();
 }
 
 template <typename T>
-bool SafeQueue<T>::tryPop(T &value) {
-    const auto old_head = tryPopHead(value);
+bool SafeQueue<T>::TryPop(T &value) {
+    const auto old_head = TryPopHead(value);
     return (old_head != nullptr);
 }
 
 template <typename T>
-bool SafeQueue<T>::empty() const {
+bool SafeQueue<T>::Empty() const {
     std::lock_guard<std::mutex> headLock{m_headMutex};
-    return (m_head.get() == getTail());
+    return (m_head.get() == GetTail());
 }
 
 }

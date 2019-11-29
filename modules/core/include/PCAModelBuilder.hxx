@@ -35,27 +35,20 @@
  *
  */
 
-#ifndef __PCAModelBuilder_TXX
-#define __PCAModelBuilder_TXX
+#ifndef __PCA_MODEL_BUILDER_HXX_
+#define __PCA_MODEL_BUILDER_HXX_
 
 #include "PCAModelBuilder.h"
-
-#include <iostream>
+#include "CommonTypes.h"
+#include "Exceptions.h"
 
 #include <Eigen/SVD>
 #include <Eigen/Eigenvalues>
 
-#include "CommonTypes.h"
-#include "Exceptions.h"
+#include <iostream>
 
 namespace statismo
 {
-
-template <typename T>
-PCAModelBuilder<T>::PCAModelBuilder()
-  : Superclass()
-{}
-
 
 template <typename T>
 UniquePtrType<typename PCAModelBuilder<T>::StatisticalModelType>
@@ -65,35 +58,33 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
                                   EigenValueMethod         method) const
 {
 
-  unsigned n = sampleDataList.size();
+  auto n = sampleDataList.size();
   if (n <= 0)
   {
-    throw StatisticalModelException("Provided empty sample set. Cannot build the sample matrix");
+    throw StatisticalModelException("Provided empty sample set. Cannot build the sample matrix",
+    Status::BAD_INPUT_ERROR);
   }
 
   unsigned               p = sampleDataList.front()->GetSampleVector().rows();
-  const Representer<T> * representer = sampleDataList.front()->GetRepresenter();
-
+  const auto* representer = sampleDataList.front()->GetRepresenter();
 
   // Compute the mean vector mu
   VectorType mu = VectorType::Zero(p);
 
-  for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
-  {
-    assert((*it)->GetSampleVector().rows() == p);   // all samples must have same number of rows
-    assert((*it)->GetRepresenter() == representer); // all samples have the same representer
-    mu += (*it)->GetSampleVector();
+  for (const auto& item : sampleDataList) {
+    assert(item->GetSampleVector().rows() == p);   // all samples must have same number of rows
+    assert(item->GetRepresenter() == representer); // all samples have the same representer
+    mu += item->GetSampleVector();
   }
+
   mu /= n;
 
   // Build the mean free sample matrix X0
   MatrixType X0(n, p);
-  unsigned   i = 0;
-  for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it)
-  {
-    X0.row(i++) = (*it)->GetSampleVector() - mu;
+  unsigned   i{0};
+  for (const auto& item : sampleDataList) {
+    X0.row(i++) = item->GetSampleVector() - mu;
   }
-
 
   // build the model
   auto model = BuildNewModelInternal(representer, X0, mu, noiseVariance, method);
@@ -105,28 +96,22 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
     scores = this->ComputeScores(sampleDataList, model.get());
   }
 
-
   typename BuilderInfo::ParameterInfoList bi;
-  bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(noiseVariance)));
+  bi.emplace_back(BuilderInfo::KeyValuePair("NoiseVariance ", std::to_string(noiseVariance)));
 
   typename BuilderInfo::DataInfoList dataInfo;
   i = 0;
-  for (typename DataItemListType::const_iterator it = sampleDataList.begin(); it != sampleDataList.end(); ++it, i++)
-  {
+  for (const auto& item : sampleDataList) {
     std::ostringstream os;
-    os << "URI_" << i;
-    dataInfo.push_back(BuilderInfo::KeyValuePair(os.str().c_str(), (*it)->GetDatasetURI()));
+    os << "URI_" << i++;
+    dataInfo.emplace_back(os.str().c_str(), item->GetDatasetURI());
   }
 
-
   // finally add meta data to the model info
-  BuilderInfo builderInfo("PCAModelBuilder", dataInfo, bi);
-
   ModelInfo::BuilderInfoList biList;
-  biList.push_back(builderInfo);
-
-  ModelInfo info(scores, biList);
-  model->SetModelInfo(info);
+  biList.emplace_back("PCAModelBuilder", dataInfo, bi);
+  
+  model->SetModelInfo(ModelInfo{scores, biList});
 
   return model;
 }
@@ -148,8 +133,8 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T> * representer,
   {
     case JacobiSVD:
 
-      typedef Eigen::JacobiSVD<MatrixType>                SVDType;
-      typedef Eigen::JacobiSVD<MatrixTypeDoublePrecision> SVDDoublePrecisionType;
+      using SVDType = Eigen::JacobiSVD<MatrixType>;
+      using SVDDoublePrecisionType = Eigen::JacobiSVD<MatrixTypeDoublePrecision>;
 
       // We destinguish the case where we have more variables than samples and
       // the case where we have more samples than variable.
@@ -239,11 +224,9 @@ PCAModelBuilder<T>::BuildNewModelInternal(const Representer<T> * representer,
         es.eigenvalues().reverse(); // SelfAdjointEigenSolver orders the eigenvalues in increasing order
       eigenValues /= (n - 1.0);
 
-
       unsigned   numComponentsToKeep = ((eigenValues.array() - noiseVariance - Superclass::TOLERANCE) > 0).count();
       MatrixType pcaBasis = es.eigenvectors().rowwise().reverse();
       pcaBasis.conservativeResize(Eigen::NoChange, numComponentsToKeep);
-
 
       if (numComponentsToKeep == 0)
       {

@@ -84,27 +84,23 @@ ModelInfo::Save(const H5::H5Location & publicFg) const
   try
   {
     Group publicInfo = publicFg.createGroup("./modelinfo");
-    HDF5Utils::writeString(publicInfo, "./build-time", std::asctime(timeinfo));
+    hdf5utils::WriteString(publicInfo, "./build-time", std::asctime(timeinfo));
     if (m_scores.rows() != 0 && m_scores.cols() != 0)
     {
-      HDF5Utils::writeMatrix(publicInfo, "./scores", m_scores);
+      hdf5utils::WriteMatrix(publicInfo, "./scores", m_scores);
     }
     else
     {
       // HDF5 does not allow us to write empty matrices. Therefore, we write a dummy matrix with 1 element
-      HDF5Utils::writeMatrix(publicInfo, "./scores", MatrixType::Zero(1, 1));
+      hdf5utils::WriteMatrix(publicInfo, "./scores", MatrixType::Zero(1, 1));
     }
 
     for (unsigned i = 0; i < m_builderInfo.size(); i++)
     {
       std::ostringstream ss;
       ss << "./modelBuilder-" << i;
-      Group modelBuilderGroup = publicInfo.createGroup(ss.str().c_str());
-      m_builderInfo[i].Save(modelBuilderGroup);
-      modelBuilderGroup.close();
+      m_builderInfo[i].Save(publicInfo.createGroup(ss.str().c_str()));
     }
-
-    publicInfo.close();
   }
   catch (const H5::Exception & e)
   {
@@ -120,7 +116,7 @@ ModelInfo::Load(const H5::H5Location & publicFg)
   auto publicModelGroup = publicFg.openGroup("./modelinfo");
   try
   {
-    HDF5Utils::readMatrix(publicModelGroup, "./scores", m_scores);
+    hdf5utils::ReadMatrix(publicModelGroup, "./scores", m_scores);
   }
   catch (const H5::Exception & e)
   {
@@ -145,8 +141,7 @@ ModelInfo::Load(const H5::H5Location & publicFg)
     // if we find at this level a dataInfo object, then it needs to be an old statismo file.
     if (key.find("dataInfo") != std::string::npos || key.find("builderInfo") != std::string::npos)
     {
-      auto bi = LoadDataInfoOldStatismoFormat(publicModelGroup);
-      m_builderInfo.push_back(bi);
+      m_builderInfo.emplace_back(LoadDataInfoOldStatismoFormat(publicModelGroup));
       // we have all the information that is stored in the info block of an old statismo file.
       // hence we can leave
       break;
@@ -158,10 +153,9 @@ ModelInfo::Load(const H5::H5Location & publicFg)
       auto       modelBuilderGroup = publicModelGroup.openGroup(key.c_str());
       BuilderInfo bi;
       bi.Load(modelBuilderGroup);
-      m_builderInfo.push_back(bi);
+      m_builderInfo.emplace_back(std::move(bi));
     }
   }
-  publicModelGroup.close();
 }
 
 inline BuilderInfo
@@ -172,13 +166,12 @@ ModelInfo::LoadDataInfoOldStatismoFormat(const H5::H5Location & publicModelGroup
   auto                     dataInfoGroup = publicModelGroup.openGroup("./dataInfo");
   BuilderInfo::KeyValueList dataInfo;
   BuilderInfo::FillKeyValueListFromInfoGroup(dataInfoGroup, dataInfo);
-  dataInfoGroup.close();
 
   auto                     builderInfoGroup = publicModelGroup.openGroup("./builderInfo");
   BuilderInfo::KeyValueList paramInfo;
   BuilderInfo::FillKeyValueListFromInfoGroup(builderInfoGroup, paramInfo);
 
-  auto buildTime = HDF5Utils::readString(publicModelGroup, "build-time");
+  auto buildTime = hdf5utils::ReadString(publicModelGroup, "build-time");
 
   // add the information to a new BuilderInfo object
   // as a first step we need to find the builderName from the parameter list
@@ -234,22 +227,18 @@ BuilderInfo::Save(const H5::H5Location & modelBuilderGroup) const
 
   try
   {
-    HDF5Utils::writeString(modelBuilderGroup, "./builderName", m_modelBuilderName);
-    HDF5Utils::writeString(modelBuilderGroup, "./buildTime", m_buildtime);
+    hdf5utils::WriteString(modelBuilderGroup, "./builderName", m_modelBuilderName);
+    hdf5utils::WriteString(modelBuilderGroup, "./buildTime", m_buildtime);
 
     auto dataInfoGroup = modelBuilderGroup.createGroup("./dataInfo");
     for (const auto& it : m_dataInfo) {
-      HDF5Utils::writeString(dataInfoGroup, it.first.c_str(), it.second.c_str());
+      hdf5utils::WriteString(dataInfoGroup, it.first.c_str(), it.second.c_str());
     }
-
-    dataInfoGroup.close();
 
     auto parameterGroup = modelBuilderGroup.createGroup("./parameters");
     for (const auto& it : m_parameterInfo) {
-      HDF5Utils::writeString(parameterGroup, it.first.c_str(), it.second.c_str());
+      hdf5utils::WriteString(parameterGroup, it.first.c_str(), it.second.c_str());
     }
-
-    parameterGroup.close();
   }
   catch (const H5::Exception & e)
   {
@@ -263,16 +252,14 @@ BuilderInfo::Load(const H5::H5Location & modelBuilderGroup)
 {
   using namespace H5;
 
-  m_modelBuilderName = HDF5Utils::readString(modelBuilderGroup, "./builderName");
-  m_buildtime = HDF5Utils::readString(modelBuilderGroup, "./buildTime");
+  m_modelBuilderName = hdf5utils::ReadString(modelBuilderGroup, "./builderName");
+  m_buildtime = hdf5utils::ReadString(modelBuilderGroup, "./buildTime");
 
   auto dataInfoGroup = modelBuilderGroup.openGroup("./dataInfo");
   FillKeyValueListFromInfoGroup(dataInfoGroup, m_dataInfo);
-  dataInfoGroup.close();
 
   auto parameterGroup = modelBuilderGroup.openGroup("./parameters");
   FillKeyValueListFromInfoGroup(parameterGroup, m_parameterInfo);
-  parameterGroup.close();
 }
 
 const BuilderInfo::DataInfoList &
@@ -295,7 +282,7 @@ BuilderInfo::FillKeyValueListFromInfoGroup(const H5::H5Location & group, KeyValu
   for (unsigned i = 0; i < numEntries; i++)
   {
     auto key = group.getObjnameByIdx(i);
-    auto  value = HDF5Utils::readString(group, key.c_str());
+    auto  value = hdf5utils::ReadString(group, key.c_str());
     keyValueList.emplace_back(key, value);
   }
 }

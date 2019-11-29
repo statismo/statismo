@@ -34,20 +34,18 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-
-#ifndef __StatisticalModel_hxx
-#define __StatisticalModel_hxx
-
-#include <cmath>
-
-#include <fstream>
-#include <iostream>
-#include <string>
+#ifndef __STATISTICAL_MODEL_HXX_
+#define __STATISTICAL_MODEL_HXX_
 
 #include "Exceptions.h"
 #include "HDF5Utils.h"
 #include "ModelBuilder.h"
 #include "StatisticalModel.h"
+
+#include <cmath>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 namespace statismo
 {
@@ -72,13 +70,11 @@ StatisticalModel<T>::StatisticalModel(const RepresenterType * representer,
 template <typename T>
 StatisticalModel<T>::~StatisticalModel()
 {
-
-  if (m_representer != 0)
+  if (m_representer != nullptr)
   {
     //		 not all representers can implement a const correct version of delete.
     //		 We therefore simply const cast it. This is save here.
     const_cast<RepresenterType *>(m_representer)->Delete();
-    m_representer = 0;
   }
 }
 
@@ -132,7 +128,7 @@ StatisticalModel<T>::DrawSample(bool addNoise) const
 {
 
   // we create random coefficients and draw a random sample from the model
-  VectorType coeffs = Utils::generateNormalVector(GetNumberOfPrincipalComponents());
+  VectorType coeffs = utils::GenerateNormalVector(GetNumberOfPrincipalComponents());
 
   return DrawSample(coeffs, addNoise);
 }
@@ -176,7 +172,7 @@ StatisticalModel<T>::DrawSampleVector(const VectorType & coefficients, bool addN
   VectorType epsilon = VectorType::Zero(vectorSize);
   if (addNoise)
   {
-    epsilon = Utils::generateNormalVector(vectorSize) * sqrt(m_noiseVariance);
+    epsilon = utils::GenerateNormalVector(vectorSize) * sqrt(m_noiseVariance);
   }
 
 
@@ -205,7 +201,7 @@ StatisticalModel<T>::DrawSampleAtPoint(const VectorType & coefficients, const un
   VectorType epsilon = VectorType::Zero(dim);
   if (addNoise)
   {
-    epsilon = Utils::generateNormalVector(dim) * sqrt(m_noiseVariance);
+    epsilon = utils::GenerateNormalVector(dim) * sqrt(m_noiseVariance);
   }
   for (unsigned d = 0; d < dim; d++)
   {
@@ -214,7 +210,7 @@ StatisticalModel<T>::DrawSampleAtPoint(const VectorType & coefficients, const un
     if (idx >= m_mean.rows())
     {
       std::ostringstream os;
-      os << "Invalid idx computed in DrawSampleAtPoint. ";
+      os << "Invalid idx computed in DrawSampleAtPoint.";
       os << " The most likely cause of this error is that you provided an invalid point id (" << ptId << ")";
       throw StatisticalModelException(os.str().c_str());
     }
@@ -297,10 +293,10 @@ StatisticalModel<T>::ComputeCoefficientsForPointValues(const PointValueListType 
 {
   PointIdValueListType ptIdValueList;
 
-  for (typename PointValueListType::const_iterator it = pointValueList.begin(); it != pointValueList.end(); ++it)
-  {
-    ptIdValueList.push_back(PointIdValuePairType(m_representer->GetPointIdForPoint(it->first), it->second));
+  for (const auto& item : pointValueList) {
+    ptIdValueList.emplace_back(m_representer->GetPointIdForPoint(item.first), item.second);
   }
+
   return ComputeCoefficientsForPointIDValues(ptIdValueList, pointValueNoiseVariance);
 }
 
@@ -319,11 +315,11 @@ StatisticalModel<T>::ComputeCoefficientsForPointIDValues(const PointIdValueListT
   VectorType muPart(pointIdValueList.size() * dim);
   VectorType sample(pointIdValueList.size() * dim);
 
-  unsigned i = 0;
-  for (typename PointIdValueListType::const_iterator it = pointIdValueList.begin(); it != pointIdValueList.end(); ++it)
+  unsigned i{0};
+  for (const auto& item : pointIdValueList)
   {
-    VectorType val = this->m_representer->PointSampleToPointSampleVector(it->second);
-    unsigned   pt_id = it->first;
+    VectorType val = this->m_representer->PointSampleToPointSampleVector(item.second);
+    unsigned   pt_id = item.first;
     for (unsigned d = 0; d < dim; d++)
     {
       PCABasisPart.row(i * dim + d) = this->GetPCABasisMatrix().row(m_representer->MapPointIdToInternalIdx(pt_id, d));
@@ -365,15 +361,13 @@ StatisticalModel<T>::ComputeCoefficientsForPointValuesWithCovariance(
   MatrixType LQ_g(pointValuesWithCovariance.size() * dim, numPrincipalComponents);
 
   unsigned i = 0;
-  for (typename PointValueWithCovarianceListType::const_iterator it = pointValuesWithCovariance.begin();
-       it != pointValuesWithCovariance.end();
-       ++it)
+  for (const auto& item : pointValuesWithCovariance)
   {
-    VectorType val = m_representer->PointSampleToPointSampleVector(it->first.second);
-    unsigned   pt_id = m_representer->GetPointIdForPoint(it->first.first);
+    VectorType val = m_representer->PointSampleToPointSampleVector(item.first.second);
+    unsigned   pt_id = m_representer->GetPointIdForPoint(item.first.first);
 
     // In the formulas, we actually need the precision matrix, which is the inverse of the covariance.
-    const MatrixType pointPrecisionMatrix = it->second.inverse();
+    const MatrixType pointPrecisionMatrix = item.second.inverse();
 
     // Get the three rows pertaining to this point:
     const MatrixType Qrows_for_pt_id = Q.block(pt_id * dim, 0, dim, numPrincipalComponents);

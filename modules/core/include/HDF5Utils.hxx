@@ -45,7 +45,7 @@
 
 #include <H5Cpp.h>
 
-namespace statismo
+namespace statismo::hdf5utils
 {
   namespace details {
     template <typename Scalar>
@@ -82,7 +82,7 @@ namespace statismo
 
 template <class T>
 inline void
-HDF5Utils::readMatrixOfType(const H5::H5Location &                       fg,
+ReadMatrixOfType(const H5::H5Location &                       fg,
                             const char *                                 name,
                             typename GenericEigenTraits<T>::MatrixType & matrix)
 {
@@ -97,7 +97,7 @@ HDF5Utils::readMatrixOfType(const H5::H5Location &                       fg,
 
 template <class T>
 inline H5::DataSet
-HDF5Utils::writeMatrixOfType(const H5::H5Location &                             fg,
+WriteMatrixOfType(const H5::H5Location &                             fg,
                              const char *                                       name,
                              const typename GenericEigenTraits<T>::MatrixType & matrix)
 {
@@ -116,7 +116,7 @@ HDF5Utils::writeMatrixOfType(const H5::H5Location &                             
 
 template <class T>
 inline void
-HDF5Utils::readVectorOfType(const H5::H5Location &                       fg,
+ReadVectorOfType(const H5::H5Location &                       fg,
                             const char *                                 name,
                             typename GenericEigenTraits<T>::VectorType & vector)
 {
@@ -129,7 +129,7 @@ HDF5Utils::readVectorOfType(const H5::H5Location &                       fg,
 
 template <class T>
 inline H5::DataSet
-HDF5Utils::writeVectorOfType(const H5::H5Location &                             fg,
+WriteVectorOfType(const H5::H5Location &                             fg,
                              const char *                                       name,
                              const typename GenericEigenTraits<T>::VectorType & vector)
 {
@@ -141,7 +141,7 @@ HDF5Utils::writeVectorOfType(const H5::H5Location &                             
 
 template <typename T>
 inline void
-HDF5Utils::readArray(const H5::H5Location & fg, const char * name, std::vector<T> & array)
+ReadArray(const H5::H5Location & fg, const char * name, std::vector<T> & array)
 {
   H5::DataSet ds = fg.openDataSet(name);
   hsize_t     dims[1];
@@ -152,7 +152,7 @@ HDF5Utils::readArray(const H5::H5Location & fg, const char * name, std::vector<T
 
 template <typename T>
 inline H5::DataSet
-HDF5Utils::writeArray(const H5::H5Location & fg, const char * name, std::vector<T> const & array)
+WriteArray(const H5::H5Location & fg, const char * name, std::vector<T> const & array)
 {
   hsize_t     dims[1] = { array.size() };
   H5::DataSet ds = fg.createDataSet(name, details::HDF5PredTypeTraits<T>::GetPredRef(), H5::DataSpace(1, dims));

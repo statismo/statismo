@@ -165,7 +165,7 @@ main(int argc, char ** argv)
 bool
 isOptionsConflictPresent(ProgramOptions & opt)
 {
-  statismo::Utils::ToLower(opt.strType);
+  statismo::utils::ToLower(opt.strType);
 
   if (opt.bSampleMean + (opt.vParameters.size() > 0) + opt.bSampleReference > 1)
   {
@@ -201,7 +201,7 @@ populateVectorWithParameters(const StringList & vParams, VectorType & vParameter
   {
     StringList vSplit;
     bool       bSuccess = true;
-    vSplit = statismo::Utils::Split<':'>(*i);
+    vSplit = statismo::utils::Split<':'>(*i);
     if (vSplit.size() != 2)
     {
       bSuccess = false;
@@ -210,8 +210,8 @@ populateVectorWithParameters(const StringList & vParams, VectorType & vParameter
     {
       try
       {
-        unsigned uIndex = statismo::Utils::LexicalCast<unsigned>(vSplit[0]) - 1;
-        double   dValue = statismo::Utils::LexicalCast<double>(vSplit[1]);
+        unsigned uIndex = statismo::utils::LexicalCast<unsigned>(vSplit[0]) - 1;
+        double   dValue = statismo::utils::LexicalCast<double>(vSplit[1]);
 
         if (uIndex >= vParametersReturnVector.size())
         {

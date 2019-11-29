@@ -77,9 +77,9 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
   {
     // loading representer
     auto       representerGroup = file.openGroup("./representer");
-    auto repName = HDF5Utils::readStringAttribute(representerGroup, "name");
-    auto repTypeStr = HDF5Utils::readStringAttribute(representerGroup, "datasetType");
-    auto versionStr = HDF5Utils::readStringAttribute(representerGroup, "version");
+    auto repName = hdf5utils::ReadStringAttribute(representerGroup, "name");
+    auto repTypeStr = hdf5utils::ReadStringAttribute(representerGroup, "datasetType");
+    auto versionStr = hdf5utils::ReadStringAttribute(representerGroup, "version");
     auto type = RepresenterType::TypeFromString(repTypeStr);
     if (type == RepresenterType::CUSTOM || type == RepresenterType::UNKNOWN)
     {
@@ -115,7 +115,7 @@ DataManagerBase<T, Derived>::Load(Representer<T> * representer, const std::strin
     newDataManagerBase = std::make_unique<DataManagerBase<T, Derived>>(representer);
 
     auto dataGroup = file.openGroup("/data");
-    unsigned numds = HDF5Utils::readInt(dataGroup, "./NumberOfDatasets");
+    unsigned numds = hdf5utils::ReadInt(dataGroup, "./NumberOfDatasets");
     for (unsigned num = 0; num < numds; num++)
     {
       std::ostringstream ss;
@@ -159,14 +159,14 @@ DataManagerBase<T, Derived>::Save(const std::string & filename) const
     auto       representerGroup = file.createGroup("./representer");
     auto dataTypeStr = TypeToString(m_representer->GetType());
 
-    HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
-    HDF5Utils::writeStringAttribute(representerGroup, "version", m_representer->GetVersion());
-    HDF5Utils::writeStringAttribute(representerGroup, "datasetType", dataTypeStr);
+    hdf5utils::WriteStringAttribute(representerGroup, "name", m_representer->GetName());
+    hdf5utils::WriteStringAttribute(representerGroup, "version", m_representer->GetVersion());
+    hdf5utils::WriteStringAttribute(representerGroup, "datasetType", dataTypeStr);
 
     this->m_representer->Save(representerGroup);
 
     auto dataGroup = file.createGroup("./data");
-    HDF5Utils::writeInt(dataGroup, "./NumberOfDatasets", this->m_dataItemList.size());
+    hdf5utils::WriteInt(dataGroup, "./NumberOfDatasets", this->m_dataItemList.size());
 
     unsigned num{0};
     for (const auto& item : m_dataItemList)

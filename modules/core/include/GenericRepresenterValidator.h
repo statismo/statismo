@@ -219,7 +219,7 @@ public:
     m_errString = "";
     using namespace H5;
 
-    auto filename = statismo::Utils::CreateTmpName(".rep");
+    auto filename = statismo::utils::CreateTmpName(".rep");
     H5File      file;
     try
     {
@@ -235,9 +235,9 @@ public:
 
     // We add the required attributes, which are usually written by the StatisticalModel class.
     // This is needed, as some representers check on these values.
-    statismo::HDF5Utils::writeStringAttribute(representerGroup, "name", m_representer->GetName());
+    statismo::hdf5utils::WriteStringAttribute(representerGroup, "name", m_representer->GetName());
     std::string dataTypeStr = TypeToString(m_representer->GetType());
-    statismo::HDF5Utils::writeStringAttribute(representerGroup, "datasetType", dataTypeStr);
+    statismo::hdf5utils::WriteStringAttribute(representerGroup, "datasetType", dataTypeStr);
 
     file.close();
     try

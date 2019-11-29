@@ -46,6 +46,7 @@
 #include "CommonTypes.h"
 #include "DataManager.h"
 #include "Domain.h"
+#include "RandUtils.h"
 #include "PCAModelBuilder.h"
 #include "vtkStandardMeshRepresenter.h"
 #include "vtkTestHelper.h"
@@ -76,7 +77,7 @@ int
 PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
 {
 
-  auto rg = rand::randGen(0);
+  auto rg = rand::RandGen(0);
 
   if (argc < 2)
   {

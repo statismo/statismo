@@ -47,7 +47,7 @@ template <typename T, typename Derived>
 UniquePtrType<DataItemBase<T, Derived>>
 DataItemBase<T, Derived>::Load(const RepresenterType * representer, const H5::Group & dsGroup)
 {
-  auto sampleType = HDF5Utils::readString(dsGroup, "./sampletype");
+  auto sampleType = hdf5utils::ReadString(dsGroup, "./sampletype");
   UniquePtrType<DataItemBase<T, Derived>>  newSample;
   if (sampleType == "DataItem")
   {

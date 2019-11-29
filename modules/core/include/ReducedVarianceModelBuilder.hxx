@@ -35,25 +35,19 @@
  *
  */
 
-#ifndef __ReducedVarianceModelBuilder_hxx
-#define __ReducedVarianceModelBuilder_hxx
+#ifndef __REDUCED_VARIANCE_MODEL_BUILDER_HXX_
+#define __REDUCED_VARIANCE_MODEL_BUILDER_HXX_
 
 #include "ReducedVarianceModelBuilder.h"
-
-#include <iostream>
-
-#include <Eigen/SVD>
-
 #include "CommonTypes.h"
 #include "Exceptions.h"
 
+#include <Eigen/SVD>
+
+#include <iostream>
+
 namespace statismo
 {
-
-template <typename T>
-ReducedVarianceModelBuilder<T>::ReducedVarianceModelBuilder()
-  : Superclass()
-{}
 
 template <typename T>
 UniquePtrType<typename ReducedVarianceModelBuilder<T>::StatisticalModelType>
@@ -72,21 +66,17 @@ ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(const Statist
   typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
 
   BuilderInfo::ParameterInfoList bi;
-  bi.push_back(BuilderInfo::KeyValuePair("NumberOfPincipalComponents ", Utils::toString(numberOfPrincipalComponents)));
+  bi.emplace_back("NumberOfPincipalComponents ", std::to_string(numberOfPrincipalComponents));
 
   BuilderInfo::DataInfoList di;
-
-  BuilderInfo builderInfo("ReducedVarianceModelBuilder", di, bi);
-  builderInfoList.push_back(builderInfo);
+  builderInfoList.emplace_back("ReducedVarianceModelBuilder", di, bi);
 
   // If the scores matrix is not set, or if we have for some reasons not as many score entries as the number of
   // principal components, we simply work with what is there.
   unsigned numComponentsForScores =
     std::min(static_cast<unsigned>(inputModel->GetModelInfo().GetScoresMatrix().rows()), numberOfPrincipalComponents);
 
-  ModelInfo info(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsForScores), builderInfoList);
-  reducedModel->SetModelInfo(info);
-
+  reducedModel->SetModelInfo(ModelInfo(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsForScores), builderInfoList));
   return reducedModel;
 }
 
@@ -118,7 +108,6 @@ UniquePtrType<typename ReducedVarianceModelBuilder<T>::StatisticalModelType>
 ReducedVarianceModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType * inputModel,
                                                        double                       totalVariance) const
 {
-
   return BuildNewModelWithVariance(inputModel, totalVariance);
 }
 

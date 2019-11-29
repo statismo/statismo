@@ -46,6 +46,7 @@
 #include "SafeContainer.h"
 
 #include <memory>
+#include <sstream>
 
 namespace statismo
 {
@@ -247,7 +248,7 @@ public:
                                    numEigenfunctions,
                                    numberOfPointsForApproximation == 0 ? numEigenfunctions * 2
                                                                        : numberOfPointsForApproximation))
-    , m_eigenvalues(m_nystrom->getEigenvalues())
+    , m_eigenvalues(m_nystrom->GetEigenvalues())
     , m_doCacheValues(cacheValues)
     , MatrixValuedKernel<PointType>(kernel.GetDimension())
   {}
@@ -261,8 +262,8 @@ public:
     auto etaX = m_eta(x);
     auto etaY = m_eta(y);
 
-    auto phisAtX = phiAtPoint(x);
-    auto phisAtY = phiAtPoint(y);
+    auto phisAtX = PhiAtPoint(x);
+    auto phisAtY = PhiAtPoint(y);
 
     double largestTemperedEigenvalue = std::pow(m_eigenvalues(0), (etaX + etaY) / 2);
 
@@ -301,7 +302,7 @@ private:
 
   // returns a d x n matrix holding the value of all n eigenfunctions evaluated at the given point.
   statismo::MatrixType
-  phiAtPoint(const PointType & pt) const
+  PhiAtPoint(const PointType & pt) const
   {
     statismo::MatrixType v;
     if (m_doCacheValues)
@@ -312,14 +313,14 @@ private:
       // TODO: Create thread-safe data structure in statismo instead
       //       of putting the burden of thread-safety on science related
       //       classes
-      if (!m_phiCache.find(ptAsVec, v)) {
-        v = m_nystrom->computeEigenfunctionsAtPoint(pt);
-        m_phiCache.insert(std::make_pair(ptAsVec, v));
+      if (!m_phiCache.Find(ptAsVec, v)) {
+        v = m_nystrom->ComputeEigenfunctionsAtPoint(pt);
+        m_phiCache.Insert(std::make_pair(ptAsVec, v));
       }
     }
     else
     {
-      v = m_nystrom->computeEigenfunctionsAtPoint(pt);
+      v = m_nystrom->ComputeEigenfunctionsAtPoint(pt);
     }
     return v;
   }

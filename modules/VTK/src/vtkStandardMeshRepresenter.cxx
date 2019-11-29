@@ -89,7 +89,7 @@ vtkStandardMeshRepresenter::Load(const H5::Group & fg)
 {
   vtkPolyData * ref = 0;
 
-  std::string repName = HDF5Utils::readStringAttribute(fg, "name");
+  std::string repName = hdf5utils::ReadStringAttribute(fg, "name");
   if (repName == "vtkPolyDataRepresenter" || repName == "itkMeshRepresenter")
   {
     ref = LoadRefLegacy(fg);
@@ -107,11 +107,11 @@ vtkStandardMeshRepresenter::LoadRef(const H5::Group & fg) const
 {
 
   statismo::MatrixType vertexMat;
-  HDF5Utils::readMatrix(fg, "./points", vertexMat);
+  hdf5utils::ReadMatrix(fg, "./points", vertexMat);
 
   typedef statismo::GenericEigenTraits<unsigned int>::MatrixType UIntMatrixType;
   UIntMatrixType                                                 cellsMat;
-  HDF5Utils::readMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
+  hdf5utils::ReadMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
 
   // create the reference from this information
   vtkPolyData * ref = vtkPolyData::New();
@@ -152,42 +152,40 @@ vtkStandardMeshRepresenter::LoadRef(const H5::Group & fg) const
 
   // read the point and cell data
   assert(ref->GetPointData() != 0);
-  if (HDF5Utils::existsObjectWithName(fg, "pointData"))
+  if (hdf5utils::ExistsObjectWithName(fg, "pointData"))
   {
     H5::Group pdGroup = fg.openGroup("./pointData");
-    if (HDF5Utils::existsObjectWithName(pdGroup, "scalars"))
+    if (hdf5utils::ExistsObjectWithName(pdGroup, "scalars"))
     {
       ref->GetPointData()->SetScalars(GetAsDataArray(pdGroup, "scalars"));
     }
-    if (HDF5Utils::existsObjectWithName(pdGroup, "vectors"))
+    if (hdf5utils::ExistsObjectWithName(pdGroup, "vectors"))
     {
       ref->GetPointData()->SetVectors(GetAsDataArray(pdGroup, "vectors"));
     }
-    if (HDF5Utils::existsObjectWithName(pdGroup, "normals"))
+    if (hdf5utils::ExistsObjectWithName(pdGroup, "normals"))
     {
       ref->GetPointData()->SetNormals(GetAsDataArray(pdGroup, "normals"));
     }
-    pdGroup.close();
   }
 
-  if (HDF5Utils::existsObjectWithName(fg, "cellData"))
+  if (hdf5utils::ExistsObjectWithName(fg, "cellData"))
   {
     H5::Group cdGroup = fg.openGroup("./cellData");
     assert(ref->GetCellData() != 0);
 
-    if (HDF5Utils::existsObjectWithName(cdGroup, "scalars"))
+    if (hdf5utils::ExistsObjectWithName(cdGroup, "scalars"))
     {
       ref->GetPointData()->SetScalars(GetAsDataArray(cdGroup, "scalars"));
     }
-    if (HDF5Utils::existsObjectWithName(cdGroup, "vectors"))
+    if (hdf5utils::ExistsObjectWithName(cdGroup, "vectors"))
     {
       ref->GetPointData()->SetVectors(GetAsDataArray(cdGroup, "vectors"));
     }
-    if (HDF5Utils::existsObjectWithName(cdGroup, "normals"))
+    if (hdf5utils::ExistsObjectWithName(cdGroup, "normals"))
     {
       ref->GetPointData()->SetNormals(GetAsDataArray(cdGroup, "normals"));
     }
-    cdGroup.close();
   }
   return ref;
 }
@@ -196,14 +194,14 @@ vtkStandardMeshRepresenter::LoadRef(const H5::Group & fg) const
 vtkPolyData *
 vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group & fg) const
 {
-  std::string tmpfilename = statismo::Utils::CreateTmpName(".vtk");
+  std::string tmpfilename = statismo::utils::CreateTmpName(".vtk");
 
-  HDF5Utils::getFileFromHDF5(fg, "./reference", tmpfilename.c_str());
+  hdf5utils::GetFileFromHDF5(fg, "./reference", tmpfilename.c_str());
   vtkPolyData *       pd = vtkPolyData::New();
   vtkPolyDataReader * reader = vtkPolyDataReader::New();
   reader->SetFileName(tmpfilename.c_str());
   reader->Update();
-  statismo::Utils::RemoveFile(tmpfilename);
+  statismo::utils::RemoveFile(tmpfilename);
   if (reader->GetErrorCode() != 0)
   {
     throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
@@ -230,7 +228,7 @@ vtkStandardMeshRepresenter::Save(const H5::Group & fg) const
       vertexMat(d, i) = pt[d];
     }
   }
-  HDF5Utils::writeMatrix(fg, "./points", vertexMat);
+  hdf5utils::WriteMatrix(fg, "./points", vertexMat);
 
   // check the dimensionality of a face (i.e. the number of points it has). We assume that
   // all the cells are the same.
@@ -253,7 +251,7 @@ vtkStandardMeshRepresenter::Save(const H5::Group & fg) const
     }
   }
 
-  HDF5Utils::writeMatrixOfType<unsigned int>(fg, "./cells", facesMat);
+  hdf5utils::WriteMatrixOfType<unsigned int>(fg, "./cells", facesMat);
 
   H5::Group pdGroup = fg.createGroup("pointData");
 
@@ -406,11 +404,11 @@ vtkStandardMeshRepresenter::GetAsDataArray(const H5::Group & group, const std::s
 
   typedef statismo::GenericEigenTraits<double>::MatrixType DoubleMatrixType;
   DoubleMatrixType                                         m;
-  HDF5Utils::readMatrixOfType<double>(group, name.c_str(), m);
+  hdf5utils::ReadMatrixOfType<double>(group, name.c_str(), m);
 
   // we open the dataset once more to be able to read its attribute
   H5::DataSet matrixDs = group.openDataSet(name.c_str());
-  int         type = HDF5Utils::readIntAttribute(matrixDs, "datatype");
+  int         type = hdf5utils::ReadIntAttribute(matrixDs, "datatype");
 
   switch (type)
   {
@@ -507,10 +505,10 @@ vtkStandardMeshRepresenter::WriteDataArray(const H5::H5Location & group,
       m(d, i) = tuple[d];
     }
   }
-  const H5::DataSet ds = HDF5Utils::writeMatrixOfType<double>(group, name.c_str(), m);
+  const H5::DataSet ds = hdf5utils::WriteMatrixOfType<double>(group, name.c_str(), m);
 
   int statismoDataTypeId = vtkHelper::vtkDataTypeIdToStatismoDataTypeId(dataArray->GetDataType());
-  HDF5Utils::writeIntAttribute(ds, "datatype", statismoDataTypeId);
+  hdf5utils::WriteIntAttribute(ds, "datatype", statismoDataTypeId);
 }
 
 } // namespace statismo

@@ -36,11 +36,8 @@
  */
 
 
-#ifndef __POSTERIORMODELBUILDER_H_
-#define __POSTERIORMODELBUILDER_H_
-
-#include <list>
-#include <vector>
+#ifndef __POSTERIOR_MODEL_BUILDER_H_
+#define __POSTERIOR_MODEL_BUILDER_H_
 
 #include "CommonTypes.h"
 #include "Config.h"
@@ -49,9 +46,11 @@
 #include "Representer.h"
 #include "StatisticalModel.h"
 
+#include <list>
+#include <vector>
+
 namespace statismo
 {
-
 
 /**
  * \brief Given a statistical model (prior) and a set of point constraints (likelihood), generate a new PCA model
@@ -62,59 +61,30 @@ namespace statismo
  * The resulting model will satisfy these constraints, and thus has a much lower variability than an
  * unconstrained model would have.
  *
- * For mathematical detailes see the paper
- * Posterior Shape Models
+ * For mathematical details see the paper:
+ * 
+ * "Posterior Shape Models"
  * Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
- * Medical Image Analysis 2013
- *
- * Add method that allows for the use of the pointId in the constraint.
+ * in Medical Image Analysis 2013
  */
 template <typename T>
 class PosteriorModelBuilder : public ModelBuilderBase<T, PosteriorModelBuilder<T>>
 {
 public:
-  typedef Representer<T>                                    RepresenterType;
-  typedef ModelBuilderBase<T, PosteriorModelBuilder<T>>     Superclass;
-  typedef typename Superclass::DataManagerType              DataManagerType;
-  typedef typename Superclass::StatisticalModelType         StatisticalModelType;
-  typedef typename RepresenterType::ValueType               ValueType;
-  typedef typename RepresenterType::PointType               PointType;
-  typedef typename StatisticalModelType::PointValueListType PointValueListType;
-  typedef typename DataManagerType::DataItemListType        DataItemListType;
-
-
-  typedef typename StatisticalModelType::PointValuePairType               PointValuePairType;
-  typedef typename StatisticalModelType::PointCovarianceMatrixType        PointCovarianceMatrixType;
-  typedef typename StatisticalModelType::PointValueWithCovariancePairType PointValueWithCovariancePairType;
-  typedef typename StatisticalModelType::PointValueWithCovarianceListType PointValueWithCovarianceListType;
+  using Superclass = ModelBuilderBase<T, PosteriorModelBuilder<T>>;
+  using DataManagerType = typename Superclass::DataManagerType;
+  using DataItemListType = typename DataManagerType::DataItemListType;
+  using RepresenterType = typename Superclass::RepresenterType;
+  using ValueType = typename RepresenterType::ValueType;
+  using PointType = typename RepresenterType::PointType;
+  using StatisticalModelType = typename Superclass::StatisticalModelType;
+  using PointValueListType = typename StatisticalModelType::PointValueListType;
+  using PointValuePairType = typename StatisticalModelType::PointValuePairType               ;
+  using PointCovarianceMatrixType = typename StatisticalModelType::PointCovarianceMatrixType        ;
+  using PointValueWithCovariancePairType = typename StatisticalModelType::PointValueWithCovariancePairType ;
+  using PointValueWithCovarianceListType = typename StatisticalModelType::PointValueWithCovarianceListType ;
 
   friend typename Superclass::ObjectFactoryType;
-
-  /**
-   * Factory method to create a new PosteriorModelBuilder
-   * \param representer The representer
-   */
-  /*static PosteriorModelBuilder *
-  Create()
-  {
-    return new PosteriorModelBuilder();
-  }*/
-
-  /**
-   * Destroy the object.
-   * The same effect can be achieved by deleting the object in the usual
-   * way using the c++ delete keyword.
-   */
-  /*void
-  Delete()
-  {
-    delete this;
-  }*/
-
-  /**
-   * destructor
-   */
-  virtual ~PosteriorModelBuilder() {}
 
   /**
    * Builds a new model from the data provided in the dataManager, and the given constraints.
@@ -125,8 +95,6 @@ public:
    * \param pointValueNoiseVariance The variance of the estimated error at the known points (the pointValues)
    * \param noiseVariance  The variance of the noise assumed on our data
    * \return a new statistical model
-   *
-   * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
   UniquePtrType<StatisticalModelType>
   BuildNewModel(const DataItemListType &   dataItemList,
@@ -144,8 +112,6 @@ public:
    * \param pointValuesWithCovariance A list of ((point,value), covarianceMatrix) for each known value.
    * \param noiseVariance  The variance of the noise assumed on our data
    * \return a new statistical model
-   *
-   * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
   UniquePtrType<StatisticalModelType>
   BuildNewModel(const DataItemListType &                 DataItemList,
@@ -166,8 +132,6 @@ public:
    * \param pointValueNoiseVariance The variance of the estimated error at the known points (the pointValues)
    * \param computeScores Determines whether the scores are computed and stored in the model.
    * \return a new statistical model
-   *
-   * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
   UniquePtrType<StatisticalModelType>
   BuildNewModelFromModel(const StatisticalModelType * model,
@@ -188,8 +152,6 @@ public:
    * \param pointValuesWithCovariance A list of ((point,value), covarianceMatrix) for each known value.
    * \param computeScores Determines whether the scores are computed and stored in the model.
    * \return a new statistical model
-   *
-   * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
   UniquePtrType<StatisticalModelType>
   BuildNewModelFromModel(const StatisticalModelType *             model,
@@ -202,22 +164,17 @@ public:
    * \param pointValues A list of (point, value) pairs with the known values.
    * \param pointValueNoiseVariance The variance of the estimated error at the known points (the pointValues)
    * \return a PointValueWithCovarianceListType with the given uniform variance
-   *
-   * \warning The returned model needs to be explicitly deleted by the user of this method.
    */
   PointValueWithCovarianceListType
   TrivialPointValueWithCovarianceListWithUniformNoise(const PointValueListType & pointValues,
                                                       double                     pointValueNoiseVariance) const;
 
 private:
-  PosteriorModelBuilder();
-  PosteriorModelBuilder(const PosteriorModelBuilder & orig);
-  PosteriorModelBuilder &
-  operator=(const PosteriorModelBuilder & rhs);
+  PosteriorModelBuilder() = default;
 };
 
 } // namespace statismo
 
 #include "PosteriorModelBuilder.hxx"
 
-#endif /* __POSTERIORMODELBUILDER_H_ */
+#endif

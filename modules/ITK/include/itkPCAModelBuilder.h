@@ -92,7 +92,7 @@ public:
                 bool             computeScores = true,
                 EigenValueMethod method = ImplType::JacobiSVD)
   {
-    auto model_statismo = this->callForwardImplTrans(
+    auto model_statismo = this->CallForwardImplTrans(
       ExceptionHandler{ *this }, &ImplType::BuildNewModel, DataItemList, noiseVariance, computeScores, method);
 
     typename StatisticalModel<Representer>::Pointer model_itk = StatisticalModel<Representer>::New();

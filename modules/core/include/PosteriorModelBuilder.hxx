@@ -35,17 +35,16 @@
  *
  */
 
-#ifndef __PosteriorModelBuilder_hxx
-#define __PosteriorModelBuilder_hxx
+#ifndef __POSTERIOR_MODEL_BUILDER_HXX_
+#define __POSTERIOR_MODEL_BUILDER_HXX_
 
 #include "PosteriorModelBuilder.h"
-
-#include <iostream>
+#include "CommonTypes.h"
+#include "PCAModelBuilder.h"
 
 #include <Eigen/SVD>
 
-#include "CommonTypes.h"
-#include "PCAModelBuilder.h"
+#include <iostream>
 
 namespace statismo
 {
@@ -54,12 +53,6 @@ namespace statismo
 // PosteriorModelBuilder
 //
 //
-
-template <typename T>
-PosteriorModelBuilder<T>::PosteriorModelBuilder()
-  : Superclass()
-{}
-
 
 template <typename T>
 UniquePtrType<typename PosteriorModelBuilder<T>::StatisticalModelType>
@@ -95,12 +88,10 @@ PosteriorModelBuilder<T>::TrivialPointValueWithCovarianceListWithUniformNoise(co
   const MatrixType pointCovarianceMatrix =
     pointValueNoiseVariance *
     MatrixType::Identity(RepresenterType::RealPointDimension, RepresenterType::RealPointDimension);
-  PointValueWithCovarianceListType pvcList; //(pointValues.size());
+  PointValueWithCovarianceListType pvcList;
 
-
-  for (typename PointValueListType::const_iterator it = pointValues.begin(); it != pointValues.end(); ++it)
-  {
-    pvcList.push_back(PointValueWithCovariancePairType(*it, pointCovarianceMatrix));
+  for (auto item : pointValues) {
+    pvcList.emplace_back(item, pointCovarianceMatrix);
   }
 
   return pvcList;
@@ -113,7 +104,7 @@ PosteriorModelBuilder<T>::BuildNewModel(const DataItemListType &                
                                         const PointValueWithCovarianceListType & pointValuesWithCovariance,
                                         double                                   noiseVariance) const
 {
-  typedef PCAModelBuilder<T> PCAModelBuilderType;
+  using  PCAModelBuilderType = PCAModelBuilder<T>;
   auto                       modelBuilder = PCAModelBuilderType::SafeCreate();
   auto                       model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
   auto PosteriorModel = BuildNewModelFromModel(model.get(), pointValuesWithCovariance, noiseVariance);
@@ -127,45 +118,36 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
                                                  const PointValueWithCovarianceListType & pointValuesWithCovariance,
                                                  bool                                     computeScores) const
 {
-
-  typedef statismo::Representer<T> RepresenterType;
-
   const RepresenterType * representer = inputModel->GetRepresenter();
 
-
   // The naming of the variables correspond to those used in the paper
-  // Posterior Shape Models,
+  // "Posterior Shape Models"
   // Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
-  //
+
   const MatrixType & Q = inputModel->GetPCABasisMatrix();
   const VectorType & mu = inputModel->GetMeanVector();
 
   // this method only makes sense for a proper PPCA model (e.g. the noise term is properly defined)
   // if the model has zero noise, we assume a small amount of noise
   double rho2 = std::max((double)inputModel->GetNoiseVariance(), (double)Superclass::TOLERANCE);
+  auto dim = representer->GetDimensions();
 
-  unsigned dim = representer->GetDimensions();
-
-
-  // build the part matrices with , considering only the points that are fixed
-  //
-  unsigned   numPrincipalComponents = inputModel->GetNumberOfPrincipalComponents();
+  // build the part matrices considering only the points that are fixed
+  auto   numPrincipalComponents = inputModel->GetNumberOfPrincipalComponents();
   MatrixType Q_g(pointValuesWithCovariance.size() * dim, numPrincipalComponents);
   VectorType mu_g(pointValuesWithCovariance.size() * dim);
   VectorType s_g(pointValuesWithCovariance.size() * dim);
 
   MatrixType LQ_g(pointValuesWithCovariance.size() * dim, numPrincipalComponents);
 
-  unsigned i = 0;
-  for (typename PointValueWithCovarianceListType::const_iterator it = pointValuesWithCovariance.begin();
-       it != pointValuesWithCovariance.end();
-       ++it)
+  unsigned i{0};
+  for (const auto& item : pointValuesWithCovariance)
   {
-    VectorType val = representer->PointSampleToPointSampleVector(it->first.second);
-    unsigned   pt_id = representer->GetPointIdForPoint(it->first.first);
+    VectorType val = representer->PointSampleToPointSampleVector(item.first.second);
+    unsigned   pt_id = representer->GetPointIdForPoint(item.first.first);
 
     // In the formulas, we actually need the precision matrix, which is the inverse of the covariance.
-    const MatrixType pointPrecisionMatrix = it->second.inverse();
+    const MatrixType pointPrecisionMatrix = item.second.inverse();
 
     // Get the three rows pertaining to this point:
     const MatrixType Qrows_for_pt_id = Q.block(pt_id * dim, 0, dim, numPrincipalComponents);
@@ -179,7 +161,6 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
   }
 
   VectorType D2 = inputModel->GetPCAVarianceVector().array();
-
   const MatrixType & Q_gT = Q_g.transpose();
 
   MatrixType M = Q_gT * LQ_g;
@@ -205,11 +186,10 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
   VectorType D2MinusRhoSqrt = D2MinusRho.array().sqrt();
 
 
-  typedef Eigen::JacobiSVD<MatrixTypeDoublePrecision> SVDType;
+  using  SVDType = Eigen::JacobiSVD<MatrixTypeDoublePrecision>;
   MatrixTypeDoublePrecision                           innerMatrix =
     D2MinusRhoSqrt.cast<double>().asDiagonal() * Minv * D2MinusRhoSqrt.cast<double>().asDiagonal();
   SVDType svd(innerMatrix, Eigen::ComputeThinU);
-
 
   // SVD of the inner matrix
   VectorType D_c = svd.singularValues().cast<ScalarType>();
@@ -224,20 +204,18 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
   typename ModelInfo::BuilderInfoList builderInfoList = inputModel->GetModelInfo().GetBuilderInfoList();
 
   BuilderInfo::ParameterInfoList bi;
-  bi.push_back(BuilderInfo::KeyValuePair("NoiseVariance ", Utils::toString(rho2)));
-  bi.push_back(BuilderInfo::KeyValuePair("FixedPointsVariance ", Utils::toString(0.2)));
+  bi.emplace_back("NoiseVariance ", std::to_string(rho2));
+  bi.emplace_back("FixedPointsVariance ", std::to_string(0.2));
   //
   BuilderInfo::DataInfoList di;
 
   unsigned pt_no = 0;
-  for (typename PointValueWithCovarianceListType::const_iterator it = pointValuesWithCovariance.begin();
-       it != pointValuesWithCovariance.end();
-       ++it)
+  for (const auto& item : pointValuesWithCovariance)
   {
-    VectorType val = representer->PointSampleToPointSampleVector(it->first.second);
+    VectorType val = representer->PointSampleToPointSampleVector(item.first.second);
 
     // TODO we looked up the PointId for the same point before. Having it here again is inefficient.
-    unsigned           pt_id = representer->GetPointIdForPoint(it->first.first);
+    unsigned           pt_id = representer->GetPointIdForPoint(item.first.first);
     std::ostringstream keySStream;
     keySStream << "Point constraint " << pt_no;
     std::ostringstream valueSStream;
@@ -249,20 +227,17 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
     }
     valueSStream << val[dim - 1];
     valueSStream << "))";
-    di.push_back(BuilderInfo::KeyValuePair(keySStream.str(), valueSStream.str()));
+    di.emplace_back(keySStream.str(), valueSStream.str());
     pt_no++;
   }
 
-
-  BuilderInfo builderInfo("PosteriorModelBuilder", di, bi);
-  builderInfoList.push_back(builderInfo);
+  builderInfoList.emplace_back("PosteriorModelBuilder", di, bi);
 
   MatrixType inputScores = inputModel->GetModelInfo().GetScoresMatrix();
   MatrixType scores = MatrixType::Zero(inputScores.rows(), inputScores.cols());
 
-  if (computeScores == true)
+  if (computeScores)
   {
-
     // get the scores from the input model
     for (unsigned i = 0; i < inputScores.cols(); i++)
     {
@@ -272,8 +247,8 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
       representer->DeleteDataset(ds);
     }
   }
-  ModelInfo info(scores, builderInfoList);
-  PosteriorModel->SetModelInfo(info);
+  
+  PosteriorModel->SetModelInfo(ModelInfo{scores, builderInfoList});
 
   return PosteriorModel;
 }

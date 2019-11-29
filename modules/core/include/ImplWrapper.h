@@ -113,9 +113,9 @@ public:
    */
   template <typename Callable, typename... Args>
   decltype(auto)
-  callForwardImpl(Callable && op, Args &&... args)
+  CallForwardImpl(Callable && op, Args &&... args)
   {
-    return static_cast<const ImplWrapper*>(this)->callForwardImpl(std::forward<Callable>(op), std::forward<Args>(args)...);
+    return static_cast<const ImplWrapper*>(this)->CallForwardImpl(std::forward<Callable>(op), std::forward<Args>(args)...);
   }
 
   /**
@@ -123,9 +123,9 @@ public:
    */
   template <typename Callable, typename... Args>
   decltype(auto)
-  callForwardImpl(Callable && op, Args &&... args) const
+  CallForwardImpl(Callable && op, Args &&... args) const
   {
-    return callForward(std::forward<Callable>(op), m_impl.get(), std::forward<Args>(args)...);
+    return CallForward(std::forward<Callable>(op), m_impl.get(), std::forward<Args>(args)...);
   }
 
   /**
@@ -135,9 +135,9 @@ public:
    */
   template <typename Handler, typename Callable, typename... Args>
   decltype(auto)
-  callForwardImplTrans(Handler && h, Callable && op, Args &&... args)
+  CallForwardImplTrans(Handler && h, Callable && op, Args &&... args)
   {
-    return static_cast<const ImplWrapper*>(this)->callForwardImplTrans(std::forward<Handler>(h),
+    return static_cast<const ImplWrapper*>(this)->CallForwardImplTrans(std::forward<Handler>(h),
     std::forward<Callable>(op), std::forward<Args>(args)...);
   }
 
@@ -148,7 +148,7 @@ public:
    */
   template <typename Handler, typename Callable, typename... Args>
   decltype(auto)
-  callForwardImplTrans(Handler && h, Callable && op, Args &&... args) const
+  CallForwardImplTrans(Handler && h, Callable && op, Args &&... args) const
   {
     if (!m_impl)
     {
@@ -157,7 +157,7 @@ public:
 
     try
     {
-      return callForwardImpl(std::forward<Callable>(op), std::forward<Args>(args)...);
+      return CallForwardImpl(std::forward<Callable>(op), std::forward<Args>(args)...);
     }
     catch (const StatisticalModelException & ex)
     {
@@ -170,14 +170,14 @@ public:
 
   template <typename Callable, typename... Args>
   decltype(auto)
-  callForward(Callable && op, Args &&... args)
+  CallForward(Callable && op, Args &&... args)
   {
     return std::invoke(std::forward<Callable>(op), std::forward<Args>(args)...);
   }
 
   template <typename Callable, typename... Args>
   decltype(auto)
-  callForward(Callable && op, Args &&... args) const
+  CallForward(Callable && op, Args &&... args) const
   {
     return std::invoke(std::forward<Callable>(op), std::forward<Args>(args)...);
   }

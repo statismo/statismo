@@ -165,21 +165,21 @@ protected:
   virtual void
   LoadInternal(const H5::Group & dsGroup)
   {
-    HDF5Utils::readVector(dsGroup, "./samplevector", m_sampleVector);
-    m_URI = HDF5Utils::readString(dsGroup, "./URI");
+    hdf5utils::ReadVector(dsGroup, "./samplevector", m_sampleVector);
+    m_URI = hdf5utils::ReadString(dsGroup, "./URI");
   }
 
   void
   SaveInternal(const H5::Group & dsGroup) const
   {
-    HDF5Utils::writeVector(dsGroup, "./samplevector", m_sampleVector);
-    HDF5Utils::writeString(dsGroup, "./URI", m_URI);
+    hdf5utils::WriteVector(dsGroup, "./samplevector", m_sampleVector);
+    hdf5utils::WriteString(dsGroup, "./URI", m_URI);
 
     SaveInternalImpl(dsGroup);
   }
 
   virtual void SaveInternalImpl(const H5::Group & dsGroup) const {
-    HDF5Utils::writeString(dsGroup, "./sampletype", "DataItem");
+    hdf5utils::WriteString(dsGroup, "./sampletype", "DataItem");
   }
 
   const RepresenterType * m_representer;
@@ -262,16 +262,16 @@ private:
   LoadInternal(const H5::Group & dsGroup) override
   {
     Superclass::LoadInternal(dsGroup);
-    HDF5Utils::readVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
-    m_surrogateFilename = HDF5Utils::readString(dsGroup, "./surrogateFilename");
+    hdf5utils::ReadVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
+    m_surrogateFilename = hdf5utils::ReadString(dsGroup, "./surrogateFilename");
   }
 
   virtual void
   SaveInternalImpl(const H5::Group & dsGroup) const override
   {
-    HDF5Utils::writeString(dsGroup, "./sampletype", "DataItemWithSurrogates");
-    HDF5Utils::writeVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
-    HDF5Utils::writeString(dsGroup, "./surrogateFilename", this->m_surrogateFilename);
+    hdf5utils::WriteString(dsGroup, "./sampletype", "DataItemWithSurrogates");
+    hdf5utils::WriteVector(dsGroup, "./surrogateVector", this->m_surrogateVector);
+    hdf5utils::WriteString(dsGroup, "./surrogateFilename", this->m_surrogateFilename);
   }
 
   std::string m_surrogateFilename;

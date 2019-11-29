@@ -35,17 +35,17 @@
  *
  */
 
-#ifndef __RANDSVD_H
-#define __RANDSVD_H
+#ifndef __RAND_SVD_H_
+#define __RAND_SVD_H_
 
-#include <cmath>
-
-#include <iostream>
-#include <limits>
-
-#include <random>
+#include "RandUtils.h"
 
 #include <Eigen/Dense>
+
+#include <cmath>
+#include <iostream>
+#include <limits>
+#include <random>
 
 namespace statismo
 {
@@ -56,18 +56,15 @@ template <typename ScalarType>
 class RandSVD
 {
 public:
-  typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, 1>                               VectorType;
-  typedef Eigen::Matrix<ScalarType, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> MatrixType;
+  using VectorType = Eigen::Matrix<ScalarType, Eigen::Dynamic, 1>;
+  using MatrixType = Eigen::Matrix<ScalarType, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 
   RandSVD(const MatrixType & A, unsigned k)
   {
-
     unsigned n = A.rows();
 
-
-    static std::minstd_rand           randgen(static_cast<unsigned>(time(0)));
     static std::normal_distribution<> dist(0, 1);
-    static auto                       r = std::bind(dist, randgen);
+    static auto                       r = std::bind(dist, rand::RandGen());
 
     // create gaussian random amtrix
     MatrixType Omega(n, k);
@@ -86,7 +83,7 @@ public:
 
     MatrixType B = Q.transpose() * A;
 
-    typedef Eigen::JacobiSVD<MatrixType> SVDType;
+    using SVDType = Eigen::JacobiSVD<MatrixType>;
     SVDType                              SVD(B, Eigen::ComputeThinU);
     MatrixType                           Uhat = SVD.matrixU();
     m_D = SVD.singularValues();
@@ -94,13 +91,13 @@ public:
   }
 
   MatrixType
-  matrixU() const
+  MatrixU() const
   {
     return m_U;
   }
 
   VectorType
-  singularValues() const
+  SingularValues() const
   {
     return m_D;
   }
@@ -113,4 +110,4 @@ private:
 
 
 } // namespace statismo
-#endif // __LANCZOS_H
+#endif

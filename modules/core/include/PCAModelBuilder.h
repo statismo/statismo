@@ -35,11 +35,8 @@
  *
  */
 
-#ifndef __PCAMODELBUILDER_H_
-#define __PCAMODELBUILDER_H_
-
-#include <memory>
-#include <vector>
+#ifndef __PCA_MODEL_BUILDER_H_
+#define __PCA_MODEL_BUILDER_H_
 
 #include "CommonTypes.h"
 #include "Config.h"
@@ -48,10 +45,11 @@
 #include "ModelInfo.h"
 #include "StatisticalModel.h"
 
+#include <memory>
+#include <vector>
+
 namespace statismo
 {
-
-
 /**
  * \brief Creates StatisticalModel using Principal Component Analysis.
  *
@@ -61,13 +59,12 @@ template <typename T>
 class PCAModelBuilder : public ModelBuilderBase<T, PCAModelBuilder<T>>
 {
 
-
 public:
   using Superclass = ModelBuilderBase<T, PCAModelBuilder<T>>;
-  typedef typename Superclass::DataManagerType       DataManagerType;
-  typedef typename Superclass::StatisticalModelType  StatisticalModelType;
-  typedef typename DataManagerType::DataItemListType DataItemListType;
-  friend Superclass;
+  using DataManagerType = typename Superclass::DataManagerType;
+  using StatisticalModelType = typename Superclass::StatisticalModelType;
+  using DataItemListType = typename DataManagerType::DataItemListType ;
+
   friend typename Superclass::ObjectFactoryType;
 
   /**
@@ -81,11 +78,7 @@ public:
     SelfAdjointEigenSolver
   } EigenValueMethod;
 
-
-  /**
-   * The desctructor
-   */
-  virtual ~PCAModelBuilder() {}
+  virtual ~PCAModelBuilder() = default;
 
   /**
    * Build a new model from the training data provided in the dataManager.
@@ -108,7 +101,7 @@ public:
 
 private:
   // to prevent use
-  PCAModelBuilder();
+  PCAModelBuilder() = default;
 
   UniquePtrType<StatisticalModelType>
   BuildNewModelInternal(const Representer<T> * representer,
@@ -122,4 +115,4 @@ private:
 
 #include "PCAModelBuilder.hxx"
 
-#endif /* __PCAMODELBUILDER_H_ */
+#endif
