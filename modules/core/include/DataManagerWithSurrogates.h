@@ -94,8 +94,8 @@ public:
     return m_typeInfo.types;
   }
 
-  /** 
-   * Returns the source filename defining the surrogate types 
+  /**
+   * Returns the source filename defining the surrogate types
    */
   std::string
   GetSurrogateTypeFilename() const
@@ -103,8 +103,8 @@ public:
     return m_typeInfo.typeFilename;
   }
 
-  /** 
-   * Get a structure containing the type info: vector of types, and source filename 
+  /**
+   * Get a structure containing the type info: vector of types, and source filename
    */
   SurrogateTypeInfoType
   GetSurrogateTypeInfo() const

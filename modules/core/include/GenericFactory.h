@@ -74,7 +74,7 @@ public:
   static std::unique_ptr<T, Deletor>
   SafeCreateWithCustomDeletor(Args &&... args)
   {
-    std::unique_ptr<T, Deletor> ptr(new T(std::forward<Args>(args)... ), Deletor());
+    std::unique_ptr<T, Deletor> ptr(new T(std::forward<Args>(args)...), Deletor());
     return ptr;
   }
 

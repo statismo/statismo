@@ -47,8 +47,8 @@ template <typename T, typename Derived>
 UniquePtrType<DataItemBase<T, Derived>>
 DataItemBase<T, Derived>::Load(const RepresenterType * representer, const H5::Group & dsGroup)
 {
-  auto sampleType = hdf5utils::ReadString(dsGroup, "./sampletype");
-  UniquePtrType<DataItemBase<T, Derived>>  newSample;
+  auto                                    sampleType = hdf5utils::ReadString(dsGroup, "./sampletype");
+  UniquePtrType<DataItemBase<T, Derived>> newSample;
   if (sampleType == "DataItem")
   {
     newSample = std::make_unique<BasicDataItem<T>>(representer);
@@ -59,11 +59,12 @@ DataItemBase<T, Derived>::Load(const RepresenterType * representer, const H5::Gr
   }
   else
   {
-    throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") + sampleType).c_str(), Status::INVALID_DATA_ERROR);
+    throw StatisticalModelException((std::string("Unknown sampletype in hdf5 group: ") + sampleType).c_str(),
+                                    Status::INVALID_DATA_ERROR);
   }
 
   newSample->LoadInternal(dsGroup);
-  
+
   return newSample;
 }
 

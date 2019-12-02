@@ -79,7 +79,9 @@ namespace statismo
  *
  */
 template <typename T>
-class StatisticalModel : public GenericFactory<StatisticalModel<T>>, NonCopyable
+class StatisticalModel
+  : public GenericFactory<StatisticalModel<T>>
+  , NonCopyable
 {
 public:
   using RepresenterType = Representer<T>;
@@ -532,15 +534,15 @@ private:
 
 
   const RepresenterType * m_representer;
-  VectorType m_mean;
-  MatrixType m_pcaBasisMatrix;
-  VectorType m_pcaVariance;
-  float      m_noiseVariance;
+  VectorType              m_mean;
+  MatrixType              m_pcaBasisMatrix;
+  VectorType              m_pcaVariance;
+  float                   m_noiseVariance;
   // caching
   mutable bool m_cachedValuesValid;
   // the matrix M^{-1} in Bishops PRML book. This is roughly the Latent Covariance matrix (but not exactly)
   mutable MatrixType m_MInverseMatrix;
-  ModelInfo m_modelInfo;
+  ModelInfo          m_modelInfo;
 };
 
 } // namespace statismo

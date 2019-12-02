@@ -70,7 +70,7 @@ template <>
 struct RepresenterTraits<statismo::VectorType>
 {
   using DatasetPointerType = statismo::VectorType;
-  using DatasetConstPointerType =  statismo::VectorType;
+  using DatasetConstPointerType = statismo::VectorType;
 
   using PointType = PointIdType;
   using ValueType = statismo::ScalarType;
@@ -98,8 +98,7 @@ public:
     InitializeObject(numPoints);
   }
 
-  void
-  DeleteDataset(DatasetPointerType) const override {};
+  void DeleteDataset(DatasetPointerType) const override{};
   DatasetPointerType
   CloneDataset(DatasetConstPointerType d) const override
   {

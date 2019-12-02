@@ -126,58 +126,63 @@ LexicalCast<unsigned long long>(const std::string & str)
 }
 } // namespace details
 
-namespace utils {
-  /** return a N(0,1) vector of size n */
-  VectorType GenerateNormalVector(unsigned n);
+namespace utils
+{
+/** return a N(0,1) vector of size n */
+VectorType
+GenerateNormalVector(unsigned n);
 
-  VectorType
-  ReadVectorFromTxtFile(const char * name);
+VectorType
+ReadVectorFromTxtFile(const char * name);
 
-  std::string
-  CreateTmpName(const std::string & extension);
+std::string
+CreateTmpName(const std::string & extension);
 
-   void
-  RemoveFile(const std::string & str);
+void
+RemoveFile(const std::string & str);
 
-   void
-  ToLower(std::string & str);
+void
+ToLower(std::string & str);
 
-   std::string
-  ToLowerCopy(std::string str);
+std::string
+ToLowerCopy(std::string str);
 
-    template <typename T>
-  static T
-  LexicalCast(const std::string & str)
+template <typename T>
+static T
+LexicalCast(const std::string & str)
+{
+  try
   {
-    try
-    {
-      return details::LexicalCast<T>(str);
-    }
-    catch (...)
-    {
-      throw std::bad_cast();
-    }
+    return details::LexicalCast<T>(str);
   }
-
-  template <char D>
-  static auto
-  Split(const std::string & in)
+  catch (...)
   {
-    std::istringstream       iss(in);
-    std::vector<std::string> vec{ std::istream_iterator<WordDelimiter<D>>{ iss },
-                                  std::istream_iterator<WordDelimiter<D>>{} };
-    return vec;
+    throw std::bad_cast();
   }
 }
 
+template <char D>
+static auto
+Split(const std::string & in)
+{
+  std::istringstream       iss(in);
+  std::vector<std::string> vec{ std::istream_iterator<WordDelimiter<D>>{ iss },
+                                std::istream_iterator<WordDelimiter<D>>{} };
+  return vec;
 }
+} // namespace utils
 
-namespace std {
-  inline string to_string(const statismo::MatrixType& t) {
-     ostringstream os;
-      os << t;
-    return os.str();
-  }
+} // namespace statismo
+
+namespace std
+{
+inline string
+to_string(const statismo::MatrixType & t)
+{
+  ostringstream os;
+  os << t;
+  return os.str();
 }
+} // namespace std
 
 #endif

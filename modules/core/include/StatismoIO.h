@@ -52,10 +52,10 @@ namespace statismo
  * such there's no need to create an instance of this class.
  *
  * The Template parameter is the same as the one of the StatisticalModel class.
- * 
+ *
  * \note Here we use a bunch of static methods instead of namespaces because it
  * is easier to manipulate (just alias the class instantiation instead of setting
- * the template param for each function) and the class can be passed as template 
+ * the template param for each function) and the class can be passed as template
  * parameter.
  *
  */
@@ -135,7 +135,7 @@ public:
         majorVersion = hdf5utils::ReadInt(versionGroup, "./majorVersion");
       }
 
-      auto  modelGroup = modelRoot.openGroup("./model");
+      auto       modelGroup = modelRoot.openGroup("./model");
       VectorType mean;
       hdf5utils::ReadVector(modelGroup, "./mean", mean);
       VectorType pcaVariance;
@@ -222,7 +222,7 @@ public:
 
     auto modelRoot = file.openGroup("/");
     auto versionGroup = modelRoot.createGroup("version");
-    
+
     hdf5utils::WriteInt(versionGroup, "majorVersion", 0);
     hdf5utils::WriteInt(versionGroup, "minorVersion", 9);
 
@@ -242,7 +242,7 @@ public:
       // create the group structure
       auto dataTypeStr = TypeToString(model.GetRepresenter()->GetType());
       auto representerGroup = modelRoot.createGroup("./representer");
-      
+
       hdf5utils::WriteStringAttribute(representerGroup, "name", model.GetRepresenter()->GetName());
       hdf5utils::WriteStringAttribute(representerGroup, "version", model.GetRepresenter()->GetVersion());
       hdf5utils::WriteStringAttribute(representerGroup, "datasetType", dataTypeStr);

@@ -97,7 +97,7 @@ public:
   using DomainPointsListType = typename DomainType::DomainPointsListType;
   using MatrixValuedKernelType = MatrixValuedKernel<PointType>;
   using StatisticalModelType = typename Superclass::StatisticalModelType;
- 
+
   friend ObjectFactoryType;
 
   /**
@@ -133,19 +133,19 @@ public:
                 unsigned                                          numPointsForNystrom = 500) const
   {
     auto domainPoints = m_representer->GetDomain().GetDomainPoints();
-    auto               numDomainPoints = m_representer->GetDomain().GetNumberOfPoints();
-    auto               kernelDim = kernel.GetDimension();
+    auto numDomainPoints = m_representer->GetDomain().GetNumberOfPoints();
+    auto kernelDim = kernel.GetDimension();
 
     auto nystrom = Nystrom<T>::SafeCreateStd(m_representer, kernel, numComponents, numPointsForNystrom);
-  
+
     // We precompute the value of the eigenfunction for each domain point
     // and store it later in the pcaBasis matrix. In this way we obtain
     // a standard statismo model.
     // To save time, we parallelize over the rows
-    unsigned numChunks = std::thread::hardware_concurrency() + 1;
-    ThreadPool pool{numChunks - 1};
+    unsigned                                                 numChunks = std::thread::hardware_concurrency() + 1;
+    ThreadPool                                               pool{ numChunks - 1 };
     std::vector<std::future<EigenfunctionComputationResult>> futvec;
-    
+
     for (unsigned i = 0; i <= numChunks; i++)
     {
       unsigned chunkSize =
@@ -158,7 +158,7 @@ public:
         break;
       }
 
-      futvec.emplace_back(pool.Submit([=, nys = nystrom.get(), k=&kernel]() {
+      futvec.emplace_back(pool.Submit([=, nys = nystrom.get(), k = &kernel]() {
         return ComputeEigenfunctionsForPoints(nys, k, numComponents, domainPoints, lowerInd, upperInd);
       }));
     }
@@ -166,28 +166,29 @@ public:
     MatrixType pcaBasis = MatrixType::Zero(numDomainPoints * kernelDim, numComponents);
 
     // collect the result
-    for (auto& f : futvec) {
+    for (auto & f : futvec)
+    {
       auto res = f.get();
       pcaBasis.block(res.lowerInd * kernelDim, 0, (res.upperInd - res.lowerInd) * kernelDim, pcaBasis.cols()) =
         res.resultForPoints;
     }
     futvec.clear();
-  
+
     auto pcaVariance = nystrom->GetEigenvalues();
     auto mu = m_representer->SampleToSampleVector(mean);
     auto model = StatisticalModelType::SafeCreate(m_representer, mu, pcaBasis, pcaVariance, 0);
 
     // the model builder does not use any data. Hence the scores and the datainfo is emtpy
-    MatrixType                         scores; // no scores
-    typename BuilderInfo::DataInfoList dataInfo;
+    MatrixType                              scores; // no scores
+    typename BuilderInfo::DataInfoList      dataInfo;
     typename BuilderInfo::ParameterInfoList bi;
     bi.emplace_back(BuilderInfo::KeyValuePair("NoiseVariance", std::to_string(0)));
     bi.emplace_back(BuilderInfo::KeyValuePair("KernelInfo", kernel.GetKernelInfo()));
 
     // finally add meta data to the model info
-    ModelInfo::BuilderInfoList biList(1, BuilderInfo{"LowRankGPModelBuilder", dataInfo, bi});
+    ModelInfo::BuilderInfoList biList(1, BuilderInfo{ "LowRankGPModelBuilder", dataInfo, bi });
 
-    model->SetModelInfo(ModelInfo{scores, biList});
+    model->SetModelInfo(ModelInfo{ scores, biList });
 
     return model;
   }

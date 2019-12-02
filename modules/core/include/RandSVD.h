@@ -84,8 +84,8 @@ public:
     MatrixType B = Q.transpose() * A;
 
     using SVDType = Eigen::JacobiSVD<MatrixType>;
-    SVDType                              SVD(B, Eigen::ComputeThinU);
-    MatrixType                           Uhat = SVD.matrixU();
+    SVDType    SVD(B, Eigen::ComputeThinU);
+    MatrixType Uhat = SVD.matrixU();
     m_D = SVD.singularValues();
     m_U = (Q * Uhat).leftCols(k);
   }

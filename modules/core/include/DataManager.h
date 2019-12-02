@@ -159,8 +159,8 @@ public:
    * This method has to be called before cross validation can be started.
    *
    * \param nFolds The number of folds used in the crossvalidation
-   * \param isRandomized If true, the data will be randomly assigned to the nfolds, otherwise the order with which it was
-   * added is preserved
+   * \param isRandomized If true, the data will be randomly assigned to the nfolds, otherwise the order with which it
+   * was added is preserved
    */
   virtual CrossValidationFoldListType
   GetCrossValidationFolds(unsigned nFolds, bool isRandomized = true) const = 0;
@@ -187,7 +187,6 @@ class DataManagerBase
   , public GenericFactory<Derived>
 {
 public:
-  
   using Superclass = DataManager<T>;
   using RepresenterType = typename Superclass::RepresenterType;
   using DatasetPointerType = typename Superclass::DatasetPointerType;
@@ -198,11 +197,10 @@ public:
   using CrossValidationFoldType = typename Superclass::CrossValidationFoldType;
   using CrossValidationFoldListType = typename Superclass::CrossValidationFoldListType;
   using ObjectFactoryType = GenericFactory<Derived>;
-  
+
   friend ObjectFactoryType;
 
 public:
-
   /**
    * Create a new dataManager, with the data stored in the given hdf5 file
    */
@@ -242,7 +240,7 @@ protected:
   explicit DataManagerBase(const RepresenterType * representer);
 
   UniquePtrType<RepresenterType> m_representer;
-  DataItemListType m_dataItemList;
+  DataItemListType               m_dataItemList;
 };
 
 /**

@@ -75,10 +75,10 @@ enum class RepresenterDataType
 };
 
 STATISMO_CORE_EXPORT RepresenterDataType
-TypeFromString(const std::string & s);
+                     TypeFromString(const std::string & s);
 
 STATISMO_CORE_EXPORT std::string
-TypeToString(RepresenterDataType type);
+                     TypeToString(RepresenterDataType type);
 
 /**
  * \brief Provides the interface between statismo and the dataset type the application uses.
@@ -103,7 +103,7 @@ public:
   ///@{
   /// Defines (a pointer to) the type of the dataset that is represented.
   /// This could either be a naked pointer or a smart pointer.
-  using DatasetPointerType  = typename RepresenterTraits<T>::DatasetPointerType;
+  using DatasetPointerType = typename RepresenterTraits<T>::DatasetPointerType;
 
   /// Defines the const pointer type o fthe datset that is represented
   using DatasetConstPointerType = typename RepresenterTraits<T>::DatasetConstPointerType;
@@ -121,7 +121,7 @@ public:
   ///
   /// Defines the real (computational) dimension of the point type
   ///
-  /// Even if the data dimension given by \a GetDimensions is 2 (for instance, a 2D image), 
+  /// Even if the data dimension given by \a GetDimensions is 2 (for instance, a 2D image),
   /// the points used to store data could be a 3 dimension vector (with last dimension unused).
   /// In this case, the real dimension (used for computation) is 3.
   ///
@@ -133,7 +133,7 @@ public:
    * \name Representer attributes
    */
   ///@{
-  
+
   /**
    * Returns representer identifier
    */
@@ -154,10 +154,10 @@ public:
 
   /**
    * Returns the dimensionality of the dataset
-   * 
+   *
    * - for a mesh, should be 3
    * - for a scalar image, should be 1
-   * - 
+   * -
    */
   virtual unsigned
   GetDimensions() const = 0;

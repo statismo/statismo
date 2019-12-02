@@ -62,7 +62,7 @@ namespace statismo
  * unconstrained model would have.
  *
  * For mathematical details see the paper:
- * 
+ *
  * "Posterior Shape Models"
  * Thomas Albrecht, Marcel Luethi, Thomas Gerig, Thomas Vetter
  * in Medical Image Analysis 2013
@@ -79,10 +79,10 @@ public:
   using PointType = typename RepresenterType::PointType;
   using StatisticalModelType = typename Superclass::StatisticalModelType;
   using PointValueListType = typename StatisticalModelType::PointValueListType;
-  using PointValuePairType = typename StatisticalModelType::PointValuePairType               ;
-  using PointCovarianceMatrixType = typename StatisticalModelType::PointCovarianceMatrixType        ;
-  using PointValueWithCovariancePairType = typename StatisticalModelType::PointValueWithCovariancePairType ;
-  using PointValueWithCovarianceListType = typename StatisticalModelType::PointValueWithCovarianceListType ;
+  using PointValuePairType = typename StatisticalModelType::PointValuePairType;
+  using PointCovarianceMatrixType = typename StatisticalModelType::PointCovarianceMatrixType;
+  using PointValueWithCovariancePairType = typename StatisticalModelType::PointValueWithCovariancePairType;
+  using PointValueWithCovarianceListType = typename StatisticalModelType::PointValueWithCovarianceListType;
 
   friend typename Superclass::ObjectFactoryType;
 

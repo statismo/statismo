@@ -91,9 +91,9 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
                                                  // number of samples is yet unknown...
 
   // now, browse all samples to select the ones which fall into the requested categories
-  for (const auto& item : sampleDataList)
+  for (const auto & item : sampleDataList)
   {
-    const auto* sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item.get());
+    const auto * sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item.get());
     if (!sampleData)
     {
       // this is a normal sample without surrogate information.
@@ -104,9 +104,11 @@ ConditionalModelBuilder<T>::PrepareData(const DataItemListType &            samp
     }
 
     auto surrogateData = sampleData->GetSurrogateVector();
-    if (std::all_of(std::cbegin(indicesCategoricalSurrogatesInUse), std::cend(indicesCategoricalSurrogatesInUse), [&](auto i) {
-      return conditioningInfo[indicesCategoricalSurrogatesInUse[i]].second == surrogateData[indicesCategoricalSurrogatesInUse[i]];
-    }))
+    if (std::all_of(
+          std::cbegin(indicesCategoricalSurrogatesInUse), std::cend(indicesCategoricalSurrogatesInUse), [&](auto i) {
+            return conditioningInfo[indicesCategoricalSurrogatesInUse[i]].second ==
+                   surrogateData[indicesCategoricalSurrogatesInUse[i]];
+          }))
     {
       acceptedSamples.push_back(item);
       // and fill in the matrix of continuous variables
@@ -132,19 +134,20 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
 {
   if (conditioningInfo.size() != surrogateTypesInfo.types.size())
   {
-    throw StatisticalModelException("mismatch between conditioning info size and surrogates info size", Status::BAD_INPUT_ERROR);
+    throw StatisticalModelException("mismatch between conditioning info size and surrogates info size",
+                                    Status::BAD_INPUT_ERROR);
   }
 
   DataItemListType acceptedSamples;
   MatrixType       X;
   VectorType       x0;
-  auto nSamples = PrepareData(sampleDataList, surrogateTypesInfo, conditioningInfo, acceptedSamples, X, x0);
+  auto             nSamples = PrepareData(sampleDataList, surrogateTypesInfo, conditioningInfo, acceptedSamples, X, x0);
   assert(nSamples == acceptedSamples.size());
 
   unsigned nCondVariables = X.rows();
 
   // build a normal PCA model
-  using  PCAModelBuilderType = PCAModelBuilder<T>;
+  using PCAModelBuilderType = PCAModelBuilder<T>;
   auto modelBuilder = PCAModelBuilderType::SafeCreate();
   auto pcaModel = modelBuilder->BuildNewModel(acceptedSamples, noiseVariance);
 
@@ -200,19 +203,20 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
     VectorTypeDoublePrecision pcaSdev = pcaVariance.cast<double>().array().sqrt();
 
     using SVDType = Eigen::JacobiSVD<MatrixTypeDoublePrecision>;
-    auto innerMatrix = pcaSdev.asDiagonal() * condCov.cast<double>() * pcaSdev.asDiagonal();
-    SVDType                   svd(innerMatrix, Eigen::ComputeThinU);
-    auto                singularValues = svd.singularValues().cast<ScalarType>();
+    auto    innerMatrix = pcaSdev.asDiagonal() * condCov.cast<double>() * pcaSdev.asDiagonal();
+    SVDType svd(innerMatrix, Eigen::ComputeThinU);
+    auto    singularValues = svd.singularValues().cast<ScalarType>();
 
     // keep only the necessary number of modes, wrt modelVarianceRetained...
     double totalRemainingVariance = singularValues.sum(); //
     // and count the number of modes required for the model
     double   cumulatedVariance = singularValues(0);
-    unsigned numComponentsToReachPrescribedVariance{1};
+    unsigned numComponentsToReachPrescribedVariance{ 1 };
     while ((cumulatedVariance / totalRemainingVariance) < modelVarianceRetained)
     {
       numComponentsToReachPrescribedVariance++;
-      if (numComponentsToReachPrescribedVariance == singularValues.size()) {
+      if (numComponentsToReachPrescribedVariance == singularValues.size())
+      {
         break;
       }
       cumulatedVariance += singularValues(numComponentsToReachPrescribedVariance - 1);
@@ -242,10 +246,10 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
     bi.emplace_back("ConditioningInfo ", std::to_string(conditioningInfoMatrix));
 
     typename BuilderInfo::DataInfoList di;
-    for (const auto& item : sampleDataList)
+    for (const auto & item : sampleDataList)
     {
-      const auto * sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item.get());
-      std::ostringstream                 os;
+      const auto *       sampleData = dynamic_cast<const DataItemWithSurrogatesType *>(item.get());
+      std::ostringstream os;
       os << "URI_" << (di.size() / 2);
       di.emplace_back(os.str().c_str(), sampleData->GetDatasetURI());
 
@@ -257,7 +261,7 @@ ConditionalModelBuilder<T>::BuildNewModel(const DataItemListType &            sa
 
     ModelInfo::BuilderInfoList biList;
     biList.emplace_back("ConditionalModelBuilder", di, bi);
-    model->SetModelInfo(ModelInfo{scores, biList});
+    model->SetModelInfo(ModelInfo{ scores, biList });
 
     return model;
   }

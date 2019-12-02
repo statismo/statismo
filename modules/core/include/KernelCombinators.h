@@ -58,7 +58,7 @@ template <class TPoint>
 class SumKernel : public MatrixValuedKernel<TPoint>
 {
 public:
-  using MatrixValuedKernelType = MatrixValuedKernel<TPoint> ;
+  using MatrixValuedKernelType = MatrixValuedKernel<TPoint>;
 
   SumKernel(const MatrixValuedKernelType * lhs, const MatrixValuedKernelType * rhs)
     : MatrixValuedKernelType(lhs->GetDimension())
@@ -67,7 +67,8 @@ public:
   {
     if (lhs->GetDimension() != rhs->GetDimension())
     {
-      throw StatisticalModelException("Kernels in SumKernel must have the same dimensionality", Status::BAD_INPUT_ERROR);
+      throw StatisticalModelException("Kernels in SumKernel must have the same dimensionality",
+                                      Status::BAD_INPUT_ERROR);
     }
   }
 
@@ -244,10 +245,10 @@ public:
     : m_representer(representer)
     , m_eta(eta)
     , m_nystrom(Nystrom<T>::SafeCreateStd(representer,
-                                   kernel,
-                                   numEigenfunctions,
-                                   numberOfPointsForApproximation == 0 ? numEigenfunctions * 2
-                                                                       : numberOfPointsForApproximation))
+                                          kernel,
+                                          numEigenfunctions,
+                                          numberOfPointsForApproximation == 0 ? numEigenfunctions * 2
+                                                                              : numberOfPointsForApproximation))
     , m_eigenvalues(m_nystrom->GetEigenvalues())
     , m_doCacheValues(cacheValues)
     , MatrixValuedKernel<PointType>(kernel.GetDimension())
@@ -297,8 +298,7 @@ public:
   }
 
 private:
-
- using CacheType = SafeUnorderedMap<statismo::VectorType, statismo::MatrixType, Hash<statismo::VectorType>>;
+  using CacheType = SafeUnorderedMap<statismo::VectorType, statismo::MatrixType, Hash<statismo::VectorType>>;
 
   // returns a d x n matrix holding the value of all n eigenfunctions evaluated at the given point.
   statismo::MatrixType
@@ -313,7 +313,8 @@ private:
       // TODO: Create thread-safe data structure in statismo instead
       //       of putting the burden of thread-safety on science related
       //       classes
-      if (!m_phiCache.Find(ptAsVec, v)) {
+      if (!m_phiCache.Find(ptAsVec, v))
+      {
         v = m_nystrom->ComputeEigenfunctionsAtPoint(pt);
         m_phiCache.Insert(std::make_pair(ptAsVec, v));
       }

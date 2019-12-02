@@ -56,7 +56,7 @@ loadScalarImage(const std::string & filename)
 int
 testRepresenterForScalarImage(const std::string & datadir)
 {
-  typedef itk::StandardImageRepresenter<float, 2> RepresenterType;
+  typedef itk::StandardImageRepresenter<float, 2>      RepresenterType;
   typedef GenericRepresenterValidator<RepresenterType> RepresenterTestType;
 
   const std::string referenceFilename = datadir + "/hand_images/hand-1.vtk";
@@ -99,7 +99,7 @@ testRepresenterForVectorImage(const std::string & datadir)
 {
 
   typedef itk::StandardImageRepresenter<itk::Vector<float, 2>, 2> RepresenterType;
-  typedef GenericRepresenterValidator<RepresenterType>                 RepresenterTestType;
+  typedef GenericRepresenterValidator<RepresenterType>            RepresenterTestType;
 
   const std::string referenceFilename = datadir + "/hand_dfs/df-hand-1.vtk";
   const std::string testDatasetFilename = datadir + "/hand_dfs/df-hand-2.vtk";

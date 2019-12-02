@@ -62,16 +62,17 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
   if (n <= 0)
   {
     throw StatisticalModelException("Provided empty sample set. Cannot build the sample matrix",
-    Status::BAD_INPUT_ERROR);
+                                    Status::BAD_INPUT_ERROR);
   }
 
-  unsigned               p = sampleDataList.front()->GetSampleVector().rows();
-  const auto* representer = sampleDataList.front()->GetRepresenter();
+  unsigned     p = sampleDataList.front()->GetSampleVector().rows();
+  const auto * representer = sampleDataList.front()->GetRepresenter();
 
   // Compute the mean vector mu
   VectorType mu = VectorType::Zero(p);
 
-  for (const auto& item : sampleDataList) {
+  for (const auto & item : sampleDataList)
+  {
     assert(item->GetSampleVector().rows() == p);   // all samples must have same number of rows
     assert(item->GetRepresenter() == representer); // all samples have the same representer
     mu += item->GetSampleVector();
@@ -81,8 +82,9 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
 
   // Build the mean free sample matrix X0
   MatrixType X0(n, p);
-  unsigned   i{0};
-  for (const auto& item : sampleDataList) {
+  unsigned   i{ 0 };
+  for (const auto & item : sampleDataList)
+  {
     X0.row(i++) = item->GetSampleVector() - mu;
   }
 
@@ -101,7 +103,8 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
 
   typename BuilderInfo::DataInfoList dataInfo;
   i = 0;
-  for (const auto& item : sampleDataList) {
+  for (const auto & item : sampleDataList)
+  {
     std::ostringstream os;
     os << "URI_" << i++;
     dataInfo.emplace_back(os.str().c_str(), item->GetDatasetURI());
@@ -110,8 +113,8 @@ PCAModelBuilder<T>::BuildNewModel(const DataItemListType & sampleDataList,
   // finally add meta data to the model info
   ModelInfo::BuilderInfoList biList;
   biList.emplace_back("PCAModelBuilder", dataInfo, bi);
-  
-  model->SetModelInfo(ModelInfo{scores, biList});
+
+  model->SetModelInfo(ModelInfo{ scores, biList });
 
   return model;
 }

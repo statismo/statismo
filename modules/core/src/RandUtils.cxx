@@ -34,11 +34,12 @@
  */
 #include "RandUtils.h"
 
-namespace statismo::rand {
+namespace statismo::rand
+{
 std::minstd_rand &
 RandGen(unsigned seed)
 {
   static std::minstd_rand rg{ seed };
   return rg;
 }
-}
+} // namespace statismo::rand

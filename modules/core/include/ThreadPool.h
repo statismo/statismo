@@ -50,160 +50,222 @@ namespace statismo
 
 // Some kind of type erase is needed to manipulate tasks in an
 // homogeneous manner
-class FunctionWrapper : public NonCopyable {
-    struct ImplBase {
-        virtual void Call() = 0;
-        virtual ~ImplBase() = default;
-    };
-    std::unique_ptr<ImplBase> m_impl;
-    template <typename F>
-    struct Impl : ImplBase {
-        F f;
-        Impl(F&& f) : f{std::move(f)} {}
-        void Call() override { f(); }
-    };
-
-   public:
-    template <typename F>
-    FunctionWrapper(F&& f)
-        : m_impl{std::make_unique<Impl<F>>(std::forward<F>(f))} {}
-
-    void operator()() { m_impl->Call(); }
-    FunctionWrapper() = default;
-    FunctionWrapper(FunctionWrapper&& other)
-        : m_impl{std::move(other.m_impl)} {}
-    FunctionWrapper& operator=(FunctionWrapper&& other) {
-        m_impl = std::move(other.m_impl);
-        return *this;
+class FunctionWrapper : public NonCopyable
+{
+  struct ImplBase
+  {
+    virtual void
+    Call() = 0;
+    virtual ~ImplBase() = default;
+  };
+  std::unique_ptr<ImplBase> m_impl;
+  template <typename F>
+  struct Impl : ImplBase
+  {
+    F f;
+    Impl(F && f)
+      : f{ std::move(f) }
+    {}
+    void
+    Call() override
+    {
+      f();
     }
+  };
+
+public:
+  template <typename F>
+  FunctionWrapper(F && f)
+    : m_impl{ std::make_unique<Impl<F>>(std::forward<F>(f)) }
+  {}
+
+  void
+  operator()()
+  {
+    m_impl->Call();
+  }
+  FunctionWrapper() = default;
+  FunctionWrapper(FunctionWrapper && other)
+    : m_impl{ std::move(other.m_impl) }
+  {}
+  FunctionWrapper &
+  operator=(FunctionWrapper && other)
+  {
+    m_impl = std::move(other.m_impl);
+    return *this;
+  }
 };
 
-class WorkStealingQueue : public NonCopyable {
-   public:
-    using TaskType = FunctionWrapper;
+class WorkStealingQueue : public NonCopyable
+{
+public:
+  using TaskType = FunctionWrapper;
 
-    void Push(TaskType data) {
-        std::lock_guard<std::mutex> lock{m_mut};
-        m_queue.push_front(std::move(data));
+  void
+  Push(TaskType data)
+  {
+    std::lock_guard<std::mutex> lock{ m_mut };
+    m_queue.push_front(std::move(data));
+  }
+
+  bool
+  Empty() const
+  {
+    std::lock_guard<std::mutex> lock{ m_mut };
+    return m_queue.empty();
+  }
+
+  bool
+  TryPop(TaskType & t)
+  {
+    std::lock_guard<std::mutex> lock{ m_mut };
+
+    if (m_queue.empty())
+    {
+      return false;
     }
 
-    bool Empty() const {
-        std::lock_guard<std::mutex> lock{m_mut};
-        return m_queue.empty();
+    t = std::move(m_queue.front());
+    m_queue.pop_front();
+    return true;
+  }
+
+  bool
+  TrySteal(TaskType & t)
+  {
+    std::lock_guard<std::mutex> lock{ m_mut };
+
+    if (m_queue.empty())
+    {
+      return false;
     }
 
-    bool TryPop(TaskType& t) {
-        std::lock_guard<std::mutex> lock{m_mut};
+    t = std::move(m_queue.back());
+    m_queue.pop_back();
+    return true;
+  }
 
-        if (m_queue.empty()) {
-            return false;
-        }
-
-        t = std::move(m_queue.front());
-        m_queue.pop_front();
-        return true;
-    }
-
-    bool TrySteal(TaskType& t) {
-        std::lock_guard<std::mutex> lock{m_mut};
-
-        if (m_queue.empty()) {
-            return false;
-        }
-
-        t = std::move(m_queue.back());
-        m_queue.pop_back();
-        return true;
-    }
-
-   private:
-    std::deque<TaskType> m_queue;
-    mutable std::mutex m_mut;
+private:
+  std::deque<TaskType> m_queue;
+  mutable std::mutex   m_mut;
 };
 
-/* 
+/*
  * RaiiThread as inspired from Scott Meyers books
  */
-class RaiiThread : public NonCopyable {
-   public:
-    enum class Action { NONE, JOIN, DETACH };
-    RaiiThread() = default;
-    RaiiThread(std::thread&& t, Action a = Action::JOIN)
-        : m_thread{std::move(t)}, m_action{a} {}
-    ~RaiiThread() {
-        if (m_action == Action::JOIN) {
-            m_thread.join();
-        } else if (m_action == Action::DETACH) {
-            m_thread.detach();
-        }
+class RaiiThread : public NonCopyable
+{
+public:
+  enum class Action
+  {
+    NONE,
+    JOIN,
+    DETACH
+  };
+  RaiiThread() = default;
+  RaiiThread(std::thread && t, Action a = Action::JOIN)
+    : m_thread{ std::move(t) }
+    , m_action{ a }
+  {}
+  ~RaiiThread()
+  {
+    if (m_action == Action::JOIN)
+    {
+      m_thread.join();
     }
-
-    RaiiThread(RaiiThread&& other) : m_thread{std::move(other.m_thread)} {
-        std::swap(other.m_action, m_action);
+    else if (m_action == Action::DETACH)
+    {
+      m_thread.detach();
     }
-    RaiiThread& operator=(RaiiThread&& other) {
-        m_thread = std::move(other.m_thread);
-        std::swap(other.m_action, m_action);
-        return *this;
-    }
+  }
 
-    std::thread& Get() { return m_thread; }
+  RaiiThread(RaiiThread && other)
+    : m_thread{ std::move(other.m_thread) }
+  {
+    std::swap(other.m_action, m_action);
+  }
+  RaiiThread &
+  operator=(RaiiThread && other)
+  {
+    m_thread = std::move(other.m_thread);
+    std::swap(other.m_action, m_action);
+    return *this;
+  }
 
-   private:
-    std::thread m_thread;
-    Action m_action{Action::NONE};
+  std::thread &
+  Get()
+  {
+    return m_thread;
+  }
+
+private:
+  std::thread m_thread;
+  Action      m_action{ Action::NONE };
 };
 
-/* 
+/*
  * Thread pool used for computation intensive algorithm
- * 
+ *
  * Implementation taken from "C++ concurrency in action", A. Williams
  */
-class ThreadPool final : public NonCopyable {
-   public:
-    enum class WaitingMode { YIELD = 0, WAIT_FOR = 1 };
+class ThreadPool final : public NonCopyable
+{
+public:
+  enum class WaitingMode
+  {
+    YIELD = 0,
+    WAIT_FOR = 1
+  };
 
-    using TaskType = FunctionWrapper;
+  using TaskType = FunctionWrapper;
 
-    explicit ThreadPool(
-        unsigned maxThreads = std::numeric_limits<unsigned int>::max());
-    explicit ThreadPool(unsigned maxThreads, WaitingMode m,
-                        unsigned waitTime = 25);
+  explicit ThreadPool(unsigned maxThreads = std::numeric_limits<unsigned int>::max());
+  explicit ThreadPool(unsigned maxThreads, WaitingMode m, unsigned waitTime = 25);
 
-    virtual ~ThreadPool() { m_isDone = true; }
+  virtual ~ThreadPool() { m_isDone = true; }
 
-    template <typename F>
-    std::future<std::invoke_result_t<F>> Submit(F t) {
-        std::packaged_task<std::invoke_result_t<F>()> task{t};
-        std::future<std::invoke_result_t<F>> res{task.get_future()};
+  template <typename F>
+  std::future<std::invoke_result_t<F>>
+  Submit(F t)
+  {
+    std::packaged_task<std::invoke_result_t<F>()> task{ t };
+    std::future<std::invoke_result_t<F>>          res{ task.get_future() };
 
-        if (s_localQueue != nullptr) {
-            s_localQueue->Push(std::move(task));
-        } else {
-            m_poolQueue.Push(std::move(task));
-        }
-
-        return res;
+    if (s_localQueue != nullptr)
+    {
+      s_localQueue->Push(std::move(task));
+    }
+    else
+    {
+      m_poolQueue.Push(std::move(task));
     }
 
-   private:
-    void DoThreadJob(std::size_t idx);
-    bool PopTaskFromLocalQueue(TaskType& t);
-    bool PopTaskFromPoolQueue(TaskType& t);
-    bool PopTaskFromOtherLocalQueues(TaskType& t);
-    void RunPendingTask();
+    return res;
+  }
 
-    std::atomic_bool m_isDone{false};
-    WaitingMode m_waitMode{WaitingMode::YIELD};
-    unsigned m_waitTime{0};
-    SafeQueue<TaskType> m_poolQueue;
-    std::vector<std::unique_ptr<WorkStealingQueue>> m_queues;
-    std::vector<RaiiThread> m_threads;
+private:
+  void
+  DoThreadJob(std::size_t idx);
+  bool
+  PopTaskFromLocalQueue(TaskType & t);
+  bool
+  PopTaskFromPoolQueue(TaskType & t);
+  bool
+  PopTaskFromOtherLocalQueues(TaskType & t);
+  void
+  RunPendingTask();
 
-    static thread_local WorkStealingQueue* s_localQueue;
-    static thread_local std::size_t s_tid;
+  std::atomic_bool                                m_isDone{ false };
+  WaitingMode                                     m_waitMode{ WaitingMode::YIELD };
+  unsigned                                        m_waitTime{ 0 };
+  SafeQueue<TaskType>                             m_poolQueue;
+  std::vector<std::unique_ptr<WorkStealingQueue>> m_queues;
+  std::vector<RaiiThread>                         m_threads;
+
+  static thread_local WorkStealingQueue * s_localQueue;
+  static thread_local std::size_t         s_tid;
 };
 
-}
+} // namespace statismo
 
 #endif

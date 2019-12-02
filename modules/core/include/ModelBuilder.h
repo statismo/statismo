@@ -61,7 +61,7 @@ public:
   using RepresenterType = Representer<T>;
   using StatisticalModelType = StatisticalModel<T>;
   using DataManagerType = BasicDataManager<T>;
-  using DataItemListType = typename DataManagerType::DataItemListType ;
+  using DataItemListType = typename DataManagerType::DataItemListType;
 
   // Values below this tolerance are treated as 0.
   static constexpr double TOLERANCE = 1e-5;
@@ -81,11 +81,12 @@ protected:
   MatrixType
   ComputeScores(const DataItemListType & sampleDataList, const StatisticalModelType * model) const
   {
-    auto   n = sampleDataList.size();
+    auto       n = sampleDataList.size();
     MatrixType scores(model->GetNumberOfPrincipalComponents(), n);
 
-    unsigned i{0};
-    for (const auto& item : sampleDataList) {
+    unsigned i{ 0 };
+    for (const auto & item : sampleDataList)
+    {
       scores.col(i++) = model->ComputeCoefficientsForSampleVector(item->GetSampleVector());
     }
 

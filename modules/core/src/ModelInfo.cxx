@@ -150,7 +150,7 @@ ModelInfo::Load(const H5::H5Location & publicFg)
     // check for all modelBuilder objects and compile them into a list
     if (key.find("modelBuilder") != std::string::npos)
     {
-      auto       modelBuilderGroup = publicModelGroup.openGroup(key.c_str());
+      auto        modelBuilderGroup = publicModelGroup.openGroup(key.c_str());
       BuilderInfo bi;
       bi.Load(modelBuilderGroup);
       m_builderInfo.emplace_back(std::move(bi));
@@ -163,11 +163,11 @@ ModelInfo::LoadDataInfoOldStatismoFormat(const H5::H5Location & publicModelGroup
 {
   using namespace H5;
 
-  auto                     dataInfoGroup = publicModelGroup.openGroup("./dataInfo");
+  auto                      dataInfoGroup = publicModelGroup.openGroup("./dataInfo");
   BuilderInfo::KeyValueList dataInfo;
   BuilderInfo::FillKeyValueListFromInfoGroup(dataInfoGroup, dataInfo);
 
-  auto                     builderInfoGroup = publicModelGroup.openGroup("./builderInfo");
+  auto                      builderInfoGroup = publicModelGroup.openGroup("./builderInfo");
   BuilderInfo::KeyValueList paramInfo;
   BuilderInfo::FillKeyValueListFromInfoGroup(builderInfoGroup, paramInfo);
 
@@ -231,12 +231,14 @@ BuilderInfo::Save(const H5::H5Location & modelBuilderGroup) const
     hdf5utils::WriteString(modelBuilderGroup, "./buildTime", m_buildtime);
 
     auto dataInfoGroup = modelBuilderGroup.createGroup("./dataInfo");
-    for (const auto& it : m_dataInfo) {
+    for (const auto & it : m_dataInfo)
+    {
       hdf5utils::WriteString(dataInfoGroup, it.first.c_str(), it.second.c_str());
     }
 
     auto parameterGroup = modelBuilderGroup.createGroup("./parameters");
-    for (const auto& it : m_parameterInfo) {
+    for (const auto & it : m_parameterInfo)
+    {
       hdf5utils::WriteString(parameterGroup, it.first.c_str(), it.second.c_str());
     }
   }
@@ -282,7 +284,7 @@ BuilderInfo::FillKeyValueListFromInfoGroup(const H5::H5Location & group, KeyValu
   for (unsigned i = 0; i < numEntries; i++)
   {
     auto key = group.getObjnameByIdx(i);
-    auto  value = hdf5utils::ReadString(group, key.c_str());
+    auto value = hdf5utils::ReadString(group, key.c_str());
     keyValueList.emplace_back(key, value);
   }
 }

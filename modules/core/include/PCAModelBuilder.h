@@ -63,7 +63,7 @@ public:
   using Superclass = ModelBuilderBase<T, PCAModelBuilder<T>>;
   using DataManagerType = typename Superclass::DataManagerType;
   using StatisticalModelType = typename Superclass::StatisticalModelType;
-  using DataItemListType = typename DataManagerType::DataItemListType ;
+  using DataItemListType = typename DataManagerType::DataItemListType;
 
   friend typename Superclass::ObjectFactoryType;
 

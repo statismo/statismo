@@ -149,9 +149,7 @@ public:
     return m_domain;
   }
 
-  void
-  DeleteDataset(DatasetConstPointerType) const
-  {}
+  void DeleteDataset(DatasetConstPointerType) const {}
   DatasetPointerType
   CloneDataset(DatasetConstPointerType d) const;
 

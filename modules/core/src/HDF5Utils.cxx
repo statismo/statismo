@@ -50,7 +50,7 @@ namespace statismo::hdf5utils
 {
 
 H5::H5File
-OpenOrCreateFile(const std::string& filename)
+OpenOrCreateFile(const std::string & filename)
 {
 
   // check if file exists
@@ -77,10 +77,10 @@ OpenPath(H5::H5File & file, const std::string & path, bool createPath)
   H5::Group group;
 
   // take the first part of the path
-  std::size_t    curpos = 1;
-  std::size_t    nextpos = path.find_first_of("/", curpos);
-  auto g = file.openGroup("/");
-  auto name = path.substr(curpos, nextpos - 1);
+  std::size_t curpos = 1;
+  std::size_t nextpos = path.find_first_of("/", curpos);
+  auto        g = file.openGroup("/");
+  auto        name = path.substr(curpos, nextpos - 1);
 
   while (curpos != std::string::npos && !name.empty())
   {
@@ -103,10 +103,12 @@ OpenPath(H5::H5File & file, const std::string & path, bool createPath)
 
     curpos = nextpos + 1;
     nextpos = path.find_first_of("/", curpos);
-    if (nextpos != std::string::npos) {
+    if (nextpos != std::string::npos)
+    {
       name = path.substr(curpos, nextpos - curpos);
     }
-    else {
+    else
+    {
       name = path.substr(curpos);
     }
   }
@@ -123,13 +125,12 @@ ReadMatrix(const H5::H5Location & fg, const char * name, MatrixType & matrix)
 void
 ReadMatrix(const H5::H5Location & fg, const char * name, unsigned maxNumColumns, MatrixType & matrix)
 {
-  auto ds = fg.openDataSet(name);
-  hsize_t     dims[2];
+  auto    ds = fg.openDataSet(name);
+  hsize_t dims[2];
   ds.getSpace().getSimpleExtentDims(dims, NULL);
 
   auto nRows = dims[0]; // take the number of rows defined in the hdf5 file
-  auto nCols =
-    std::min(dims[1], static_cast<hsize_t>(maxNumColumns)); // take the number of cols provided by the user
+  auto nCols = std::min(dims[1], static_cast<hsize_t>(maxNumColumns)); // take the number of cols provided by the user
 
   hsize_t offset[2] = { 0, 0 }; // hyperslab offset in the file
   hsize_t count[2];
@@ -310,13 +311,14 @@ GetFileFromHDF5(const H5::H5Location & fg, const char * name, const char * filen
   hsize_t     dims[1];
   ds.getSpace().getSimpleExtentDims(dims, NULL);
   std::vector<char> buffer(dims[0]);
-  if (!buffer.empty()) {
+  if (!buffer.empty())
+  {
     ds.read(&buffer[0], H5::PredType::NATIVE_CHAR);
   }
 
   using ostream_iterator = std::ostream_iterator<char>;
-  
-  std::ofstream                       ofile(filename, std::ios::binary);
+
+  std::ofstream ofile(filename, std::ios::binary);
   if (!ofile)
   {
     std::string s = std::string("could not open file ") + filename;
@@ -361,4 +363,4 @@ ExistsObjectWithName(const H5::H5Location & fg, const std::string & name)
   return false;
 }
 
-} // namespace statismo
+} // namespace statismo::hdf5utils

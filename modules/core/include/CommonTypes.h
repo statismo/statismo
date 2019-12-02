@@ -175,13 +175,17 @@ using SharedPtrType = std::shared_ptr<T>;
  * Factory function for shared pointer
  */
 template <typename T>
-auto MakeSharedPointer(T&& t) {
-  return std::shared_ptr<T>{std::forward<T>(t), DefaultDeletor<T>()};
+auto
+MakeSharedPointer(T && t)
+{
+  return std::shared_ptr<T>{ std::forward<T>(t), DefaultDeletor<T>() };
 }
 
 template <typename T>
-auto MakeSharedPointer(T* t) {
-  return std::shared_ptr<T>{t, DefaultDeletor<T>()};
+auto
+MakeSharedPointer(T * t)
+{
+  return std::shared_ptr<T>{ t, DefaultDeletor<T>() };
 }
 
 /**
@@ -194,30 +198,42 @@ using StdUniquePtrType = std::unique_ptr<T, StdDeletor<T>>;
  * RAII enforcer
  */
 template <typename Callable>
-class StackUnwinder {
-  private:
-    Callable m_c;
-    bool m_do{true};
-  public:
-    StackUnwinder(Callable&& c) : m_c{std::move(c)} {}
-    
-    ~StackUnwinder() {
-      if (m_do) {
-        m_c();
-      }
-    }
+class StackUnwinder
+{
+private:
+  Callable m_c;
+  bool     m_do{ true };
 
-    void set() {
-      m_do = true;
-    }
+public:
+  StackUnwinder(Callable && c)
+    : m_c{ std::move(c) }
+  {}
 
-    void unset() {
-      m_do = false;
+  ~StackUnwinder()
+  {
+    if (m_do)
+    {
+      m_c();
     }
+  }
+
+  void
+  set()
+  {
+    m_do = true;
+  }
+
+  void
+  unset()
+  {
+    m_do = false;
+  }
 };
 
 template <typename Callable>
-auto MakeStackUnwinder(Callable&& c) {
+auto
+MakeStackUnwinder(Callable && c)
+{
   return StackUnwinder(std::forward<Callable>(c));
 }
 

@@ -66,9 +66,9 @@ public:
    * Create a new validator. Tests are performed using the given testDataset and the pointValuePair.
    * \warning It is assumed that the PointValuePair is taken from the testDataset (otherwise some tests will fail).
    */
-  GenericRepresenterValidator(const Representer *             representer,
-                         DatasetConstPointerType         testDataset,
-                         const std::pair<PointType, ValueType>& pointValuePair)
+  GenericRepresenterValidator(const Representer *                     representer,
+                              DatasetConstPointerType                 testDataset,
+                              const std::pair<PointType, ValueType> & pointValuePair)
     : m_representer(representer)
     , m_testDataset(testDataset)
     , m_testPoint(pointValuePair.first)
@@ -81,9 +81,9 @@ public:
   {
     m_errString = "";
     DatasetConstPointerType sample = m_testDataset;
-    auto                id = m_representer->GetPointIdForPoint(m_testPoint);
-    auto               val = m_representer->PointSampleFromSample(sample, id);
-    auto    valVec = m_representer->PointSampleToPointSampleVector(val);
+    auto                    id = m_representer->GetPointIdForPoint(m_testPoint);
+    auto                    val = m_representer->PointSampleFromSample(sample, id);
+    auto                    valVec = m_representer->PointSampleToPointSampleVector(val);
 
     // the obtained value should correspond to the value that is obtained by obtaining the sample vector, and evaluating
     // it at the given position
@@ -102,7 +102,7 @@ public:
   TestDomainValid() const
   {
     m_errString = "";
-    auto                          domain = m_representer->GetDomain();
+    auto domain = m_representer->GetDomain();
     auto domPoints = domain.GetDomainPoints();
 
     if (domPoints.size() == 0)
@@ -113,24 +113,26 @@ public:
 
     if (domPoints.size() != domain.GetNumberOfPoints())
     {
-      m_errString = "domPoints.size() != domain.GetNumberOfPoints() (" + std::to_string(domPoints.size())
-                + " != " + std::to_string(domain.GetNumberOfPoints());
+      m_errString = "domPoints.size() != domain.GetNumberOfPoints() (" + std::to_string(domPoints.size()) +
+                    " != " + std::to_string(domain.GetNumberOfPoints());
       return false;
     }
     // if we convert a dataset to a samplevector, the resulting vector needs to have
     // as many entries as there are points * dimensions
-    auto   sampleVector = m_representer->SampleToSampleVector(m_testDataset);
+    auto sampleVector = m_representer->SampleToSampleVector(m_testDataset);
     if (sampleVector.rows() != m_representer->GetDimensions() * domain.GetNumberOfPoints())
     {
       m_errString = "the dimension of the sampleVector does not agree with the number of points in the domain (#points "
-                   "* dimensionality)";
+                    "* dimensionality)";
       return false;
     }
 
-    unsigned ptCounter{0};
-    for (const auto& pt : domPoints) {
+    unsigned ptCounter{ 0 };
+    for (const auto & pt : domPoints)
+    {
       // sample to every 10th points to improve performance
-      if (ptCounter % 10 != 0) {
+      if (ptCounter % 10 != 0)
+      {
         continue;
       }
 
@@ -141,10 +143,10 @@ public:
       }
       ++ptCounter;
     }
-    
+
     return true;
   }
- 
+
   /**
    * Test whether converting a sample to a vector and back to a sample yields the original sample
    */
@@ -154,7 +156,8 @@ public:
     m_errString = "";
     // as we don't know anything about how to compare samples, we compare their vectorial representation
     auto sampleVec = GetSampleVectorFromTestDataset();
-    return AssertSampleVectorsEqual(sampleVec, m_representer->SampleToSampleVector(m_representer->SampleVectorToSample(sampleVec)));
+    return AssertSampleVectorsEqual(
+      sampleVec, m_representer->SampleToSampleVector(m_representer->SampleVectorToSample(sampleVec)));
   }
 
   /**
@@ -177,7 +180,8 @@ public:
   {
     m_errString = "";
     auto valVec = m_representer->PointSampleToPointSampleVector(m_testValue);
-    return AssertSampleVectorsEqual(valVec,  m_representer->PointSampleToPointSampleVector(m_representer->PointSampleVectorToPointSample(valVec)));
+    return AssertSampleVectorsEqual(
+      valVec, m_representer->PointSampleToPointSampleVector(m_representer->PointSampleVectorToPointSample(valVec)));
   }
 
   /**
@@ -219,8 +223,8 @@ public:
     m_errString = "";
     using namespace H5;
 
-    auto filename = statismo::utils::CreateTmpName(".rep");
-    H5File      file;
+    auto   filename = statismo::utils::CreateTmpName(".rep");
+    H5File file;
     try
     {
       file = H5File(filename, H5F_ACC_TRUNC);
@@ -266,8 +270,8 @@ public:
   TestClone() const
   {
     m_errString = "";
-    auto repUnique = m_representer->SafeCloneSelf();
-    Representer* rep = dynamic_cast<Representer *>(repUnique.get());
+    auto          repUnique = m_representer->SafeCloneSelf();
+    Representer * rep = dynamic_cast<Representer *>(repUnique.get());
 
     return AssertRepresenterEqual(rep, m_representer);
   }
@@ -307,24 +311,27 @@ public:
   bool
   RunAllTests() const
   {
-    static std::array<std::pair<std::string, bool(GenericRepresenterValidator::*)() const>, 11> testSuite{
-      {{"TestPointSampleDimension", &GenericRepresenterValidator::TestPointSampleDimension},
-      {"TestSamplePointEvaluation", &GenericRepresenterValidator::TestSamplePointEvaluation},
-      {"TestDomainValid", &GenericRepresenterValidator::TestDomainValid},
-      {"TestPointSampleToPointSampleVectorAndBack", &GenericRepresenterValidator::TestPointSampleToPointSampleVectorAndBack},
-      {"TestSampleVectorHasCorrectValueAtPoint", &GenericRepresenterValidator::TestSampleVectorHasCorrectValueAtPoint},
-      {"TestSampleToVectorAndBack", &GenericRepresenterValidator::TestSampleToVectorAndBack},
-      {"TestSaveLoad", &GenericRepresenterValidator::TestSaveLoad},
-      {"TestClone", &GenericRepresenterValidator::TestClone},
-      {"TestSampleVectorDimensions", &GenericRepresenterValidator::TestSampleVectorDimensions},
-      {"TestGetName", &GenericRepresenterValidator::TestGetName},
-      {"TestDimensions", &GenericRepresenterValidator::TestDimensions}}
+    static std::array<std::pair<std::string, bool (GenericRepresenterValidator::*)() const>, 11> testSuite{
+      { { "TestPointSampleDimension", &GenericRepresenterValidator::TestPointSampleDimension },
+        { "TestSamplePointEvaluation", &GenericRepresenterValidator::TestSamplePointEvaluation },
+        { "TestDomainValid", &GenericRepresenterValidator::TestDomainValid },
+        { "TestPointSampleToPointSampleVectorAndBack",
+          &GenericRepresenterValidator::TestPointSampleToPointSampleVectorAndBack },
+        { "TestSampleVectorHasCorrectValueAtPoint",
+          &GenericRepresenterValidator::TestSampleVectorHasCorrectValueAtPoint },
+        { "TestSampleToVectorAndBack", &GenericRepresenterValidator::TestSampleToVectorAndBack },
+        { "TestSaveLoad", &GenericRepresenterValidator::TestSaveLoad },
+        { "TestClone", &GenericRepresenterValidator::TestClone },
+        { "TestSampleVectorDimensions", &GenericRepresenterValidator::TestSampleVectorDimensions },
+        { "TestGetName", &GenericRepresenterValidator::TestGetName },
+        { "TestDimensions", &GenericRepresenterValidator::TestDimensions } }
     };
 
-    return std::all_of(std::cbegin(testSuite), std::cend(testSuite), [this](const auto& p){ 
+    return std::all_of(std::cbegin(testSuite), std::cend(testSuite), [this](const auto & p) {
       bool ok = (this->*(p.second))();
 
-      if (!ok) {
+      if (!ok)
+      {
         std::cerr << "[FAILED] Test " << p.first << " failed with error: " << m_errString << std::endl;
       }
 
@@ -333,12 +340,13 @@ public:
     });
   }
 
-  std::string GetErrorString() const {
+  std::string
+  GetErrorString() const
+  {
     return (m_errString.empty() ? "Unknown error" : m_errString);
   }
 
 private:
-
   bool
   AssertRepresenterEqual(const Representer * representer1, const Representer * representer2) const
   {

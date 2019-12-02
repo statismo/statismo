@@ -44,7 +44,7 @@ using namespace statismo::test;
 
 
 typedef statismo::vtkStandardImageRepresenter<double, 2> RepresenterType;
-typedef GenericRepresenterValidator<RepresenterType>          RepresenterTestType;
+typedef GenericRepresenterValidator<RepresenterType>     RepresenterTestType;
 
 int
 vtkStandardImageRepresenterTest(int argc, char ** argv)

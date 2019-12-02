@@ -101,22 +101,23 @@ public:
  * \brief Base class for data item
  */
 template <typename T, typename Derived>
-class DataItemBase : public DataItem<T>
+class DataItemBase
+  : public DataItem<T>
   , public GenericFactory<Derived>
 {
-  public:
-    using RepresenterType = typename DataItem<T>::RepresenterType;
-    using DatasetPointerType = typename DataItem<T>::DatasetPointerType;
-    using ObjectFactoryType = GenericFactory<Derived>;
-    friend ObjectFactoryType;
+public:
+  using RepresenterType = typename DataItem<T>::RepresenterType;
+  using DatasetPointerType = typename DataItem<T>::DatasetPointerType;
+  using ObjectFactoryType = GenericFactory<Derived>;
+  friend ObjectFactoryType;
 
-  /** 
+  /**
    * Create a new DataItem object, using the data from the group in the HDF5 file
    * \param dsGroup. The group in the hdf5 file for this dataset
    */
   static UniquePtrType<DataItemBase>
   Load(const RepresenterType * representer, const H5::Group & dsGroup);
-  
+
   virtual void
   Save(const H5::Group & dsGroup) const override;
 
@@ -178,7 +179,9 @@ protected:
     SaveInternalImpl(dsGroup);
   }
 
-  virtual void SaveInternalImpl(const H5::Group & dsGroup) const {
+  virtual void
+  SaveInternalImpl(const H5::Group & dsGroup) const
+  {
     hdf5utils::WriteString(dsGroup, "./sampletype", "DataItem");
   }
 
@@ -196,7 +199,7 @@ class BasicDataItem : public DataItemBase<T, BasicDataItem<T>>
 public:
   using Superclass = DataItemBase<T, BasicDataItem<T>>;
   using RepresenterType = typename Superclass::RepresenterType;
-    friend typename Superclass::ObjectFactoryType;
+  friend typename Superclass::ObjectFactoryType;
 
 private:
   BasicDataItem(const RepresenterType * representer, const std::string & URI, const VectorType & sampleVector)
@@ -210,8 +213,8 @@ private:
 
 /* \class DataItemWithSurrogates
  * \brief Specific data item implementation that associates surrogates to the data
- * 
- * In particular, it enables to associate categorical or continuous variables with a sample, 
+ *
+ * In particular, it enables to associate categorical or continuous variables with a sample,
  * in a vectorial representation. The vector is provided by a file providing the
  * values in ascii format (empty space or EOL separating the values) \sa DataItem \sa DataManagerWithSurrogates
  */
@@ -221,12 +224,12 @@ class DataItemWithSurrogates : public DataItemBase<T, DataItemWithSurrogates<T>>
   using Superclass = DataItemBase<T, DataItemWithSurrogates<T>>;
   using RepresenterType = typename Superclass::RepresenterType;
   friend typename Superclass::ObjectFactoryType;
-  
+
 public:
   enum class SurrogateType
   {
     Categorical = 0, // e.g. Gender
-    Continuous = 1 // e.g. Size, weight
+    Continuous = 1   // e.g. Size, weight
   };
   using SurrogateTypeVectorType = std::vector<SurrogateType>;
 

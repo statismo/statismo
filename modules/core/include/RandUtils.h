@@ -42,6 +42,6 @@ namespace statismo::rand
 {
 std::minstd_rand &
 RandGen(unsigned seed = static_cast<unsigned>(time(0)));
-} // namespace statismo
+} // namespace statismo::rand
 
 #endif

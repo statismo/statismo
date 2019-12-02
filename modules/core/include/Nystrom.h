@@ -27,14 +27,16 @@ namespace statismo
  * The type parameter T is the type of the dataset (e.g. Mesh, Image) for which the nystom approximation is computed
  */
 template <class T>
-class Nystrom : public GenericFactory<Nystrom<T>>, public NonCopyable
+class Nystrom
+  : public GenericFactory<Nystrom<T>>
+  , public NonCopyable
 {
 public:
   using PointType = typename Representer<T>::PointType;
   using DomainType = statismo::Domain<typename Representer<T>::PointType>;
   using DomainPointsListType = typename DomainType::DomainPointsListType;
   using ObjectFactoryType = GenericFactory<Nystrom>;
-  
+
   friend ObjectFactoryType;
 
   /**
@@ -156,8 +158,8 @@ private:
       }
     }
 
-    using SVDType = RandSVD<double> ;
-    SVDType                 svd(K, numComponents * kernelDim);
+    using SVDType = RandSVD<double>;
+    SVDType svd(K, numComponents * kernelDim);
     U = svd.MatrixU().cast<ScalarType>();
     D = svd.SingularValues().cast<ScalarType>();
   }

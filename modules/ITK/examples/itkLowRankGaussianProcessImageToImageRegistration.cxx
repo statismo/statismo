@@ -646,7 +646,7 @@ main(int argc, char * argv[])
 
 
   // derive number of space dimensions
-  itk::ImageIOBase::Pointer                 imageIO =
+  itk::ImageIOBase::Pointer imageIO =
     itk::ImageIOFactory::CreateImageIO(referenceFilename.c_str(), itk::ImageIOFactory::ReadMode);
 
   imageIO->SetFileName(referenceFilename);

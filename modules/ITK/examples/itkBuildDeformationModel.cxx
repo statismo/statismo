@@ -86,10 +86,10 @@ itkExample(const char * dir, const char * modelname, double noiseVariance)
 {
 
 
-  typedef itk::PCAModelBuilder<ImageType>  ModelBuilderType;
-  typedef std::vector<std::string>         StringVectorType;
-  typedef itk::DataManager<ImageType>      DataManagerType;
-  typedef itk::ImageFileReader<ImageType>  ImageFileReaderType;
+  typedef itk::PCAModelBuilder<ImageType> ModelBuilderType;
+  typedef std::vector<std::string>        StringVectorType;
+  typedef itk::DataManager<ImageType>     DataManagerType;
+  typedef itk::ImageFileReader<ImageType> ImageFileReaderType;
 
 
   StringVectorType filenames;

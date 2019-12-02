@@ -90,7 +90,8 @@ PosteriorModelBuilder<T>::TrivialPointValueWithCovarianceListWithUniformNoise(co
     MatrixType::Identity(RepresenterType::RealPointDimension, RepresenterType::RealPointDimension);
   PointValueWithCovarianceListType pvcList;
 
-  for (auto item : pointValues) {
+  for (auto item : pointValues)
+  {
     pvcList.emplace_back(item, pointCovarianceMatrix);
   }
 
@@ -104,9 +105,9 @@ PosteriorModelBuilder<T>::BuildNewModel(const DataItemListType &                
                                         const PointValueWithCovarianceListType & pointValuesWithCovariance,
                                         double                                   noiseVariance) const
 {
-  using  PCAModelBuilderType = PCAModelBuilder<T>;
-  auto                       modelBuilder = PCAModelBuilderType::SafeCreate();
-  auto                       model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
+  using PCAModelBuilderType = PCAModelBuilder<T>;
+  auto modelBuilder = PCAModelBuilderType::SafeCreate();
+  auto model = modelBuilder->BuildNewModel(sampleDataList, noiseVariance);
   auto PosteriorModel = BuildNewModelFromModel(model.get(), pointValuesWithCovariance, noiseVariance);
   return PosteriorModel;
 }
@@ -130,18 +131,18 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
   // this method only makes sense for a proper PPCA model (e.g. the noise term is properly defined)
   // if the model has zero noise, we assume a small amount of noise
   double rho2 = std::max((double)inputModel->GetNoiseVariance(), (double)Superclass::TOLERANCE);
-  auto dim = representer->GetDimensions();
+  auto   dim = representer->GetDimensions();
 
   // build the part matrices considering only the points that are fixed
-  auto   numPrincipalComponents = inputModel->GetNumberOfPrincipalComponents();
+  auto       numPrincipalComponents = inputModel->GetNumberOfPrincipalComponents();
   MatrixType Q_g(pointValuesWithCovariance.size() * dim, numPrincipalComponents);
   VectorType mu_g(pointValuesWithCovariance.size() * dim);
   VectorType s_g(pointValuesWithCovariance.size() * dim);
 
   MatrixType LQ_g(pointValuesWithCovariance.size() * dim, numPrincipalComponents);
 
-  unsigned i{0};
-  for (const auto& item : pointValuesWithCovariance)
+  unsigned i{ 0 };
+  for (const auto & item : pointValuesWithCovariance)
   {
     VectorType val = representer->PointSampleToPointSampleVector(item.first.second);
     unsigned   pt_id = representer->GetPointIdForPoint(item.first.first);
@@ -160,7 +161,7 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
     i++;
   }
 
-  VectorType D2 = inputModel->GetPCAVarianceVector().array();
+  VectorType         D2 = inputModel->GetPCAVarianceVector().array();
   const MatrixType & Q_gT = Q_g.transpose();
 
   MatrixType M = Q_gT * LQ_g;
@@ -186,8 +187,8 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
   VectorType D2MinusRhoSqrt = D2MinusRho.array().sqrt();
 
 
-  using  SVDType = Eigen::JacobiSVD<MatrixTypeDoublePrecision>;
-  MatrixTypeDoublePrecision                           innerMatrix =
+  using SVDType = Eigen::JacobiSVD<MatrixTypeDoublePrecision>;
+  MatrixTypeDoublePrecision innerMatrix =
     D2MinusRhoSqrt.cast<double>().asDiagonal() * Minv * D2MinusRhoSqrt.cast<double>().asDiagonal();
   SVDType svd(innerMatrix, Eigen::ComputeThinU);
 
@@ -210,7 +211,7 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
   BuilderInfo::DataInfoList di;
 
   unsigned pt_no = 0;
-  for (const auto& item : pointValuesWithCovariance)
+  for (const auto & item : pointValuesWithCovariance)
   {
     VectorType val = representer->PointSampleToPointSampleVector(item.first.second);
 
@@ -247,8 +248,8 @@ PosteriorModelBuilder<T>::BuildNewModelFromModel(const StatisticalModelType *   
       representer->DeleteDataset(ds);
     }
   }
-  
-  PosteriorModel->SetModelInfo(ModelInfo{scores, builderInfoList});
+
+  PosteriorModel->SetModelInfo(ModelInfo{ scores, builderInfoList });
 
   return PosteriorModel;
 }

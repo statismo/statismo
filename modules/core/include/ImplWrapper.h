@@ -51,7 +51,7 @@ struct NullInitializer
 struct SafeInitializer
 {};
 
-/* 
+/*
  * Base class for class that wraps a statismo implementation
  */
 template <typename I, typename T = NullInitializer>
@@ -115,7 +115,8 @@ public:
   decltype(auto)
   CallForwardImpl(Callable && op, Args &&... args)
   {
-    return static_cast<const ImplWrapper*>(this)->CallForwardImpl(std::forward<Callable>(op), std::forward<Args>(args)...);
+    return static_cast<const ImplWrapper *>(this)->CallForwardImpl(std::forward<Callable>(op),
+                                                                   std::forward<Args>(args)...);
   }
 
   /**
@@ -130,20 +131,20 @@ public:
 
   /**
    * Forward call to implementation with exception handling
-   * 
+   *
    * \warning Note that \a h must be handler that throws
    */
   template <typename Handler, typename Callable, typename... Args>
   decltype(auto)
   CallForwardImplTrans(Handler && h, Callable && op, Args &&... args)
   {
-    return static_cast<const ImplWrapper*>(this)->CallForwardImplTrans(std::forward<Handler>(h),
-    std::forward<Callable>(op), std::forward<Args>(args)...);
+    return static_cast<const ImplWrapper *>(this)->CallForwardImplTrans(
+      std::forward<Handler>(h), std::forward<Callable>(op), std::forward<Args>(args)...);
   }
 
   /**
    * Forward call to implementation with exception handling
-   * 
+   *
    * \warning Note that \a h must be handler that throws
    */
   template <typename Handler, typename Callable, typename... Args>

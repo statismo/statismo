@@ -293,7 +293,8 @@ StatisticalModel<T>::ComputeCoefficientsForPointValues(const PointValueListType 
 {
   PointIdValueListType ptIdValueList;
 
-  for (const auto& item : pointValueList) {
+  for (const auto & item : pointValueList)
+  {
     ptIdValueList.emplace_back(m_representer->GetPointIdForPoint(item.first), item.second);
   }
 
@@ -315,8 +316,8 @@ StatisticalModel<T>::ComputeCoefficientsForPointIDValues(const PointIdValueListT
   VectorType muPart(pointIdValueList.size() * dim);
   VectorType sample(pointIdValueList.size() * dim);
 
-  unsigned i{0};
-  for (const auto& item : pointIdValueList)
+  unsigned i{ 0 };
+  for (const auto & item : pointIdValueList)
   {
     VectorType val = this->m_representer->PointSampleToPointSampleVector(item.second);
     unsigned   pt_id = item.first;
@@ -361,7 +362,7 @@ StatisticalModel<T>::ComputeCoefficientsForPointValuesWithCovariance(
   MatrixType LQ_g(pointValuesWithCovariance.size() * dim, numPrincipalComponents);
 
   unsigned i = 0;
-  for (const auto& item : pointValuesWithCovariance)
+  for (const auto & item : pointValuesWithCovariance)
   {
     VectorType val = m_representer->PointSampleToPointSampleVector(item.first.second);
     unsigned   pt_id = m_representer->GetPointIdForPoint(item.first.first);

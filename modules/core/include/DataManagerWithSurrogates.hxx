@@ -49,7 +49,7 @@ namespace statismo
 template <typename T>
 DataManagerWithSurrogates<T>::DataManagerWithSurrogates(const RepresenterType * representer,
                                                         const std::string &     filename)
-  : Superclass{representer}
+  : Superclass{ representer }
 {
   LoadSurrogateTypes(filename);
 }
@@ -62,10 +62,14 @@ DataManagerWithSurrogates<T>::LoadSurrogateTypes(const std::string & filename)
   m_typeInfo.types.clear();
 
   auto surrogateTypes = utils::ReadVectorFromTxtFile(filename.c_str());
-  for (unsigned i = 0; i < surrogateTypes.size(); ++i) {
-    if (surrogateTypes(i) == 0) {
+  for (unsigned i = 0; i < surrogateTypes.size(); ++i)
+  {
+    if (surrogateTypes(i) == 0)
+    {
       m_typeInfo.types.push_back(DataItemWithSurrogatesType::SurrogateType::Categorical);
-    } else {
+    }
+    else
+    {
       m_typeInfo.types.push_back(DataItemWithSurrogatesType::SurrogateType::Continuous);
     }
   }
@@ -81,20 +85,23 @@ DataManagerWithSurrogates<T>::AddDatasetWithSurrogates(DatasetConstPointerType d
   assert(this->m_representer);
   auto surrogateVector = utils::ReadVectorFromTxtFile(surrogateFilename.c_str());
 
-  if (static_cast<std::size_t>(surrogateVector.size()) != m_typeInfo.types.size()) {
-    throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates", Status::INVALID_DATA_ERROR);
+  if (static_cast<std::size_t>(surrogateVector.size()) != m_typeInfo.types.size())
+  {
+    throw StatisticalModelException("Trying to loading a dataset with unexpected number of surrogates",
+                                    Status::INVALID_DATA_ERROR);
   }
 
   DatasetPointerType sample = this->m_representer->CloneDataset(ds);
-  auto uw = MakeStackUnwinder([&]() {this->m_representer->DeleteDataset(sample);});
+  auto               uw = MakeStackUnwinder([&]() { this->m_representer->DeleteDataset(sample); });
 
-  this->m_dataItemList.push_back(MakeSharedPointer<DataItemType>(DataItemWithSurrogatesType::Create(this->m_representer.get(),
-                                                                    datasetURI,
-                                                                    this->m_representer->SampleToSampleVector(sample),
-                                                                    surrogateFilename,
-                                                                    surrogateVector)));
+  this->m_dataItemList.push_back(MakeSharedPointer<DataItemType>(
+    DataItemWithSurrogatesType::Create(this->m_representer.get(),
+                                       datasetURI,
+                                       this->m_representer->SampleToSampleVector(sample),
+                                       surrogateFilename,
+                                       surrogateVector)));
 }
 
-}
+} // namespace statismo
 
 #endif

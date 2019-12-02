@@ -76,7 +76,8 @@ ReducedVarianceModelBuilder<T>::BuildNewModelWithLeadingComponents(const Statist
   unsigned numComponentsForScores =
     std::min(static_cast<unsigned>(inputModel->GetModelInfo().GetScoresMatrix().rows()), numberOfPrincipalComponents);
 
-  reducedModel->SetModelInfo(ModelInfo(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsForScores), builderInfoList));
+  reducedModel->SetModelInfo(
+    ModelInfo(inputModel->GetModelInfo().GetScoresMatrix().topRows(numComponentsForScores), builderInfoList));
   return reducedModel;
 }
 

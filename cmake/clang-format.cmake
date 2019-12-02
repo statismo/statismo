@@ -12,6 +12,8 @@ set(CLANG_FORMAT_CXX_FILE_EXTENSIONS ${CLANG_FORMAT_CXX_FILE_EXTENSIONS}
     ${PROJECT_SOURCE_DIR}/modules/*.hpp
     ${PROJECT_SOURCE_DIR}/modules/*.cc
     ${PROJECT_SOURCE_DIR}/modules/*.ipp
+    ${PROJECT_SOURCE_DIR}/helpers/tests/*.h
+    ${PROJECT_SOURCE_DIR}/contrib/boost_light/*.h
     )
 file(GLOB_RECURSE ALL_SOURCE_FILES ${CLANG_FORMAT_CXX_FILE_EXTENSIONS})
 

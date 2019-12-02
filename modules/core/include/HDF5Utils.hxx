@@ -47,44 +47,55 @@
 
 namespace statismo::hdf5utils
 {
-  namespace details {
-    template <typename Scalar>
-    struct HDF5PredTypeTraits;
+namespace details
+{
+template <typename Scalar>
+struct HDF5PredTypeTraits;
 
-    template <>
-    struct HDF5PredTypeTraits<double> {
-      static const H5::PredType& GetPredRef() {
-        return H5::PredType::NATIVE_DOUBLE;
-      }
-    };
-
-    template <>
-    struct HDF5PredTypeTraits<float> {
-      static const H5::PredType& GetPredRef() {
-        return H5::PredType::NATIVE_FLOAT;
-      }
-    };
-
-    template <>
-    struct HDF5PredTypeTraits<unsigned int> {
-      static const H5::PredType& GetPredRef() {
-        return H5::PredType::NATIVE_UINT;
-      }
-    };
-
-    template <>
-    struct HDF5PredTypeTraits<int> {
-      static const H5::PredType& GetPredRef() {
-        return H5::PredType::NATIVE_INT;
-      }
-    };
+template <>
+struct HDF5PredTypeTraits<double>
+{
+  static const H5::PredType &
+  GetPredRef()
+  {
+    return H5::PredType::NATIVE_DOUBLE;
   }
+};
+
+template <>
+struct HDF5PredTypeTraits<float>
+{
+  static const H5::PredType &
+  GetPredRef()
+  {
+    return H5::PredType::NATIVE_FLOAT;
+  }
+};
+
+template <>
+struct HDF5PredTypeTraits<unsigned int>
+{
+  static const H5::PredType &
+  GetPredRef()
+  {
+    return H5::PredType::NATIVE_UINT;
+  }
+};
+
+template <>
+struct HDF5PredTypeTraits<int>
+{
+  static const H5::PredType &
+  GetPredRef()
+  {
+    return H5::PredType::NATIVE_INT;
+  }
+};
+} // namespace details
 
 template <class T>
 inline void
-ReadMatrixOfType(const H5::H5Location &                       fg,
-                            const char *                                 name,
-                            typename GenericEigenTraits<T>::MatrixType & matrix)
+ReadMatrixOfType(const H5::H5Location & fg, const char * name, typename GenericEigenTraits<T>::MatrixType & matrix)
 {
   H5::DataSet ds = fg.openDataSet(name);
   hsize_t     dims[2];
@@ -98,8 +109,8 @@ ReadMatrixOfType(const H5::H5Location &                       fg,
 template <class T>
 inline H5::DataSet
 WriteMatrixOfType(const H5::H5Location &                             fg,
-                             const char *                                       name,
-                             const typename GenericEigenTraits<T>::MatrixType & matrix)
+                  const char *                                       name,
+                  const typename GenericEigenTraits<T>::MatrixType & matrix)
 {
   // HDF5 does not like empty matrices.
   //
@@ -116,22 +127,20 @@ WriteMatrixOfType(const H5::H5Location &                             fg,
 
 template <class T>
 inline void
-ReadVectorOfType(const H5::H5Location &                       fg,
-                            const char *                                 name,
-                            typename GenericEigenTraits<T>::VectorType & vector)
+ReadVectorOfType(const H5::H5Location & fg, const char * name, typename GenericEigenTraits<T>::VectorType & vector)
 {
-    H5::DataSet ds = fg.openDataSet(name);
-    hsize_t     dims[1];
-    ds.getSpace().getSimpleExtentDims(dims, NULL);
-    vector.resize(dims[0], 1);
-    ds.read(vector.data(), details::HDF5PredTypeTraits<T>::GetPredRef());
+  H5::DataSet ds = fg.openDataSet(name);
+  hsize_t     dims[1];
+  ds.getSpace().getSimpleExtentDims(dims, NULL);
+  vector.resize(dims[0], 1);
+  ds.read(vector.data(), details::HDF5PredTypeTraits<T>::GetPredRef());
 }
 
 template <class T>
 inline H5::DataSet
 WriteVectorOfType(const H5::H5Location &                             fg,
-                             const char *                                       name,
-                             const typename GenericEigenTraits<T>::VectorType & vector)
+                  const char *                                       name,
+                  const typename GenericEigenTraits<T>::VectorType & vector)
 {
   hsize_t     dims[1] = { static_cast<hsize_t>(vector.size()) };
   H5::DataSet ds = fg.createDataSet(name, details::HDF5PredTypeTraits<T>::GetPredRef(), H5::DataSpace(1, dims));
@@ -160,6 +169,6 @@ WriteArray(const H5::H5Location & fg, const char * name, std::vector<T> const & 
   return ds;
 }
 
-} // namespace statismo
+} // namespace statismo::hdf5utils
 
 #endif

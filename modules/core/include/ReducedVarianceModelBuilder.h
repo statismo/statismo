@@ -92,7 +92,7 @@ public:
 
 
   [[deprecated]] UniquePtrType<StatisticalModelType>
-                BuildNewModelFromModel(const StatisticalModelType * model, double totalVariance) const;
+  BuildNewModelFromModel(const StatisticalModelType * model, double totalVariance) const;
 
 
 private:

@@ -214,8 +214,7 @@ public:
   }
 
 
-  void
-  DeleteDataset(DatasetPointerType) const {};
+  void DeleteDataset(DatasetPointerType) const {};
   DatasetPointerType
   CloneDataset(DatasetConstPointerType mesh) const;
 
