@@ -34,7 +34,7 @@
 #include <iostream>
 #include <vector>
 
-#include <itkPosteriorModelBuilder.h>
+#include <statismo/ITK/itkPosteriorModelBuilder.h>
 
 class ConsoleOutputSilencer;
 template <class DataType>

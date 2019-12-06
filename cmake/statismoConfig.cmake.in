@@ -10,7 +10,6 @@ set(ITK_SUPPORT @ITK_SUPPORT@)
 
 # Compute paths
 get_filename_component(statismo_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
-set(statismo_INCLUDE_DIRS "@CONF_INCLUDE_DIRS@")
 
 # Our library dependencies (contains definitions for IMPORTED targets)
 if(NOT TARGET statismo::statismo_core AND NOT statismo_BINARY_DIR)

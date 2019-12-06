@@ -35,8 +35,8 @@
  *
  */
 
-#include "GenericRepresenterValidator.h"
-#include "itkStandardImageRepresenter.h"
+#include "statismo/core/GenericRepresenterValidator.h"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
 
 
 typedef itk::Image<float, 2> ScalarImageType;

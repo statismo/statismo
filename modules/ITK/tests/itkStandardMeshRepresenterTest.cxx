@@ -37,9 +37,9 @@
 
 #include <itkMeshFileReader.h>
 
-#include "GenericRepresenterValidator.h"
+#include "statismo/core/GenericRepresenterValidator.h"
 
-#include "itkStandardMeshRepresenter.h"
+#include "statismo/ITK/itkStandardMeshRepresenter.h"
 
 const unsigned                                          Dimensions = 3;
 typedef itk::Mesh<float, Dimensions>                    MeshType;

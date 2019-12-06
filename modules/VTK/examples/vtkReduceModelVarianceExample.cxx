@@ -40,11 +40,11 @@
 #include <vtkPolyDataReader.h>
 #include <vtkPolyDataWriter.h>
 
-#include "ReducedVarianceModelBuilder.h"
-#include "StatisticalModel.h"
-#include "StatismoIO.h"
+#include "statismo/core/ReducedVarianceModelBuilder.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/core/IO.h"
 
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 #include <memory>
 

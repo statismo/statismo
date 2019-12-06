@@ -49,12 +49,12 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
 
-#include "DataManager.h"
-#include "PosteriorModelBuilder.h"
-#include "StatisticalModel.h"
-#include "StatismoIO.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/PosteriorModelBuilder.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/core/IO.h"
 
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 #include <memory>
 

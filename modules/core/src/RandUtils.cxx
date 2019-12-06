@@ -32,7 +32,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "RandUtils.h"
+#include "statismo/core/RandUtils.h"
 
 namespace statismo::rand
 {

@@ -40,12 +40,12 @@
 #include <vtkMath.h>
 #include <vtkVersion.h>
 
-#include "CommonTypes.h"
-#include "DataManager.h"
-#include "Domain.h"
-#include "PosteriorModelBuilder.h"
-#include "PCAModelBuilder.h"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/CommonTypes.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/Domain.h"
+#include "statismo/core/PosteriorModelBuilder.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 #include "vtkTestHelper.h"
 
 #include <memory>
@@ -87,15 +87,15 @@ PosteriorModelBuilderTest(int argc, char ** argv)
   unsigned nPointsTest = 1000;
   double   tolerance = 0.01;
 
-  vtkPolyData *     reference = loadPolyData(referenceFilename);
-  RepresenterType * representer = RepresenterType::Create(reference);
+  auto reference = LoadPolyData(referenceFilename);
+  auto representer = RepresenterType::SafeCreate(reference);
 
-  std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+  auto dataManager = DataManagerType::SafeCreate(representer.get());
 
-  vtkPolyData * testDataset = loadPolyData(testDatasetFilename);
-  vtkPolyData * testDataset2 = loadPolyData(testDatasetFilename2);
-  vtkPolyData * testDataset3 = loadPolyData(testDatasetFilename3);
-  vtkPolyData * testDataset4 = loadPolyData(testDatasetFilename4);
+  auto testDataset = LoadPolyData(testDatasetFilename);
+  auto testDataset2 = LoadPolyData(testDatasetFilename2);
+  auto testDataset3 = LoadPolyData(testDatasetFilename3);
+  auto testDataset4 = LoadPolyData(testDatasetFilename4);
 
 
   dataManager->AddDataset(reference, "ref");
@@ -169,11 +169,11 @@ PosteriorModelBuilderTest(int argc, char ** argv)
   // pointValueWithCovarianceList.push_back(upperPair);
   // pointValueWithCovarianceList.push_back(lowerPair);
 
-  PosteriorModelBuilderType * anisotropicPosteriorModelBuilder = PosteriorModelBuilderType::Create();
-  auto                        anisotropicPosteriorModel =
+  auto anisotropicPosteriorModelBuilder = PosteriorModelBuilderType::SafeCreate();
+  auto anisotropicPosteriorModel =
     anisotropicPosteriorModelBuilder->BuildNewModelFromModel(fullModel.get(), pointValueWithCovarianceList, false);
 
-  vtkPolyData * posteriorMean = anisotropicPosteriorModel->DrawMean();
+  auto posteriorMean = anisotropicPosteriorModel->DrawMean();
 
   double probability = fullModel->ComputeLogProbability(posteriorMean);
 
@@ -203,20 +203,20 @@ PosteriorModelBuilderTest(int argc, char ** argv)
   }
 
 
-  vtkPolyData * onePointPD = vtkPolyData::New();
-  vtkPoints *   onePoint = vtkPoints::New();
+  auto onePointPD = vtkSmartPointer<vtkPolyData>::New();
+  auto onePoint = vtkSmartPointer<vtkPoints>::New();
   onePoint->Allocate(1);
   onePoint->InsertNextPoint(0, 0, 0);
   onePointPD->SetPoints(onePoint);
-  RepresenterType * onePointRepresenter = RepresenterType::Create(onePointPD);
-  VectorType        onePointMean(3);
+  auto       onePointRepresenter = RepresenterType::SafeCreate(onePointPD);
+  VectorType onePointMean(3);
   onePointMean << 0, 0, 0;
   VectorType onePointVar(3);
   onePointVar << 1, 1, 1;
   MatrixType onePointPCABasis = MatrixType::Identity(3, 3);
 
   auto onePointModel =
-    StatisticalModelType::SafeCreate(onePointRepresenter, onePointMean, onePointPCABasis, onePointVar, 0.0);
+    StatisticalModelType::SafeCreate(onePointRepresenter.get(), onePointMean, onePointPCABasis, onePointVar, 0.0);
 
 
   Eigen::Matrix3f rotMatrix;

@@ -44,12 +44,12 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
 
-#include "CommonTypes.h"
-#include "DataManager.h"
-#include "Domain.h"
-#include "GenericRepresenterValidator.h"
-#include "PCAModelBuilder.h"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/CommonTypes.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/Domain.h"
+#include "statismo/core/GenericRepresenterValidator.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 #include "vtkTestHelper.h"
 
 #include <memory>
@@ -105,32 +105,30 @@ PCAModelBuilderTest(int argc, char ** argv)
   // ----------------------------------------------------------
   // First compute PCA model for case n > p
   // ----------------------------------------------------------
-  unsigned      num_points = 5; // use only 5 points as 5*3 coordinates < sample size (17)
-  vtkPolyData * reference = loadPolyData(filenames[0]);
+  unsigned num_points = 5; // use only 5 points as 5*3 coordinates < sample size (17)
+  auto     reference = LoadPolyData(filenames[0]);
   reference = ReducePoints(reference, num_points);
-  RepresenterType * representer = RepresenterType::Create(reference);
-
-  std::unique_ptr<DataManagerType> dataManager(DataManagerType::Create(representer));
+  auto representer = RepresenterType::SafeCreate(reference);
+  auto dataManager = DataManagerType::SafeCreate(representer.get());
 
   std::vector<std::string>::const_iterator it = filenames.begin();
   for (; it != filenames.end(); it++)
   {
-    vtkPolyData * testDataset = loadPolyData((*it));
+    auto testDataset = LoadPolyData((*it));
     testDataset = ReducePoints(testDataset, num_points);
     dataManager->AddDataset(testDataset, "dataset");
   }
   VectorType baselineVariance1(10);
-  baselineVariance1 << 1129.2266845703125, 269.25128173828125, 1.95318043231964111328125, 0.8879330158233642578125,
-    0.04632849991321563720703125, 0.01352225802838802337646484375, 0.0008153090602718293666839599609375,
-    0.00033547866041772067546844482421875, 5.807749766972847282886505126953125e-05,
-    1.56848909682594239711761474609375e-05;
+  baselineVariance1 << 460.601104736328125, 211.22674560546875, 107.32666015625, 71.84774017333984375,
+    36.4659576416015625, 22.3681926727294921875, 11.6593990325927734375, 4.789171695709228515625,
+    1.28080332279205322265625, 0.77941668033599853515625;
 
   std::cout << "PCAModelBuilderTest: \t"
             << "building PCA model with n > p... " << std::flush;
   std::clock_t                                   begin = std::clock();
   double                                         data_noise = 0;
   typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
-  PCAModelBuilderType *                          pcaModelBuilder = PCAModelBuilderType::Create();
+  auto                                           pcaModelBuilder = PCAModelBuilderType::SafeCreate();
   // StatisticalModelType *                         PCAModel;
 
   // perform with standard argument
@@ -157,20 +155,20 @@ PCAModelBuilderTest(int argc, char ** argv)
   // Now compute PCA model for case p > n
   // ----------------------------------------------------------
   VectorType baselineVariance2(16);
-  baselineVariance2 << 16644.25, 2851.044921875, 789.446044921875, 498.49322509765625, 296.288818359375,
-    119.069671630859375, 48.84352874755859375, 39.074352264404296875, 19.6847972869873046875, 16.53295135498046875,
-    12.06073093414306640625, 9.15244388580322265625, 7.496630191802978515625, 4.588232517242431640625,
-    3.5666046142578125, 2.4388735294342041015625;
+  baselineVariance2 << 5175.92236328125, 3022.61181640625, 1786.9608154296875, 1131.9517822265625, 727.96649169921875,
+    480.115386962890625, 365.292266845703125, 233.9134063720703125, 173.226318359375, 164.652557373046875,
+    128.6950531005859375, 91.76165008544921875, 80.23679351806640625, 69.49117279052734375, 50.3206024169921875,
+    42.5595245361328125;
   num_points = 100;
 
-  vtkPolyData * reference2 = loadPolyData(filenames[0]);
+  auto reference2 = LoadPolyData(filenames[0]);
   reference2 = ReducePoints(reference2, num_points);
-  RepresenterType *                representer2 = RepresenterType::Create(reference2);
-  std::unique_ptr<DataManagerType> dataManager2(DataManagerType::Create(representer2));
+  auto representer2 = RepresenterType::SafeCreate(reference2);
+  auto dataManager2 = DataManagerType::SafeCreate(representer2.get());
 
   for (it = filenames.begin(); it != filenames.end(); it++)
   {
-    vtkPolyData * testDataset = loadPolyData((*it));
+    auto testDataset = LoadPolyData((*it));
     testDataset = ReducePoints(testDataset, 100);
     dataManager2->AddDataset(testDataset, "dataset");
   }
@@ -179,7 +177,7 @@ PCAModelBuilderTest(int argc, char ** argv)
   begin = std::clock();
 
   typedef statismo::PCAModelBuilder<vtkPolyData> PCAModelBuilderType;
-  PCAModelBuilderType *                          pcaModelBuilder2 = PCAModelBuilderType::Create();
+  auto                                           pcaModelBuilder2 = PCAModelBuilderType::SafeCreate();
   // StatisticalModelType *                         PCAModel2;
 
   // perform with standard argument

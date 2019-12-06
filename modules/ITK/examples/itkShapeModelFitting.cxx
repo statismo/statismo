@@ -46,10 +46,10 @@
 #include <itkMeshFileReader.h>
 #include <itkPointSetToPointSetRegistrationMethod.h>
 
-#include "itkStandardMeshRepresenter.h"
-#include "itkStatismoIO.h"
-#include "itkStatisticalModel.h"
-#include "itkStatisticalShapeModelTransform.h"
+#include "statismo/ITK/itkStandardMeshRepresenter.h"
+#include "statismo/ITK/itkIO.h"
+#include "statismo/ITK/itkStatisticalModel.h"
+#include "statismo/ITK/itkStatisticalShapeModelTransform.h"
 
 
 const unsigned                       Dimensions = 3;

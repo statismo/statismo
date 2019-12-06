@@ -41,14 +41,14 @@
 #include <itkDirectory.h>
 #include <itkImageFileReader.h>
 
-#include "itkDataManager.h"
-#include "itkLowRankGPModelBuilder.h"
-#include "itkStandardImageRepresenter.h"
-#include "itkStatismoIO.h"
-#include "itkStatisticalModel.h"
+#include "statismo/ITK/itkDataManager.h"
+#include "statismo/ITK/itkLowRankGPModelBuilder.h"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
+#include "statismo/ITK/itkIO.h"
+#include "statismo/ITK/itkStatisticalModel.h"
 
-#include "Kernels.h"
-#include "KernelCombinators.h"
+#include "statismo/core/Kernels.h"
+#include "statismo/core/KernelCombinators.h"
 
 /*
  * This example shows the ITK Wrapping of statismo can be used to build a deformation model.

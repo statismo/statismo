@@ -61,8 +61,8 @@
 #include "PosteriorModelBuilder.h"
 #include "ReducedVarianceModelBuilder.h"
 #include "PCAModelBuilder.h"
-#include "Exceptions.h"
-#include "CommonTypes.h"
+#include "statismo/core/Exceptions.h"
+#include "statismo/core/CommonTypes.h"
 #include "StatismoIO.h"
 #include <list>
 #include <string>

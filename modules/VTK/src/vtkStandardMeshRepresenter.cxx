@@ -35,7 +35,7 @@
  *
  */
 
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
@@ -54,27 +54,19 @@
 #include <vtkUnsignedLongArray.h>
 #include <vtkUnsignedShortArray.h>
 
-#include "HDF5Utils.h"
-#include "StatismoUtils.h"
+#include "statismo/core/HDF5Utils.h"
+#include "statismo/core/Utils.h"
 
 namespace statismo
 {
 
 vtkStandardMeshRepresenter::vtkStandardMeshRepresenter(DatasetConstPointerType reference)
-  : m_reference(0)
+  : vtkStandardMeshRepresenter()
 {
   this->SetReference(reference);
 }
 
-vtkStandardMeshRepresenter::~vtkStandardMeshRepresenter()
-{
-
-  if (m_reference != 0)
-  {
-    m_reference->Delete();
-    m_reference = 0;
-  }
-}
+vtkStandardMeshRepresenter::~vtkStandardMeshRepresenter() {}
 
 vtkStandardMeshRepresenter *
 vtkStandardMeshRepresenter::CloneImpl() const
@@ -87,7 +79,7 @@ vtkStandardMeshRepresenter::CloneImpl() const
 void
 vtkStandardMeshRepresenter::Load(const H5::Group & fg)
 {
-  vtkPolyData * ref = 0;
+  vtkSmartPointer<vtkPolyData> ref; 
 
   std::string repName = hdf5utils::ReadStringAttribute(fg, "name");
   if (repName == "vtkPolyDataRepresenter" || repName == "itkMeshRepresenter")
@@ -98,11 +90,12 @@ vtkStandardMeshRepresenter::Load(const H5::Group & fg)
   {
     ref = LoadRef(fg);
   }
+
   this->SetReference(ref);
 }
 
 
-vtkPolyData *
+vtkStandardMeshRepresenter::DatasetPointerType
 vtkStandardMeshRepresenter::LoadRef(const H5::Group & fg) const
 {
 
@@ -114,24 +107,24 @@ vtkStandardMeshRepresenter::LoadRef(const H5::Group & fg) const
   hdf5utils::ReadMatrixOfType<unsigned int>(fg, "./cells", cellsMat);
 
   // create the reference from this information
-  vtkPolyData * ref = vtkPolyData::New();
+  auto ref = DatasetPointerType::New();
 
   unsigned nVertices = vertexMat.cols();
   unsigned nCells = cellsMat.cols();
 
-  vtkFloatArray * pcoords = vtkFloatArray::New();
+  auto pcoords = vtkSmartPointer<vtkFloatArray>::New();
   pcoords->SetNumberOfComponents(3);
   pcoords->SetNumberOfTuples(nVertices);
   for (unsigned i = 0; i < nVertices; i++)
   {
     pcoords->SetTuple3(i, vertexMat(0, i), vertexMat(1, i), vertexMat(2, i));
   }
-  vtkPoints * points = vtkPoints::New();
+  auto points = vtkSmartPointer<vtkPoints>::New();
   points->SetData(pcoords);
 
   ref->SetPoints(points);
 
-  vtkCellArray * cell = vtkCellArray::New();
+  auto cell = vtkSmartPointer<vtkCellArray>::New();
   unsigned       cellDim = cellsMat.rows();
   for (unsigned i = 0; i < nCells; i++)
   {
@@ -191,14 +184,13 @@ vtkStandardMeshRepresenter::LoadRef(const H5::Group & fg) const
 }
 
 
-vtkPolyData *
+vtkStandardMeshRepresenter::DatasetPointerType
 vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group & fg) const
 {
   std::string tmpfilename = statismo::utils::CreateTmpName(".vtk");
 
   hdf5utils::GetFileFromHDF5(fg, "./reference", tmpfilename.c_str());
-  vtkPolyData *       pd = vtkPolyData::New();
-  vtkPolyDataReader * reader = vtkPolyDataReader::New();
+  vtkNew<vtkPolyDataReader> reader;
   reader->SetFileName(tmpfilename.c_str());
   reader->Update();
   statismo::utils::RemoveFile(tmpfilename);
@@ -206,9 +198,7 @@ vtkStandardMeshRepresenter::LoadRefLegacy(const H5::Group & fg) const
   {
     throw StatisticalModelException((std::string("Could not read file ") + tmpfilename).c_str());
   }
-  pd->ShallowCopy(reader->GetOutput());
-  reader->Delete();
-  return pd;
+  return reader->GetOutput();
 }
 
 
@@ -328,8 +318,8 @@ vtkStandardMeshRepresenter::SampleVectorToSample(const VectorType & sample) cons
 
   assert(m_reference != 0);
 
-  vtkPolyData * reference = const_cast<vtkPolyData *>(m_reference);
-  vtkPolyData * pd = vtkPolyData::New();
+  vtkPolyData * reference = const_cast<vtkPolyData *>(m_reference.GetPointer());
+  auto          pd = vtkSmartPointer<vtkPolyData>::New();
   pd->DeepCopy(reference);
 
   vtkPoints * points = pd->GetPoints();
@@ -350,7 +340,7 @@ vtkStandardMeshRepresenter::SampleVectorToSample(const VectorType & sample) cons
 vtkStandardMeshRepresenter::ValueType
 vtkStandardMeshRepresenter::PointSampleFromSample(DatasetConstPointerType sample_, unsigned ptid) const
 {
-  vtkPolyData * sample = const_cast<DatasetPointerType>(sample_);
+  vtkPolyData * sample = const_cast<vtkPolyData *>(sample_);
   if (ptid >= sample->GetNumberOfPoints())
   {
     throw StatisticalModelException("invalid ptid provided to PointSampleFromSample");
@@ -397,10 +387,10 @@ vtkStandardMeshRepresenter::GetNumberOfPoints() const
   return this->m_reference->GetNumberOfPoints();
 }
 
-vtkDataArray *
+vtkSmartPointer<vtkDataArray>
 vtkStandardMeshRepresenter::GetAsDataArray(const H5::Group & group, const std::string & name)
 {
-  vtkDataArray * dataArray = 0;
+  vtkSmartPointer<vtkDataArray> dataArray;
 
   typedef statismo::GenericEigenTraits<double>::MatrixType DoubleMatrixType;
   DoubleMatrixType                                         m;
@@ -413,34 +403,34 @@ vtkStandardMeshRepresenter::GetAsDataArray(const H5::Group & group, const std::s
   switch (type)
   {
     case statismo::UNSIGNED_CHAR:
-      dataArray = vtkUnsignedCharArray::New();
+      dataArray = vtkSmartPointer<vtkUnsignedCharArray>::New();
       break;
     case statismo::SIGNED_CHAR:
-      dataArray = vtkCharArray::New();
+      dataArray = vtkSmartPointer<vtkCharArray>::New();
       break;
     case statismo::FLOAT:
-      dataArray = vtkFloatArray::New();
+      dataArray = vtkSmartPointer<vtkFloatArray>::New();
       break;
     case statismo::DOUBLE:
-      dataArray = vtkDoubleArray::New();
+      dataArray = vtkSmartPointer<vtkDoubleArray>::New();
       break;
     case statismo::UNSIGNED_INT:
-      dataArray = vtkUnsignedIntArray::New();
+      dataArray = vtkSmartPointer<vtkUnsignedIntArray>::New();
       break;
     case statismo::SIGNED_INT:
-      dataArray = vtkIntArray::New();
+      dataArray = vtkSmartPointer<vtkIntArray>::New();
       break;
     case statismo::UNSIGNED_SHORT:
-      dataArray = vtkUnsignedShortArray::New();
+      dataArray = vtkSmartPointer<vtkUnsignedShortArray>::New();
       break;
     case statismo::SIGNED_SHORT:
-      dataArray = vtkShortArray::New();
+      dataArray = vtkSmartPointer<vtkShortArray>::New();
       break;
     case statismo::UNSIGNED_LONG:
-      dataArray = vtkLongArray::New();
+      dataArray = vtkSmartPointer<vtkLongArray>::New();
       break;
     case statismo::SIGNED_LONG:
-      dataArray = vtkUnsignedLongArray::New();
+      dataArray = vtkSmartPointer<vtkUnsignedLongArray>::New();
       break;
     default:
       throw StatisticalModelException(
@@ -469,11 +459,11 @@ vtkStandardMeshRepresenter::FillDataArray(const statismo::GenericEigenTraits<dou
 
 
 void
-vtkStandardMeshRepresenter::SetReference(const vtkPolyData * reference)
+vtkStandardMeshRepresenter::SetReference(DatasetConstPointerType reference)
 {
   // whta happens if m_refrnece is reference?
-  m_reference = vtkPolyData::New();
-  m_reference->DeepCopy(const_cast<DatasetPointerType>(reference));
+  // m_reference = DatasetPointerType::New();
+  m_reference->DeepCopy(const_cast<vtkPolyData *>(reference));
 
   // set the domain
   DomainType::DomainPointsListType ptList;

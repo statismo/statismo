@@ -47,10 +47,10 @@
 #include <itkMeanSquaresImageToImageMetric.h>
 #include <itkNormalizedCorrelationImageToImageMetric.h>
 
-#include "itkInterpolatingStatisticalDeformationModelTransform.h"
-#include "itkStandardImageRepresenter.h"
-#include "itkStatisticalModel.h"
-#include "itkStatismoIO.h"
+#include "statismo/ITK/itkInterpolatingStatisticalDeformationModelTransform.h"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
+#include "statismo/ITK/itkStatisticalModel.h"
+#include "statismo/ITK/itkIO.h"
 
 const unsigned                                                                               Dimensions = 2;
 typedef itk::Image<unsigned short int, Dimensions>                                           ImageType;

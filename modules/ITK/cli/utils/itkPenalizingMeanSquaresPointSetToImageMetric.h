@@ -30,8 +30,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __itkPenalizingMeanSquaresPointSetToImageMetric_h
-#define __itkPenalizingMeanSquaresPointSetToImageMetric_h
+#ifndef __STATISMO_ITK_PENALIZING_MEAN_SQUARES_POINTSET_TO_IMAGE_METRIC_H_
+#define __STATISMO_ITK_PENALIZING_MEAN_SQUARES_POINTSET_TO_IMAGE_METRIC_H_
 #include <itkMeanSquaresPointSetToImageMetric.h>
 /**
  * This is a simple extension of the itkMeanSquaresPointSetToImageMetric, which adds a regularization

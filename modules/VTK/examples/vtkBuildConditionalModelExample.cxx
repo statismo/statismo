@@ -36,12 +36,12 @@
  */
 #include <iostream>
 
-#include "ConditionalModelBuilder.h"
-#include "DataManager.h"
-#include "StatisticalModel.h"
-#include "StatismoIO.h"
+#include "statismo/core/ConditionalModelBuilder.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/StatisticalModel.h"
+#include "statismo/core/IO.h"
 
-#include "vtkStandardImageRepresenter.h"
+#include "statismo/VTK/vtkStandardImageRepresenter.h"
 
 #include <memory>
 

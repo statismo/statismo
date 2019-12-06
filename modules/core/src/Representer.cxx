@@ -33,7 +33,7 @@
  *
  */
 
-#include "Representer.h"
+#include "statismo/core/Representer.h"
 
 #include <map>
 #include <algorithm>

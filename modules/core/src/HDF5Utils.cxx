@@ -34,10 +34,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "HDF5Utils.h"
-
-#include "CommonTypes.h"
-#include "Exceptions.h"
+#include "statismo/core/HDF5Utils.h"
+#include "statismo/core/CommonTypes.h"
+#include "statismo/core/Exceptions.h"
 
 #include <H5Cpp.h>
 

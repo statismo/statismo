@@ -33,16 +33,16 @@
 
 #include "lpo.h"
 
-#include <itkDataManager.h>
+#include <statismo/ITK/itkDataManager.h>
 #include <itkDirectory.h>
 #include <itkImage.h>
 #include <itkMesh.h>
 #include <itkMeshFileReader.h>
 #include <itkMeshFileWriter.h>
-#include <itkStandardImageRepresenter.h>
-#include <itkStandardMeshRepresenter.h>
-#include <itkStatismoIO.h>
-#include <itkStatisticalModel.h>
+#include <statismo/ITK/itkStandardImageRepresenter.h>
+#include <statismo/ITK/itkStandardMeshRepresenter.h>
+#include <statismo/ITK/itkIO.h>
+#include <statismo/ITK/itkStatisticalModel.h>
 
 #include <iostream>
 #include <set>

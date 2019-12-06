@@ -134,7 +134,16 @@ endif()
 if (BUILD_TESTS)
   include_directories(${PROJECT_SOURCE_DIR}/helpers/tests)
   enable_testing()
+
+  if (UNIX)
+    find_program(MEMORYCHECK_COMMAND valgrind)
+    if(MEMORYCHECK_COMMAND)
+      set(MEMORYCHECK_COMMAND_OPTIONS "--trace-children=yes --leak-check=full")
+      file(TO_CMAKE_PATH "${PROJECT_SOURCE_DIR}/cmake/valgrind.supp" MEMORYCHECK_SUPPRESSIONS_FILE)
+    endif()
+  endif()
   include(CTest)
+
 endif()
 
 # ----------------------------------------
@@ -262,18 +271,10 @@ export(TARGETS ${_targets}
 # (this registers the build-tree with a global CMake-registry)
 export(PACKAGE statismo)
 
-set(CONF_INCLUDE_DIRS
-  "${statismo_SOURCE_DIR}/modules/core/include"
-)
 set(statismo_LIBRARIES statismo::statismo_core)
 
 if(VTK_SUPPORT)
-  set(CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/VTK/include")
   set(statismo_LIBRARIES ${statismo_LIBRARIES} statismo::statismo_VTK)
-endif()
-
-if(ITK_SUPPORT)
-  set(CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "${statismo_SOURCE_DIR}/modules/ITK/include")
 endif()
 
 write_basic_package_version_file(
@@ -290,22 +291,6 @@ configure_package_config_file(
 # ----------------------------------------
 # Install tree targets export
 # ----------------------------------------
-
-file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
-   "${INSTALL_INCLUDE_DIR}")
-
-set(CONF_INCLUDE_DIRS
-  "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/core"
-)
-
-if(VTK_SUPPORT)
-  set(CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/VTK")
-endif()
-
-if(ITK_SUPPORT)
-  set(CONF_INCLUDE_DIRS "${CONF_INCLUDE_DIRS}" "\${statismo_CMAKE_DIR}/${REL_INCLUDE_DIR}/statismo/ITK")
-endif()
-
 configure_package_config_file(
     ${statismo_SOURCE_DIR}/cmake/statismoConfig.cmake.in
     ${statismo_BINARY_DIR}/cmake/statismoConfig.cmake

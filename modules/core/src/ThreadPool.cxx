@@ -32,8 +32,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#include "ThreadPool.h"
-#include "Exceptions.h"
+#include "statismo/core/ThreadPool.h"
+#include "statismo/core/Exceptions.h"
 
 namespace statismo
 {

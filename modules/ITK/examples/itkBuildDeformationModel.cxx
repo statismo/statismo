@@ -42,11 +42,11 @@
 #include <itkDirectory.h>
 #include <itkImageFileReader.h>
 
-#include "itkDataManager.h"
-#include "itkPCAModelBuilder.h"
-#include "itkStandardImageRepresenter.h"
-#include "itkStatismoIO.h"
-#include "itkStatisticalModel.h"
+#include "statismo/ITK/itkDataManager.h"
+#include "statismo/ITK/itkPCAModelBuilder.h"
+#include "statismo/ITK/itkStandardImageRepresenter.h"
+#include "statismo/ITK/itkIO.h"
+#include "statismo/ITK/itkStatisticalModel.h"
 
 
 /*

@@ -30,8 +30,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef __itkPenalizingMeanSquaresImageToImageMetric_h
-#define __itkPenalizingMeanSquaresImageToImageMetric_h
+#ifndef __STATISMO_ITK_PENALIZING_MEAN_SQUARES_IMAGE_TO_IMAGE_METRIC_H_
+#define __STATISMO_ITK_PENALIZING_MEAN_SQUARES_IMAGE_TO_IMAGE_METRIC_H_
+
 #include <itkMeanSquaresImageToImageMetric.h>
 /**
  * This is a simple extension of the MeanSquaresImageToImageMetric, which adds a regularization

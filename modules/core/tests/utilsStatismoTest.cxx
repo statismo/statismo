@@ -33,12 +33,12 @@
  *
  */
 #include "StatismoUnitTest.h"
-#include "Exceptions.h"
-#include "RandUtils.h"
+#include "statismo/core/Exceptions.h"
 
-#include "StatismoUtils.h"
-#include "ThreadPool.h"
-#include "SafeContainer.h"
+#include "statismo/core/RandUtils.h"
+#include "statismo/core/Utils.h"
+#include "statismo/core/ThreadPool.h"
+#include "statismo/core/SafeContainer.h"
 
 using namespace statismo;
 

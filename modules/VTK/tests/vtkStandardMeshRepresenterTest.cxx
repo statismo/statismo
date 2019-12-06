@@ -38,8 +38,8 @@
 #include <vtkPolyDataReader.h>
 #include <vtkSmartPointer.h>
 
-#include "GenericRepresenterValidator.h"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/GenericRepresenterValidator.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 
 #include "vtkTestHelper.h"
 
@@ -63,22 +63,19 @@ vtkStandardMeshRepresenterTest(int argc, char ** argv)
   const std::string referenceFilename = datadir + "/hand_polydata/hand-0.vtk";
   const std::string testDatasetFilename = datadir + "/hand_polydata/hand-1.vtk";
 
-  vtkPolyData *                reference = loadPolyData(referenceFilename);
-  vtkStandardMeshRepresenter * representer = vtkStandardMeshRepresenter::Create(reference);
+  auto reference = LoadPolyData(referenceFilename);
+  auto representer = vtkStandardMeshRepresenter::SafeCreate(reference);
 
   // choose a test dataset, a point (on the reference) and the associated point on the test example
 
-  vtkPolyData * testDataset = loadPolyData(testDatasetFilename);
-  unsigned      testPtId = 0;
-  vtkPoint      testPt(reference->GetPoints()->GetPoint(testPtId));
-  vtkPoint      testValue(testDataset->GetPoints()->GetPoint(testPtId));
+  auto     testDataset = LoadPolyData(testDatasetFilename);
+  unsigned testPtId = 0;
+  vtkPoint testPt(reference->GetPoints()->GetPoint(testPtId));
+  vtkPoint testValue(testDataset->GetPoints()->GetPoint(testPtId));
 
-  RepresenterTestType representerTest(representer, testDataset, std::make_pair(testPt, testValue));
+  RepresenterTestType representerTest(representer.get(), testDataset, std::make_pair(testPt, testValue));
 
   bool testsOk = representerTest.RunAllTests();
-  delete representer;
-  reference->Delete();
-  testDataset->Delete();
 
   if (testsOk == true)
   {

@@ -31,8 +31,8 @@
  *
  */
 
-#include <KernelCombinators.h>
-#include <Kernels.h>
+#include <statismo/core/KernelCombinators.h>
+#include <statismo/core/Kernels.h>
 
 #include <itkImage.h>
 #include <itkMesh.h>

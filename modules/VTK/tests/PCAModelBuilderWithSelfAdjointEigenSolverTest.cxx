@@ -43,12 +43,12 @@
 #include <vtkPolyDataWriter.h>
 #include <vtkVersion.h>
 
-#include "CommonTypes.h"
-#include "DataManager.h"
-#include "Domain.h"
-#include "RandUtils.h"
-#include "PCAModelBuilder.h"
-#include "vtkStandardMeshRepresenter.h"
+#include "statismo/core/CommonTypes.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/Domain.h"
+#include "statismo/core/RandUtils.h"
+#include "statismo/core/PCAModelBuilder.h"
+#include "statismo/VTK/vtkStandardMeshRepresenter.h"
 #include "vtkTestHelper.h"
 
 #include <memory>
@@ -128,7 +128,7 @@ PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
   typedef statismo::StatisticalModel<vtkPolyData> StatisticalModelType;
 
 
-  vtkPolyData * reference = loadPolyData(filenames[0]);
+  auto reference = LoadPolyData(filenames[0]);
   reference = ReducePoints(reference, num_points);
   auto representer = RepresenterType::SafeCreate(reference);
 
@@ -137,7 +137,7 @@ PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
   std::vector<std::string>::const_iterator it = filenames.begin();
   for (; it != filenames.end(); it++)
   {
-    vtkPolyData * testDataset = loadPolyData((*it));
+    auto testDataset = LoadPolyData((*it));
     testDataset = ReducePoints(testDataset, num_points);
     dataManager->AddDataset(testDataset, "dataset");
   }
@@ -234,13 +234,13 @@ PCAModelBuilderWithSelfAdjointEigenSolverTest(int argc, char ** argv)
     {
       std::stringstream ss1;
       ss1 << output_dir << "/jacobi-" << i << ".vtk";
-      writePolyData(jacobiModel->DrawSample(coeff1, false), ss1.str().c_str());
+      WritePolyData(jacobiModel->DrawSample(coeff1, false), ss1.str().c_str());
 
       std::stringstream ss2;
       ss2 << output_dir << "/saes-" << i << ".vtk";
       if (equal_direction < oppo_direction)
         coeff2[i] = 2;
-      writePolyData(saesModel->DrawSample(coeff2, false), ss2.str().c_str());
+      WritePolyData(saesModel->DrawSample(coeff2, false), ss2.str().c_str());
     }
   }
 

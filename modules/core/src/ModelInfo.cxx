@@ -35,10 +35,10 @@
  *
  */
 
-#include "DataManager.h"
-#include "Exceptions.h"
-#include "HDF5Utils.h"
-#include "ModelInfo.h"
+#include "statismo/core/DataManager.h"
+#include "statismo/core/Exceptions.h"
+#include "statismo/core/HDF5Utils.h"
+#include "statismo/core/ModelInfo.h"
 
 #include <ctime>
 #include <iostream>

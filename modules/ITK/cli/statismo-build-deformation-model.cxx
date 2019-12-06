@@ -33,13 +33,13 @@
 
 #include "lpo.h"
 
-#include <itkDataManager.h>
+#include <statismo/ITK/itkDataManager.h>
 #include <itkDirectory.h>
 #include <itkImageFileReader.h>
-#include <itkPCAModelBuilder.h>
-#include <itkStandardImageRepresenter.h>
-#include <itkStatismoIO.h>
-#include <itkStatisticalModel.h>
+#include <statismo/ITK/itkPCAModelBuilder.h>
+#include <statismo/ITK/itkStandardImageRepresenter.h>
+#include <statismo/ITK/itkIO.h>
+#include <statismo/ITK/itkStatisticalModel.h>
 
 #include "utils/statismo-build-models-utils.h"
 

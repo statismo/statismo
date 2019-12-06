@@ -35,16 +35,16 @@
  *
  */
 
-#include "GenericRepresenterValidator.h"
-#include "vtkStandardImageRepresenter.h"
+#include "statismo/core/GenericRepresenterValidator.h"
+#include "statismo/VTK/vtkStandardImageRepresenter.h"
 
 #include "vtkTestHelper.h"
 
 using namespace statismo::test;
 
 
-typedef statismo::vtkStandardImageRepresenter<double, 2> RepresenterType;
-typedef GenericRepresenterValidator<RepresenterType>     RepresenterTestType;
+typedef statismo::vtkStandardImageRepresenter<float, 2> RepresenterType;
+typedef GenericRepresenterValidator<RepresenterType>    RepresenterTestType;
 
 int
 vtkStandardImageRepresenterTest(int argc, char ** argv)
@@ -60,21 +60,18 @@ vtkStandardImageRepresenterTest(int argc, char ** argv)
   const std::string referenceFilename = datadir + "/hand_dfs/df-hand-1.vtk";
   const std::string testDatasetFilename = datadir + "/hand_dfs/df-hand-2.vtk";
 
-  vtkStructuredPoints * reference = loadStructuredPoints(referenceFilename);
+  auto reference = LoadStructuredPoints(referenceFilename);
 
-  RepresenterType * representer = RepresenterType::Create(reference);
+  auto representer = RepresenterType::SafeCreate(reference);
 
   // choose a test dataset, a point (on the reference) and the associated point on the test example
-  vtkStructuredPoints * testDataset = loadStructuredPoints(testDatasetFilename);
-  unsigned              testPtId = 0;
-  statismo::vtkPoint    testPt(reference->GetPoint(testPtId));
-  statismo::vtkNDPixel  testValue(testDataset->GetPointData()->GetScalars()->GetTuple2(testPtId), 2);
-  RepresenterTestType   representerTest(representer, testDataset, std::make_pair(testPt, testValue));
+  auto                 testDataset = LoadStructuredPoints(testDatasetFilename);
+  unsigned             testPtId = 0;
+  statismo::vtkPoint   testPt(reference->GetPoint(testPtId));
+  statismo::vtkNDPixel testValue(testDataset->GetPointData()->GetScalars()->GetTuple2(testPtId), 2);
+  RepresenterTestType  representerTest(representer.get(), testDataset, std::make_pair(testPt, testValue));
 
   bool testsOk = representerTest.RunAllTests();
-  delete representer;
-  reference->Delete();
-  testDataset->Delete();
 
   if (testsOk == true)
   {

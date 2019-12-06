@@ -33,18 +33,18 @@
 
 // Add new kernels in this file (and document their usage in the statismo-build-gp-model.md file)
 #include "utils/statismo-build-gp-model-kernels.h"
-#include "StatismoUtils.h"
+#include "statismo/core/Utils.h"
 #include "lpo.h"
 
-#include <itkDataManager.h>
+#include <statismo/ITK/itkDataManager.h>
 #include <itkDirectory.h>
 #include <itkImageFileReader.h>
-#include <itkLowRankGPModelBuilder.h>
+#include <statismo/ITK/itkLowRankGPModelBuilder.h>
 #include <itkMeshFileReader.h>
-#include <itkStandardImageRepresenter.h>
-#include <itkStandardMeshRepresenter.h>
-#include <itkStatismoIO.h>
-#include <itkStatisticalModel.h>
+#include <statismo/ITK/itkStandardImageRepresenter.h>
+#include <statismo/ITK/itkStandardMeshRepresenter.h>
+#include <statismo/ITK/itkIO.h>
+#include <statismo/ITK/itkStatisticalModel.h>
 
 #include <iostream>
 #include <memory>
