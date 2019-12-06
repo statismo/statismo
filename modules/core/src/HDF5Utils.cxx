@@ -44,6 +44,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <vector>
 
 namespace statismo::hdf5utils
 {

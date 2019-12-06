@@ -93,7 +93,7 @@ public:
                         unsigned                       numComponents,
                         unsigned                       numPointsForNystrom = 500) const
   {
-    if (this->m_impl)
+    if (!this->m_impl)
     {
       itkExceptionMacro(<< "Model not properly initialized. Maybe you forgot to call SetRepresenter");
     }

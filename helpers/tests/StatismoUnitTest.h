@@ -64,6 +64,13 @@
 #define STATISMO_ASSERT_LTE(a, b) _STATISMO_ASSERT_LTE(a, b, __FILE__, __LINE__);
 #define STATISMO_ASSERT_DOUBLE_EQ(a, b) _STATISMO_ASSERT_DOUBLE_EQ(a, b, __FILE__, __LINE__);
 
+inline std::ostream &
+operator<<(std::ostream & os, std::nullptr_t)
+{
+  os << "NULL";
+  return os;
+}
+
 namespace statismo::test
 {
 struct TestFixture
@@ -147,7 +154,7 @@ RunAllTests(const std::string & module, const std::map<std::string, std::functio
 }
 
 template <typename T1, typename T2>
-inline std::string
+inline void
 PrintError(const char * compToken,
            const char * file,
            int          line,
@@ -157,12 +164,16 @@ PrintError(const char * compToken,
            T2           rVarVal)
 {
   std::cerr << "[FAILED] (" << file << ":" << std::to_string(line) << ")\n";
-  std::cerr << "Expecting " << lVarName << " = " << lVarVal << "\n";
+  std::cerr << "Expecting " << lVarName << " = ";
+  std::cerr << lVarVal;
+  std::cerr << "\n";
   std::cerr << compToken << std::endl;
-  std::cerr << rVarName << " = " << rVarVal << "\n";
+  std::cerr << rVarName << " = ";
+  std::cerr << rVarVal;
+  std::cerr << "\n";
 }
 
-inline std::string
+inline void
 PrintErrorEx(const char * file, int line, bool hasThrown)
 {
   std::cerr << "[FAILED] (" << file << ":" << std::to_string(line) << ")\n";
@@ -175,13 +186,6 @@ PrintErrorEx(const char * file, int line, bool hasThrown)
   {
     std::cerr << "Expression should have triggered an exception\n";
   }
-}
-
-inline std::ostream &
-operator<<(std::ostream & os, std::nullptr_t n)
-{
-  os << "NULL";
-  return os;
 }
 
 } // namespace statismo::test

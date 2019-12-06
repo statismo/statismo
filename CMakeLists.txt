@@ -97,8 +97,7 @@ string(
     "$<IF:$<CXX_COMPILER_ID:MSVC>,"
         "/W4;$<$<CONFIG:RELEASE>:/O2>,"
         "-Wall;-Wextra;-Werror;"
-            "$<$<CONFIG:RELEASE>:-O3>"
-            "$<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>"
+            "$<$<CONFIG:RELEASE>:-O3>;"
     ">"
 )
 
