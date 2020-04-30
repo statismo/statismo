@@ -1,1 +1,3 @@
 tar-ignore = "*.bck"
+tar-ignore = "build*"
+

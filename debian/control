@@ -2,7 +2,7 @@ Source: statismo
 Section: utils
 Priority: extra
 Maintainer: Stefan Schlager <zarquon42@gmail.com>
-Build-Depends: debhelper (>= 9), libinsighttoolkit4-dev, libvtk6-dev, libhdf5-dev, libeigen3-dev, libboost-date-time-dev, libboost-dev, libboost-system-dev, libboost-thread-dev, libboost-filesystem-dev, libboost-program-options-dev, cmake, libfftw3-dev, doxygen, graphviz, python2.7-dev, wget, gnuplot, pandoc
+Build-Depends: debhelper (>= 9), libinsighttoolkit4-dev, libvtk7-dev, libhdf5-dev, libeigen3-dev, libboost-date-time-dev, libboost-dev, libboost-system-dev, libboost-thread-dev, libboost-filesystem-dev, libboost-program-options-dev, cmake, libfftw3-dev, doxygen, graphviz, python2.7-dev, wget, gnuplot, pandoc
 Homepage: https://github.com/statismo/statismo
 Standards-Version: 3.9.5
 
@@ -20,8 +20,7 @@ Description: Statismo is a c++ framework for statistical shape modeling. This pa
 
 Package: statismo-dev
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, statismo-core, libvtk6-dev
-Recommends: libinsighttoolkit4-dev, libhdf5-dev, libeigen3-dev, libboost-date-time-dev, libboost-dev, libboost-system-dev , libboost-thread-dev, cmake, libboost-program-options-dev, libboost-filesystem-dev, libfftw3-dev
+Depends: ${shlibs:Depends}, ${misc:Depends}, statismo-core, libvtk7-dev, libinsighttoolkit4-dev, libhdf5-dev, libeigen3-dev, libboost-date-time-dev, libboost-dev, libboost-system-dev , libboost-thread-dev, cmake, libboost-program-options-dev, libboost-filesystem-dev, libfftw3-dev
 Suggests: statismo-doc, statismo-example-data
 Description: Statismo is a c++ framework for statistical shape modeling. This package contains the header files for statismo.
 
