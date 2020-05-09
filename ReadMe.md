@@ -1,3 +1,7 @@
+*This repository is no longer maintained. An up-to-date version of Statismo using modern C++ is provided in this [fork](https://github.com/kenavolic/statismo).*
+
+----------------
+
 # Statismo - Flexible Shape Modeling [![Build Status](https://travis-ci.org/statismo/statismo.svg?branch=develop)](https://travis-ci.org/statismo/statismo)
 
 
