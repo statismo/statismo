@@ -92,7 +92,7 @@ class vtkUnstructuredGridRepresenter  {
         return new vtkUnstructuredGridRepresenter(reference, alignment);
     }
 
-    static vtkUnstructuredGridRepresenter* Load(const H5::CommonFG& fg);
+    static vtkUnstructuredGridRepresenter* Load(const H5::H5Location& fg);
 
     vtkUnstructuredGridRepresenter* Clone() const;
     void Delete() const {
@@ -131,7 +131,7 @@ class vtkUnstructuredGridRepresenter  {
     ValueType PointSampleVectorToPointSample(const statismo::VectorType& pointSample) const;
 
 
-    void Save(const H5::CommonFG& fg) const;
+    void Save(const H5::H5Location& fg) const;
     unsigned GetNumberOfPoints() const;
     unsigned GetPointIdForPoint(const PointType& point) const;
 

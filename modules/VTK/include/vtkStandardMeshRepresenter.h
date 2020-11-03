@@ -153,7 +153,7 @@ class vtkStandardMeshRepresenter : public Representer<vtkPolyData> {
     vtkPolyData* LoadRefLegacy(const H5::Group& fg) const;
     vtkPolyData* LoadRef(const H5::Group& fg) const;
 
-    void WriteDataArray(const H5::CommonFG& group,  const std::string& name, const vtkDataArray* ds) const;
+    void WriteDataArray(const H5::H5Location& group,  const std::string& name, const vtkDataArray* ds) const;
     static vtkDataArray* GetAsDataArray(const H5::Group& group,  const std::string& name);
     static void FillDataArray(const statismo::GenericEigenType<double>::MatrixType& m, vtkDataArray* dataArray);
     DatasetPointerType m_reference;

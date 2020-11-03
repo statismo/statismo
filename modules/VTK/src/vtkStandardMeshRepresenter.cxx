@@ -434,7 +434,7 @@ void vtkStandardMeshRepresenter::SetReference(const vtkPolyData* reference) {
 }
 
 
-void vtkStandardMeshRepresenter::WriteDataArray(const H5::CommonFG& group,
+void vtkStandardMeshRepresenter::WriteDataArray(const H5::H5Location& group,
         const std::string& name, const vtkDataArray* _dataArray) const {
     vtkDataArray* dataArray = const_cast<vtkDataArray*>(_dataArray);
     unsigned numComponents = dataArray->GetNumberOfComponents();
