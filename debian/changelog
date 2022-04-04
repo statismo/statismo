@@ -1,4 +1,10 @@
-statismo (0.11.1) focal; urgency=medium
+statismo (0.11.1-jammy0) jammy; urgency=medium
+
+  * Jammy Jellyfish release
+
+ -- schlager <zarquon42@gmail.com>  Mon, 04 Apr 2022 09:57:19 +0200
+
+statismo (0.11.1-focal0) focal; urgency=medium
 
   * changed to VTK7
   
