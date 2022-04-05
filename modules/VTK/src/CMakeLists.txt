@@ -4,7 +4,7 @@ add_library( statismo_VTK ${statismo_LIB_TYPE}
 )
 target_link_libraries( statismo_VTK
   statismo_core
-  ${VTK_LIBRARIES}
+  ${VTK_LIBRARIES} ${ITK_LIBRARIES}
 )
 
 set_target_properties( statismo_VTK PROPERTIES
