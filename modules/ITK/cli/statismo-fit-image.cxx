@@ -48,7 +48,7 @@
 #if (ITK_VERSION_MAJOR >= 4 && ITK_VERSION_MINOR >= 6)
 #include <itkTransformToDisplacementFieldFilter.h>
 #else
-#include <itkTransformToDisplacementFieldSource.h>
+#include <itkTransformToDisplacementFieldFilter.h>
 #endif
 #include <itkVersorRigid3DTransform.h>
 #include <itkWarpImageFilter.h>
@@ -179,13 +179,13 @@ void saveImage(typename ImageType::Pointer pImage, const std::string& strOutputF
 
 template<class DisplacementFieldImageType, class ReferenceImageType, class TransformType>
 typename DisplacementFieldImageType::Pointer generateAndSaveDisplacementField(typename ReferenceImageType::Pointer pReferenceImage, typename TransformType::Pointer pTransform, const std::string& strOutputFileName) {
-#if (ITK_VERSION_MAJOR >= 4 && ITK_VERSION_MINOR >= 6)
+#if ((ITK_VERSION_MAJOR >= 4 && ITK_VERSION_MINOR >= 6) || ITK_VERSION_MAJOR > 4)
     typedef itk::TransformToDisplacementFieldFilter<DisplacementFieldImageType,	double>  DisplacementFieldGeneratorType;
     typename DisplacementFieldGeneratorType::Pointer pDispfieldGenerator = DisplacementFieldGeneratorType::New();
     pDispfieldGenerator->UseReferenceImageOn();
     pDispfieldGenerator->SetReferenceImage(pReferenceImage);
 #else
-    typedef typename itk::TransformToDisplacementFieldSource<DisplacementFieldImageType, double> DisplacementFieldGeneratorType;
+    typedef typename itk::TransformToDisplacementFieldFilter<DisplacementFieldImageType, double> DisplacementFieldGeneratorType;
     typename DisplacementFieldGeneratorType::Pointer pDispfieldGenerator = DisplacementFieldGeneratorType::New();
     pDispfieldGenerator->SetOutputParametersFromImage(pReferenceImage);
 #endif

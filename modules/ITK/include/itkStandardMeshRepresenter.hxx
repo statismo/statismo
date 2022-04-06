@@ -58,7 +58,7 @@ namespace itk {
 
 template <class TPixel, unsigned MeshDimension>
 StandardMeshRepresenter<TPixel, MeshDimension>::StandardMeshRepresenter()
-    : m_reference(0) {
+    : m_reference(nullptr) {
 }
 template <class TPixel, unsigned MeshDimension>
 StandardMeshRepresenter<TPixel, MeshDimension>::~StandardMeshRepresenter() {
